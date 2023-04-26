@@ -1,0 +1,40 @@
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version '3.0.6'
+        id 'io.spring.dependency-management' version '1.1.0'
+        id 'org.graalvm.buildtools.native' version '0.9.21'
+    }
+    repositories {
+        gradlePluginPortal()
+        maven { url 'https://repo.spring.io/release' }
+        maven { url 'https://repo1.maven.org/maven2/' }
+        maven { url 'https://repo.spring.io/milestone' }
+        mavenCentral()
+    }
+}
+
+
+rootProject.name = 'order-shop-refactor'
+include 'common'
+include 'web'
+include 'batch'
+include 'crawler'
+include 'service'
+include 'common:exception'
+include 'common:core'
+include 'common:mail'
+include 'common:analyzer'
+include 'common:annotation'
+include 'common:environment'
+include 'common:utils'
+
+findProject(':common:core')?.name = 'core'
+findProject(':common:mail')?.name = 'mail'
+findProject(':common:utils')?.name = 'utils'
+findProject(':common:analyzer')?.name = 'analyzer'
+findProject(':common:environment')?.name = 'environment'
+findProject(':common:annotation')?.name = 'annotation'
+findProject(':common:exception')?.name = 'exception'
+include 'annotation-processor'
+include 'aot'
+

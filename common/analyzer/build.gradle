@@ -1,0 +1,31 @@
+buildscript {
+    ext {
+        lunceneVersion = '9.5.0'
+        guavaVersion = '31.1-jre'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'java-library'
+}
+
+group = 'com.bachlinh.order'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":common:utils")
+    implementation "org.apache.lucene:lucene-core:${lunceneVersion}"
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+}
+
+test {
+    useJUnitPlatform()
+}

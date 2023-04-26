@@ -1,0 +1,42 @@
+buildscript {
+    ext {
+        googleLib = '2.2.0'
+        googleOauth = '1.16.1'
+        jakartaMail = '2.1.1'
+        gmailApi = 'v1-rev20230206-2.0.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'java-library'
+}
+
+group = 'com.bachlinh.order'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "com.google.api-client:google-api-client:${googleLib}"
+    implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth}"
+    implementation "com.google.apis:google-api-services-gmail:${gmailApi}"
+    implementation "jakarta.mail:jakarta.mail-api:${jakartaMail}"
+    implementation project(":common:utils")
+
+    annotationProcessor 'org.projectlombok:lombok'
+
+    constraints {
+        implementation("com.google.api-client:google-api-client:${googleLib}") {
+            because 'Sync with project'
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,52 @@
+buildscript {
+    ext {
+        jettyServerVersion = '11.0.15'
+    }
+}
+
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.graalvm.buildtools.native'
+}
+
+group = 'com.bachlinh.order'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jetty'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation "org.eclipse.jetty.http3:http3-server:${jettyServerVersion}"
+    implementation "org.eclipse.jetty.http2:http2-server:${jettyServerVersion}"
+    implementation "org.eclipse.jetty:jetty-alpn-server:${jettyServerVersion}"
+    implementation "org.eclipse.jetty:jetty-alpn-java-server:${jettyServerVersion}"
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+
+    compileOnly 'org.projectlombok:lombok'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    modules {
+        module("org.springframework.boot:spring-boot-starter-tomcat") {
+            replacedBy("org.springframework.boot:spring-boot-starter-jetty", "Use Jetty instead of Tomcat")
+        }
+        module("org.springframework.boot:spring-boot-starter-logging") {
+            replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of logging")
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
