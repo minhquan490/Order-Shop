@@ -1,7 +1,7 @@
 package com.bachlinh.order.core.entity;
 
-import com.bachlinh.order.core.entity.context.EntityContext;
-import com.bachlinh.order.core.entity.transaction.EntityTransactionManager;
+import com.bachlinh.order.core.entity.context.spi.EntityContext;
+import com.bachlinh.order.core.entity.transaction.spi.EntityTransactionManager;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;

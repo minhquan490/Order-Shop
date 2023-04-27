@@ -1,8 +1,8 @@
 package com.bachlinh.order.core.http.handler;
 
+import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.RequestMethod;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 
 public interface RequestHandler {

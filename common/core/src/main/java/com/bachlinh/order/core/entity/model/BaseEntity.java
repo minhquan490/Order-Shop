@@ -1,4 +1,18 @@
 package com.bachlinh.order.core.entity.model;
 
-public interface BaseEntity {
+import java.io.Serializable;
+import java.sql.Timestamp;
+
+public sealed interface BaseEntity extends Serializable, Comparable<BaseEntity>, Cloneable permits AbstractEntity {
+    Object getId();
+
+    void setId(Object id);
+
+    Object getCreatedBy();
+
+    Object getModifiedBy();
+
+    Timestamp getCreatedDate();
+
+    Timestamp getModifiedDate();
 }

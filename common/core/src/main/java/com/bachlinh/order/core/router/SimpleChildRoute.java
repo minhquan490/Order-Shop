@@ -1,10 +1,10 @@
 package com.bachlinh.order.core.router;
 
-import com.bachlinh.order.core.entity.transaction.EntityTransactionManager;
+import com.bachlinh.order.core.entity.transaction.spi.EntityTransactionManager;
+import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.RequestMethod;
 import com.bachlinh.order.core.http.converter.spi.ResponseConverter;
 import com.bachlinh.order.core.http.converter.spi.ServletCookieConverter;
 import com.bachlinh.order.core.http.handler.SpringServletHandler;
@@ -26,7 +26,6 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
     private final ChildRoute parent;
     private final String rootPath;
     private final ServletCookieConverter<NativeCookie> nativeCookieConverter = ServletCookieConverter.servletCookieConverter();
-    private final ResponseConverter<HttpServletResponse> responseConverter = ResponseConverter.servletResponseConverter();
 
     public SimpleChildRoute(@Nullable ChildRoute parent, String path, @Nullable String rootPath) {
         this.path = path;

@@ -6,6 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface ResponseConverter<T> extends Converter<NativeResponse<?>, T> {
     static ResponseConverter<HttpServletResponse> servletResponseConverter() {
-        return new HttpServletResponseConverter();
+        return HttpServletResponseConverter.getInstance();
     }
 }

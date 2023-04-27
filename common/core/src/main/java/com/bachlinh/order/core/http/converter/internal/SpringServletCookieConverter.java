@@ -5,6 +5,11 @@ import com.bachlinh.order.core.http.converter.spi.ServletCookieConverter;
 import jakarta.servlet.http.Cookie;
 
 public class SpringServletCookieConverter implements ServletCookieConverter<NativeCookie> {
+    private static final ServletCookieConverter<NativeCookie> INSTANCE = new SpringServletCookieConverter();
+
+    private SpringServletCookieConverter() {
+    }
+
     @Override
     public Cookie convert(NativeCookie message) {
         Cookie cookie = new Cookie(message.name(), message.value());
@@ -14,5 +19,9 @@ public class SpringServletCookieConverter implements ServletCookieConverter<Nati
         cookie.setSecure(message.secure());
         cookie.setMaxAge(message.maxAge());
         return cookie;
+    }
+
+    public static ServletCookieConverter<NativeCookie> getInstance() {
+        return INSTANCE;
     }
 }

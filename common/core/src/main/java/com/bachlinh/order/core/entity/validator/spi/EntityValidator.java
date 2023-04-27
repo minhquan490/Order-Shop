@@ -2,7 +2,7 @@ package com.bachlinh.order.core.entity.validator.spi;
 
 import com.bachlinh.order.core.entity.model.BaseEntity;
 
-public interface EntityValidator<T extends BaseEntity> {
+public sealed interface EntityValidator<T extends BaseEntity> permits AbstractValidator {
     /**
      * Validate the entity before save into a database.
      *

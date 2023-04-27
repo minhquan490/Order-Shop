@@ -29,6 +29,7 @@ dependencies {
     implementation project(":common:utils")
     implementation project(":common:exception")
     implementation project(":common:annotation")
+    implementation project(":common:environment")
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -41,6 +42,7 @@ dependencies {
     implementation "org.apache.lucene:lucene-analysis-common:${lunceneVersion}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     implementation "com.google.apis:google-api-services-gmail:${gmailApi}"
+    implementation 'org.hibernate.validator:hibernate-validator'
 
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     runtimeOnly "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"

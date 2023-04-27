@@ -5,6 +5,10 @@ import com.bachlinh.order.core.http.converter.spi.NativeCookieConverter;
 import jakarta.servlet.http.Cookie;
 
 public class ServletNativeCookieConverter implements NativeCookieConverter<Cookie> {
+    private static final NativeCookieConverter<Cookie> INSTANCE = new ServletNativeCookieConverter();
+
+    private ServletNativeCookieConverter() {
+    }
 
     @Override
     public NativeCookie convert(Cookie cookie) {
@@ -15,5 +19,9 @@ public class ServletNativeCookieConverter implements NativeCookieConverter<Cooki
                 cookie.getValue(),
                 cookie.getName(),
                 cookie.getDomain());
+    }
+
+    public static NativeCookieConverter<Cookie> getInstance() {
+        return INSTANCE;
     }
 }

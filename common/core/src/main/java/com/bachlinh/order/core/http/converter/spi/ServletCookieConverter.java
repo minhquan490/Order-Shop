@@ -6,6 +6,6 @@ import jakarta.servlet.http.Cookie;
 
 public interface ServletCookieConverter<T> extends Converter<Cookie, T> {
     static ServletCookieConverter<NativeCookie> servletCookieConverter() {
-        return new SpringServletCookieConverter();
+        return SpringServletCookieConverter.getInstance();
     }
 }

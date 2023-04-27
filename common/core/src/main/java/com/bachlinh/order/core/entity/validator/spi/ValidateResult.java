@@ -16,4 +16,10 @@ public interface ValidateResult {
      * @return messages error
      */
     Collection<String> getMessages();
+
+    void addMessageError(String message);
+
+    static ValidateResult getInstance() {
+        return new Result();
+    }
 }

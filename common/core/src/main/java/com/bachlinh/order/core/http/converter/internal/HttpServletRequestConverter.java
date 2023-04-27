@@ -26,7 +26,7 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
 
     public HttpServletRequestConverter() {
         this.parser = new ServletRequestBodyParser();
-        this.nativeCookieConverter = new ServletNativeCookieConverter();
+        this.nativeCookieConverter = NativeCookieConverter.nativeCookieConverter();
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.bachlinh.order.core.entity.trigger.spi;
 
 import com.bachlinh.order.core.entity.model.BaseEntity;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
 
-public interface EntityTrigger<T extends BaseEntity> {
+public sealed interface EntityTrigger<T extends BaseEntity> permits AbstractTrigger {
     /**
      * Execute operation on specific entity.
      *

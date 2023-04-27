@@ -9,10 +9,19 @@ import org.springframework.util.MultiValueMap;
 import java.util.ArrayList;
 
 public class HttpServletResponseConverter implements ResponseConverter<HttpServletResponse> {
+    private static final ResponseConverter<HttpServletResponse> INSTANCE = new HttpServletResponseConverter();
+
+    private HttpServletResponseConverter() {
+    }
+
     @Override
     public NativeResponse<?> convert(HttpServletResponse message) {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         message.getHeaderNames().forEach(name -> headers.put(name, new ArrayList<>(message.getHeaders(name))));
         return NativeResponse.builder().headers(headers).build();
+    }
+
+    public static ResponseConverter<HttpServletResponse> getInstance() {
+        return INSTANCE;
     }
 }
