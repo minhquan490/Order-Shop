@@ -10,7 +10,7 @@ import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-final class CertificateFileSslStoreProvider implements SslStoreProvider {
+public final class CertificateFileSslStoreProvider implements SslStoreProvider {
     /**
      * The password of the private key entry in the {@link #getKeyStore provided
      * KeyStore}.

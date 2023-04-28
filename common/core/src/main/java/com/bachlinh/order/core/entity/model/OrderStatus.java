@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
@@ -15,11 +16,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
+@Setter(onMethod_ = @ActiveReflection)
 @Entity
 @Table(name = "ORDER_STATUS")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.OrderStatusValidator")
+@ActiveReflection
 public class OrderStatus extends AbstractEntity {
 
     @Id

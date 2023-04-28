@@ -21,9 +21,11 @@ repositories {
 
 dependencies {
     implementation project(":common:utils")
+    implementation project(":common:annotation")
+    implementation project(":common:exception")
     implementation "org.apache.lucene:lucene-core:${lunceneVersion}"
     implementation "com.google.guava:guava:${guavaVersion}"
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 test {

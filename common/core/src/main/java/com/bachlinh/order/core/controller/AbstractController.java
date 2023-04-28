@@ -5,6 +5,7 @@ import com.bachlinh.order.core.NativeMethodHandleRequestMetadataReader;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 
@@ -58,7 +59,7 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
                     .builder()
                     .statusCode(res.getStatusCode().value())
                     .body(res.getBody())
-                    .headers(res.getHeaders())
+                    .headers(new LinkedMultiValueMap<>(res.getHeaders()))
                     .build());
         }
         if (NativeResponse.class.isAssignableFrom(returnValue.getClass())) {

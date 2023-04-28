@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
@@ -23,11 +24,12 @@ import lombok.Setter;
 import java.util.Set;
 
 @Getter
-@Setter
+@Setter(onMethod_ = @ActiveReflection)
 @Entity
 @Table(name = "CART", indexes = @Index(name = "idx_cart_customer", columnList = "CUSTOMER_ID"))
 @Label("CRT-")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
+@ActiveReflection
 public class Cart extends AbstractEntity {
 
     @Id

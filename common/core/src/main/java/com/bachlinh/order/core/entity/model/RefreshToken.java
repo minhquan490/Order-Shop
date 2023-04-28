@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
@@ -22,9 +23,10 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "REFRESH_TOKEN", indexes = @Index(name = "idx_token_value", columnList = "VALUE"))
 @Getter
-@Setter
+@Setter(onMethod_ = @ActiveReflection)
 @Label("RFT-")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
+@ActiveReflection
 public class RefreshToken extends AbstractEntity {
 
     @Id

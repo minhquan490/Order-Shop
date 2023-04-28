@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.trigger.spi;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Ignore;
 import com.bachlinh.order.core.entity.model.AbstractEntity;
 import com.bachlinh.order.core.entity.model.BaseEntity;
@@ -19,10 +20,12 @@ import java.util.Optional;
 @Ignore
 @Log4j2
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
+@ActiveReflection
 public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
     private AuditorAware<Object> entityAuditor;
     private final TriggerMode mode;
 
+    @ActiveReflection
     public AuditingTrigger(ApplicationContext applicationContext, TriggerMode mode) {
         super(applicationContext);
         this.mode = mode;

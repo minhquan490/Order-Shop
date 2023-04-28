@@ -2,10 +2,10 @@ package com.bachlinh.order.core.http;
 
 import com.bachlinh.order.core.http.converter.internal.HttpServletRequestConverter;
 import com.bachlinh.order.core.http.converter.spi.RequestConverter;
+import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -30,6 +30,8 @@ dependencies {
     implementation project(":common:exception")
     implementation project(":common:annotation")
     implementation project(":common:environment")
+    implementation project(":common:analyzer")
+    implementation project(":common:repository")
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

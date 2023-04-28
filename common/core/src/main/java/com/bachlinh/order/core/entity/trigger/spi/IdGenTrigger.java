@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.trigger.spi;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.entity.EntityFactory;
 import com.bachlinh.order.core.entity.context.spi.EntityContext;
 import com.bachlinh.order.core.entity.model.BaseEntity;
@@ -14,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@ActiveReflection
 public class IdGenTrigger extends AbstractTrigger<BaseEntity> {
     private EntityFactory entityFactory;
 
+    @ActiveReflection
     public IdGenTrigger(ApplicationContext applicationContext) {
         super(applicationContext);
         setRunSync(true);

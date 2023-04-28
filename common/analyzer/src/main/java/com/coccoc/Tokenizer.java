@@ -1,10 +1,12 @@
 package com.coccoc;
 
+import com.bachlinh.order.annotation.Native;
 import com.bachlinh.order.utils.UnsafeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Native
 public class Tokenizer {
     public static final String DEFAULT_LIB_LOCATION = "coccoc_tokenizer_jni";
 
@@ -85,9 +87,12 @@ public class Tokenizer {
         return tokens;
     }
 
+    @Native
     public native long segmentPointer(String text, boolean forTransforming, int tokenizeOption, boolean keepPunctuation);
 
+    @Native
     private native void freeMemory(long resPointer);
 
+    @Native
     private native int initialize(String dictPath);
 }

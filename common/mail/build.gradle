@@ -27,6 +27,8 @@ dependencies {
     implementation "com.google.apis:google-api-services-gmail:${gmailApi}"
     implementation "jakarta.mail:jakarta.mail-api:${jakartaMail}"
     implementation project(":common:utils")
+    implementation project(":common:core")
+    implementation project(":common:exception")
 
     annotationProcessor 'org.projectlombok:lombok'
 

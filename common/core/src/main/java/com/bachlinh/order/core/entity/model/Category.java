@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Validator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,12 +30,13 @@ import java.util.Set;
 @Entity
 @Table(name = "CATEGORY", indexes = @Index(name = "idx_category_name", columnList = "NAME", unique = true))
 @Getter
-@Setter
+@Setter(onMethod_ = @ActiveReflection)
 @Label("CTR-")
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.CategoryValidator")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "category")
+@ActiveReflection
 public class Category extends AbstractEntity {
 
     @Id

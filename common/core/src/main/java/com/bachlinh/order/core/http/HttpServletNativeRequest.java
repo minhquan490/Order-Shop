@@ -1,8 +1,8 @@
 package com.bachlinh.order.core.http;
 
+import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Setter;
-import org.springframework.util.MultiValueMap;
 
 @Setter
 public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> {

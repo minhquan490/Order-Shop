@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
@@ -17,12 +18,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
+@Setter(onMethod_ = @ActiveReflection)
 @Label("ADR-")
 @Entity
 @Table(name = "ADDRESS")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.AddressValidator")
+@ActiveReflection
 public class Address extends AbstractEntity {
 
     @Id

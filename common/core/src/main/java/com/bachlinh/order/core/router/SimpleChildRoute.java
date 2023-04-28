@@ -9,12 +9,12 @@ import com.bachlinh.order.core.http.converter.spi.ResponseConverter;
 import com.bachlinh.order.core.http.converter.spi.ServletCookieConverter;
 import com.bachlinh.order.core.http.handler.SpringServletHandler;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
+import com.bachlinh.order.utils.map.LinkedMultiValueMap;
+import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,7 +60,7 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
             setNativeRequest(NativeRequest.buildNativeFromServletRequest(servletRequest));
             setNativeResponse(parseFrom(servletResponse));
             RequestMethod method = RequestMethod.valueOf(servletRequest.getMethod());
-            NativeResponse<?> nativeResponse = handleRequest(NativeRequest.buildNativeFromServletRequest(servletRequest), controllerPath, method);
+            NativeResponse<?> nativeResponse = handleRequest(getNativeRequest(), controllerPath, method);
             if (nativeResponse.getCookies() != null) {
                 for (NativeCookie cookie : nativeResponse.getCookies()) {
                     servletResponse.addCookie(nativeCookieConverter.convert(cookie));

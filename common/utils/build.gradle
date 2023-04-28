@@ -22,11 +22,13 @@ repositories {
 
 dependencies {
     implementation project(":common:exception")
+    implementation project(":common:annotation")
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "org.apache.commons:commons-lang3:${commonLang3Version}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     implementation "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
 
+    compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly 'org.projectlombok:lombok'
 
     annotationProcessor 'org.projectlombok:lombok'

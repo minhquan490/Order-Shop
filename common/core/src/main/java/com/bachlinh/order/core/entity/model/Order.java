@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
@@ -31,13 +32,14 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "ORDERS", indexes = @Index(name = "idx_order_customer", columnList = "CUSTOMER_ID"))
 @Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Setter(onMethod_ = @ActiveReflection)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "order")
 @Label("ODR-")
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.OrderValidator")
 @Trigger(triggers = {"com.bachlinh.order.core.entity.trigger.internal.OrderHistoryTrigger", "com.bachlinh.order.core.entity.trigger.internal.NewOrderPushingTrigger"})
+@ActiveReflection
 public class Order extends AbstractEntity {
 
     @Id

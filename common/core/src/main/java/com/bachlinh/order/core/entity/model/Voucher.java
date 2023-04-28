@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
@@ -19,11 +20,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "VOUCHER")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Label("VOU-")
 @Getter
-@Setter
+@Setter(onMethod_ = @ActiveReflection)
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.VoucherValidator")
+@ActiveReflection
 public class Voucher extends AbstractEntity {
 
     @Id

@@ -1,5 +1,6 @@
 package com.bachlinh.order.analyzer;
 
+import com.bachlinh.order.exception.system.LuceneException;
 import org.apache.lucene.analysis.CharArraySet;
 
 import java.io.File;
@@ -35,11 +36,15 @@ class DefaultStopWordLoader implements StopWordLoader {
             if (stopwordPath == null) {
                 ClassLoader classLoader = ClassLoader.getSystemClassLoader();
                 URL stopwordURL = classLoader.getResource("stop-word.txt");
+                if (stopwordURL == null) {
+                    throw new LuceneException("Can not determine stopword file");
+                }
                 stopwordPath = stopwordURL.getPath();
             }
             FileChannel channel = openChannel(stopwordPath);
             Collection<Byte> bytes = load(channel, new ArrayList<>());
-            return parseBuffer(bytes);
+            cachingStopWord = parseBuffer(bytes);
+            return cachingStopWord;
         }
         return cachingStopWord;
     }

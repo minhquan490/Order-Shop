@@ -1,9 +1,10 @@
 package com.bachlinh.order.core.entity.validator.internal;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.entity.model.Customer;
 import com.bachlinh.order.core.entity.validator.spi.AbstractValidator;
 import com.bachlinh.order.core.entity.validator.spi.ValidateResult;
-import com.bachlinh.order.core.repository.CustomerRepository;
+import com.bachlinh.order.repository.CustomerRepository;
 import org.hibernate.validator.internal.util.DomainNameUtil;
 import org.springframework.context.ApplicationContext;
 
@@ -12,9 +13,11 @@ import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
+@ActiveReflection
 public class CustomerValidator extends AbstractValidator<Customer> {
     private CustomerRepository customerRepository;
 
+    @ActiveReflection
     public CustomerValidator(ApplicationContext context) {
         super(context);
     }

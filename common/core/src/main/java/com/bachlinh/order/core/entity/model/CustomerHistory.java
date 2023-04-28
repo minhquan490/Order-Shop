@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.enums.RequestType;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
@@ -20,10 +21,11 @@ import java.sql.Date;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Setter(onMethod_ = @ActiveReflection)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Entity
 @Table(name = "CUSTOMER_HISTORY", indexes = @Index(name = "idx_history_customer", columnList = "CUSTOMER_ID"))
+@ActiveReflection
 public class CustomerHistory extends AbstractEntity {
 
     @Id

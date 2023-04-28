@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Validator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
@@ -19,11 +20,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Setter(onMethod_ = @ActiveReflection)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Entity
 @Table(name = "ORDER_DETAIL", indexes = @Index(name = "idx_order", columnList = "ORDER_ID"))
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.OrderDetailValidator")
+@ActiveReflection
 public class OrderDetail extends AbstractEntity {
 
     @Id

@@ -2,9 +2,7 @@ package com.bachlinh.order.core.http.translator.internal;
 
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.spi.AbstractExceptionTranslator;
-import org.springframework.context.annotation.ComponentScan;
 
-@ComponentScan("com.order.bachlinh.web.routes.advice")
 public class JsonStringExceptionTranslator extends AbstractExceptionTranslator<String> {
 
     @Override

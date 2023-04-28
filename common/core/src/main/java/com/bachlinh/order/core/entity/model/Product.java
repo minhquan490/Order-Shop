@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
@@ -32,18 +33,16 @@ import java.util.Set;
                 @Index(name = "idx_product_name", columnList = "NAME", unique = true)
         }
 )
-@Getter
-@Setter
+@Getter(onMethod_ = @ActiveReflection)
+@Setter(onMethod_ = @ActiveReflection)
 @Label("PRD-")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.ProductValidator")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "product")
-@EnableFullTextSearch(fields = {
-        @FullTextField("name"),
-        @FullTextField("color")
-})
+@EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.ProductIndexTrigger")
+@ActiveReflection
 public class Product extends AbstractEntity {
 
     @Id
@@ -51,6 +50,7 @@ public class Product extends AbstractEntity {
     private String id;
 
     @Column(name = "NAME", unique = true, nullable = false, columnDefinition = "nvarchar(100)")
+    @FullTextField
     private String name;
 
     @Column(name = "PRICE", nullable = false)
@@ -60,6 +60,7 @@ public class Product extends AbstractEntity {
     private String size;
 
     @Column(name = "COLOR", columnDefinition = "nvarchar(30)", nullable = false)
+    @FullTextField
     private String color;
 
     @Column(name = "TAO_BAO_URL")

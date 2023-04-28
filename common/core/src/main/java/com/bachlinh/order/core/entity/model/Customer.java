@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
@@ -33,8 +34,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-@Getter
-@Setter
+@Getter(onMethod_ = @ActiveReflection)
+@Setter(onMethod_ = @ActiveReflection)
 @Entity
 @Label("CSR-")
 @Table(
@@ -45,17 +46,13 @@ import java.util.Set;
                 @Index(name = "idx_customer_email", columnList = "EMAIL", unique = true)
         }
 )
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "customer")
-@EnableFullTextSearch(fields = {
-        @FullTextField("username"),
-        @FullTextField("firstName"),
-        @FullTextField("lastName"),
-        @FullTextField("phoneNumber")
-})
+@EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.CustomerIndexTrigger")
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.CustomerValidator")
+@ActiveReflection
 public class Customer extends AbstractEntity implements UserDetails {
 
     @Id
@@ -63,18 +60,22 @@ public class Customer extends AbstractEntity implements UserDetails {
     private String id;
 
     @Column(name = "USER_NAME", unique = true, nullable = false, length = 24, columnDefinition = "nvarchar")
+    @FullTextField
     private String username;
 
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
     @Column(name = "FIRST_NAME", nullable = false, columnDefinition = "nvarchar(36)")
+    @FullTextField
     private String firstName;
 
     @Column(name = "LAST_NAME", nullable = false, columnDefinition = "nvarchar(36)")
+    @FullTextField
     private String lastName;
 
     @Column(name = "PHONE_NUMBER", nullable = false, unique = true, length = 10)
+    @FullTextField
     private String phoneNumber;
 
     @Column(name = "EMAIL", nullable = false, unique = true, length = 32, columnDefinition = "nvarchar")

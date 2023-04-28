@@ -13,9 +13,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface EnableFullTextSearch {
-
-    /**
-     * All field for apply full text search to
-     */
-    FullTextField[] fields();
 }

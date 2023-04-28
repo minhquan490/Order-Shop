@@ -1,7 +1,7 @@
 package com.bachlinh.order.core.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Validator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,9 +21,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "PRODUCT_MEDIA", indexes = @Index(name = "idx_product_media_product", columnList = "PRODUCT_ID"))
 @Getter
-@Setter
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Setter(onMethod_ = @ActiveReflection)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @ActiveReflection)
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.ProductPictureValidator")
+@ActiveReflection
 public class ProductMedia extends AbstractEntity {
 
     @Id
@@ -41,7 +42,6 @@ public class ProductMedia extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false)
-    @JsonIgnore
     private Product product;
 
     @Override

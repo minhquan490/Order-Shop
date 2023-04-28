@@ -1,6 +1,13 @@
 package com.bachlinh.order.core.http.ssl.spi;
 
+import com.bachlinh.order.core.http.ssl.internal.SimpleSsl;
+
 public interface Ssl {
+
+    static Ssl simpleInstance() {
+        return new SimpleSsl();
+    }
+
     boolean isEnabled();
 
     void setEnabled(boolean enabled);

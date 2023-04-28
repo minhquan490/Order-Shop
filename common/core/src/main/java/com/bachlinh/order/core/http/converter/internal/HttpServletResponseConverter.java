@@ -2,9 +2,9 @@ package com.bachlinh.order.core.http.converter.internal;
 
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.converter.spi.ResponseConverter;
+import com.bachlinh.order.utils.map.LinkedMultiValueMap;
+import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 
