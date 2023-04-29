@@ -21,17 +21,20 @@ repositories {
 
 dependencies {
     implementation project(":aot")
-    implementation project(":common:core")
     implementation project(":common:annotation")
+    implementation project(":common:core")
+    implementation project(":common:entity")
+    implementation project(":common:handler")
+    implementation project(":common:security")
+    implementation project(":common:utils")
+    implementation project(":service")
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation "org.eclipse.jetty.http3:http3-server:${jettyServerVersion}"
-    implementation "org.eclipse.jetty.http2:http2-server:${jettyServerVersion}"
-    implementation "org.eclipse.jetty:jetty-alpn-server:${jettyServerVersion}"
-    implementation "org.eclipse.jetty:jetty-alpn-java-server:${jettyServerVersion}"
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 
     compileOnly 'org.projectlombok:lombok'
 

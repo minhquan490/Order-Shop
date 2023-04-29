@@ -1,7 +1,7 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.core.entity.model.Customer;
-import com.bachlinh.order.core.entity.model.CustomerHistory;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.CustomerHistory;
 
 import java.sql.Date;
 import java.util.Collection;

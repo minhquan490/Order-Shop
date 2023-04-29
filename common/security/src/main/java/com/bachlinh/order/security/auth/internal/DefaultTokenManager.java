@@ -1,8 +1,8 @@
 package com.bachlinh.order.security.auth.internal;
 
-import com.bachlinh.order.core.entity.EntityFactory;
-import com.bachlinh.order.core.entity.model.Customer;
-import com.bachlinh.order.core.entity.model.RefreshToken;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.JwtDecoder;
 import com.bachlinh.order.security.auth.spi.JwtEncoder;

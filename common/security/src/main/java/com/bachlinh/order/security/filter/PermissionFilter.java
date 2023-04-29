@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.filter;
 
-import com.bachlinh.order.core.entity.model.Customer;
-import com.bachlinh.order.core.enums.Role;
+import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.AccessDeniedException;
 import com.bachlinh.order.security.handler.AccessDeniedHandler;

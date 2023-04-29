@@ -1,6 +1,6 @@
 package com.bachlinh.order.security.auth.spi;
 
-import com.bachlinh.order.core.entity.model.RefreshToken;
+import com.bachlinh.order.entity.model.RefreshToken;
 
 import java.util.Optional;
 

@@ -1,6 +1,6 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.core.entity.model.RefreshToken;
+import com.bachlinh.order.entity.model.RefreshToken;
 
 public interface RefreshTokenRepository {
 

@@ -1,21 +1,21 @@
 package com.bachlinh.order.security.helper;
 
-import com.bachlinh.order.core.entity.model.Customer;
-import com.bachlinh.order.core.entity.model.Customer_;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.utils.HeaderUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 public final class AuthenticationHelper {
+
+    private AuthenticationHelper() {
+    }
 
     public static Map<String, Object> parseAuthentication(HttpServletRequest request, HttpServletResponse response, TokenManager tokenManager) {
         Map<String, Object> claims = new HashMap<>();

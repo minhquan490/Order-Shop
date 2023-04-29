@@ -1,7 +1,6 @@
 package com.bachlinh.order.security.filter;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -11,13 +10,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * @author Hoang Minh Quan
  */
-@RequiredArgsConstructor
 @Getter
 public abstract class AbstractWebFilter extends OncePerRequestFilter {
     private final ApplicationContext applicationContext;
 
+    protected AbstractWebFilter(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     @Override
     protected boolean shouldNotFilterAsyncDispatch() {
         return false;
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return this.applicationContext;
     }
 }

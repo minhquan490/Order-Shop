@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.core.entity.model.Customer;
-import com.bachlinh.order.repository.spi.Condition;
-import com.bachlinh.order.repository.spi.Join;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.repository.query.Condition;
+import com.bachlinh.order.repository.query.Join;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

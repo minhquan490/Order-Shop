@@ -1,16 +1,16 @@
 package com.bachlinh.order.security.filter;
 
-import com.bachlinh.order.core.entity.EntityFactory;
-import com.bachlinh.order.core.entity.model.Customer;
-import com.bachlinh.order.core.entity.model.CustomerHistory;
-import com.bachlinh.order.core.entity.model.Customer_;
-import com.bachlinh.order.core.entity.model.RefreshToken;
-import com.bachlinh.order.core.enums.RequestType;
-import com.bachlinh.order.core.enums.Role;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.CustomerHistory;
+import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.repository.CustomerHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.security.enums.RequestType;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
