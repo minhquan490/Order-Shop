@@ -38,6 +38,7 @@ public class OrderHistory extends AbstractEntity {
     public void setId(Object id) {
         if (id instanceof Integer) {
             this.id = (int) id;
+            return;
         }
         throw new PersistenceException("Can not set id for order history, supported only integer");
     }

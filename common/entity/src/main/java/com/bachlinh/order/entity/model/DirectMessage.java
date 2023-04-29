@@ -52,6 +52,7 @@ public class DirectMessage extends AbstractEntity {
     public void setId(Object id) {
         if (id instanceof Integer casted) {
             this.id = casted;
+            return;
         }
         throw new PersistenceException("Id of direct message must be integer");
     }

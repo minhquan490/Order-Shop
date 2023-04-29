@@ -7,10 +7,9 @@ import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerHistoryRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
@@ -21,9 +20,9 @@ import java.sql.Date;
 import java.util.Collection;
 
 @Repository
-@Log4j2
-@Primary
 class CustomerHistoryRepositoryImpl extends AbstractRepository<CustomerHistory, Integer> implements CustomerHistoryRepository {
+
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(CustomerHistoryRepositoryImpl.class);
 
     @Autowired
     CustomerHistoryRepositoryImpl(ApplicationContext applicationContext) {

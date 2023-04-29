@@ -51,6 +51,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     annotationProcessor "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
+    annotationProcessor 'org.projectlombok:lombok'
 }
 
 

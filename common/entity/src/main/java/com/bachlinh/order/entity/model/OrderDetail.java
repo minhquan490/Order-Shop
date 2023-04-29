@@ -25,7 +25,7 @@ public class OrderDetail extends AbstractEntity {
     private Integer id;
 
     @Column(name = "AMOUNT", nullable = false)
-    private int amount;
+    private Integer amount;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false, updatable = false)

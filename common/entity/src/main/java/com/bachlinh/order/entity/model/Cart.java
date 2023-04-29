@@ -3,20 +3,19 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.google.common.base.Objects;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Table(name = "CART", indexes = @Index(name = "idx_cart_customer", columnList = "CUSTOMER_ID"))
@@ -32,15 +31,8 @@ public class Cart extends AbstractEntity {
     @JoinColumn(name = "CUSTOMER_ID", unique = true, nullable = false, updatable = false)
     private Customer customer;
 
-    @ManyToMany
-    @JoinTable(
-            name = "PRODUCT_CART",
-            joinColumns = @JoinColumn(name = "CART_ID", referencedColumnName = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID"),
-            indexes = @Index(name = "idx_product_cart", columnList = "CART_ID, PRODUCT_ID"),
-            uniqueConstraints = @UniqueConstraint(name = "udx", columnNames = "CART_ID")
-    )
-    private Set<Product> products;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "cart", orphanRemoval = true)
+    private Collection<CartDetail> cartDetails;
 
     @ActiveReflection
     Cart() {
@@ -78,8 +70,8 @@ public class Cart extends AbstractEntity {
     }
 
     @ActiveReflection
-    public Set<Product> getProducts() {
-        return this.products;
+    public Collection<CartDetail> getCartDetails() {
+        return cartDetails;
     }
 
     @ActiveReflection
@@ -88,7 +80,7 @@ public class Cart extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setProducts(Set<Product> products) {
-        this.products = products;
+    public void setCartDetails(Collection<CartDetail> cartDetails) {
+        this.cartDetails = cartDetails;
     }
 }

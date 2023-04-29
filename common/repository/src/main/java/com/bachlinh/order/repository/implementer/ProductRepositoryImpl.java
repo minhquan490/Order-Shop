@@ -10,7 +10,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @Repository
-@Primary
 class ProductRepositoryImpl extends AbstractRepository<Product, String> implements ProductRepository {
     private static final String LIKE_PATTERN = "%{0}%";
 

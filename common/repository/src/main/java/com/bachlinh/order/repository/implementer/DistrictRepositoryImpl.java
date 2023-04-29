@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 
 @Repository
-@Primary
-public class DistrictRepositoryImpl extends AbstractRepository<District, Integer> implements DistrictRepository {
+class DistrictRepositoryImpl extends AbstractRepository<District, Integer> implements DistrictRepository {
 
     @Autowired
     DistrictRepositoryImpl(ApplicationContext context) {

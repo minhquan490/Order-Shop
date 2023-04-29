@@ -1,15 +1,15 @@
 package com.bachlinh.order.web;
 
+import com.bachlinh.order.annotation.SpringApplication;
 import com.bachlinh.order.aot.GlobalReflectiveRuntimeHint;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.bachlinh.order.core.Application;
 import org.springframework.context.annotation.ImportRuntimeHints;
 
-@SpringBootApplication
+@SpringApplication
 @ImportRuntimeHints(GlobalReflectiveRuntimeHint.class)
 public class OrderShopApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderShopApplication.class, args);
+        Application.run(OrderShopApplication.class, args);
     }
 }

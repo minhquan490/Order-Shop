@@ -14,7 +14,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +34,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @Repository
-@Primary
 class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implements CustomerRepository {
     private final AtomicLong customerCount = new AtomicLong(0);
 

@@ -51,6 +51,7 @@ public class EmailTemplateFolder extends AbstractEntity {
     public void setId(Object id) {
         if (id instanceof String casted) {
             this.id = casted;
+            return;
         }
         throw new PersistenceException("Id of email template folder must be string");
     }

@@ -59,6 +59,7 @@ public class EmailTemplate extends AbstractEntity {
     public void setId(Object id) {
         if (id instanceof String casted) {
             this.id = casted;
+            return;
         }
         throw new PersistenceException("Id of email template must be string");
     }

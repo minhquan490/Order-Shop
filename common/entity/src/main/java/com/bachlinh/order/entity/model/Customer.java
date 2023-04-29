@@ -132,6 +132,7 @@ public class Customer extends AbstractEntity implements UserDetails {
     public void setId(Object id) {
         if (id instanceof String casted) {
             this.id = casted;
+            return;
         }
         throw new PersistenceException("Id of customer is only string");
     }

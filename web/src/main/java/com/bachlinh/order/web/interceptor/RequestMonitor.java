@@ -3,7 +3,7 @@ package com.bachlinh.order.web.interceptor;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.utils.HeaderUtils;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StopWatch;
@@ -12,8 +12,8 @@ import org.springframework.web.context.request.WebRequestInterceptor;
 
 import java.util.Map;
 
-@Log4j2
 public final class RequestMonitor implements WebRequestInterceptor {
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(RequestMonitor.class);
     private final ThreadLocal<StopWatch> clock = new ThreadLocal<>();
     private final TokenManager tokenManager;
 

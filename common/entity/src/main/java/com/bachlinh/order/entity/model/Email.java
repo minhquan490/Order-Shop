@@ -79,6 +79,7 @@ public class Email extends AbstractEntity {
     public void setId(Object id) {
         if (id instanceof String casted) {
             this.id = casted;
+            return;
         }
         throw new PersistenceException("Id of email received must be string");
     }

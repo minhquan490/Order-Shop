@@ -12,7 +12,6 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeHint;
 import org.springframework.aot.hint.TypeReference;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.NonNull;
 
@@ -36,7 +35,6 @@ import static org.springframework.aot.hint.MemberCategory.INVOKE_PUBLIC_CONSTRUC
 import static org.springframework.aot.hint.MemberCategory.INVOKE_PUBLIC_METHODS;
 import static org.springframework.aot.hint.MemberCategory.PUBLIC_FIELDS;
 
-@ComponentScan("org.spring.hint")
 public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
     private static final Pattern classPattern = Pattern.compile("^\\S+(.class)$");
 
@@ -44,19 +42,7 @@ public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
 
     @Override
     public void registerHints(@NonNull RuntimeHints hints, ClassLoader classLoader) {
-        try {
-            hints.reflection().registerType(Class.forName("sun.misc.Unsafe"), builder -> {
-                builder.withField("theUnsafe");
-                builder.withMembers(DECLARED_FIELDS);
-            });
-        } catch (ClassNotFoundException e) {
-            // Ignore
-        }
-
-        Collection<ClassMetadata> classMetadata = new LinkedHashSet<>();
-        for (String basePackage : this.getClass().getAnnotation(ComponentScan.class).value()) {
-            classMetadata.addAll(serviceLoader.loadClass(basePackage));
-        }
+        Collection<ClassMetadata> classMetadata = new LinkedHashSet<>(serviceLoader.loadClass("com.bachlinh.order"));
         List<ClassMetadata> filteredClassMetadata = classMetadata.stream().filter(this::filtered).toList();
         registerReflection(filteredClassMetadata, hints);
         List<ClassMetadata> serializableMetadata = classMetadata.stream().filter(ClassMetadata::isSerializable).toList();
