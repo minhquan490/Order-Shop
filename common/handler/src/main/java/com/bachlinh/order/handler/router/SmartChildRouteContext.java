@@ -11,5 +11,5 @@ public interface SmartChildRouteContext extends ChildRouteContext {
 
     void evictCache(String path);
 
-    <T, U> ResponseEntity<T> handleRequest(U request, String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse);
+    <T> ResponseEntity<T> handleRequest(String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse);
 }

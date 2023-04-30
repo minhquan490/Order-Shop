@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,14 +39,16 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
     private final String stopWordPath;
     private final Collection<Class<?>> entities;
     private final ThreadPoolTaskExecutor executor;
+    private final String profile;
 
-    public DefaultSearchManagerFactory(String indexFilePath, String[] indexNames, boolean useStandard, String stopWordPath, Collection<Class<?>> entities, ThreadPoolTaskExecutor executor) {
+    public DefaultSearchManagerFactory(String indexFilePath, String[] indexNames, boolean useStandard, String stopWordPath, Collection<Class<?>> entities, ThreadPoolTaskExecutor executor, String profile) {
         this.indexFilePath = indexFilePath;
         this.indexNames = indexNames;
         this.useStandard = useStandard;
         this.stopWordPath = stopWordPath;
         this.entities = entities;
         this.executor = executor;
+        this.profile = profile;
     }
 
     @Override
@@ -58,7 +61,7 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
         if (useStandard) {
             return new SimpleSearchManager(directoryHolderMap, configWriter(new StandardAnalyzer()), executor);
         } else {
-            Environment environment = Environment.getInstance("common");
+            Environment environment = Environment.getInstance(profile);
             Analyzer analyzer = new VietnameseAnalyzer(new VietnameseConfig(environment.getProperty("server.tokenizer.path"), new InternalStopWordLoader(stopWordPath).loadStopWord()));
             return new SimpleSearchManager(directoryHolderMap, configWriter(analyzer), executor);
         }
@@ -99,6 +102,7 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
         private String stopWordPath;
         private Collection<Class<?>> entities;
         private ThreadPoolTaskExecutor executor;
+        private String profile;
 
         @Override
         public SearchManagerFactory.Builder indexFilePath(String path) {
@@ -137,8 +141,16 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
         }
 
         @Override
+        public SearchManagerFactory.Builder profile(String profile) {
+            String p = Objects.requireNonNull(profile, "Profile must not be null");
+            this.profile = p;
+            return this;
+        }
+
+        @Override
         public SearchManagerFactory build() {
-            return new DefaultSearchManagerFactory(indexFilePath, indexNames, useStandard, stopWordPath, entities, executor);
+            Objects.requireNonNull(profile, "Profile must be specific");
+            return new DefaultSearchManagerFactory(indexFilePath, indexNames, useStandard, stopWordPath, entities, executor, profile);
         }
     }
 

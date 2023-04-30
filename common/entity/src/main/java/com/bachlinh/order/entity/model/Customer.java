@@ -28,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -105,13 +106,13 @@ public class Customer extends AbstractEntity implements UserDetails {
     private RefreshToken refreshToken;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    private Set<Address> addresses;
+    private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    private Set<Order> orders;
+    private Set<Order> orders = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    private Set<CustomerHistory> histories;
+    private Set<CustomerHistory> histories = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(

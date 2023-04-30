@@ -17,6 +17,8 @@ dependencies {
     implementation project(":common:core")
     implementation project(":common:utils")
     implementation project(":common:exception")
+    implementation project(":common:environment")
+    implementation project(":service")
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
 }

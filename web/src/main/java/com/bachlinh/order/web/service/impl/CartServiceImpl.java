@@ -10,11 +10,12 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.repository.CartRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.service.AbstractService;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -37,8 +38,8 @@ class CartServiceImpl extends AbstractService<CartResp, CartForm> implements Car
     private EntityFactory entityFactory;
 
     @Autowired
-    CartServiceImpl(ThreadPoolTaskExecutor executor, ApplicationContext container) {
-        super(executor, container);
+    CartServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
+        super(executor, wrapper, profile);
     }
 
     @Override
@@ -108,21 +109,22 @@ class CartServiceImpl extends AbstractService<CartResp, CartForm> implements Car
 
     @Override
     @SuppressWarnings("unchecked")
-    protected <X extends Iterable<CartResp>> X doGetList(CartForm param) {
+    protected <K, X extends Iterable<K>> X doGetList(CartForm param) {
         return (X) new PageImpl<>(List.of(new CartResp(-1, "")));
     }
 
+
     @Override
     protected void inject() {
-        ApplicationContext applicationContext = getDependenciesContainer();
+        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (productRepository == null) {
-            productRepository = applicationContext.getBean(ProductRepository.class);
+            productRepository = resolver.resolveDependencies(ProductRepository.class);
         }
         if (cartRepository == null) {
-            cartRepository = applicationContext.getBean(CartRepository.class);
+            cartRepository = resolver.resolveDependencies(CartRepository.class);
         }
         if (entityFactory == null) {
-            entityFactory = applicationContext.getBean(EntityFactory.class);
+            entityFactory = resolver.resolveDependencies(EntityFactory.class);
         }
     }
 

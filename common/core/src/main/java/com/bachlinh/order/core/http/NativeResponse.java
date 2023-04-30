@@ -4,6 +4,7 @@ import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
@@ -13,12 +14,13 @@ import java.util.List;
 
 @Builder
 @Getter
+@Setter
 public class NativeResponse<T> {
 
     @Nullable
     private final T body;
 
-    private final int statusCode;
+    private int statusCode;
 
     @Nullable
     private final MultiValueMap<String, String> headers;

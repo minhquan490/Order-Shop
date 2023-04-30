@@ -59,7 +59,7 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
         try {
             setNativeRequest(NativeRequest.buildNativeFromServletRequest(servletRequest));
             setNativeResponse(parseFrom(servletResponse));
-            RequestMethod method = RequestMethod.valueOf(servletRequest.getMethod());
+            RequestMethod method = RequestMethod.valueOf(servletRequest.getMethod().toUpperCase());
             NativeResponse<?> nativeResponse = handleRequest(getNativeRequest(), controllerPath, method);
             if (nativeResponse.getCookies() != null) {
                 for (NativeCookie cookie : nativeResponse.getCookies()) {
@@ -96,9 +96,9 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
     }
 
     @Override
-    public NativeResponse<?> handleRequest(NativeRequest<?> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException {
+    public <T, U> NativeResponse<T> handleRequest(NativeRequest<U> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException {
         String controllerUrl = parseChild(controllerPath);
-        NativeResponse<?> response = getControllerManager().handleRequest(request, controllerUrl, method);
+        NativeResponse<T> response = getControllerManager().handleRequest(request, controllerUrl, method);
         EntityTransactionManager transactionManager = getEntityFactory().getTransactionManager();
         if (transactionManager.hasSavePoint()) {
             transactionManager.getSavePointManager().release();

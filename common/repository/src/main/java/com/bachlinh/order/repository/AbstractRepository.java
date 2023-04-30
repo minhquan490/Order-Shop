@@ -77,10 +77,11 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
             entity.setId(entityContext.getNextId());
             entityContext.commit();
         }
+        S result = super.save(entity);
         if (getSessionFactory().getCache().containsEntity(entity.getClass(), entity.getId())) {
             getSessionFactory().getCache().evict(entity.getClass(), entity.getId());
         }
-        return super.save(entity);
+        return result;
     }
 
     @Override

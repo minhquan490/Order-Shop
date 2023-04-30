@@ -34,7 +34,7 @@ public class H3JettyServerCustomize implements JettyServerCustomizer {
     @Override
     public void customize(Server server) {
         Environment environment = Environment.getInstance(activeProfile);
-        boolean enableH3 = Boolean.parseBoolean(environment.getProperty("shop.web.enable.h3"));
+        boolean enableH3 = Boolean.parseBoolean(environment.getProperty("server.http3.enable"));
         if (!enableH3) {
             return;
         }
@@ -55,12 +55,12 @@ public class H3JettyServerCustomize implements JettyServerCustomizer {
     }
 
     private SslContextFactory.Server buildSslContextFactory(Environment environment) {
-        String h3KeyStore = environment.getProperty("shop.ssl.key-store");
-        String keyManagerPass = environment.getProperty("shop.web.keymanager.password");
-        String h3KeyStorePass = environment.getProperty("shop.ssl.key-store-password");
-        String h3KeyStoreType = environment.getProperty("shop.ssl.key-store-type");
-        String alias = environment.getProperty("shop.ssl.key-alias");
-        String protocol = environment.getProperty("shop.ssl.protocol");
+        String h3KeyStore = environment.getProperty("server.ssl.key-store");
+        String keyManagerPass = environment.getProperty("server.ssl.key-manager-password");
+        String h3KeyStorePass = environment.getProperty("server.ssl.key-store-password");
+        String h3KeyStoreType = environment.getProperty("server.ssl.key-store-type");
+        String alias = environment.getProperty("server.ssl.keyAlias");
+        String protocol = environment.getProperty("server.ssl.protocol");
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setHostnameVerifier(new DefaultHostnameVerifier(getDefaultInstance()));
         sslContextFactory.setEndpointIdentificationAlgorithm("https");

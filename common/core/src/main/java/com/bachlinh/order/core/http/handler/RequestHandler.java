@@ -10,9 +10,9 @@ public interface RequestHandler {
 
     <T> void setNativeResponse(NativeResponse<T> response);
 
-    NativeRequest<?> getNativeRequest();
+    <T> NativeRequest<T> getNativeRequest();
 
-    NativeResponse<?> getNativeResponse();
+    <T> NativeResponse<T> getNativeResponse();
 
-    NativeResponse<?> handleRequest(NativeRequest<?> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException;
+    <T, U> NativeResponse<T> handleRequest(NativeRequest<U> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException;
 }

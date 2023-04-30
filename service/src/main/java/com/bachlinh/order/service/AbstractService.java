@@ -1,7 +1,8 @@
 package com.bachlinh.order.service;
 
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.CriticalException;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,27 +11,13 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 public abstract class AbstractService<T, U> implements BaseService<T, U> {
-    private static final Class<?> dependencyContainerClass;
-
-    static {
-        Environment environment = Environment.getInstance("service");
-        String containerName = environment.getProperty("dependencies.container.class.name");
-        try {
-            dependencyContainerClass = Class.forName(containerName);
-        } catch (ClassNotFoundException e) {
-            throw new CriticalException("Can not identity dependencies container class", e);
-        }
-    }
 
     private final Executor executor;
-    private final Object container;
+    private final DependenciesContainerResolver containerResolver;
 
-    protected AbstractService(Executor executor, Object container) {
+    protected AbstractService(Executor executor, ContainerWrapper wrapper, String profile) {
         this.executor = executor;
-        if (!dependencyContainerClass.isAssignableFrom(container.getClass())) {
-            throw new CriticalException("Expected container is [" + dependencyContainerClass.getName() + "]");
-        }
-        this.container = container;
+        this.containerResolver = wrapContainer(wrapper.unwrap(), profile);
     }
 
     @Override
@@ -61,14 +48,14 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public final <X extends Iterable<T>> Result<X> getList(Form<U> form) {
         inject();
         return new InternalResult<>(doGetList(form.get()));
     }
 
-    @SuppressWarnings("unchecked")
-    protected <K> K getDependenciesContainer() {
-        return (K) container;
+    protected DependenciesContainerResolver getContainerResolver() {
+        return containerResolver;
     }
 
     protected Executor getExecutor() {
@@ -83,9 +70,20 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
 
     protected abstract T doGetOne(U param);
 
-    protected abstract <X extends Iterable<T>> X doGetList(U param);
+    protected abstract <K, X extends Iterable<K>> X doGetList(U param);
 
     protected abstract void inject();
+
+    private DependenciesContainerResolver wrapContainer(Object container, String profile) {
+        Environment environment = Environment.getInstance(profile);
+        String containerName = environment.getProperty("dependencies.container.class.name");
+        return switch (containerName) {
+            case "org.springframework.context.ApplicationContext" ->
+                    DependenciesContainerResolver.springResolver(container);
+            case "com.google.inject.Injector" -> DependenciesContainerResolver.googleResolver(container);
+            default -> throw new IllegalStateException("Unexpected value: " + containerName);
+        };
+    }
 
     private record InternalResult<T>(T wappedResult) implements Result<T> {
 

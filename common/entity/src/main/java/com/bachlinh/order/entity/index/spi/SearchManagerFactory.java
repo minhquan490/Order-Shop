@@ -96,6 +96,8 @@ public interface SearchManagerFactory {
          */
         Builder threadPool(ThreadPoolTaskExecutor executor);
 
+        Builder profile(String profile);
+
         /**
          * Build {@link SearchManagerFactory} with builder options.
          *

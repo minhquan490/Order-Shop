@@ -4,11 +4,12 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.service.AbstractService;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.CategoryForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,8 @@ class CategoryServiceImpl extends AbstractService<CategoryResp, CategoryForm> im
     private EntityFactory entityFactory;
 
     @Autowired
-    CategoryServiceImpl(ThreadPoolTaskExecutor executor, ApplicationContext applicationContext) {
-        super(executor, applicationContext);
+    CategoryServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
+        super(executor, wrapper, profile);
     }
 
     @Override
@@ -68,19 +69,19 @@ class CategoryServiceImpl extends AbstractService<CategoryResp, CategoryForm> im
 
     @Override
     @SuppressWarnings("unchecked")
-    protected <X extends Iterable<CategoryResp>> X doGetList(CategoryForm param) {
+    protected <K, X extends Iterable<K>> X doGetList(CategoryForm param) {
         Page<CategoryResp> categories = categoryRepository.getCategories().map(category -> new CategoryResp(category.getId(), category.getName()));
         return (X) categories;
     }
 
     @Override
     protected void inject() {
-        ApplicationContext applicationContext = getDependenciesContainer();
+        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (categoryRepository == null) {
-            categoryRepository = applicationContext.getBean(CategoryRepository.class);
+            categoryRepository = resolver.resolveDependencies(CategoryRepository.class);
         }
         if (entityFactory == null) {
-            entityFactory = applicationContext.getBean(EntityFactory.class);
+            entityFactory = resolver.resolveDependencies(EntityFactory.class);
         }
     }
 }

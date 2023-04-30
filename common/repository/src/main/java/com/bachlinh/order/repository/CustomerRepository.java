@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface CustomerRepository {
     AtomicInteger customerCount = new AtomicInteger(0);
 
-    Customer getCustomerById(String id, boolean useOnFilter);
+    Customer getCustomerById(String id, boolean useJoin);
 
     Customer getCustomerByUsername(String username);
 

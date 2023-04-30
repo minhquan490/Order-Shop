@@ -33,6 +33,10 @@ public final class ApplicationScanner extends ClassPathScanningCandidateComponen
         return CACHE_SCANNING_RESULT;
     }
 
+    public static void clean() {
+        CACHE_SCANNING_RESULT.clear();
+    }
+
     public static class PackageTypeFilter implements TypeFilter {
         private final String matchedPackage;
 

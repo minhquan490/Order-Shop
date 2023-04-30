@@ -27,11 +27,13 @@ public final class DefaultEntityFactory implements EntityFactory {
     private final Map<Class<?>, EntityContext> entityContext;
     private final ApplicationContext applicationContext;
     private final EntityTransactionManager transactionManager;
+    private final String activeProfile;
 
-    private DefaultEntityFactory(Map<Class<?>, EntityContext> entityContext, ApplicationContext applicationContext) {
+    private DefaultEntityFactory(Map<Class<?>, EntityContext> entityContext, ApplicationContext applicationContext, String activeProfile) {
         this.entityContext = entityContext;
         this.applicationContext = applicationContext;
         this.transactionManager = new DefaultTransactionManager();
+        this.activeProfile = activeProfile;
     }
 
     @Override
@@ -59,10 +61,17 @@ public final class DefaultEntityFactory implements EntityFactory {
 
     public static class DefaultEntityFactoryBuilder implements EntityFactoryBuilder {
         private ApplicationContext applicationContext;
+        private String activeProfile;
 
         @Override
         public EntityFactoryBuilder applicationContext(ApplicationContext applicationContext) {
             this.applicationContext = applicationContext;
+            return this;
+        }
+
+        @Override
+        public EntityFactoryBuilder profile(String profile) {
+            this.activeProfile = profile;
             return this;
         }
 
@@ -76,11 +85,11 @@ public final class DefaultEntityFactory implements EntityFactory {
                     .toList();
             SearchManager manager = buildSearchManager(entities, applicationContext);
             entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, applicationContext, manager)));
-            return new DefaultEntityFactory(entityContext, applicationContext);
+            return new DefaultEntityFactory(entityContext, applicationContext, activeProfile);
         }
 
         private SearchManager buildSearchManager(Collection<Class<?>> entities, ApplicationContext applicationContext) throws IOException {
-            Environment environment = Environment.getInstance("common");
+            Environment environment = Environment.getInstance(activeProfile);
             SearchManagerFactory.Builder builder = InternalProvider.useDefaultSearchManagerFactoryBuilder();
             builder.indexFilePath(environment.getProperty("server.index.path"));
             builder.stopWordFilePath(environment.getProperty("server.stop-word.path"));

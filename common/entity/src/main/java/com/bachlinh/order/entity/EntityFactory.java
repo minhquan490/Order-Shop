@@ -55,6 +55,8 @@ public interface EntityFactory {
          */
         EntityFactoryBuilder applicationContext(ApplicationContext applicationContext);
 
+        EntityFactoryBuilder profile(String profile);
+
         /**
          * Build the entity factory.
          *

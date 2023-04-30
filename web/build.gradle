@@ -21,15 +21,16 @@ repositories {
 
 dependencies {
     implementation project(":aot")
+    implementation project(":service")
     implementation project(":common:annotation")
     implementation project(":common:core")
     implementation project(":common:entity")
     implementation project(":common:handler")
     implementation project(":common:security")
     implementation project(":common:utils")
-    implementation project(":service")
     implementation project(":common:repository")
     implementation project(":common:exception")
+    implementation project(":common:environment")
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-jetty'

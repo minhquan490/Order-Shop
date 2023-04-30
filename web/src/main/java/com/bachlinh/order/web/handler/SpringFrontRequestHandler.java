@@ -1,10 +1,5 @@
 package com.bachlinh.order.web.handler;
 
-import com.bachlinh.order.annotation.Delete;
-import com.bachlinh.order.annotation.Get;
-import com.bachlinh.order.annotation.HttpHandler;
-import com.bachlinh.order.annotation.Post;
-import com.bachlinh.order.annotation.Put;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.RequestHandler;
 import com.bachlinh.order.core.http.handler.SpringServletHandler;
@@ -18,21 +13,17 @@ import com.bachlinh.order.handler.router.SmartChildRouteContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@HttpHandler(paths = "/**")
 public class SpringFrontRequestHandler {
     private static final String SEPARATOR = "/";
 
     private final ChildRouteContext childRouteContext;
-
+    
     public SpringFrontRequestHandler(ControllerManager controllerManager, EntityFactory entityFactory, ExceptionTranslator<NativeResponse<String>> exceptionTranslator) {
         SimpleChildRouteContext simpleChildRouteContext = new SimpleChildRouteContext();
         simpleChildRouteContext.controllerManager(controllerManager);
@@ -41,18 +32,14 @@ public class SpringFrontRequestHandler {
         this.childRouteContext = simpleChildRouteContext;
     }
 
-    @Get
-    @Post(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Put(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Delete
-    public <T, U> ResponseEntity<T> handle(@RequestBody(required = false) U request, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+    public <T> ResponseEntity<T> handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         String[] urlPart = servletRequest.getRequestURI().split(SEPARATOR);
-        return handleRequest(request, String.join(SEPARATOR, urlPart).replace(SEPARATOR + urlPart[0], ""), urlPart[0], servletRequest, servletResponse);
+        return handleRequest(String.join(SEPARATOR, urlPart).replace(SEPARATOR + urlPart[0], ""), urlPart[0], servletRequest, servletResponse);
     }
 
-    private <T, U> ResponseEntity<T> handleRequest(@Nullable U request, @NonNull String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+    private <T> ResponseEntity<T> handleRequest(@NonNull String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         SmartChildRouteContext smartChildRouteContext = (SmartChildRouteContext) childRouteContext;
-        return smartChildRouteContext.handleRequest(request, path, prefix, servletRequest, servletResponse);
+        return smartChildRouteContext.handleRequest(path, prefix, servletRequest, servletResponse);
     }
 
     private static class SimpleChildRouteContext extends AbstractChildRouteContext implements SmartChildRouteContext {
@@ -93,7 +80,7 @@ public class SpringFrontRequestHandler {
         }
 
         @Override
-        public <T, U> ResponseEntity<T> handleRequest(U request, String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+        public <T> ResponseEntity<T> handleRequest(String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
             ChildRouteWrapper childRouteWrapper = findRoute(path, prefix);
             SpringServletHandler servletHandler = childRouteWrapper.childRoute().getServletHandler();
             ResponseEntity<T> response = servletHandler.handleServletRequest("/".concat(childRouteWrapper.endpoint()), servletRequest, servletResponse);
