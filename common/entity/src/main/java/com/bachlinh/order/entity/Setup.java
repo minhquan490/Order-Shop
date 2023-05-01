@@ -1,4 +1,4 @@
-package com.bachlinh.order.entity.setup.spi;
+package com.bachlinh.order.entity;
 
 /**
  * The sealed interface for setting everything before application is ready.
@@ -6,7 +6,7 @@ package com.bachlinh.order.entity.setup.spi;
  *
  * @author Hoang Minh Quan
  */
-public sealed interface Setup permits AbstractSetup {
+public interface Setup {
 
     /**
      * Run operation before execute the setup.

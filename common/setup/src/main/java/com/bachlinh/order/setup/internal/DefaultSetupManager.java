@@ -1,10 +1,10 @@
-package com.bachlinh.order.entity.setup.internal;
+package com.bachlinh.order.setup.internal;
 
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.entity.setup.spi.Setup;
-import com.bachlinh.order.entity.setup.spi.SetupManager;
+import com.bachlinh.order.entity.Setup;
+import com.bachlinh.order.entity.SetupManager;
+import com.bachlinh.order.service.container.ContainerWrapper;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,15 +17,17 @@ import java.util.Objects;
 
 class DefaultSetupManager implements SetupManager {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(DefaultSetupManager.class);
-    private ApplicationContext applicationContext;
+    private ContainerWrapper wrapper;
+    private final String profile;
 
-    DefaultSetupManager(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    DefaultSetupManager(ContainerWrapper wrapper, String profile) {
+        this.wrapper = wrapper;
+        this.profile = profile;
     }
 
     @Override
     public boolean isClose() {
-        return applicationContext == null;
+        return wrapper == null;
     }
 
     @Override
@@ -33,20 +35,7 @@ class DefaultSetupManager implements SetupManager {
         return scan().stream()
                 .filter(Setup.class::isAssignableFrom)
                 .filter(clazz -> clazz.isAnnotationPresent(Order.class))
-                .map(clazz -> {
-                    try {
-                        Constructor<?> constructor = clazz.getDeclaredConstructor(ApplicationContext.class);
-                        if (!Modifier.isPrivate(constructor.getModifiers())) {
-                            constructor.setAccessible(true);
-                        }
-                        Setup result = (Setup) constructor.newInstance(applicationContext);
-                        log.info("Create instance for class [{}] done", clazz.getName());
-                        return result;
-                    } catch (Exception e) {
-                        log.error("Create instance for class [{}] failure", clazz.getName(), e);
-                        return null;
-                    }
-                })
+                .map(clazz -> (Setup) newInstance(clazz, new Class[]{ContainerWrapper.class, String.class}, new Object[]{wrapper, profile}))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(value -> value.getClass().getAnnotation(Order.class).value()))
                 .toList();
@@ -63,10 +52,25 @@ class DefaultSetupManager implements SetupManager {
 
     @Override
     public void close() {
-        applicationContext = null;
+        wrapper = null;
     }
 
     private Collection<Class<?>> scan() {
         return new ApplicationScanner().findComponents();
+    }
+
+    private Object newInstance(Class<?> clazz, Class<?>[] paramTypes, Object[] param) {
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(paramTypes);
+            if (!Modifier.isPrivate(constructor.getModifiers())) {
+                constructor.setAccessible(true);
+            }
+            Object result = constructor.newInstance(param);
+            log.debug("Init instance for class [{}] complete", clazz.getName());
+            return result;
+        } catch (Exception e) {
+            log.warn("Init instance for class [{}] failure, skip it !", clazz.getName());
+            return null;
+        }
     }
 }

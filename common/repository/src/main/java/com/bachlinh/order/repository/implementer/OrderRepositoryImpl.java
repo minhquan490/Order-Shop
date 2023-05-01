@@ -4,12 +4,12 @@ import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
@@ -29,8 +29,8 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 class OrderRepositoryImpl extends AbstractRepository<Order, String> implements OrderRepository {
 
     @Autowired
-    OrderRepositoryImpl(ApplicationContext applicationContext) {
-        super(Order.class, applicationContext);
+    OrderRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(Order.class, containerResolver.getDependenciesResolver());
     }
 
     @Override

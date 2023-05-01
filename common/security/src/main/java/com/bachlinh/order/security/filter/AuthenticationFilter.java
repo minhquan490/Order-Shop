@@ -7,11 +7,11 @@ import com.bachlinh.order.security.auth.spi.PrincipalHolder;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.security.helper.AuthenticationHelper;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.ApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.PathMatcher;
@@ -27,17 +27,14 @@ import java.util.Map;
  * @author Hoang Minh Quan.
  */
 public class AuthenticationFilter extends AbstractWebFilter {
-    private final TokenManager tokenManager;
-    private final CustomerRepository customerRepository;
-    private final UnAuthorizationHandler authenticationFailureHandler;
+    private TokenManager tokenManager;
+    private CustomerRepository customerRepository;
+    private UnAuthorizationHandler authenticationFailureHandler;
     private final Collection<String> excludePaths;
     private final PathMatcher pathMatcher;// Use AntMatcher
 
-    public AuthenticationFilter(ApplicationContext applicationContext, Collection<String> excludePaths, PathMatcher pathMatcher) {
-        super(applicationContext);
-        this.tokenManager = applicationContext.getBean(TokenManager.class);
-        this.customerRepository = applicationContext.getBean(CustomerRepository.class);
-        this.authenticationFailureHandler = applicationContext.getBean(UnAuthorizationHandler.class);
+    public AuthenticationFilter(DependenciesContainerResolver containerResolver, Collection<String> excludePaths, PathMatcher pathMatcher) {
+        super(containerResolver.getDependenciesResolver());
         this.excludePaths = excludePaths;
         this.pathMatcher = pathMatcher;
     }
@@ -48,7 +45,7 @@ public class AuthenticationFilter extends AbstractWebFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Map<String, Object> claims = AuthenticationHelper.parseAuthentication(request, response, tokenManager);
         if (claims.isEmpty()) {
             authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Missing token, login is required"));
@@ -61,5 +58,18 @@ public class AuthenticationFilter extends AbstractWebFilter {
         }
         SecurityContextHolder.getContext().setAuthentication(new PrincipalHolder(customer));
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected void inject() {
+        if (tokenManager == null) {
+            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+        }
+        if (customerRepository == null) {
+            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+        }
+        if (authenticationFailureHandler == null) {
+            authenticationFailureHandler = getDependenciesResolver().resolveDependencies(UnAuthorizationHandler.class);
+        }
     }
 }

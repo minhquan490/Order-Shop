@@ -34,7 +34,7 @@ import java.util.Set;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "product")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.ProductIndexTrigger")
+@Trigger(triggers = "com.bachlinh.order.trigger.internal.ProductIndexTrigger")
 @ActiveReflection
 public class Product extends AbstractEntity {
 

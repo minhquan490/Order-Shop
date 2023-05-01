@@ -1,6 +1,7 @@
-package com.bachlinh.order.entity.setup.spi;
+package com.bachlinh.order.setup.spi;
 
-import org.springframework.context.ApplicationContext;
+import com.bachlinh.order.entity.SetupManager;
+import com.bachlinh.order.service.container.ContainerWrapper;
 
 /**
  * The factory for create {@link SetupManager} with given options obtain from the builder.
@@ -21,10 +22,9 @@ public interface SetupManagerFactory {
      */
     interface Builder {
 
-        /**
-         * Setting up the {@link ApplicationContext} for build {@code SetupManagerFactory}, must be not null.
-         */
-        Builder applicationContext(ApplicationContext context);
+        Builder container(ContainerWrapper wrapper);
+
+        Builder profile(String profile);
 
         SetupManagerFactory build();
     }

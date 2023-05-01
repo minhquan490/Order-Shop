@@ -30,7 +30,7 @@ import java.util.List;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "province")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.ProvinceIndexTrigger")
+@Trigger(triggers = "com.bachlinh.order.trigger.internal.ProvinceIndexTrigger")
 @ActiveReflection
 public class Province extends AbstractEntity {
 

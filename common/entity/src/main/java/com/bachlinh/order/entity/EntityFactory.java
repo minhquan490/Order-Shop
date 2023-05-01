@@ -2,7 +2,8 @@ package com.bachlinh.order.entity;
 
 import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
-import org.springframework.context.ApplicationContext;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
 
@@ -40,6 +41,10 @@ public interface EntityFactory {
 
     EntityTransactionManager getTransactionManager();
 
+    DependenciesResolver getResolver();
+
+    String activeProfile();
+
     /**
      * The builder for build the entity factory.
      *
@@ -47,15 +52,9 @@ public interface EntityFactory {
      */
     interface EntityFactoryBuilder {
 
-        /**
-         * Config {@link ApplicationContext} for use when build the {@link EntityFactory}.
-         *
-         * @param applicationContext application context for use.
-         * @return the builder for continued building.
-         */
-        EntityFactoryBuilder applicationContext(ApplicationContext applicationContext);
-
         EntityFactoryBuilder profile(String profile);
+
+        EntityFactoryBuilder container(ContainerWrapper wrapper);
 
         /**
          * Build the entity factory.

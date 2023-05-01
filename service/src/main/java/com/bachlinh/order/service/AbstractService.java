@@ -1,6 +1,5 @@
 package com.bachlinh.order.service;
 
-import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import org.springframework.transaction.annotation.Isolation;
@@ -17,7 +16,7 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
 
     protected AbstractService(Executor executor, ContainerWrapper wrapper, String profile) {
         this.executor = executor;
-        this.containerResolver = wrapContainer(wrapper.unwrap(), profile);
+        this.containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile);
     }
 
     @Override
@@ -73,17 +72,6 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
     protected abstract <K, X extends Iterable<K>> X doGetList(U param);
 
     protected abstract void inject();
-
-    private DependenciesContainerResolver wrapContainer(Object container, String profile) {
-        Environment environment = Environment.getInstance(profile);
-        String containerName = environment.getProperty("dependencies.container.class.name");
-        return switch (containerName) {
-            case "org.springframework.context.ApplicationContext" ->
-                    DependenciesContainerResolver.springResolver(container);
-            case "com.google.inject.Injector" -> DependenciesContainerResolver.googleResolver(container);
-            default -> throw new IllegalStateException("Unexpected value: " + containerName);
-        };
-    }
 
     private record InternalResult<T>(T wappedResult) implements Result<T> {
 

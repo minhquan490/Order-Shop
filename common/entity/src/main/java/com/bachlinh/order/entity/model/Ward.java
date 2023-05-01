@@ -30,7 +30,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "ward")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.WardIndexTrigger")
+@Trigger(triggers = "com.bachlinh.order.trigger.internal.WardIndexTrigger")
 @ActiveReflection
 public class Ward extends AbstractEntity {
 

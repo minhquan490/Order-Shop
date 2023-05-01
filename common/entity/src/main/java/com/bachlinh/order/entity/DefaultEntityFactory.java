@@ -11,8 +11,10 @@ import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.transaction.internal.DefaultTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
@@ -25,13 +27,13 @@ import java.util.Map;
 public final class DefaultEntityFactory implements EntityFactory {
 
     private final Map<Class<?>, EntityContext> entityContext;
-    private final ApplicationContext applicationContext;
+    private final DependenciesResolver dependenciesResolver;
     private final EntityTransactionManager transactionManager;
     private final String activeProfile;
 
-    private DefaultEntityFactory(Map<Class<?>, EntityContext> entityContext, ApplicationContext applicationContext, String activeProfile) {
+    private DefaultEntityFactory(Map<Class<?>, EntityContext> entityContext, DependenciesResolver dependenciesResolver, String activeProfile) {
         this.entityContext = entityContext;
-        this.applicationContext = applicationContext;
+        this.dependenciesResolver = dependenciesResolver;
         this.transactionManager = new DefaultTransactionManager();
         this.activeProfile = activeProfile;
     }
@@ -59,15 +61,19 @@ public final class DefaultEntityFactory implements EntityFactory {
         return transactionManager;
     }
 
-    public static class DefaultEntityFactoryBuilder implements EntityFactoryBuilder {
-        private ApplicationContext applicationContext;
-        private String activeProfile;
+    @Override
+    public DependenciesResolver getResolver() {
+        return dependenciesResolver;
+    }
 
-        @Override
-        public EntityFactoryBuilder applicationContext(ApplicationContext applicationContext) {
-            this.applicationContext = applicationContext;
-            return this;
-        }
+    @Override
+    public String activeProfile() {
+        return activeProfile;
+    }
+
+    public static class DefaultEntityFactoryBuilder implements EntityFactoryBuilder {
+        private String activeProfile;
+        private ContainerWrapper containerWrapper;
 
         @Override
         public EntityFactoryBuilder profile(String profile) {
@@ -76,19 +82,27 @@ public final class DefaultEntityFactory implements EntityFactory {
         }
 
         @Override
+        public EntityFactoryBuilder container(ContainerWrapper wrapper) {
+            this.containerWrapper = wrapper;
+            return this;
+        }
+
+        @Override
         public EntityFactory build() throws IOException {
+            DependenciesContainerResolver containerResolver = DependenciesContainerResolver.buildResolver(containerWrapper.unwrap(), activeProfile);
             Map<Class<?>, EntityContext> entityContext = new HashMap<>();
             Collection<Class<?>> entities = new ApplicationScanner()
                     .findComponents()
                     .stream()
                     .filter(BaseEntity.class::isAssignableFrom)
                     .toList();
-            SearchManager manager = buildSearchManager(entities, applicationContext);
-            entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, applicationContext, manager)));
-            return new DefaultEntityFactory(entityContext, applicationContext, activeProfile);
+            SearchManager manager = buildSearchManager(entities, containerWrapper, activeProfile);
+            entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, containerResolver.getDependenciesResolver(), manager)));
+            return new DefaultEntityFactory(entityContext, containerResolver.getDependenciesResolver(), activeProfile);
         }
 
-        private SearchManager buildSearchManager(Collection<Class<?>> entities, ApplicationContext applicationContext) throws IOException {
+        private SearchManager buildSearchManager(Collection<Class<?>> entities, ContainerWrapper wrapper, String activeProfile) throws IOException {
+            DependenciesContainerResolver containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), activeProfile);
             Environment environment = Environment.getInstance(activeProfile);
             SearchManagerFactory.Builder builder = InternalProvider.useDefaultSearchManagerFactoryBuilder();
             builder.indexFilePath(environment.getProperty("server.index.path"));
@@ -101,7 +115,7 @@ public final class DefaultEntityFactory implements EntityFactory {
                     .map(clazz -> clazz.getSimpleName().toLowerCase())
                     .toList()
                     .toArray(new String[0]));
-            builder.threadPool(applicationContext.getBean(ThreadPoolTaskExecutor.class));
+            builder.threadPool(containerResolver.getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class));
             return builder.build().obtainManager();
         }
     }

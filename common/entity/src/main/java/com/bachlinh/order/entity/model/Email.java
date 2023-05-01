@@ -28,7 +28,7 @@ import java.sql.Timestamp;
                 @Index(name = "idx_email_folder", columnList = "FOLDER_ID")
         }
 )
-@Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.IndexEmailContentTrigger")
+@Trigger(triggers = "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger")
 @Validator(validators = "com.bachlinh.order.core.entity.validator.internal.EmailValidator")
 @ActiveReflection
 public class Email extends AbstractEntity {

@@ -1,14 +1,15 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Category_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CategoryRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,11 +19,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@ActiveReflection
 class CategoryRepositoryImpl extends AbstractRepository<Category, String> implements CategoryRepository {
 
     @Autowired
-    CategoryRepositoryImpl(ApplicationContext applicationContext) {
-        super(Category.class, applicationContext);
+    @ActiveReflection
+    CategoryRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(Category.class, containerResolver.getDependenciesResolver());
     }
 
     @Override
@@ -73,6 +76,7 @@ class CategoryRepositoryImpl extends AbstractRepository<Category, String> implem
 
     @Override
     @PersistenceContext
+    @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }

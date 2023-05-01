@@ -29,7 +29,7 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
                 NativeMethodHandleRequestMetadataReader.getInstance().defineMetadata(getPath(), method);
             }
         }
-        this.containerResolver = wrapContainer(wrapper.unwrap(), profile);
+        this.containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile);
         this.environment = Environment.getInstance(profile);
     }
 
@@ -87,16 +87,5 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
 
     protected Environment getEnvironment() {
         return environment;
-    }
-
-    private DependenciesContainerResolver wrapContainer(Object container, String profile) {
-        Environment environment = Environment.getInstance(profile);
-        String containerName = environment.getProperty("dependencies.container.class.name");
-        return switch (containerName) {
-            case "org.springframework.context.ApplicationContext" ->
-                    DependenciesContainerResolver.springResolver(container);
-            case "com.google.inject.Injector" -> DependenciesContainerResolver.googleResolver(container);
-            default -> throw new IllegalStateException("Unexpected value: " + containerName);
-        };
     }
 }

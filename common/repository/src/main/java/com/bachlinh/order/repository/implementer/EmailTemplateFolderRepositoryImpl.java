@@ -4,10 +4,10 @@ import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Repository;
 class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailTemplateFolder, String> implements EmailTemplateFolderRepository {
 
     @Autowired
-    EmailTemplateFolderRepositoryImpl(Class<EmailTemplateFolder> domainClass, ApplicationContext applicationContext) {
-        super(domainClass, applicationContext);
+    EmailTemplateFolderRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(EmailTemplateFolder.class, containerResolver.getDependenciesResolver());
     }
 
     @Override

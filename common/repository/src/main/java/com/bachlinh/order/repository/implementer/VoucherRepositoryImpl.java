@@ -1,13 +1,14 @@
 package com.bachlinh.order.repository.implementer;
 
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.VoucherRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,11 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
+@ActiveReflection
 public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> implements VoucherRepository {
 
     @Autowired
-    VoucherRepositoryImpl(ApplicationContext applicationContext) {
-        super(Voucher.class, applicationContext);
+    @ActiveReflection
+    VoucherRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(Voucher.class, containerResolver.getDependenciesResolver());
     }
 
     @Override
@@ -65,6 +68,7 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
 
     @Override
     @PersistenceContext
+    @ActiveReflection
     protected void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }

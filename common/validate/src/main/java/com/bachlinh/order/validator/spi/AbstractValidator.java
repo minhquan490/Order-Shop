@@ -2,20 +2,21 @@ package com.bachlinh.order.validator.spi;
 
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.model.BaseEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.springframework.context.ApplicationContext;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 /**
  * Base validator for all entities validator use in this project.
  *
  * @author Hoang Minh Quan
  */
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractValidator<T extends BaseEntity> implements EntityValidator<T> {
-    private ApplicationContext context;
+    private final DependenciesResolver resolver;
 
-    protected ApplicationContext getApplicationContext() {
-        return context;
+    protected AbstractValidator(DependenciesResolver resolver) {
+        this.resolver = resolver;
+    }
+
+    protected DependenciesResolver getResolver() {
+        return resolver;
     }
 }

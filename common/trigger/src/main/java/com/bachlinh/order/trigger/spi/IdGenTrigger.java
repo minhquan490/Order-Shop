@@ -6,8 +6,8 @@ import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,17 +20,14 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity> {
     private EntityFactory entityFactory;
 
     @ActiveReflection
-    public IdGenTrigger(ApplicationContext applicationContext) {
-        super(applicationContext);
+    public IdGenTrigger(DependenciesResolver dependenciesResolver) {
+        super(dependenciesResolver);
         setRunSync(true);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void doExecute(BaseEntity entity) {
-        if (entityFactory == null) {
-            entityFactory = getApplicationContext().getBean(EntityFactory.class);
-        }
         EntityContext entityContext = entityFactory.getEntityContext(entity.getClass());
         if (entity.getId() == null) {
             entityContext.beginTransaction();
@@ -40,6 +37,13 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity> {
             }
             entity.setId(id);
             entityContext.commit();
+        }
+    }
+
+    @Override
+    protected void inject() {
+        if (entityFactory == null) {
+            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
         }
     }
 

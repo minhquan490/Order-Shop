@@ -2,35 +2,38 @@ package com.bachlinh.order.trigger.spi;
 
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.model.BaseEntity;
-import org.springframework.context.ApplicationContext;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public abstract class AbstractTrigger<T extends BaseEntity> implements EntityTrigger<T> {
-    private final ApplicationContext applicationContext;
+    private final DependenciesResolver dependenciesResolver;
     private ThreadPoolTaskExecutor executor;
     private boolean runSync = false;
 
-    protected AbstractTrigger(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    protected AbstractTrigger(DependenciesResolver dependenciesResolver) {
+        this.dependenciesResolver = dependenciesResolver;
     }
 
-    protected ApplicationContext getApplicationContext() {
-        return applicationContext;
+    protected DependenciesResolver getDependenciesResolver() {
+        return dependenciesResolver;
     }
 
     protected ThreadPoolTaskExecutor getExecutor() {
         if (executor == null) {
-            this.executor = getApplicationContext().getBean(ThreadPoolTaskExecutor.class);
+            this.executor = getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class);
         }
         return executor;
     }
 
-    public abstract void doExecute(BaseEntity entity);
+    public abstract void doExecute(T entity);
+
+    protected abstract void inject();
 
     protected abstract String getTriggerName();
 
     @Override
-    public final void execute(BaseEntity entity) {
+    public final void execute(T entity) {
+        inject();
         if (!runSync) {
             Runnable runnable = () -> doExecute(entity);
             getExecutor().execute(runnable);

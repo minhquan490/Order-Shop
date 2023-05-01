@@ -4,13 +4,13 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.PathMatcher;
 
 import java.io.IOException;
@@ -27,16 +27,14 @@ import java.util.Collections;
 public class ClientSecretFilter extends AbstractWebFilter {
     private final Environment environment;
     private static final String ERROR_MESSAGE = "You need to login to continue";
-    private final UnAuthorizationHandler handler;
-    private final TokenManager tokenManager;
+    private UnAuthorizationHandler handler;
+    private TokenManager tokenManager;
     private final Collection<String> excludePaths;
     private final PathMatcher pathMatcher;// Use AntMatcher
 
-    public ClientSecretFilter(ApplicationContext applicationContext, Collection<String> excludePaths, PathMatcher pathMatcher, String profile) {
-        super(applicationContext);
-        handler = new UnAuthorizationHandler();
+    public ClientSecretFilter(DependenciesContainerResolver containerResolver, Collection<String> excludePaths, PathMatcher pathMatcher, String profile) {
+        super(containerResolver.getDependenciesResolver());
         this.excludePaths = excludePaths;
-        this.tokenManager = applicationContext.getBean(TokenManager.class);
         this.environment = Environment.getInstance(profile);
         this.pathMatcher = pathMatcher;
     }
@@ -47,7 +45,7 @@ public class ClientSecretFilter extends AbstractWebFilter {
     }
 
     @Override
-    public void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Collection<Cookie> cookies = request.getCookies() == null ? Collections.emptyList() : Arrays.asList(request.getCookies());
         Cookie secretCookie = containsSecretCookie(cookies);
         if (cookies.isEmpty() || secretCookie == null) {
@@ -68,6 +66,16 @@ public class ClientSecretFilter extends AbstractWebFilter {
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected void inject() {
+        if (handler == null) {
+            handler = getDependenciesResolver().resolveDependencies(UnAuthorizationHandler.class);
+        }
+        if (tokenManager == null) {
+            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+        }
     }
 
     private Cookie containsSecretCookie(Collection<Cookie> cookies) {

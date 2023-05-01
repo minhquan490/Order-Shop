@@ -21,6 +21,7 @@ dependencies {
     implementation project(":service")
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 test {

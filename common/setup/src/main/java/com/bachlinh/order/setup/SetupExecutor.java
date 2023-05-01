@@ -1,10 +1,11 @@
-package com.bachlinh.order.entity.setup;
+package com.bachlinh.order.setup;
 
-import com.bachlinh.order.entity.setup.internal.SetupManagerFactoryProvider;
-import com.bachlinh.order.entity.setup.spi.SetupManager;
-import com.bachlinh.order.entity.setup.spi.SetupManagerFactory;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.entity.SetupManager;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.setup.internal.SetupManagerFactoryProvider;
+import com.bachlinh.order.setup.spi.SetupManagerFactory;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.lang.NonNull;
@@ -18,11 +19,13 @@ import org.springframework.lang.NonNull;
  *
  * @author Hoang Minh Quan.
  */
+@ActiveReflection
 public class SetupExecutor implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SetupExecutor.class);
     private final SetupManager manager;
 
-    public SetupExecutor(ApplicationContext context) {
+    @ActiveReflection
+    public SetupExecutor(ContainerWrapper context) {
         this.manager = buildSetupManager(context);
     }
 
@@ -39,10 +42,10 @@ public class SetupExecutor implements ApplicationListener<ContextRefreshedEvent>
         }
     }
 
-    private SetupManager buildSetupManager(ApplicationContext context) {
+    private SetupManager buildSetupManager(ContainerWrapper context) {
         SetupManagerFactoryProvider provider = new SetupManagerFactoryProvider();
         SetupManagerFactory.Builder builder = provider.provideBuilder();
-        SetupManagerFactory setupManagerFactory = builder.applicationContext(context).build();
+        SetupManagerFactory setupManagerFactory = builder.container(context).build();
         return setupManagerFactory.buildManager();
     }
 }

@@ -6,6 +6,7 @@ import com.bachlinh.order.entity.HintDecorator;
 import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.repository.adapter.RepositoryAdapter;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.CacheRetrieveMode;
 import jakarta.persistence.CacheStoreMode;
 import jakarta.persistence.NoResultException;
@@ -14,7 +15,6 @@ import lombok.extern.log4j.Log4j2;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.jpa.HibernateHints;
 import org.hibernate.query.Query;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +31,8 @@ import java.util.List;
 @Log4j2
 public abstract class AbstractRepository<T extends BaseEntity, U> extends RepositoryAdapter<T, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
 
-    protected AbstractRepository(Class<T> domainClass, ApplicationContext applicationContext) {
-        super(domainClass, applicationContext);
+    protected AbstractRepository(Class<T> domainClass, DependenciesResolver dependenciesResolver) {
+        super(domainClass, dependenciesResolver);
     }
 
     @Override

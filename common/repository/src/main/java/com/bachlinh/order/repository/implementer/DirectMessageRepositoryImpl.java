@@ -3,9 +3,9 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.entity.model.DirectMessage;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.DirectMessageRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 class DirectMessageRepositoryImpl extends AbstractRepository<DirectMessage, Integer> implements DirectMessageRepository {
-    DirectMessageRepositoryImpl(ApplicationContext applicationContext) {
-        super(DirectMessage.class, applicationContext);
+    DirectMessageRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(DirectMessage.class, containerResolver.getDependenciesResolver());
     }
 
     @Override

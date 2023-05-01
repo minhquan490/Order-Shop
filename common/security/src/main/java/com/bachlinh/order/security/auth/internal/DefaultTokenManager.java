@@ -10,7 +10,7 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenGenerator;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
-import org.springframework.context.ApplicationContext;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -30,7 +30,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator {
     private final RefreshTokenRepository refreshTokenRepository;
     private final ClientSecretHandler clientSecretHandler;
 
-    DefaultTokenManager(String algorithm, String secretKey, ApplicationContext context) {
+    DefaultTokenManager(String algorithm, String secretKey, DependenciesResolver resolver) {
         this.decoder = JwtFactoryBuilderProvider.provideJwtDecoderFactoryBuilder()
                 .algorithm(algorithm)
                 .secretKey(secretKey)
@@ -41,9 +41,9 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator {
                 .secretKey(secretKey)
                 .build()
                 .buildEncoder();
-        this.entityFactory = context.getBean(EntityFactory.class);
-        this.refreshTokenRepository = context.getBean(RefreshTokenRepository.class);
-        this.clientSecretHandler = context.getBean(ClientSecretHandler.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.refreshTokenRepository = resolver.resolveDependencies(RefreshTokenRepository.class);
+        this.clientSecretHandler = resolver.resolveDependencies(ClientSecretHandler.class);
     }
 
     JwtDecoder getJwtDecoder() {

@@ -4,10 +4,10 @@ import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders, String> implements EmailFoldersRepository {
 
     @Autowired
-    EmailFoldersRepositoryImpl(Class<EmailFolders> domainClass, ApplicationContext applicationContext) {
-        super(domainClass, applicationContext);
+    EmailFoldersRepositoryImpl(Class<EmailFolders> domainClass, DependenciesContainerResolver containerResolver) {
+        super(domainClass, containerResolver.getDependenciesResolver());
     }
 
     @Override

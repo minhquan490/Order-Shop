@@ -5,6 +5,7 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityManagerHolder;
 import com.bachlinh.order.entity.HintDecorator;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
@@ -20,7 +21,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Cache;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -79,12 +79,12 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
     private final EntityFactory entityFactory;
     private final boolean useCache;
 
-    protected RepositoryAdapter(Class<T> domainClass, ApplicationContext applicationContext) {
+    protected RepositoryAdapter(Class<T> domainClass, DependenciesResolver resolver) {
         this.domainClass = domainClass;
-        this.sessionFactory = applicationContext.getBean(SessionFactory.class);
-        this.entityFactory = applicationContext.getBean(EntityFactory.class);
+        this.sessionFactory = resolver.resolveDependencies(SessionFactory.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
         this.useCache = getDomainClass().isAnnotationPresent(Cacheable.class) && getDomainClass().isAnnotationPresent(Cache.class);
-        this.asyncEntityManager = applicationContext.getBean(EntityManager.class);
+        this.asyncEntityManager = resolver.resolveDependencies(EntityManager.class);
     }
 
     protected void setEntityManager(EntityManager entityManager) {

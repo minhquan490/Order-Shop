@@ -1,9 +1,9 @@
 package com.bachlinh.order.entity.cache;
 
+import com.bachlinh.order.service.container.DependenciesResolver;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
 import org.springframework.cache.jcache.JCacheCacheManager;
-import org.springframework.context.ApplicationContext;
 import org.springframework.lang.Nullable;
 
 import javax.cache.Cache;
@@ -19,8 +19,8 @@ import java.util.Map;
 public final class HibernateL2CachingRegionFactory extends JCacheRegionFactory {
     private final transient JCacheCacheManager cacheManager;
 
-    public HibernateL2CachingRegionFactory(ApplicationContext applicationContext) {
-        this.cacheManager = applicationContext.getBean(JCacheCacheManager.class);
+    public HibernateL2CachingRegionFactory(DependenciesResolver dependenciesResolver) {
+        this.cacheManager = dependenciesResolver.resolveDependencies(JCacheCacheManager.class);
     }
 
     @Override

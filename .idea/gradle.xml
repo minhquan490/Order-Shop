@@ -24,6 +24,7 @@
             <option value="$PROJECT_DIR$/common/mail" />
             <option value="$PROJECT_DIR$/common/repository" />
             <option value="$PROJECT_DIR$/common/security" />
+            <option value="$PROJECT_DIR$/common/setup" />
             <option value="$PROJECT_DIR$/common/trigger" />
             <option value="$PROJECT_DIR$/common/utils" />
             <option value="$PROJECT_DIR$/common/validate" />

@@ -3,10 +3,10 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.entity.model.OrderHistory;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderHistoryRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 class OrderHistoryRepositoryImpl extends AbstractRepository<OrderHistory, Integer> implements OrderHistoryRepository {
 
     @Autowired
-    OrderHistoryRepositoryImpl(ApplicationContext context) {
-        super(OrderHistory.class, context);
+    OrderHistoryRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(OrderHistory.class, containerResolver.getDependenciesResolver());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

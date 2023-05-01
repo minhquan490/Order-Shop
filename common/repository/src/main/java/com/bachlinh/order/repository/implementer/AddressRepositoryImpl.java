@@ -6,10 +6,10 @@ import com.bachlinh.order.entity.model.Address_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.AddressRepository;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -21,11 +21,13 @@ import java.util.Optional;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @Repository
+@ActiveReflection
 class AddressRepositoryImpl extends AbstractRepository<Address, String> implements AddressRepository {
 
     @Autowired
-    AddressRepositoryImpl(@NonNull ApplicationContext applicationContext) {
-        super(Address.class, applicationContext);
+    @ActiveReflection
+    AddressRepositoryImpl(@NonNull DependenciesContainerResolver containerResolver) {
+        super(Address.class, containerResolver.getDependenciesResolver());
     }
 
     @Override

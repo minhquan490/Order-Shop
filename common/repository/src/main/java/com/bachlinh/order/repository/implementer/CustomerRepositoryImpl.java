@@ -1,6 +1,7 @@
 package com.bachlinh.order.repository.implementer;
 
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -8,12 +9,12 @@ import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.query.Condition;
 import com.bachlinh.order.repository.query.ConditionExecutor;
 import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,12 +35,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @Repository
+@ActiveReflection
 class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implements CustomerRepository {
     private final AtomicLong customerCount = new AtomicLong(0);
 
     @Autowired
-    public CustomerRepositoryImpl(ApplicationContext applicationContext) {
-        super(Customer.class, applicationContext);
+    @ActiveReflection
+    public CustomerRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(Customer.class, containerResolver.getDependenciesResolver());
     }
 
     @Override
@@ -92,6 +95,7 @@ class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implem
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY, isolation = READ_COMMITTED)
+    @ActiveReflection
     public boolean deleteCustomer(@NonNull Customer customer) {
         if (StringUtils.hasText((CharSequence) customer.getId())) {
             long numRowDeleted = this.delete(Specification.where((root, query, builder) -> builder.equal(root.get(Customer_.ID), customer.getId())));
@@ -104,6 +108,7 @@ class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implem
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
+    @ActiveReflection
     public Customer saveCustomer(@NonNull Customer customer) {
         return this.save(customer);
     }
@@ -175,6 +180,7 @@ class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implem
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @Async
+    @ActiveReflection
     public void saveAllCustomer(Collection<Customer> customers) {
         customerCount.set(customerCount.get() + this.saveAll(customers).size());
     }
@@ -182,12 +188,14 @@ class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implem
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @Async
+    @ActiveReflection
     public void deleteAllCustomer(Collection<Customer> customers) {
         this.deleteAllInBatch(customers);
     }
 
     @Override
     @PersistenceContext
+    @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }

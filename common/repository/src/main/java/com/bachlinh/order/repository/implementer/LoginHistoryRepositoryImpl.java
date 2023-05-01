@@ -3,10 +3,10 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 class LoginHistoryRepositoryImpl extends AbstractRepository<LoginHistory, Integer> implements LoginHistoryRepository {
 
     @Autowired
-    LoginHistoryRepositoryImpl(ApplicationContext context) {
-        super(LoginHistory.class, context);
+    LoginHistoryRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(LoginHistory.class, containerResolver.getDependenciesResolver());
     }
 
     @Override

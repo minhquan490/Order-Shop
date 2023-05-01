@@ -1,4 +1,4 @@
-package com.bachlinh.order.entity.setup.spi;
+package com.bachlinh.order.entity;
 
 import java.util.Collection;
 

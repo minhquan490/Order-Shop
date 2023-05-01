@@ -4,10 +4,10 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.validator.spi.AbstractValidator;
 import com.bachlinh.order.validator.spi.Result;
 import org.hibernate.validator.internal.util.DomainNameUtil;
-import org.springframework.context.ApplicationContext;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,14 +19,14 @@ public class CustomerValidator extends AbstractValidator<Customer> {
     private CustomerRepository customerRepository;
 
     @ActiveReflection
-    public CustomerValidator(ApplicationContext context) {
-        super(context);
+    public CustomerValidator(DependenciesContainerResolver containerResolver) {
+        super(containerResolver.getDependenciesResolver());
     }
 
     @Override
     public ValidateResult validate(Customer entity) {
         if (customerRepository == null) {
-            customerRepository = getApplicationContext().getBean(CustomerRepository.class);
+            customerRepository = getResolver().resolveDependencies(CustomerRepository.class);
         }
         ValidateResult result = new Result();
         if (entity.getUsername().length() > 24) {

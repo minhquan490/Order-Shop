@@ -11,6 +11,7 @@ import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.enums.RequestType;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,8 +20,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.ApplicationContext;
-import org.springframework.lang.NonNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.jwt.JwtException;
 
@@ -49,23 +48,41 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     private TokenManager tokenManager;
     private EntityFactory entityFactory;
 
-    public LoggingRequestFilter(ApplicationContext applicationContext, String clientUrl, int h3Port) {
-        super(applicationContext);
+    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port) {
+        super(containerResolver.getDependenciesResolver());
         this.clientUrl = clientUrl;
         this.h3Port = h3Port;
     }
 
-
     @Override
-    public void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // TODO implement ddos protection
-        if (executor == null) {
-            executor = getApplicationContext().getBean(ThreadPoolTaskExecutor.class);
-        }
         addH3Header(response);
         logRequest(request);
         executor.execute(() -> logCustomerRequest(request));
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected void inject() {
+        if (executor == null) {
+            executor = getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class);
+        }
+        if (customerHistoryRepository == null) {
+            customerHistoryRepository = getDependenciesResolver().resolveDependencies(CustomerHistoryRepository.class);
+        }
+        if (tokenManager == null) {
+            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+        }
+        if (entityFactory == null) {
+            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+        }
+        if (customerRepository == null) {
+            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+        }
+        if (refreshTokenRepository == null) {
+            refreshTokenRepository = getDependenciesResolver().resolveDependencies(RefreshTokenRepository.class);
+        }
     }
 
     /**
@@ -94,21 +111,6 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     }
 
     private void logCustomerRequest(HttpServletRequest request) {
-        if (customerHistoryRepository == null) {
-            customerHistoryRepository = getApplicationContext().getBean(CustomerHistoryRepository.class);
-        }
-        if (tokenManager == null) {
-            tokenManager = getApplicationContext().getBean(TokenManager.class);
-        }
-        if (entityFactory == null) {
-            entityFactory = getApplicationContext().getBean(EntityFactory.class);
-        }
-        if (customerRepository == null) {
-            customerRepository = getApplicationContext().getBean(CustomerRepository.class);
-        }
-        if (refreshTokenRepository == null) {
-            refreshTokenRepository = getApplicationContext().getBean(RefreshTokenRepository.class);
-        }
         logWithJwt(request);
     }
 

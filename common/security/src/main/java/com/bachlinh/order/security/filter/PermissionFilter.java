@@ -5,11 +5,11 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.AccessDeniedException;
 import com.bachlinh.order.security.handler.AccessDeniedHandler;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.ApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.PathMatcher;
@@ -23,8 +23,8 @@ public class PermissionFilter extends AbstractWebFilter {
     private final String adminPath;
     private AccessDeniedHandler accessDeniedHandler;
 
-    public PermissionFilter(ApplicationContext applicationContext, String profile, Collection<String> excludePaths, PathMatcher pathMatcher) {
-        super(applicationContext);
+    public PermissionFilter(DependenciesContainerResolver containerResolver, String profile, Collection<String> excludePaths, PathMatcher pathMatcher) {
+        super(containerResolver.getDependenciesResolver());
         Environment environment = Environment.getInstance(profile);
         this.excludePaths = excludePaths;
         this.pathMatcher = pathMatcher;
@@ -37,10 +37,7 @@ public class PermissionFilter extends AbstractWebFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if (accessDeniedHandler == null) {
-            accessDeniedHandler = getApplicationContext().getBean(AccessDeniedHandler.class);
-        }
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (customer.getRole().equalsIgnoreCase(Role.ADMIN.name()) && pathMatcher.match(adminPath, request.getRequestURI())) {
             filterChain.doFilter(request, response);
@@ -51,5 +48,12 @@ public class PermissionFilter extends AbstractWebFilter {
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected void inject() {
+        if (accessDeniedHandler == null) {
+            accessDeniedHandler = getDependenciesResolver().resolveDependencies(AccessDeniedHandler.class);
+        }
     }
 }

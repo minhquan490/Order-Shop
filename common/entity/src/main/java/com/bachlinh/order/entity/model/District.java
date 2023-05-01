@@ -33,7 +33,7 @@ import java.util.List;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "district")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.core.entity.trigger.internal.DistrictIndexTrigger")
+@Trigger(triggers = "com.bachlinh.order.trigger.internal.DistrictIndexTrigger")
 @ActiveReflection
 public class District extends AbstractEntity {
 

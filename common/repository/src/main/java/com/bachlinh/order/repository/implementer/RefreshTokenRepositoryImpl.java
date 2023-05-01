@@ -1,14 +1,15 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.RefreshToken_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +19,13 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @Repository
+@ActiveReflection
 class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken, String> implements RefreshTokenRepository {
 
     @Autowired
-    RefreshTokenRepositoryImpl(ApplicationContext applicationContext) {
-        super(RefreshToken.class, applicationContext);
+    @ActiveReflection
+    RefreshTokenRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(RefreshToken.class, containerResolver.getDependenciesResolver());
     }
 
     @Override
@@ -60,6 +63,7 @@ class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken, String
 
     @Override
     @PersistenceContext
+    @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }

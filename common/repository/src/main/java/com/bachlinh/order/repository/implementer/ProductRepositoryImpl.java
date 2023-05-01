@@ -1,15 +1,16 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProductRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,12 +27,14 @@ import java.util.stream.Collectors;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @Repository
+@ActiveReflection
 class ProductRepositoryImpl extends AbstractRepository<Product, String> implements ProductRepository {
     private static final String LIKE_PATTERN = "%{0}%";
 
     @Autowired
-    ProductRepositoryImpl(ApplicationContext applicationContext) {
-        super(Product.class, applicationContext);
+    @ActiveReflection
+    ProductRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(Product.class, containerResolver.getDependenciesResolver());
     }
 
     @Override
@@ -135,6 +138,7 @@ class ProductRepositoryImpl extends AbstractRepository<Product, String> implemen
 
     @Override
     @PersistenceContext
+    @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }

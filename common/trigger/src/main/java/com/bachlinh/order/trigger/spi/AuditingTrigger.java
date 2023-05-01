@@ -5,10 +5,9 @@ import com.bachlinh.order.annotation.Ignore;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.AbstractEntity;
-import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.AuditorAware;
@@ -26,14 +25,14 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
     private final TriggerMode mode;
 
     @ActiveReflection
-    public AuditingTrigger(ApplicationContext applicationContext) {
-        super(applicationContext);
+    public AuditingTrigger(DependenciesResolver dependenciesResolver) {
+        super(dependenciesResolver);
         this.mode = TriggerMode.BEFORE;
         setRunSync(true);
     }
 
     @Override
-    public void doExecute(BaseEntity entity) {
+    public void doExecute(AbstractEntity entity) {
         if (log.isDebugEnabled()) {
             log.debug("BEGIN Auditing trigger");
             log.debug("Execute on entity [{}]", entity.getClass().getName());
@@ -43,31 +42,30 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
             auditor = Optional.of("Application");
         }
         Object audit = auditor.get();
-        AbstractEntity abstractEntity = (AbstractEntity) entity;
-        if (abstractEntity.getCreatedBy() == null) {
+        if (entity.getCreatedBy() == null) {
             if (audit instanceof Customer holder) {
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-                abstractEntity.setCreatedBy(holder.getId());
-                abstractEntity.setCreatedDate(now);
-                abstractEntity.setModifiedBy(holder.getId());
-                abstractEntity.setModifiedDate(now);
+                entity.setCreatedBy(holder.getId());
+                entity.setCreatedDate(now);
+                entity.setModifiedBy(holder.getId());
+                entity.setModifiedDate(now);
             } else {
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 assert audit instanceof String;
-                abstractEntity.setCreatedBy((String) audit);
-                abstractEntity.setCreatedDate(now);
-                abstractEntity.setModifiedBy((String) audit);
-                abstractEntity.setModifiedDate(now);
+                entity.setCreatedBy((String) audit);
+                entity.setCreatedDate(now);
+                entity.setModifiedBy((String) audit);
+                entity.setModifiedDate(now);
             }
         } else {
             if (audit instanceof Customer holder) {
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-                abstractEntity.setModifiedBy(holder.getId());
-                abstractEntity.setModifiedDate(now);
+                entity.setModifiedBy(holder.getId());
+                entity.setModifiedDate(now);
             } else {
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-                abstractEntity.setModifiedBy((String) audit);
-                abstractEntity.setModifiedDate(now);
+                entity.setModifiedBy((String) audit);
+                entity.setModifiedDate(now);
             }
         }
         if (log.isDebugEnabled()) {
@@ -76,15 +74,19 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    protected void inject() {
+        if (entityAuditor == null) {
+            this.entityAuditor = getDependenciesResolver().resolveDependencies(AuditorAware.class);
+        }
+    }
+
+    @Override
     protected String getTriggerName() {
         return "auditingTrigger";
     }
 
-    @SuppressWarnings("unchecked")
     private AuditorAware<Object> getEntityAuditor() {
-        if (entityAuditor == null) {
-            this.entityAuditor = getApplicationContext().getBean(AuditorAware.class);
-        }
         return this.entityAuditor;
     }
 

@@ -1,31 +1,36 @@
 package com.bachlinh.order.trigger.internal;
 
+import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
-import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
-import org.springframework.context.ApplicationContext;
 
 import java.util.Collections;
 
+@ActiveReflection
 public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     private EntityFactory entityFactory;
 
-    public CustomerIndexTrigger(ApplicationContext applicationContext) {
-        super(applicationContext);
+    @ActiveReflection
+    public CustomerIndexTrigger(DependenciesResolver resolver) {
+        super(resolver);
     }
 
     @Override
-    public void doExecute(BaseEntity entity) {
-        if (entity == null) {
-            this.entityFactory = getApplicationContext().getBean(EntityFactory.class);
-        }
-        Customer customer = (Customer) entity;
+    public void doExecute(Customer entity) {
         EntityContext context = entityFactory.getEntityContext(Customer.class);
-        context.analyze(Collections.singleton(customer));
+        context.analyze(Collections.singleton(entity));
+    }
+
+    @Override
+    protected void inject() {
+        if (entityFactory == null) {
+            this.entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+        }
     }
 
     @Override
