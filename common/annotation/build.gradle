@@ -8,10 +8,6 @@ plugins {
 group = 'com.bachlinh.order'
 version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.springframework.boot:spring-boot-starter-web'

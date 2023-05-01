@@ -21,7 +21,7 @@ import java.util.Set;
 @Label("ETF-")
 @Entity
 @Table(name = "EMAIL_TEMPLATE_FOLDER", indexes = @Index(name = "idx_email_template_folder_owner", columnList = "OWNER_ID"))
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.EmailTemplateFolderValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateFolderValidator")
 @ActiveReflection
 public class EmailTemplateFolder extends AbstractEntity {
 

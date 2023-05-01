@@ -1,12 +1,3 @@
-buildscript {
-    ext {
-        googleLib = '2.2.0'
-        googleOauth = '1.16.1'
-        jakartaMail = '2.1.1'
-        gmailApi = 'v1-rev20230206-2.0.0'
-    }
-}
-
 plugins {
     id 'java'
     id 'org.springframework.boot'
@@ -17,26 +8,24 @@ plugins {
 group = 'com.bachlinh.order'
 version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation "com.google.api-client:google-api-client:${googleLib}"
-    implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth}"
-    implementation "com.google.apis:google-api-services-gmail:${gmailApi}"
-    implementation "jakarta.mail:jakarta.mail-api:${jakartaMail}"
+    implementation "com.google.api-client:google-api-client:${libs.versions.googleLib.get()}"
+    implementation "com.google.auth:google-auth-library-oauth2-http:${libs.versions.googleOauth.get()}"
+    implementation "com.google.apis:google-api-services-gmail:${libs.versions.gmailApi.get()}"
+    implementation "jakarta.mail:jakarta.mail-api:${libs.versions.jakartaMail.get()}"
     implementation project(":common:utils")
     implementation project(":common:core")
     implementation project(":common:exception")
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'jakarta.persistence:jakarta.persistence-api'
 
     annotationProcessor 'org.projectlombok:lombok'
 
     constraints {
-        implementation("com.google.api-client:google-api-client:${googleLib}") {
+        implementation("com.google.api-client:google-api-client:${libs.versions.googleLib.get()}") {
             because 'Sync with project'
+        }
+        implementation("com.google.errorprone:error_prone_annotations:${libs.versions.errorprone.get()}") {
+            because("Sync with project")
         }
     }
 }

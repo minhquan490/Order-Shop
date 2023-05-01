@@ -7,10 +7,6 @@ plugins {
 group = 'com.bachlinh.order'
 version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(":common:annotation")
     implementation project(":common:entity")
@@ -21,7 +17,7 @@ dependencies {
     implementation project(":service")
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly "com.google.code.findbugs:jsr305:${libs.versions.findbugs.get()}"
 }
 
 test {

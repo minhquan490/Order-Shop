@@ -29,7 +29,7 @@ import java.sql.Timestamp;
         }
 )
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.EmailValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.EmailValidator")
 @ActiveReflection
 public class Email extends AbstractEntity {
 

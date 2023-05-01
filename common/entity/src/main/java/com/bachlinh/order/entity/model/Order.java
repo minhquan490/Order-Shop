@@ -29,7 +29,7 @@ import java.util.Collection;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "order")
 @Label("ODR-")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.OrderValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.OrderValidator")
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.OrderHistoryTrigger", "com.bachlinh.order.trigger.internal.NewOrderPushingTrigger"})
 @ActiveReflection
 public class Order extends AbstractEntity {

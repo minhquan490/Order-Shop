@@ -25,7 +25,7 @@ import jakarta.persistence.Table;
                 @Index(name = "idx_email_template_title", columnList = "TITLE")
         }
 )
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.EmailTemplateValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateValidator")
 @ActiveReflection
 public class EmailTemplate extends AbstractEntity {
 

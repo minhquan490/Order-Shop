@@ -1,11 +1,3 @@
-buildscript {
-    ext {
-        guavaVersion = '31.1-jre'
-        commonLang3Version = '3.12.0'
-        jacksonVersion = '2.15.0';
-    }
-}
-
 plugins {
     id 'java'
     id 'org.springframework.boot'
@@ -16,19 +8,14 @@ plugins {
 group = 'com.bachlinh.order'
 version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(":common:exception")
     implementation project(":common:annotation")
-    implementation "com.google.guava:guava:${guavaVersion}"
-    implementation "org.apache.commons:commons-lang3:${commonLang3Version}"
-    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-    implementation "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation "com.google.guava:guava:${libs.versions.guavaVersion.get()}"
+    implementation "org.apache.commons:commons-lang3:${libs.versions.commonLang3Version.get()}"
+    implementation "com.fasterxml.jackson.core:jackson-databind"
+    implementation "com.fasterxml.jackson.core:jackson-core"
+    implementation 'jakarta.persistence:jakarta.persistence-api'
 
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly 'org.projectlombok:lombok'
@@ -38,7 +25,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     constraints {
-        implementation('com.google.errorprone:error_prone_annotations:2.16') {
+        implementation("com.google.errorprone:error_prone_annotations:${libs.versions.errorprone.get()}") {
             because("Sync with project")
         }
     }

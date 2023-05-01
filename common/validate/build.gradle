@@ -8,10 +8,6 @@ plugins {
 group = 'com.bachlinh.order'
 version = 'unspecified'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(":common:entity")
     implementation project(":common:repository")

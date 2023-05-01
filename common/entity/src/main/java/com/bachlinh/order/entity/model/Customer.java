@@ -45,7 +45,7 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "customer")
 @EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.CustomerIndexTrigger")
-@Validator(validators = "com.bachlinh.order.internal.validator.CustomerValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.CustomerValidator")
 @ActiveReflection
 public class Customer extends AbstractEntity implements UserDetails {
 

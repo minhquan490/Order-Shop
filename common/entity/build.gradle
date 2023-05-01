@@ -1,17 +1,3 @@
-buildscript {
-    ext {
-        hibernateVersion = '6.1.7.Final'
-        ehcacheVersion = '3.10.8'
-        tomcatVersion = '10.1.7'
-        lunceneVersion = '9.5.0'
-        jacksonVersion = '2.14.2'
-        gmailApi = 'v1-rev20230206-2.0.0'
-        guavaVersion = '31.1-jre'
-        servletApiVersion = '6.0.0'
-        jettyServerVersion = '11.0.15'
-    }
-}
-
 plugins {
     id 'java'
     id 'org.springframework.boot'
@@ -21,10 +7,6 @@ plugins {
 
 group = 'com.bachlinh.order'
 version = '1.0.0'
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation project(":common:annotation")
@@ -41,17 +23,17 @@ dependencies {
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'org.springframework.security:spring-security-core'
     implementation 'jakarta.persistence:jakarta.persistence-api'
-    implementation "org.ehcache:ehcache:${ehcacheVersion}"
-    implementation "org.hibernate.orm:hibernate-jcache:${hibernateVersion}"
-    implementation "org.apache.lucene:lucene-core:${lunceneVersion}"
-    implementation "org.apache.lucene:lucene-queryparser:${lunceneVersion}"
-    implementation "org.apache.lucene:lucene-analysis-common:${lunceneVersion}"
+    implementation "org.ehcache:ehcache:${libs.versions.ehcacheVersion.get()}"
+    implementation "org.hibernate.orm:hibernate-jcache"
+    implementation "org.apache.lucene:lucene-core:${libs.versions.lunceneVersion.get()}"
+    implementation "org.apache.lucene:lucene-queryparser:${libs.versions.lunceneVersion.get()}"
+    implementation "org.apache.lucene:lucene-analysis-common:${libs.versions.lunceneVersion.get()}"
     implementation 'org.apache.logging.log4j:log4j-core'
-    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "com.google.guava:guava:${libs.versions.guavaVersion.get()}"
 
     compileOnly 'org.projectlombok:lombok'
 
-    annotationProcessor "org.hibernate.orm:hibernate-jpamodelgen:${hibernateVersion}"
+    annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'
     annotationProcessor 'org.projectlombok:lombok'
 }
 

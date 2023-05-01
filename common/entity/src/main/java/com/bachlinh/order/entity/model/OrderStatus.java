@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ORDER_STATUS")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.OrderStatusValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.OrderStatusValidator")
 @ActiveReflection
 public class OrderStatus extends AbstractEntity {
 

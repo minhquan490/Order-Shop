@@ -1,10 +1,3 @@
-buildscript {
-    ext {
-        jettyServerVersion = '11.0.15'
-    }
-}
-
-
 plugins {
     id 'java'
     id 'org.springframework.boot'
@@ -14,10 +7,6 @@ plugins {
 
 group = 'com.bachlinh.order'
 version = '1.0.0'
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation project(":aot")

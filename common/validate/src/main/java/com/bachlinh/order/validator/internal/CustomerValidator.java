@@ -24,10 +24,14 @@ public class CustomerValidator extends AbstractValidator<Customer> {
     }
 
     @Override
-    public ValidateResult validate(Customer entity) {
+    protected void inject() {
         if (customerRepository == null) {
             customerRepository = getResolver().resolveDependencies(CustomerRepository.class);
         }
+    }
+
+    @Override
+    protected ValidateResult doValidate(Customer entity) {
         ValidateResult result = new Result();
         if (entity.getUsername().length() > 24) {
             result.addMessageError("Username: is greater than 24 character");

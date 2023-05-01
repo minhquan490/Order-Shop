@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 @Label("ADR-")
 @Entity
 @Table(name = "ADDRESS")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.AddressValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.AddressValidator")
 @ActiveReflection
 public class Address extends AbstractEntity {
 

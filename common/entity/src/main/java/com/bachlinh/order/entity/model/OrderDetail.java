@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ORDER_DETAIL", indexes = @Index(name = "idx_order", columnList = "ORDER_ID"))
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.OrderDetailValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.OrderDetailValidator")
 @ActiveReflection
 public class OrderDetail extends AbstractEntity {
 

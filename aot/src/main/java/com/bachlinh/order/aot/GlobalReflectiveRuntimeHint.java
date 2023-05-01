@@ -8,6 +8,7 @@ import com.bachlinh.order.aot.metadata.FieldMetadata;
 import com.bachlinh.order.aot.metadata.Metadata;
 import com.bachlinh.order.aot.metadata.MethodMetadata;
 import com.bachlinh.order.aot.metadata.ServiceLoader;
+import com.bachlinh.order.core.scanner.ApplicationScanner;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeHint;
@@ -39,6 +40,10 @@ public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
     private static final Pattern classPattern = Pattern.compile("^\\S+(.class)$");
 
     private final ServiceLoader serviceLoader = new ObjectReflectiveLocator();
+
+    public GlobalReflectiveRuntimeHint() {
+        new ApplicationScanner().findComponents();
+    }
 
     @Override
     public void registerHints(@NonNull RuntimeHints hints, ClassLoader classLoader) {

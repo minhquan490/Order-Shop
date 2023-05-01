@@ -22,7 +22,7 @@ import java.util.Set;
 @Label("EFR-")
 @Entity
 @Table(name = "EMAIL_FOLDER", indexes = {@Index(name = "idx_email_folder_owner", columnList = "OWNER_ID"), @Index(name = "idx_email_folder_name", columnList = "NAME")})
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.EmailFoldersValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.EmailFoldersValidator")
 @ActiveReflection
 public class EmailFolders extends AbstractEntity {
 

@@ -25,7 +25,7 @@ import java.util.Set;
 @Entity
 @Table(name = "CATEGORY", indexes = @Index(name = "idx_category_name", columnList = "NAME", unique = true))
 @Label("CTR-")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.CategoryValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.CategoryValidator")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "category")
 @ActiveReflection

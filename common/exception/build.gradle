@@ -8,10 +8,6 @@ plugins {
 group = 'com.bachlinh.order'
 version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'

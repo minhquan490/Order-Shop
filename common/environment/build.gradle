@@ -8,16 +8,11 @@ plugins {
 group = 'com.bachlinh.order'
 version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(":common:utils")
     implementation project(":common:exception")
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'jakarta.persistence:jakarta.persistence-api'
 }
 
 test {

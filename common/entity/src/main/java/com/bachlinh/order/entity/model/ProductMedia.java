@@ -1,7 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,7 +15,6 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "PRODUCT_MEDIA", indexes = @Index(name = "idx_product_media_product", columnList = "PRODUCT_ID"))
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.ProductPictureValidator")
 @ActiveReflection
 public class ProductMedia extends AbstractEntity {
 

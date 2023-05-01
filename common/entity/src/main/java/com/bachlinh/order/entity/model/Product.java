@@ -30,7 +30,7 @@ import java.util.Set;
         }
 )
 @Label("PRD-")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.ProductValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.ProductValidator")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "product")
 @EnableFullTextSearch

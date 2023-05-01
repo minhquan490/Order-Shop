@@ -17,7 +17,7 @@ import java.util.Set;
 @Entity
 @Table(name = "VOUCHER")
 @Label("VOU-")
-@Validator(validators = "com.bachlinh.order.core.entity.validator.internal.VoucherValidator")
+@Validator(validators = "com.bachlinh.order.validator.internal.VoucherValidator")
 @ActiveReflection
 public class Voucher extends AbstractEntity {
 
