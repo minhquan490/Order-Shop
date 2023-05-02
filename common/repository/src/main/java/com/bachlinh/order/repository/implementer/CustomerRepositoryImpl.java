@@ -1,17 +1,6 @@
 package com.bachlinh.order.repository.implementer;
 
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.entity.model.Customer_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.query.Condition;
-import com.bachlinh.order.repository.query.ConditionExecutor;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
@@ -27,12 +16,22 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.query.Condition;
+import com.bachlinh.order.repository.query.ConditionExecutor;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @RepositoryComponent
 @ActiveReflection

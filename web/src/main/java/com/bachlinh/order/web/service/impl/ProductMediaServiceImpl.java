@@ -1,9 +1,6 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.sun.media.jai.codec.SeekableStream;
-import javax.media.jai.JAI;
-import javax.media.jai.OpImage;
-import javax.media.jai.RenderedOp;
+import javax.imageio.ImageIO;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Isolation;
@@ -19,7 +16,6 @@ import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.exception.system.CriticalException;
 import com.bachlinh.order.repository.ProductMediaRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.service.AbstractService;
@@ -33,11 +29,10 @@ import com.bachlinh.order.web.service.business.FileUploadService;
 import com.bachlinh.order.web.service.business.ImageCompressService;
 import com.bachlinh.order.web.service.common.ProductMediaService;
 
-import java.awt.RenderingHints;
-import java.io.BufferedInputStream;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -187,7 +182,6 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
             }
             productMedia.setContentLength(channel.size());
         }
-        path = Path.of(compressImage(path.toString(), form.contentType()));
         productMedia.setProduct(product);
         productMedia.setUrl(path.toString());
         productMediaRepository.saveMedia(productMedia);
@@ -204,18 +198,26 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
             throw new BadVariableException("Id of media must be int");
         }
         ProductMedia media = productMediaRepository.loadMedia(mediaId);
-        try (RandomAccessFile randomAccessFile = new RandomAccessFile(Path.of(media.getUrl()).toFile(), "r");
-             FileChannel channel = randomAccessFile.getChannel()) {
-            if (channel.size() < serveFileSize) {
-                buffer = ByteBuffer.allocate((int) channel.size());
-            } else {
-                buffer = ByteBuffer.allocate(serveFileSize);
+        if (media.getUrl().endsWith(".mp4")) {
+            try (RandomAccessFile randomAccessFile = new RandomAccessFile(Path.of(media.getUrl()).toFile(), "r");
+                 FileChannel channel = randomAccessFile.getChannel()) {
+                if (channel.size() < serveFileSize) {
+                    buffer = ByteBuffer.allocate((int) channel.size());
+                } else {
+                    buffer = ByteBuffer.allocate(serveFileSize);
+                }
+                channel.position(position);
+                channel.read(buffer);
+                resp.setTotalSize(channel.size());
+            } catch (IOException e) {
+                throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed");
             }
-            channel.position(position);
-            channel.read(buffer);
-            resp.setTotalSize(channel.size());
-        } catch (IOException e) {
-            throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed");
+        } else {
+            try {
+                buffer = ByteBuffer.wrap(compressImage(media.getUrl(), media.getContentType()));
+            } catch (IOException e) {
+                throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed");
+            }
         }
         resp.setData(buffer.array());
         resp.setContentType(media.getContentType());
@@ -225,41 +227,14 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
     }
 
     @Override
-    public String compressImage(String imagePath, String contentType) throws IOException {
-        String[] imagePart = imagePath.split("/");
-        String imageName = imagePart[imagePart.length - 1];
-        String[] imgNamePart = imageName.split("\\.");
-        String newImgName = imgNamePart[0].concat("-compressed").concat(imgNamePart[imgNamePart.length - 1]);
-        File in = Path.of(imagePath).toFile();
-        File out = Path.of(imagePath.replace(imageName, newImgName)).toFile();
-        Files.createFile(out.toPath());
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(in));
+    public byte[] compressImage(String imagePath, String contentType) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(new File(imagePath));
+        Image resultImage = bufferedImage.getScaledInstance(300, 300, Image.SCALE_DEFAULT);
+        BufferedImage outputImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
+        outputImage.getGraphics().drawImage(resultImage, 0, 0, null);
         ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-        SeekableStream s = SeekableStream.wrapInputStream(bis, true);
-
-        RenderedOp image = JAI.create("stream", s);
-        ((OpImage) image.getRendering()).setTileCache(null);
-
-        RenderingHints qualityHints = new RenderingHints(
-                RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        RenderedOp resizedImage = JAI.create("compressed", image, 0.9,
-                0.9, qualityHints);
-        JAI.create("encode", resizedImage, arrayOutputStream, contentType.split("/")[1], null);
-
-        try (RandomAccessFile randomAccessFile = new RandomAccessFile(out, "rw");
-             FileChannel fileChannel = randomAccessFile.getChannel()) {
-            int result = fileChannel.write(ByteBuffer.wrap(arrayOutputStream.toByteArray()));
-
-            if (result == 0) {
-                throw new CriticalException("Resize image failure");
-            }
-        }
-
-        Files.deleteIfExists(in.toPath());
-
-        return out.toPath().toString();
+        ImageIO.write(outputImage, contentType.split("/")[1], arrayOutputStream);
+        return arrayOutputStream.toByteArray();
     }
 
     private void createProductTempFolder(String[] paths) throws IOException {

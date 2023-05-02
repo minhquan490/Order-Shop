@@ -1,13 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.Order;
-import com.bachlinh.order.entity.model.Order_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.OrderRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
@@ -15,6 +7,18 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Order;
+import com.bachlinh.order.entity.model.OrderDetail_;
+import com.bachlinh.order.entity.model.Order_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.OrderRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -22,9 +26,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -66,10 +67,20 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
     public Order getOrder(String orderId) {
         Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
             root.join(Order_.orderStatus, JoinType.INNER);
-            root.join(Order_.orderDetails, JoinType.INNER);
+            root.join(Order_.orderDetails, JoinType.INNER).join(OrderDetail_.product, JoinType.INNER);
             return criteriaBuilder.equal(root.get(Order_.id), orderId);
         });
         return findOne(spec).orElse(null);
+    }
+
+    @Override
+    public List<Order> getOrderOfCustomer(Customer customer) {
+        Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
+            root.join(Order_.orderStatus, JoinType.INNER);
+            root.join(Order_.orderDetails, JoinType.INNER).join(OrderDetail_.product, JoinType.INNER);
+            return criteriaBuilder.equal(root.get(Order_.customer), customer);
+        });
+        return findAll(spec);
     }
 
     @Override
