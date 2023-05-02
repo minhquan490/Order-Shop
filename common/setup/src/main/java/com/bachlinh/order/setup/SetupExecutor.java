@@ -1,14 +1,14 @@
 package com.bachlinh.order.setup;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.enums.ExecuteEvent;
+import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.entity.SetupManager;
 import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.setup.internal.SetupManagerFactoryProvider;
 import com.bachlinh.order.setup.spi.SetupManagerFactory;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.lang.NonNull;
 
 /**
  * Executor for execute all setup available in classpath. This class is listener
@@ -20,17 +20,31 @@ import org.springframework.lang.NonNull;
  * @author Hoang Minh Quan.
  */
 @ActiveReflection
-public class SetupExecutor implements ApplicationListener<ContextRefreshedEvent> {
+public class SetupExecutor extends AbstractExecutor<Void> {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SetupExecutor.class);
-    private final SetupManager manager;
+    private SetupManager manager;
 
     @ActiveReflection
-    public SetupExecutor(ContainerWrapper context) {
-        this.manager = buildSetupManager(context);
+    public SetupExecutor(DependenciesContainerResolver containerResolver) {
+        super(containerResolver);
+    }
+
+    private SetupManager buildSetupManager(ContainerWrapper context) {
+        SetupManagerFactoryProvider provider = new SetupManagerFactoryProvider();
+        SetupManagerFactory.Builder builder = provider.provideBuilder();
+        SetupManagerFactory setupManagerFactory = builder.container(context).build();
+        return setupManagerFactory.buildManager();
     }
 
     @Override
-    public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
+    protected void inject() {
+        if (manager == null) {
+            this.manager = buildSetupManager(ContainerWrapper.wrap(unwrapActualContainer()));
+        }
+    }
+
+    @Override
+    protected void doExecute(Void bootObject) {
         try {
             log.info("Start custom setup");
             manager.run();
@@ -42,10 +56,13 @@ public class SetupExecutor implements ApplicationListener<ContextRefreshedEvent>
         }
     }
 
-    private SetupManager buildSetupManager(ContainerWrapper context) {
-        SetupManagerFactoryProvider provider = new SetupManagerFactoryProvider();
-        SetupManagerFactory.Builder builder = provider.provideBuilder();
-        SetupManagerFactory setupManagerFactory = builder.container(context).build();
-        return setupManagerFactory.buildManager();
+    @Override
+    public ExecuteEvent runOn() {
+        return ExecuteEvent.ON_REFRESH;
+    }
+
+    @Override
+    public Class<Void> getBootObjectType() {
+        return Void.class;
     }
 }

@@ -1,6 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -10,11 +12,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,14 +26,14 @@ import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
-@Repository
+@RepositoryComponent
 @ActiveReflection
-class ProductRepositoryImpl extends AbstractRepository<Product, String> implements ProductRepository {
+public class ProductRepositoryImpl extends AbstractRepository<Product, String> implements ProductRepository {
     private static final String LIKE_PATTERN = "%{0}%";
 
-    @Autowired
+    @DependenciesInitialize
     @ActiveReflection
-    ProductRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    public ProductRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(Product.class, containerResolver.getDependenciesResolver());
     }
 
@@ -96,8 +96,8 @@ class ProductRepositoryImpl extends AbstractRepository<Product, String> implemen
     }
 
     @Override
-    public Collection<Product> getAllProducts() {
-        return findAll();
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return findAll(pageable);
     }
 
     private Specification<Product> specWithCondition(Map<String, Object> conditions) {

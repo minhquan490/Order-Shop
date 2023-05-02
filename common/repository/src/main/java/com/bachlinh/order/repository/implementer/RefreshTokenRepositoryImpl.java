@@ -1,6 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.RefreshToken_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -9,22 +11,20 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
-@Repository
+@RepositoryComponent
 @ActiveReflection
-class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken, String> implements RefreshTokenRepository {
+public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken, String> implements RefreshTokenRepository {
 
-    @Autowired
+    @DependenciesInitialize
     @ActiveReflection
-    RefreshTokenRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    public RefreshTokenRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(RefreshToken.class, containerResolver.getDependenciesResolver());
     }
 

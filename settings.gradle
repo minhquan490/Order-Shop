@@ -20,14 +20,17 @@ dependencyResolutionManagement {
             version('errorprone', '2.16')
             version('ehcacheVersion', '3.10.8')
             version('findbugs', '3.0.2')
+            version('jaiCore', '1.1.3')
         }
     }
     repositories {
+        maven { url 'https://maven.geotoolkit.org' }
+        maven { url 'https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/' }
+        mavenCentral()
         gradlePluginPortal()
         maven { url 'https://repo.spring.io/release' }
         maven { url 'https://repo1.maven.org/maven2/' }
         maven { url 'https://repo.spring.io/milestone' }
-        mavenCentral()
     }
 }
 

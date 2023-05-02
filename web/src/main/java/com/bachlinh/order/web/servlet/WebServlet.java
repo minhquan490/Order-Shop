@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -39,5 +40,10 @@ public class WebServlet extends FrameworkServlet {
         String json = objectMapper.writeValueAsString(responseEntity.getBody());
         response.getOutputStream().write(json.getBytes(StandardCharsets.UTF_8));
         response.flushBuffer();
+    }
+
+    @Override
+    protected void onRefresh(ApplicationContext context) {
+        super.onRefresh(context);
     }
 }

@@ -22,12 +22,12 @@ public abstract class AbstractChildRoute implements ChildRoute {
     }
 
     @Override
-    public NativeResponse<?> getNativeResponse() {
+    public <T> NativeResponse<T> getNativeResponse() {
         return controllerManager.getNativeResponse();
     }
 
     @Override
-    public NativeRequest<?> getNativeRequest() {
+    public <T> NativeRequest<T> getNativeRequest() {
         return controllerManager.getNativeRequest();
     }
 

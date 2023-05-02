@@ -11,6 +11,7 @@ version = '1.0.0'
 dependencies {
     implementation project(":common:entity")
     implementation project(":common:annotation")
+    implementation project(":common:exception")
     implementation project(":service")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.security:spring-security-core'
@@ -20,6 +21,8 @@ dependencies {
     compileOnly "com.google.code.findbugs:jsr305:${libs.versions.findbugs.get()}"
 
     annotationProcessor 'org.projectlombok:lombok'
+
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 
     testImplementation 'org.springframework.security:spring-security-test'
 }

@@ -16,8 +16,7 @@ public interface DependenciesContainerResolver {
     }
 
     static DependenciesContainerResolver googleResolver(Object container) {
-        // Not support right now
-        return null;
+        throw new UnsupportedOperationException("Unsupported right now");
     }
 
     static DependenciesContainerResolver buildResolver(Object container, String profile) {

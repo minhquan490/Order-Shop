@@ -1,22 +1,25 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.OrderHistory;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
-class OrderHistoryRepositoryImpl extends AbstractRepository<OrderHistory, Integer> implements OrderHistoryRepository {
+@RepositoryComponent
+@ActiveReflection
+public class OrderHistoryRepositoryImpl extends AbstractRepository<OrderHistory, Integer> implements OrderHistoryRepository {
 
-    @Autowired
-    OrderHistoryRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    @DependenciesInitialize
+    @ActiveReflection
+    public OrderHistoryRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(OrderHistory.class, containerResolver.getDependenciesResolver());
     }
 

@@ -1,6 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail_;
 import com.bachlinh.order.entity.model.Cart_;
@@ -11,9 +13,7 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +21,13 @@ import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
-@Repository
+@RepositoryComponent
 @ActiveReflection
-class CartRepositoryImpl extends AbstractRepository<Cart, String> implements CartRepository {
+public class CartRepositoryImpl extends AbstractRepository<Cart, String> implements CartRepository {
 
-    @Autowired
+    @DependenciesInitialize
     @ActiveReflection
-    CartRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    public CartRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(Cart.class, containerResolver.getDependenciesResolver());
     }
 

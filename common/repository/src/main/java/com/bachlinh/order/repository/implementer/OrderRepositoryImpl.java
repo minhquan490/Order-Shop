@@ -1,5 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -9,10 +12,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -25,11 +26,13 @@ import java.util.Optional;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
-@Repository
-class OrderRepositoryImpl extends AbstractRepository<Order, String> implements OrderRepository {
+@RepositoryComponent
+@ActiveReflection
+public class OrderRepositoryImpl extends AbstractRepository<Order, String> implements OrderRepository {
 
-    @Autowired
-    OrderRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    @DependenciesInitialize
+    @ActiveReflection
+    public OrderRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(Order.class, containerResolver.getDependenciesResolver());
     }
 

@@ -1,5 +1,6 @@
 package com.bachlinh.order.service;
 
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import org.springframework.transaction.annotation.Isolation;
@@ -13,10 +14,12 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
 
     private final Executor executor;
     private final DependenciesContainerResolver containerResolver;
+    private final Environment environment;
 
     protected AbstractService(Executor executor, ContainerWrapper wrapper, String profile) {
         this.executor = executor;
         this.containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile);
+        this.environment = Environment.getInstance(profile);
     }
 
     @Override
@@ -55,6 +58,10 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
 
     protected DependenciesContainerResolver getContainerResolver() {
         return containerResolver;
+    }
+
+    protected Environment getEnvironment() {
+        return environment;
     }
 
     protected Executor getExecutor() {

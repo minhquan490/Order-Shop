@@ -56,6 +56,16 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
             return context.getBean(type);
         }
 
+        @Override
+        public <T> T resolveDependencies(String name, Class<T> requireType) {
+            return context.getBean(name, requireType);
+        }
+
+        @Override
+        public Object resolveDependencies(String name) {
+            return context.getBean(name);
+        }
+
         String getContainerName() {
             return getContainerType().getName();
         }

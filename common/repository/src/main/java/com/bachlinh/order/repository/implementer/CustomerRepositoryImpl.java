@@ -2,6 +2,8 @@ package com.bachlinh.order.repository.implementer;
 
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -14,7 +16,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -34,12 +34,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
-@Repository
+@RepositoryComponent
 @ActiveReflection
-class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implements CustomerRepository {
+public class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implements CustomerRepository {
     private final AtomicLong customerCount = new AtomicLong(0);
 
-    @Autowired
+    @DependenciesInitialize
     @ActiveReflection
     public CustomerRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(Customer.class, containerResolver.getDependenciesResolver());

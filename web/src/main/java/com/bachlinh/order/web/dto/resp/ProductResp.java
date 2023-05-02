@@ -3,10 +3,13 @@ package com.bachlinh.order.web.dto.resp;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.Arrays;
 import java.util.Objects;
 
+@JsonRootName("product")
 public record ProductResp(String id,
                           String name,
                           String price,
@@ -15,7 +18,8 @@ public record ProductResp(String id,
                           String taobaoUrl,
                           String description,
                           String[] pictures,
-                          String[] categories) {
+                          String[] categories,
+                          @JsonIgnore boolean isSuccess) {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,16 +51,32 @@ public record ProductResp(String id,
     }
 
     public static ProductResp toDto(Product product) {
-        return new ProductResp(
-                product.getId(),
-                product.getName(),
-                String.valueOf(product.getPrice()),
-                product.getSize(),
-                product.getColor(),
-                product.getTaobaoUrl(),
-                product.getDescription(),
-                (String[]) product.getMedias().stream().map(ProductMedia::getUrl).toArray(),
-                (String[]) product.getCategories().stream().map(Category::getName).toArray()
-        );
+        if (product == null) {
+            return new ProductResp(
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    new String[0],
+                    new String[0],
+                    false
+            );
+        } else {
+            return new ProductResp(
+                    product.getId(),
+                    product.getName(),
+                    String.valueOf(product.getPrice()),
+                    product.getSize(),
+                    product.getColor(),
+                    product.getTaobaoUrl(),
+                    product.getDescription(),
+                    (String[]) product.getMedias().stream().map(ProductMedia::getUrl).toArray(),
+                    (String[]) product.getCategories().stream().map(Category::getName).toArray(),
+                    true
+            );
+        }
     }
 }

@@ -1,17 +1,11 @@
 package com.bachlinh.order.web.service.common;
 
+import com.bachlinh.order.service.BaseService;
 import com.bachlinh.order.web.dto.form.ResourceUploadForm;
 import com.bachlinh.order.web.dto.resp.ProductMediaResp;
-import jakarta.servlet.http.HttpServletResponse;
+import com.bachlinh.order.web.dto.resp.ResourceResp;
 
-import java.io.IOException;
-
-public interface ProductMediaService {
-    void saveResource(ResourceUploadForm form);
-
-    void deleteResource(String resourceId);
+public interface ProductMediaService extends BaseService<ResourceResp, ResourceUploadForm> {
 
     ProductMediaResp serveResource(String id, long position);
-
-    void write(HttpServletResponse response, byte[] data) throws IOException;
 }

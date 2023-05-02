@@ -25,5 +25,5 @@ public interface ProductRepository {
 
     Page<Product> getProductsWithUnion(Collection<String> ids, Map<String, Object> conditions, Pageable pageable);
 
-    Collection<Product> getAllProducts();
+    Page<Product> getAllProducts(Pageable pageable);
 }

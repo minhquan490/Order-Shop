@@ -1,23 +1,26 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.DistrictRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
-@Repository
-class DistrictRepositoryImpl extends AbstractRepository<District, Integer> implements DistrictRepository {
+@RepositoryComponent
+@ActiveReflection
+public class DistrictRepositoryImpl extends AbstractRepository<District, Integer> implements DistrictRepository {
 
-    @Autowired
-    DistrictRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    @DependenciesInitialize
+    @ActiveReflection
+    public DistrictRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(District.class, containerResolver.getDependenciesResolver());
     }
 

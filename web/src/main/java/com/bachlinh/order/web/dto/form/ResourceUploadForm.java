@@ -1,20 +1,11 @@
 package com.bachlinh.order.web.dto.form;
 
-import java.util.Arrays;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-public record ResourceUploadForm(byte[] data, String contentType) {
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ResourceUploadForm that)) return false;
-        return Arrays.equals(data, that.data) && Objects.equals(contentType, that.contentType);
-    }
+@JsonRootName("resource")
+public record ResourceUploadForm(@JsonAlias("data") String base64Data,
+                                 @JsonAlias("file_name") String fileName,
+                                 @JsonAlias("total_size") int totalSize) {
 
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(contentType);
-        result = 31 * result + Arrays.hashCode(data);
-        return result;
-    }
 }

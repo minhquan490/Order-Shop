@@ -1,30 +1,49 @@
 package com.bachlinh.order.web.dto.resp;
 
-import java.util.Arrays;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-public record ProductMediaResp(String contentType, byte[] data, boolean isComplete) {
+@JsonRootName("media")
+public class ProductMediaResp {
+    @JsonProperty("content_type")
+    private String contentType;
+    @JsonProperty("data")
+    private byte[] data;
+    @JsonProperty("total_size")
+    private long totalSize;
+    @JsonIgnore
+    private boolean isComplete;
 
-    @Override
-    public String toString() {
-        return "ProductMediaResp{" +
-                "contentType='" + contentType + '\'' +
-                ", data=" + Arrays.toString(data) +
-                ", isComplete=" + isComplete +
-                '}';
+    public String getContentType() {
+        return contentType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ProductMediaResp that)) return false;
-        return isComplete() == that.isComplete() && Objects.equals(contentType, that.contentType) && Arrays.equals(data, that.data);
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(contentType, isComplete());
-        result = 31 * result + Arrays.hashCode(data);
-        return result;
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public long getTotalSize() {
+        return totalSize;
+    }
+
+    public void setTotalSize(long totalSize) {
+        this.totalSize = totalSize;
+    }
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void setComplete(boolean complete) {
+        isComplete = complete;
     }
 }

@@ -1,6 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Address_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -9,10 +11,8 @@ import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +20,13 @@ import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
-@Repository
+@RepositoryComponent
 @ActiveReflection
-class AddressRepositoryImpl extends AbstractRepository<Address, String> implements AddressRepository {
+public class AddressRepositoryImpl extends AbstractRepository<Address, String> implements AddressRepository {
 
-    @Autowired
+    @DependenciesInitialize
     @ActiveReflection
-    AddressRepositoryImpl(@NonNull DependenciesContainerResolver containerResolver) {
+    public AddressRepositoryImpl(@NonNull DependenciesContainerResolver containerResolver) {
         super(Address.class, containerResolver.getDependenciesResolver());
     }
 

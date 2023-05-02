@@ -1,5 +1,8 @@
 package com.bachlinh.order.web.service.impl;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail;
@@ -15,12 +18,10 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,15 +30,17 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@Service
-class CartServiceImpl extends AbstractService<CartResp, CartForm> implements CartService {
+@ServiceComponent
+@ActiveReflection
+public class CartServiceImpl extends AbstractService<CartResp, CartForm> implements CartService {
     private static final Pattern QUOTE_PATTERN = Pattern.compile("'(''|[^'])*'");
     private static final Pattern STATEMENT_PATTERN = Pattern.compile("\\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})\\b");
     private ProductRepository productRepository;
     private CartRepository cartRepository;
     private EntityFactory entityFactory;
 
-    @Autowired
+    @DependenciesInitialize
+    @ActiveReflection
     CartServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
         super(executor, wrapper, profile);
     }

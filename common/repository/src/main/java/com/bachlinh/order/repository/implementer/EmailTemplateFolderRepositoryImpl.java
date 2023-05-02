@@ -1,5 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.repository.AbstractRepository;
@@ -7,15 +10,15 @@ import com.bachlinh.order.repository.EmailTemplateFolderRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
 
-@Repository
-class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailTemplateFolder, String> implements EmailTemplateFolderRepository {
+@RepositoryComponent
+@ActiveReflection
+public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailTemplateFolder, String> implements EmailTemplateFolderRepository {
 
-    @Autowired
-    EmailTemplateFolderRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    @DependenciesInitialize
+    @ActiveReflection
+    public EmailTemplateFolderRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(EmailTemplateFolder.class, containerResolver.getDependenciesResolver());
     }
 

@@ -1,5 +1,8 @@
 package com.bachlinh.order.web.service.impl;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Cart;
@@ -28,7 +31,6 @@ import com.bachlinh.order.web.service.business.LogoutService;
 import com.bachlinh.order.web.service.business.RegisterService;
 import com.bachlinh.order.web.service.common.CustomerService;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -37,14 +39,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
-@Service
-class CustomerServiceImpl extends AbstractService<CustomerInformationResp, CrudCustomerForm> implements CustomerService, LoginService, RegisterService, LogoutService {
+@ServiceComponent
+@ActiveReflection
+public class CustomerServiceImpl extends AbstractService<CustomerInformationResp, CrudCustomerForm> implements CustomerService, LoginService, RegisterService, LogoutService {
     private PasswordEncoder passwordEncoder;
     private EntityFactory entityFactory;
     private CustomerRepository customerRepository;
@@ -52,8 +54,9 @@ class CustomerServiceImpl extends AbstractService<CustomerInformationResp, CrudC
     private LoginHistoryRepository loginHistoryRepository;
     private ClientSecretHandler clientSecretHandler;
 
-    @Autowired
-    CustomerServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
+    @DependenciesInitialize
+    @ActiveReflection
+    public CustomerServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
         super(executor, wrapper, profile);
     }
 
@@ -168,19 +171,14 @@ class CustomerServiceImpl extends AbstractService<CustomerInformationResp, CrudC
             return new LoginResp(null, null, false);
         }
         if (!passwordEncoder.matches(loginForm.password(), customer.getPassword())) {
+            saveHistory(customer, request);
             return new LoginResp(null, null, false);
         }
         tokenManager.encode("customerId", customer.getId());
         tokenManager.encode("username", customer.getUsername());
         String accessToken = tokenManager.getTokenValue();
         RefreshToken refreshToken = tokenManager.getRefreshTokenGenerator().generateToken(customer.getId(), customer.getUsername());
-        getExecutor().execute(() -> {
-            LoginHistory loginHistory = entityFactory.getEntity(LoginHistory.class);
-            loginHistory.setCustomer(customer);
-            loginHistory.setLastLoginTime(Timestamp.from(Instant.now()));
-            loginHistory.setLoginIp(request.getCustomerIp());
-            loginHistoryRepository.saveHistory(loginHistory);
-        });
+        saveHistory(customer, request);
         return new LoginResp(refreshToken.getRefreshTokenValue(), accessToken, true);
     }
 
@@ -204,5 +202,16 @@ class CustomerServiceImpl extends AbstractService<CustomerInformationResp, CrudC
         clientSecretHandler.removeClientSecret(customer.getRefreshToken().getRefreshTokenValue(), secret);
         customer.setRefreshToken(null);
         return customerRepository.updateCustomer(customer) != null;
+    }
+
+    private void saveHistory(Customer customer, NativeRequest<?> request) {
+        getExecutor().execute(() -> {
+            LoginHistory loginHistory = entityFactory.getEntity(LoginHistory.class);
+            loginHistory.setCustomer(customer);
+            loginHistory.setLastLoginTime(Timestamp.from(Instant.now()));
+            loginHistory.setLoginIp(request.getCustomerIp());
+            loginHistory.setSuccess(true);
+            loginHistoryRepository.saveHistory(loginHistory);
+        });
     }
 }
