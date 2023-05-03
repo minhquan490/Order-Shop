@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.auth.spi;
 
-import com.bachlinh.order.entity.model.Customer;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import com.bachlinh.order.entity.model.Customer;
 
 /**
  * Subclass of {@link AbstractAuthenticationToken} for holding {@code Customer}
@@ -12,10 +12,12 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 public final class PrincipalHolder extends AbstractAuthenticationToken {
 
     private final Customer customer;
+    private final String clientSecret;
 
-    public PrincipalHolder(Customer customer) {
+    public PrincipalHolder(Customer customer, String clientSecret) {
         super(customer.getAuthorities());
         this.customer = customer;
+        this.clientSecret = clientSecret;
     }
 
     @Override
@@ -31,6 +33,10 @@ public final class PrincipalHolder extends AbstractAuthenticationToken {
     @Override
     public String getName() {
         return customer.getId();
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
     }
 
     public boolean equals(final Object o) {

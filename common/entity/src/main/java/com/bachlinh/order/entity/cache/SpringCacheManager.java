@@ -1,9 +1,8 @@
 package com.bachlinh.order.entity.cache;
 
-import org.springframework.cache.jcache.JCacheCacheManager;
-
 import javax.cache.CacheManager;
 import javax.cache.configuration.MutableConfiguration;
+import org.springframework.cache.jcache.JCacheCacheManager;
 
 /**
  * Subclass of {@link JCacheCacheManager} for apply default configuration

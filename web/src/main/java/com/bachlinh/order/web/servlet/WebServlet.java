@@ -1,9 +1,5 @@
 package com.bachlinh.order.web.servlet;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.utils.JacksonUtils;
-import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,13 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.FrameworkServlet;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
 
 import java.nio.charset.StandardCharsets;
 
-@Component("dispatcherServlet")
 @ActiveReflection
 public class WebServlet extends FrameworkServlet {
 

@@ -1,11 +1,5 @@
 package com.bachlinh.order.validator;
 
-import com.bachlinh.order.annotation.Validated;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityValidator;
-import com.bachlinh.order.entity.ValidateResult;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.exception.http.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.JoinPoint;
@@ -15,6 +9,12 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import com.bachlinh.order.annotation.Validated;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityValidator;
+import com.bachlinh.order.entity.ValidateResult;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.exception.http.ConstraintViolationException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class ValidateInterceptor<T extends BaseEntity> {
     @Before(value = "validatePointcut()", argNames = "joinPoint")
     @SuppressWarnings("unchecked")
     public void validate(JoinPoint joinPoint) {
-        T entity = (T) findEntity(joinPoint);
+        T entity = findEntity(joinPoint);
         Collection<EntityValidator<T>> validators = new ArrayList<>();
         entityFactory.getEntityContext(entity.getClass()).getValidators().forEach(validator -> validators.add((EntityValidator<T>) validator));
         if (validators.isEmpty()) {
@@ -68,10 +68,11 @@ public class ValidateInterceptor<T extends BaseEntity> {
         }
     }
 
-    private BaseEntity findEntity(JoinPoint joinPoint) {
+    @SuppressWarnings("unchecked")
+    private T findEntity(JoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method adviceMethod = methodSignature.getMethod();
         Validated validated = adviceMethod.getAnnotation(Validated.class);
-        return (BaseEntity) joinPoint.getArgs()[validated.targetIndex()];
+        return (T) joinPoint.getArgs()[validated.targetIndex()];
     }
 }
