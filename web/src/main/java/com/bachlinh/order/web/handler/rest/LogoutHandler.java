@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @ActiveReflection
 @RouteProvider
-public class LogoutController extends AbstractController<NativeResponse<Map<String, Object>>, Object> {
+public class LogoutHandler extends AbstractController<NativeResponse<Map<String, Object>>, Object> {
     private static final String STATUS = "status";
 
     private String url;
@@ -30,7 +30,7 @@ public class LogoutController extends AbstractController<NativeResponse<Map<Stri
     private String clientCookieDomain;
 
     @ActiveReflection
-    public LogoutController() {
+    public LogoutHandler() {
 
     }
 

@@ -16,12 +16,12 @@ import com.bachlinh.order.web.service.business.ProductSearchingService;
 
 @ActiveReflection
 @RouteProvider
-public class ProductSearchController extends AbstractController<ResponseEntity<Page<ProductResp>>, ProductSearchForm> {
+public class ProductSearchHandler extends AbstractController<ResponseEntity<Page<ProductResp>>, ProductSearchForm> {
     private String productSearchUrl;
     private ProductSearchingService searchingService;
 
     @ActiveReflection
-    public ProductSearchController() {
+    public ProductSearchHandler() {
     }
 
     @Override

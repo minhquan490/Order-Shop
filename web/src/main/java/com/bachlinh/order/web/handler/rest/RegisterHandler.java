@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -9,17 +10,16 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.RegisterForm;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.service.business.RegisterService;
-import org.springframework.http.HttpStatus;
 
 @RouteProvider
 @ActiveReflection
-public class RegisterController extends AbstractController<RegisterResp, RegisterForm> {
+public class RegisterHandler extends AbstractController<RegisterResp, RegisterForm> {
     private String url;
 
     private RegisterService registerService;
 
     @ActiveReflection
-    public RegisterController() {
+    public RegisterHandler() {
     }
 
     @Override

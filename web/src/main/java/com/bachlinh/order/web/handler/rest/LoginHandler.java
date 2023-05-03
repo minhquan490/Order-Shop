@@ -16,7 +16,7 @@ import com.bachlinh.order.web.service.business.LoginService;
 
 @RouteProvider
 @ActiveReflection
-public class LoginController extends AbstractController<NativeResponse<LoginResp>, LoginForm> {
+public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, LoginForm> {
     private String clientCookieKey;
     private String cookieDomain;
     private String loginUrl;
@@ -24,7 +24,7 @@ public class LoginController extends AbstractController<NativeResponse<LoginResp
     private LoginService loginService;
 
     @ActiveReflection
-    public LoginController() {
+    public LoginHandler() {
     }
 
     @Override

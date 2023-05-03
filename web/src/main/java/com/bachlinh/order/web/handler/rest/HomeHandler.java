@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 
 @RouteProvider
 @ActiveReflection
-public class HomeController extends AbstractController<Map<String, Object>, Object> {
+public class HomeHandler extends AbstractController<Map<String, Object>, Object> {
     private String homeUrl;
     private ProductService productService;
 
     @ActiveReflection
-    public HomeController() {
+    public HomeHandler() {
     }
 
     @Override
