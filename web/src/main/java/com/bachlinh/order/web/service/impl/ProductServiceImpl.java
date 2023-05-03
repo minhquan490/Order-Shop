@@ -1,5 +1,9 @@
 package com.bachlinh.order.web.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -8,6 +12,7 @@ import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.repository.ProductRepository;
@@ -19,11 +24,8 @@ import com.bachlinh.order.web.dto.form.ProductSearchForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
 import com.bachlinh.order.web.service.common.ProductService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,6 +41,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
     private ProductRepository productRepository;
     private EntityFactory entityFactory;
     private CategoryRepository categoryRepository;
+    private String resourceUrl;
 
     @ActiveReflection
     @DependenciesInitialize
@@ -62,7 +65,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
                 .stream()
                 .filter(entry -> entry.getValue() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return productRepository.getProductsByCondition(conditions, pageable).map(ProductResp::toDto);
+        return productRepository.getProductsByCondition(conditions, pageable).map(product -> ProductResp.toDto(product, resourceUrl));
     }
 
     @Override
@@ -84,14 +87,14 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
                 .filter(entry -> entry.getValue() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 //        return productRepository.getProductsByCondition(conditions, pageable).map(ProductResp::toDto);
-        return productRepository.getProductsWithUnion(productIds, conditions, pageable).map(ProductResp::toDto);
+        return productRepository.getProductsWithUnion(productIds, conditions, pageable).map(product -> ProductResp.toDto(product, resourceUrl));
     }
 
     @Override
     public Page<ProductResp> productList(Pageable pageable) {
         Map<String, Object> conditions = new HashMap<>();
         Page<Product> products = productRepository.getProductsByCondition(conditions, pageable);
-        return products.map(ProductResp::toDto);
+        return products.map(product -> ProductResp.toDto(product, resourceUrl));
     }
 
     @Override
@@ -99,21 +102,21 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
         Pageable pageable = Pageable.ofSize(ids.size());
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("IDS", ids);
-        return productRepository.getProductsByCondition(conditions, pageable).map(ProductResp::toDto);
+        return productRepository.getProductsByCondition(conditions, pageable).map(product -> ProductResp.toDto(product, resourceUrl));
     }
 
     @Override
     protected ProductResp doSave(ProductForm param) {
         Product product = toProduct(param);
         product = productRepository.saveProduct(product);
-        return ProductResp.toDto(product);
+        return ProductResp.toDto(product, resourceUrl);
     }
 
     @Override
     protected ProductResp doUpdate(ProductForm param) {
         Product product = toProduct(param);
         product = productRepository.updateProduct(product);
-        return ProductResp.toDto(product);
+        return ProductResp.toDto(product, resourceUrl);
     }
 
     @Override
@@ -122,13 +125,13 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
         conditions.put(Product_.ID, param.getId());
         Product product = productRepository.getProductByCondition(conditions);
         if (product == null) {
-            return ProductResp.toDto(null);
+            return ProductResp.toDto(null, resourceUrl);
         } else {
             boolean result = productRepository.deleteProduct(product);
             if (result) {
-                return ProductResp.toDto(product);
+                return ProductResp.toDto(product, resourceUrl);
             } else {
-                return ProductResp.toDto(null);
+                return ProductResp.toDto(null, resourceUrl);
             }
         }
     }
@@ -137,7 +140,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
     protected ProductResp doGetOne(ProductForm param) {
         Map<String, Object> conditions = new HashMap<>(1);
         Product product = productRepository.getProductByCondition(conditions);
-        return ProductResp.toDto(product);
+        return ProductResp.toDto(product, resourceUrl);
     }
 
     @Override
@@ -152,7 +155,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
             throw new BadVariableException("Page number and page size must be int");
         }
         Pageable pageable = PageRequest.of(page, pageSize);
-        var results = productRepository.getAllProducts(pageable).stream().map(ProductResp::toDto).toList();
+        var results = productRepository.getAllProducts(pageable).stream().map(product -> ProductResp.toDto(product, resourceUrl)).toList();
         return (X) new PageImpl<>(results, pageable, productRepository.countProduct());
     }
 
@@ -167,6 +170,11 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
         }
         if (categoryRepository == null) {
             categoryRepository = resolver.resolveDependencies(CategoryRepository.class);
+        }
+        if (resourceUrl == null) {
+            Environment environment = getEnvironment();
+            String urlPattern = "https://{0}:{1}";
+            resourceUrl = MessageFormat.format(urlPattern, environment.getProperty("server.address"), environment.getProperty("server.port"));
         }
     }
 

@@ -1,11 +1,12 @@
 package com.bachlinh.order.web.dto.resp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
-import com.bachlinh.order.entity.model.ProductMedia;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ public record ProductResp(String id,
                           String price,
                           String size,
                           String color,
-                          String taobaoUrl,
+                          @JsonProperty("taobao_url") String taobaoUrl,
                           String description,
                           String[] pictures,
                           String[] categories,
@@ -50,7 +51,8 @@ public record ProductResp(String id,
                 '}';
     }
 
-    public static ProductResp toDto(Product product) {
+    public static ProductResp toDto(Product product, String resourceUrl) {
+        String pattern = "{0}/{1}";
         if (product == null) {
             return new ProductResp(
                     "",
@@ -73,7 +75,7 @@ public record ProductResp(String id,
                     product.getColor(),
                     product.getTaobaoUrl(),
                     product.getDescription(),
-                    (String[]) product.getMedias().stream().map(ProductMedia::getUrl).toArray(),
+                    (String[]) product.getMedias().stream().map(productMedia -> MessageFormat.format(pattern, resourceUrl, productMedia.getId())).toArray(),
                     (String[]) product.getCategories().stream().map(Category::getName).toArray(),
                     true
             );

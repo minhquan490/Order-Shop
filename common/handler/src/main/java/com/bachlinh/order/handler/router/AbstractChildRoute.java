@@ -4,6 +4,7 @@ import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
 
 public abstract class AbstractChildRoute implements ChildRoute {
@@ -53,5 +54,9 @@ public abstract class AbstractChildRoute implements ChildRoute {
 
     protected EntityFactory getEntityFactory() {
         return entityFactory;
+    }
+
+    protected Environment getEnvironment() {
+        return Environment.getInstance(entityFactory.activeProfile());
     }
 }

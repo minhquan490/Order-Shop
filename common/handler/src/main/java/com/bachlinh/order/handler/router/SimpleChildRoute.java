@@ -1,5 +1,10 @@
 package com.bachlinh.order.handler.router;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.NativeRequest;
@@ -9,12 +14,9 @@ import com.bachlinh.order.core.http.converter.spi.ServletCookieConverter;
 import com.bachlinh.order.core.http.handler.SpringServletHandler;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
+import com.bachlinh.order.handler.strategy.ResourcePushStrategies;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.utils.map.MultiValueMap;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +28,9 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
     private final ChildRoute parent;
     private final String rootPath;
     private final ServletCookieConverter<NativeCookie> nativeCookieConverter = ServletCookieConverter.servletCookieConverter();
+
+    private Boolean useAsyncPushStrategies;
+    private ResourcePushStrategies resourcePushStrategies;
 
     public SimpleChildRoute(@Nullable ChildRoute parent, String path, @Nullable String rootPath) {
         this.path = path;
@@ -60,23 +65,11 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
             setNativeRequest(NativeRequest.buildNativeFromServletRequest(servletRequest));
             setNativeResponse(parseFrom(servletResponse));
             RequestMethod method = RequestMethod.valueOf(servletRequest.getMethod().toUpperCase());
-            NativeResponse<?> nativeResponse = handleRequest(getNativeRequest(), controllerPath, method);
-            if (nativeResponse.getCookies() != null) {
-                for (NativeCookie cookie : nativeResponse.getCookies()) {
-                    servletResponse.addCookie(nativeCookieConverter.convert(cookie));
-                }
-            }
-            MultiValueMap<String, String> headers = nativeResponse.getHeaders();
-            if (headers == null) {
-                headers = new LinkedMultiValueMap<>(0);
-            }
-            headers.forEach((key, values) -> values.forEach(value -> servletResponse.setHeader(key, value)));
-            ResponseEntity.BodyBuilder builder = ResponseEntity.status(nativeResponse.getStatusCode());
-            if (nativeResponse.getBody() != null) {
-                return (ResponseEntity<T>) builder.body(nativeResponse.getBody());
-            } else {
-                return builder.build();
-            }
+            NativeResponse<T> nativeResponse = handleRequest(getNativeRequest(), controllerPath, method);
+            resolveCookie(nativeResponse, servletResponse);
+            resolvePushResource(nativeResponse, servletRequest);
+            resolveHeader(nativeResponse, servletResponse);
+            return resolveBody(nativeResponse);
         } catch (Throwable e) {
             NativeResponse<String> errorResponse;
             if (e instanceof Error error) {
@@ -126,5 +119,49 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
         }
         ResponseConverter<HttpServletResponse> converter = (ResponseConverter<HttpServletResponse>) converters.get(HttpServletResponse.class);
         return (NativeResponse<T>) converter.convert(response);
+    }
+
+    private boolean isUseAsyncPushStrategies() {
+        if (useAsyncPushStrategies == null) {
+            useAsyncPushStrategies = Boolean.parseBoolean(getEnvironment().getProperty("server.push-strategies.async"));
+        }
+        return useAsyncPushStrategies;
+    }
+
+    private void resolvePushResource(NativeResponse<?> response, HttpServletRequest servletRequest) {
+        if (response.isActivePushBuilder()) {
+            if (resourcePushStrategies == null && !isUseAsyncPushStrategies()) {
+                resourcePushStrategies = ResourcePushStrategies.getSyncPushStrategies(getEnvironment());
+            }
+            if (resourcePushStrategies == null && isUseAsyncPushStrategies()) {
+                resourcePushStrategies = ResourcePushStrategies.getAsyncPushStrategies(getEnvironment(), getEntityFactory().getResolver().resolveDependencies(ThreadPoolTaskExecutor.class));
+            }
+            resourcePushStrategies.pushResource(response, servletRequest);
+        }
+    }
+
+    private void resolveHeader(NativeResponse<?> response, HttpServletResponse servletResponse) {
+        MultiValueMap<String, String> headers = response.getHeaders();
+        if (headers == null) {
+            headers = new LinkedMultiValueMap<>(0);
+        }
+        headers.forEach((key, values) -> values.forEach(value -> servletResponse.setHeader(key, value)));
+    }
+
+    private void resolveCookie(NativeResponse<?> response, HttpServletResponse servletResponse) {
+        if (response.getCookies() != null) {
+            for (NativeCookie cookie : response.getCookies()) {
+                servletResponse.addCookie(nativeCookieConverter.convert(cookie));
+            }
+        }
+    }
+
+    private <T> ResponseEntity<T> resolveBody(NativeResponse<T> response) {
+        ResponseEntity.BodyBuilder builder = ResponseEntity.status(response.getStatusCode());
+        if (response.getBody() != null) {
+            return builder.body(response.getBody());
+        } else {
+            return builder.build();
+        }
     }
 }

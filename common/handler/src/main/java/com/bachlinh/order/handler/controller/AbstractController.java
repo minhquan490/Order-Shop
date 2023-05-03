@@ -72,7 +72,8 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
         }
         return getNativeResponse().merge((NativeResponse<T>) NativeResponse
                 .builder()
-                .statusCode(getNativeResponse().getStatusCode())
+                .activePushBuilder(getNativeResponse().isActivePushBuilder())
+                .statusCode(getNativeResponse().getStatusCode() <= 0 ? 200 : getNativeResponse().getStatusCode())
                 .body(returnValue)
                 .build());
     }

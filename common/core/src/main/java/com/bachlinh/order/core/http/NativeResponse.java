@@ -1,11 +1,11 @@
 package com.bachlinh.order.core.http;
 
-import com.bachlinh.order.utils.map.LinkedMultiValueMap;
-import com.bachlinh.order.utils.map.MultiValueMap;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
+import com.bachlinh.order.utils.map.LinkedMultiValueMap;
+import com.bachlinh.order.utils.map.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +21,8 @@ public class NativeResponse<T> {
     private final T body;
 
     private int statusCode;
+
+    private boolean activePushBuilder;
 
     @Nullable
     private final MultiValueMap<String, String> headers;
@@ -39,6 +41,7 @@ public class NativeResponse<T> {
         mergedCookies.addAll(other.getCookies() == null ? new ArrayList<>() : Arrays.asList(other.getCookies()));
         builder.cookies(mergedCookies.toArray(new NativeCookie[0]));
         builder.statusCode(other.getStatusCode());
+        builder.activePushBuilder(other.isActivePushBuilder());
         return (NativeResponse<T>) builder.build();
     }
 

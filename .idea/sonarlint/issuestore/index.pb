@@ -148,8 +148,6 @@ Ncommon/mail/src/main/java/com/bachlinh/order/mail/http/HttpRequestAdapter.java
 Pcommon/mail/src/main/java/com/bachlinh/order/mail/http/HttpRequestDecorator.java,e/b/eb48abd0610ecc34a9504b2e48f58761dc8b5ce1
 
 Ocommon/mail/src/main/java/com/bachlinh/order/mail/http/HttpResponseAdapter.java,8/7/87723ae417b9f8c143129719c8340dfadeadf161
-õ
-kcommon/core/src/main/java/com/bachlinh/order/core/http/converter/internal/HttpServletResponseConverter.java,e/2/e2490fca9f6bd390980ed45bc4677b97d80ee736
 ù
 mcommon/core/src/main/java/com/bachlinh/order/core/http/translator/internal/JsonStringExceptionTranslator.java,5/b/5b9de3e5992a43bce3cda24e332b7e68332c3a54
 Ç
@@ -314,8 +312,6 @@ Qcommon/repository/src/main/java/com/bachlinh/order/repository/WardRepository.ja
 Scommon/entity/src/main/java/com/bachlinh/order/entity/cache/SpringCacheManager.java,9/3/93dfc28ce304623ecb441a198b0e0812b710faa8
 Ñ
 Tcommon/repository/src/main/java/com/bachlinh/order/repository/AddressRepository.java,8/b/8b5e7ea186d1601a46aa7c6e28429bb248b02357
-ä
-Zcommon/core/src/main/java/com/bachlinh/order/core/http/converter/spi/RequestConverter.java,b/4/b4940bb81627783a887e0518e49b36227f900518
 }
 Mcommon/entity/src/main/java/com/bachlinh/order/entity/model/RefreshToken.java,2/1/211c7b01ff6b135fb76dce29b0890765d63f9727
 
@@ -384,8 +380,6 @@ w
 Gweb/src/main/java/com/bachlinh/order/web/dto/form/CrudCustomerForm.java,5/0/5024d028ce23cdedf42b094b7c7a3fa280fb4a47
 s
 Cweb/src/main/java/com/bachlinh/order/web/dto/resp/CustomerResp.java,e/5/e5e38fec9176ab10f9685620537f94bbd8cdf265
-ê
-`common/handler/src/main/java/com/bachlinh/order/handler/controller/DefaultControllerContext.java,a/b/abedec3843510099ff2e4bb7ad957c2026077d5d
 ï
 ecommon/entity/src/main/java/com/bachlinh/order/entity/index/internal/DefaultSearchManagerFactory.java,2/5/25ac7960e9e0c69cc3717f9e252cccba6bef2368
 Ñ
@@ -400,8 +394,6 @@ p
 Kweb/src/main/java/com/bachlinh/order/web/service/business/LoginService.java,6/0/609b06b33d599a91a5fe800212f47dcb1e41dd12
 |
 Lweb/src/main/java/com/bachlinh/order/web/service/business/LogoutService.java,3/4/34fce28fb74f1969932ee80fae1bbeb9d2348e48
-z
-Jcommon/core/src/main/java/com/bachlinh/order/core/http/NativeResponse.java,5/a/5ac138afe2be78475cf4b063807262bc5434d72a
 r
 Bweb/src/main/java/com/bachlinh/order/web/OrderShopApplication.java,b/f/bfcc208bac8153202d9d8f77f2ddfe6f8dc100f8
 É
@@ -446,8 +438,6 @@ Ucommon/setup/src/main/java/com/bachlinh/order/setup/internal/DefaultSetupManage
 `common/security/src/main/java/com/bachlinh/order/security/auth/internal/DefaultTokenManager.java,a/d/ad0ced8f536360f0f2a52529f9934bcc766709cf
 y
 Icommon/entity/src/main/java/com/bachlinh/order/entity/model/District.java,d/1/d1922120f5c70329adad8a0b826ecf10ef368520
-x
-Hcommon/entity/src/main/java/com/bachlinh/order/entity/EntityFactory.java,2/2/229aed54541e19b4bf69feda869b3ea470e9fa24
 ê
 `common/entity/src/main/java/com/bachlinh/order/entity/cache/HibernateL2CachingRegionFactory.java,f/1/f10c38245c6647fc4de0dc28d33ee5abe090a542
 }
@@ -580,12 +570,6 @@ Hweb/src/main/java/com/bachlinh/order/web/dto/form/ProductSearchForm.java,f/9/f
 Ncommon/handler/src/main/java/com/bachlinh/order/handler/router/ChildRoute.java,3/4/34a1005670acf28b06d508bce072427dc513c5e1
 Ç
 Rcommon/core/src/main/java/com/bachlinh/order/core/http/handler/RequestHandler.java,e/9/e931459ee3bc968c4162beb8f169a53fe4fe103c
-â
-Ycommon/handler/src/main/java/com/bachlinh/order/handler/controller/ControllerManager.java,e/9/e9241b683575d6f7c7987d2fc2a386b108a7f587
-ä
-Zcommon/handler/src/main/java/com/bachlinh/order/handler/router/SmartChildRouteContext.java,f/e/fe53d068cf4b35f71519ec334ad79ec2c6a53588
-à
-Xcommon/core/src/main/java/com/bachlinh/order/core/http/handler/SpringServletHandler.java,1/6/16bd0ea505349cd29e71079fc503707229c4eaed
 Ñ
 Tcommon/core/src/main/java/com/bachlinh/order/core/http/HttpServletNativeRequest.java,7/a/7aedd1b8dddc7a3319277260c666557818209506
 N
@@ -594,8 +578,6 @@ H
 common/core/build.gradle,7/8/780592d20d660b6c6a4c0bd2c09c90b213ce9cd4
 B
 batch/build.gradle,9/4/946c3ac5cc268b598215524ed892a05059457751
-Ü
-Vcommon/handler/src/main/java/com/bachlinh/order/handler/router/AbstractChildRoute.java,4/3/43b2dd83b4690e55e1932d0f601a6d9840225d91
 Ä
 Pcommon/core/src/main/java/com/bachlinh/order/core/excecute/AbstractExecutor.java,9/7/9715fc01e015c41197237e293aaa56f906bc45eb
 u
@@ -650,8 +632,6 @@ Fweb/src/main/java/com/bachlinh/order/web/dto/resp/OrderInDateResp.java,8/b/8b3
 Qweb/src/main/java/com/bachlinh/order/web/service/business/OrderInDateService.java,8/f/8faee8bd02a6f0655563d14a9293f02ad9e077e2
 ô
 icommon/repository/src/main/java/com/bachlinh/order/repository/implementer/ProductMediaRepositoryImpl.java,6/2/625aeb2944322257995aa3bcc0bac7aece8975a2
-w
-Gweb/src/main/java/com/bachlinh/order/web/dto/resp/ProductMediaResp.java,d/8/d88966384fc0534f5dde11877ac1c05cb242861c
 Ä
 Pweb/src/main/java/com/bachlinh/order/web/service/common/ProductMediaService.java,9/7/977cb6d95afdb2b176b16d37693125078889dfa7
 Ñ
@@ -666,8 +646,6 @@ ecommon/repository/src/main/java/com/bachlinh/order/repository/implementer/Provi
 icommon/repository/src/main/java/com/bachlinh/order/repository/implementer/RefreshTokenRepositoryImpl.java,9/6/9623a70599ac87cce3230444ee4e3881a1b1f768
 Ü
 Vcommon/annotation/src/main/java/com/bachlinh/order/annotation/RepositoryComponent.java,3/3/33686c3eddbf5f9bff5c6e3e2fe8f38e8a1aaf47
-s
-Cweb/src/main/java/com/bachlinh/order/web/dto/resp/ResourceResp.java,e/d/edacd2a17fb3163bee3e9e08bd1f5784f4311230
 y
 Iweb/src/main/java/com/bachlinh/order/web/dto/form/ResourceUploadForm.java,d/2/d22057372bf8ea1f1b3bd02de199df315bd628cf
 É
@@ -680,8 +658,6 @@ dcommon/repository/src/main/java/com/bachlinh/order/repository/implementer/Vouch
 acommon/repository/src/main/java/com/bachlinh/order/repository/implementer/WardRepositoryImpl.java,8/8/887a09ca5905f85c4e1591d4be89dd3cf5a1b98f
 Ç
 Rweb/src/main/java/com/bachlinh/order/web/listener/WebApplicationEventListener.java,1/0/104a4d3518f9b98c5728a5c90b2b0c79baa79d99
-p
-@web/src/main/java/com/bachlinh/order/web/servlet/WebServlet.java,1/8/18524f79d75b3fe660fc6a47bbc96365d1880a3f
 y
 Iweb/src/main/java/com/bachlinh/order/web/service/common/OrderService.java,6/9/69dac19a1e3d8257cb6b751ff4015745519f4148
 v
@@ -732,18 +708,8 @@ Kweb/src/main/java/com/bachlinh/order/web/handler/rest/LogoutController.java,0/
 Rweb/src/main/java/com/bachlinh/order/web/handler/rest/ProductSearchController.java,8/6/86e42722427b507c8de656b4becf4d1b3a492caa
 Ç
 Rweb/src/main/java/com/bachlinh/order/web/handler/rest/ProductUpdateController.java,6/1/61061e04fbf77d8c2f222d0e7c556167fa6081f3
-ä
-Zcommon/handler/src/main/java/com/bachlinh/order/handler/controller/AbstractController.java,3/b/3b0e0506d4235964bbec96a2d02b42b7351f6d59
-ê
-`common/handler/src/main/java/com/bachlinh/order/handler/controller/DefaultControllerManager.java,a/d/ade17cd18fca447f492ba56d0091af6950748217
-Ñ
-Tcommon/handler/src/main/java/com/bachlinh/order/handler/router/SimpleChildRoute.java,0/7/0729cf0a600da19a35f6591f4c6295e56326d116
-
-Oweb/src/main/java/com/bachlinh/order/web/handler/SpringFrontRequestHandler.java,7/d/7dc4cce60054f65a097d6587ece91ac21d9e5dae
 y
 Icommon/core/src/main/java/com/bachlinh/order/core/http/NativeRequest.java,5/f/5fb0b7a555068aa4477ce4aa9550f7dc889f1f30
-É
-Scommon/core/src/main/java/com/bachlinh/order/core/http/converter/spi/Converter.java,3/0/302c6b4000f3d3241c25123ec73ca7485405ad3f
 ö
 jcommon/core/src/main/java/com/bachlinh/order/core/http/converter/internal/HttpServletRequestConverter.java,e/8/e8be6fdfba04b4382b1deadd02f7ff3bf12e728f
 à
@@ -758,9 +724,5 @@ Pweb/src/main/java/com/bachlinh/order/web/handler/rest/ProductListController.jav
 Mweb/src/main/java/com/bachlinh/order/web/handler/rest/RegisterController.java,c/d/cdebbd1741e24f4cab2ad3d8d12bf95363f424c7
 {
 Kweb/src/main/java/com/bachlinh/order/web/service/common/ProductService.java,6/d/6dad7af723c23743ae9cf68e90e747d994d74301
-}
-Mweb/src/main/java/com/bachlinh/order/web/service/impl/ProductServiceImpl.java,d/8/d8e68a6ad1f2e815fc8460e7438d1f41c74f7970
 l
 <service/src/main/java/com/bachlinh/order/service/Result.java,5/c/5c0697242a228e6eba6712617f6684361b7f90aa
-r
-Bweb/src/main/java/com/bachlinh/order/web/dto/resp/ProductResp.java,0/2/023a37d2294f98eb9e1ed117a0e8561c63bce409
