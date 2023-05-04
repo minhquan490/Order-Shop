@@ -17,4 +17,6 @@ public interface WebSocketSessionContext {
     void sendMessage(Object message) throws IOException;
 
     void close() throws IOException;
+
+    boolean isAdminConnection();
 }

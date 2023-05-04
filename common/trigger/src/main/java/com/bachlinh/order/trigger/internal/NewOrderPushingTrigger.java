@@ -1,22 +1,23 @@
 package com.bachlinh.order.trigger.internal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
-import com.bachlinh.order.utils.JacksonUtils;
-import com.bachlinh.order.utils.SharedCustomerUtils;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.Collection;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
 public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private static final Logger log = LogManager.getLogger(NewOrderPushingTrigger.class);
+    private WebSocketSessionManager webSocketSessionManager;
 
     @ActiveReflection
     public NewOrderPushingTrigger(DependenciesResolver dependenciesResolver) {
@@ -43,14 +44,17 @@ public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
         Map<String, String> message = new HashMap<>(2);
         message.put("order_id", (entity).getId());
         message.put("time_order", entity.getTimeOrder().toString());
-        Collection<String> adminIs = SharedCustomerUtils.getAllId();
-        adminIs.forEach(id -> simpMessagingTemplate.convertAndSendToUser(id, "/queue/connect", JacksonUtils.writeObjectAsString(message)));
+        try {
+            webSocketSessionManager.pushMessageToAllAdmin(message);
+        } catch (IOException e) {
+            log.error("Can not push notification to admin", e);
+        }
     }
 
     @Override
     protected void inject() {
-        if (simpMessagingTemplate == null) {
-            simpMessagingTemplate = getDependenciesResolver().resolveDependencies(SimpMessagingTemplate.class);
+        if (webSocketSessionManager == null) {
+            webSocketSessionManager = getDependenciesResolver().resolveDependencies(WebSocketSessionManager.class);
         }
     }
 }

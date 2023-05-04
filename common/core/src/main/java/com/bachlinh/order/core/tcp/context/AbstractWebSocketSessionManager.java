@@ -3,6 +3,7 @@ package com.bachlinh.order.core.tcp.context;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,8 +12,8 @@ public abstract class AbstractWebSocketSessionManager implements WebSocketSessio
     private final Map<String, WebSocketSessionContext> connectedClient = new ConcurrentHashMap<>();
 
     @Override
-    public WebSocketSessionContext getSocketContext(String username) {
-        return connectedClient.get(username);
+    public WebSocketSessionContext getSocketContext(String userId) {
+        return connectedClient.get(userId);
     }
 
     @Override
@@ -25,7 +26,8 @@ public abstract class AbstractWebSocketSessionManager implements WebSocketSessio
         String userId = queryUserId();
         String role = queryRole();
         String clientSecret = queryClientSecret();
-        addConnection(session, userId, role, clientSecret);
+        boolean isAdmin = isAdmin();
+        addConnection(session, userId, role, clientSecret, isAdmin);
     }
 
     @Override
@@ -46,9 +48,17 @@ public abstract class AbstractWebSocketSessionManager implements WebSocketSessio
         }
     }
 
-    protected void addConnection(WebSocketSession session, String userId, String role, String clientSecret) {
-        WebSocketSessionContext context = new DefaultWebSocketSessionContext(session, userId, role, clientSecret);
+    protected void addConnection(WebSocketSession session, String userId, String role, String clientSecret, boolean isAdmin) {
+        WebSocketSessionContext context = new DefaultWebSocketSessionContext(session, userId, role, clientSecret, isAdmin);
         connectedClient.put(userId, context);
+    }
+
+    protected Collection<String> getAllAdminConnection() {
+        return connectedClient.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().isAdminConnection())
+                .map(Map.Entry::getKey)
+                .toList();
     }
 
     protected abstract String queryUserId();
@@ -56,4 +66,6 @@ public abstract class AbstractWebSocketSessionManager implements WebSocketSessio
     protected abstract String queryRole();
 
     protected abstract String queryClientSecret();
+
+    protected abstract boolean isAdmin();
 }

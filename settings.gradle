@@ -20,6 +20,7 @@ dependencyResolutionManagement {
             version('errorprone', '2.16')
             version('ehcacheVersion', '3.10.8')
             version('findbugs', '3.0.2')
+            version('disruptor', '3.4.4')
         }
     }
     repositories {

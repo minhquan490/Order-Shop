@@ -34,7 +34,7 @@ import java.util.Set;
 public class ValidateInterceptor<T extends BaseEntity> {
     private final EntityFactory entityFactory;
 
-    @Pointcut("@annotation(com.order.bachlinh.core.annotation.Validated)")
+    @Pointcut("@annotation(com.bachlinh.order.annotation.Validated)")
     private void validatePointcut() {
     }
 

@@ -1,6 +1,7 @@
 package com.bachlinh.order.core.tcp.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -13,11 +14,11 @@ import com.bachlinh.order.utils.JacksonUtils;
 
 import java.security.Principal;
 
-public class SpringWebSocketHandler implements WebSocketHandler {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SpringWebSocketHandler.class);
+public abstract class SpringWebSocketHandler implements WebSocketHandler {
+    private static final Logger log = LogManager.getLogger(SpringWebSocketHandler.class);
     private final WebSocketSessionManager socketSessionManager;
 
-    public SpringWebSocketHandler(WebSocketSessionManager socketSessionManager) {
+    protected SpringWebSocketHandler(WebSocketSessionManager socketSessionManager) {
         this.socketSessionManager = socketSessionManager;
     }
 
@@ -31,12 +32,16 @@ public class SpringWebSocketHandler implements WebSocketHandler {
         Object payload = message.getPayload();
         if (payload instanceof String string) {
             JsonNode node = JacksonUtils.getSingleton().readTree(string);
-            socketSessionManager.handleInComingMessage(message, node.get("receiver").asText());
+            doBeforeSendMessage(session, node);
+            socketSessionManager.handleInComingMessage(message, node.get(WebSocketSessionManager.RECEIVER_KEY).asText());
+            doAfterSendMessage(session, node);
             return;
         }
         if (payload instanceof byte[] bytes) {
             JsonNode node = JacksonUtils.getSingleton().readTree(bytes);
-            socketSessionManager.handleInComingMessage(message, node.get("receiver").asText());
+            doBeforeSendMessage(session, node);
+            socketSessionManager.handleInComingMessage(message, node.get(WebSocketSessionManager.RECEIVER_KEY).asText());
+            doAfterSendMessage(session, node);
         }
     }
 
@@ -62,4 +67,8 @@ public class SpringWebSocketHandler implements WebSocketHandler {
     public boolean supportsPartialMessages() {
         return false;
     }
+
+    protected abstract void doBeforeSendMessage(@NonNull WebSocketSession session, JsonNode convertedMessage);
+
+    protected abstract void doAfterSendMessage(@NonNull WebSocketSession session, JsonNode convertedMessage);
 }

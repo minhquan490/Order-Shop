@@ -1,11 +1,13 @@
 package com.bachlinh.order.annotation;
 
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,6 +26,7 @@ import java.lang.annotation.Target;
 @EnableAsync(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @EnableScheduling
 @EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
+@ImportRuntimeHints(value = {})
 public @interface SpringApplication {
 
     @AliasFor(annotation = SpringBootApplication.class)
@@ -37,4 +40,7 @@ public @interface SpringApplication {
 
     @AliasFor(annotation = SpringBootApplication.class)
     boolean proxyBeanMethods() default true;
+
+    @AliasFor(annotation = ImportRuntimeHints.class, attribute = "value")
+    Class<? extends RuntimeHintsRegistrar>[] runtimeHints() default {};
 }

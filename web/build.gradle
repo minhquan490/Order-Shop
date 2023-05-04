@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.hibernate.orm:hibernate-core'
     implementation 'org.hibernate.orm:hibernate-jcache'
     implementation 'com.zaxxer:HikariCP'
+    implementation "com.lmax:disruptor:${libs.versions.disruptor.get()}"
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
@@ -54,4 +55,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+processAot {
+    jvmArgs(List.of('-Xmx6096M'))
 }

@@ -3,19 +3,14 @@ package com.bachlinh.order.web.handler.websocket;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.WebSocketMessage;
 import com.bachlinh.order.core.tcp.context.AbstractWebSocketSessionManager;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.security.auth.spi.PrincipalHolder;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
+import java.util.Collection;
 
 public class WebSocketManager extends AbstractWebSocketSessionManager {
-
-    private final DependenciesResolver resolver;
-
-    public WebSocketManager(DependenciesResolver resolver) {
-        this.resolver = resolver;
-    }
 
     @Override
     protected String queryUserId() {
@@ -36,6 +31,11 @@ public class WebSocketManager extends AbstractWebSocketSessionManager {
     }
 
     @Override
+    protected boolean isAdmin() {
+        return queryRole().equalsIgnoreCase(Role.ADMIN.name());
+    }
+
+    @Override
     public void handleInComingMessage(WebSocketMessage<?> message, String receiver) throws IOException {
         getSocketContext(receiver).sendMessage(message.getPayload());
     }
@@ -43,5 +43,13 @@ public class WebSocketManager extends AbstractWebSocketSessionManager {
     @Override
     public void pushMessage(Object message, String receiver) throws IOException {
         getSocketContext(receiver).sendMessage(message);
+    }
+
+    @Override
+    public void pushMessageToAllAdmin(Object message) throws IOException {
+        Collection<String> adminIds = getAllAdminConnection();
+        for (String id : adminIds) {
+            pushMessage(message, id);
+        }
     }
 }

@@ -1,11 +1,11 @@
 package com.bachlinh.order.service;
 
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -24,21 +24,21 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    public final Result<T> save(Form<U> form) {
+    public Result<T> save(Form<U> form) {
         inject();
         return new InternalResult<>(doSave(form.get()));
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    public final Result<T> delete(Form<U> form) {
+    public Result<T> delete(Form<U> form) {
         inject();
         return new InternalResult<>(doDelete(form.get()));
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    public final Result<T> update(Form<U> form) {
+    public Result<T> update(Form<U> form) {
         inject();
         return new InternalResult<>(doUpdate(form.get()));
     }

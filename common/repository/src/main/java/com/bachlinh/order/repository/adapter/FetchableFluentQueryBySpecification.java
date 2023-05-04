@@ -29,6 +29,7 @@ class FetchableFluentQueryBySpecification<S, R> extends FluentQuerySupport<S, R>
     private final Function<Specification<S>, Boolean> existsOperation;
     private final EntityManager entityManager;
 
+    @SuppressWarnings("unchecked")
     public FetchableFluentQueryBySpecification(Specification<S> spec, Class<S> entityType, Sort sort,
                                                Collection<String> properties, Function<Sort, TypedQuery<S>> finder,
                                                Function<Specification<S>, Long> countOperation, Function<Specification<S>, Boolean> existsOperation,

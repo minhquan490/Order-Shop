@@ -11,12 +11,14 @@ class DefaultWebSocketSessionContext implements WebSocketSessionContext {
     private final String userId;
     private final String role;
     private final String clientSecret;
+    private final boolean isAdmin;
 
-    DefaultWebSocketSessionContext(WebSocketSession session, String userId, String role, String clientSecret) {
+    DefaultWebSocketSessionContext(WebSocketSession session, String userId, String role, String clientSecret, boolean isAdmin) {
         this.session = session;
         this.userId = userId;
         this.role = role;
         this.clientSecret = clientSecret;
+        this.isAdmin = isAdmin;
     }
 
     @Override
@@ -54,5 +56,10 @@ class DefaultWebSocketSessionContext implements WebSocketSessionContext {
         if (session.isOpen()) {
             this.session.close();
         }
+    }
+
+    @Override
+    public boolean isAdminConnection() {
+        return isAdmin;
     }
 }

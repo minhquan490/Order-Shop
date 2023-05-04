@@ -19,7 +19,6 @@ import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTrans
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.core.server.H3JettyServerCustomize;
 import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
-import com.bachlinh.order.core.tcp.handler.SpringWebSocketHandler;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
@@ -28,6 +27,7 @@ import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
+import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import com.bachlinh.order.web.interceptor.RequestMonitor;
 import com.bachlinh.order.web.servlet.WebServlet;
@@ -81,13 +81,13 @@ class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
     }
 
     @Bean
-    WebSocketSessionManager webSocketSessionManager(DependenciesResolver resolver) {
-        return new WebSocketManager(resolver);
+    WebSocketSessionManager webSocketSessionManager() {
+        return new WebSocketManager();
     }
 
     @Bean
     WebSocketHandlerRegistry registry(DependenciesResolver resolver, WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SpringWebSocketHandler(webSocketSessionManager(resolver)), environment.getProperty("shop.url.socket.endpoint"));
+        registry.addHandler(new SocketHandler(webSocketSessionManager(), resolver), environment.getProperty("shop.url.socket.endpoint"));
         return registry;
     }
 

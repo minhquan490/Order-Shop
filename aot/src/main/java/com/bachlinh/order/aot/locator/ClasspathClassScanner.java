@@ -1,10 +1,10 @@
 package com.bachlinh.order.aot.locator;
 
+import org.springframework.lang.NonNull;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Native;
 import com.bachlinh.order.annotation.Reachable;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import org.springframework.lang.NonNull;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
@@ -20,15 +20,19 @@ class ClasspathClassScanner implements Scanner<Collection<Class<?>>> {
     public ScanResult<Collection<Class<?>>> scan(Collection<String> packages) {
         Set<Class<?>> resultSet = applicationScanner.findComponents()
                 .stream()
-                .filter(clazz -> clazz.isAnnotationPresent(ActiveReflection.class))
-                .filter(clazz -> clazz.isAnnotationPresent(Native.class))
-                .filter(clazz -> clazz.isAnnotationPresent(Reachable.class))
-                .filter(Serializable.class::isAssignableFrom)
                 .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
                 .filter(clazz -> !Modifier.isInterface(clazz.getModifiers()))
                 .filter(clazz -> !clazz.isAnnotation())
+                .filter(this::shouldRegister)
                 .collect(Collectors.toSet());
         return new ScanResult<>(resultSet);
+    }
+
+    private boolean shouldRegister(Class<?> clazz) {
+        return clazz.isAnnotationPresent(ActiveReflection.class) ||
+                clazz.isAnnotationPresent(Native.class) ||
+                clazz.isAnnotationPresent(Reachable.class) ||
+                Serializable.class.isAssignableFrom(clazz);
     }
 }
 

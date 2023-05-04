@@ -22,6 +22,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-aspects'
     implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation "org.eclipse.jetty.http3:http3-server"
     implementation "org.eclipse.jetty.http2:http2-server"
     implementation "org.eclipse.jetty:jetty-alpn-server"
