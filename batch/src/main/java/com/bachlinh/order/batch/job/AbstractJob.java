@@ -8,13 +8,13 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 
 public abstract non-sealed class AbstractJob implements Job {
     private final String name;
-    private final Report report;
+    private Report report;
     private final Environment environment;
     private final DependenciesResolver dependenciesResolver;
 
     protected AbstractJob(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         this.name = name;
-        this.report = new Report();
+        this.report = new Report(name);
         this.environment = Environment.getInstance(activeProfile);
         this.dependenciesResolver = dependenciesResolver;
     }
@@ -32,6 +32,15 @@ public abstract non-sealed class AbstractJob implements Job {
             doExecuteInternal();
         } catch (Exception e) {
             addException(e);
+        }
+    }
+
+    @Override
+    public final Report getJobReport() {
+        try {
+            return report;
+        } finally {
+            report = new Report(name);
         }
     }
 

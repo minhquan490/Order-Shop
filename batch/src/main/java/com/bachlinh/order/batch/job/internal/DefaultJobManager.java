@@ -57,6 +57,11 @@ class DefaultJobManager implements JobManager {
     }
 
     @Override
+    public Collection<Report> getAllReport() {
+        return jobCenter.getAllReport();
+    }
+
+    @Override
     public void executeJob(String jobName) {
         jobCenter.executeJob(jobName);
     }

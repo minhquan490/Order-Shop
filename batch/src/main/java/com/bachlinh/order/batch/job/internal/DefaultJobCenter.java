@@ -41,10 +41,12 @@ public class DefaultJobCenter extends AbstractJobCenter {
 
     @Override
     public Collection<Job> getJobExecuteOnce() {
-        return getJobContext().values()
+        Collection<Job> jobs = getJobContext().values()
                 .stream()
                 .filter(job -> job.getJobType().equals(JobType.ONCE))
                 .toList();
+        jobs.forEach(job -> getJobContext().remove(job.getName(), job));
+        return jobs;
     }
 
     @Override

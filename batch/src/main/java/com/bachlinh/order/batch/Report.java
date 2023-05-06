@@ -6,8 +6,10 @@ import java.util.LinkedList;
 public final class Report {
     private boolean hasError = false;
     private final Collection<Exception> error;
+    private final String jobName;
 
-    public Report() {
+    public Report(String jobName) {
+        this.jobName = jobName;
         this.error = new LinkedList<>();
     }
 
@@ -24,5 +26,9 @@ public final class Report {
 
     public boolean isHasError() {
         return hasError;
+    }
+
+    public String getJobName() {
+        return jobName;
     }
 }

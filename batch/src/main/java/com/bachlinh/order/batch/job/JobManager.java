@@ -1,5 +1,6 @@
 package com.bachlinh.order.batch.job;
 
+import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.Collection;
@@ -12,6 +13,8 @@ public interface JobManager extends JobOperation, JobHolder {
     Collection<Job> getMonthlyDeadlineJob();
 
     Collection<Job> getYearlyDeadlineJob();
+
+    Collection<Report> getAllReport();
 
     interface Builder {
         Builder dependenciesResolver(DependenciesResolver dependenciesResolver);
