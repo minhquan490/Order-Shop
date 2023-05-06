@@ -1,4 +1,4 @@
-package com.bachlinh.order.exception.system;
+package com.bachlinh.order.exception.system.aot;
 
 import com.bachlinh.order.exception.ApplicationException;
 

@@ -10,6 +10,7 @@ version = '1.0.0'
 
 dependencies {
     implementation project(":aot")
+    implementation project(":batch")
     implementation project(":service")
     implementation project(":common:annotation")
     implementation project(":common:core")

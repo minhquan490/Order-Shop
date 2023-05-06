@@ -1,7 +1,7 @@
 package com.bachlinh.order.service.container;
 
-import com.bachlinh.order.exception.system.CriticalException;
 import org.springframework.context.ApplicationContext;
+import com.bachlinh.order.exception.system.common.CriticalException;
 
 class SpringDependenciesContainerResolver implements DependenciesContainerResolver {
     private static SpringDependenciesContainerResolver singleton;

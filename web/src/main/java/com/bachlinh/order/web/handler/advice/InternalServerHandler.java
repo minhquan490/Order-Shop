@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
-import com.bachlinh.order.exception.system.CriticalException;
-import com.bachlinh.order.exception.system.JsonConvertException;
+import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.exception.system.common.JsonConvertException;
 
 @RouteExceptionHandler
 @ActiveReflection

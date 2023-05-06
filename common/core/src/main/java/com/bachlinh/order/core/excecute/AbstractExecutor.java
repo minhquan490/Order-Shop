@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.excecute;
 
-import com.bachlinh.order.exception.system.CriticalException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
 

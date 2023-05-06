@@ -1,6 +1,6 @@
 package com.bachlinh.order.environment;
 
-import com.bachlinh.order.exception.system.EnvironmentException;
+import com.bachlinh.order.exception.system.environment.EnvironmentException;
 
 import java.io.BufferedReader;
 import java.io.File;

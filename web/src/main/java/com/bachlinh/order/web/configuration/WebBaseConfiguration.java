@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.WebApplicationContext;
@@ -30,6 +32,7 @@ import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
 import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import com.bachlinh.order.web.interceptor.RequestMonitor;
+import com.bachlinh.order.web.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.servlet.WebServlet;
 
 @Configuration
@@ -90,6 +93,12 @@ class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
         registry.addHandler(new SocketHandler(webSocketSessionManager(), resolver), environment.getProperty("shop.url.socket.endpoint"));
         return registry;
     }
+
+    @Bean
+    ApplicationListener<ApplicationEvent> applicationEventApplicationListener(DependenciesContainerResolver containerResolver) {
+        return new WebApplicationEventListener(containerResolver.resolveContainer());
+    }
+
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -1,21 +1,20 @@
 package com.bachlinh.order.mail.model.converter;
 
-import com.bachlinh.order.core.http.converter.spi.Converter;
-import com.bachlinh.order.exception.system.MailException;
-import com.bachlinh.order.mail.model.MessageModel;
 import com.google.api.services.gmail.model.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.commons.codec.binary.Base64;
+import static jakarta.mail.Message.RecipientType.TO;
+import static java.text.MessageFormat.format;
+import com.bachlinh.order.core.http.converter.spi.Converter;
+import com.bachlinh.order.exception.system.mail.MailException;
+import com.bachlinh.order.mail.model.MessageModel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-
-import static jakarta.mail.Message.RecipientType.TO;
-import static java.text.MessageFormat.format;
 
 public class GmailConverter implements Converter<Message, MessageModel> {
     private static final String EMAIL_TYPE_PATTERN = "{0}; charset={1}";

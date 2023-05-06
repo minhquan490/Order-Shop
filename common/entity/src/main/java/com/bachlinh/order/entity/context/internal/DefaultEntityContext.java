@@ -1,5 +1,13 @@
 package com.bachlinh.order.entity.context.internal;
 
+import jakarta.persistence.Id;
+import jakarta.persistence.PersistenceException;
+import org.apache.logging.log4j.Logger;
+import org.apache.lucene.store.Directory;
+import org.hibernate.annotations.Cache;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.lang.Nullable;
 import com.bachlinh.order.annotation.Ignore;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Trigger;
@@ -10,17 +18,9 @@ import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.exception.system.CriticalException;
-import com.bachlinh.order.exception.system.NoTransactionException;
+import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.exception.system.common.NoTransactionException;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import jakarta.persistence.Id;
-import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.Logger;
-import org.apache.lucene.store.Directory;
-import org.hibernate.annotations.Cache;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.cache.SpringCacheManager;
-import com.bachlinh.order.exception.system.CriticalException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 
 import java.util.Collection;
 import java.util.Optional;

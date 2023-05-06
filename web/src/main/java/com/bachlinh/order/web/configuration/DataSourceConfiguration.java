@@ -22,7 +22,7 @@ import com.bachlinh.order.entity.cache.HibernateL2CachingRegionFactory;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.CriticalException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.ApplicationAvailableSettings;

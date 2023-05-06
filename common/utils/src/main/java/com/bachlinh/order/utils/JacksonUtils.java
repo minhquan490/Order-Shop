@@ -1,8 +1,8 @@
 package com.bachlinh.order.utils;
 
-import com.bachlinh.order.exception.system.JsonConvertException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.bachlinh.order.exception.system.common.JsonConvertException;
 
 public final class JacksonUtils {
     private JacksonUtils() {

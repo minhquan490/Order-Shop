@@ -1,7 +1,7 @@
 package com.bachlinh.order.analyzer;
 
-import com.bachlinh.order.exception.system.LuceneException;
 import org.apache.lucene.analysis.CharArraySet;
+import com.bachlinh.order.exception.system.search.LuceneException;
 
 import java.io.File;
 import java.io.IOException;

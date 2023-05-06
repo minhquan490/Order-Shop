@@ -1,11 +1,11 @@
 package com.bachlinh.order.handler.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.exception.system.CriticalException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.bachlinh.order.exception.system.common.CriticalException;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

@@ -1,21 +1,19 @@
 package com.bachlinh.order.web.listener;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.BootWrapper;
 import com.bachlinh.order.core.excecute.Executor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
 
-@ActiveReflection
 public final class WebApplicationEventListener implements ApplicationListener<ApplicationEvent> {
     private static final String STARTED_EVENT = "org.springframework.context.event.ContextStartedEvent";
     private static final String READY_EVENT = "org.springframework.boot.context.event.ApplicationReadyEvent";
@@ -24,7 +22,6 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
     private final Collection<Executor<?>> eventExecutors = new LinkedList<>();
     private final DependenciesResolver resolver;
 
-    @ActiveReflection
     @SuppressWarnings("unchecked")
     public WebApplicationEventListener(DependenciesContainerResolver dependenciesContainerResolver) {
         ApplicationScanner scanner = new ApplicationScanner();

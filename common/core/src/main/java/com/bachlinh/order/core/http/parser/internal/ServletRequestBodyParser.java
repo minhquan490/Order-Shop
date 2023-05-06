@@ -1,9 +1,9 @@
 package com.bachlinh.order.core.http.parser.internal;
 
-import com.bachlinh.order.core.http.parser.spi.RequestBodyParser;
-import com.bachlinh.order.exception.system.CriticalException;
-import com.bachlinh.order.utils.JacksonUtils;
 import jakarta.servlet.ServletRequest;
+import com.bachlinh.order.core.http.parser.spi.RequestBodyParser;
+import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.utils.JacksonUtils;
 
 import java.io.IOException;
 

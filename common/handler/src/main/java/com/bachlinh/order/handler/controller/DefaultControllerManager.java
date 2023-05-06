@@ -1,15 +1,15 @@
 package com.bachlinh.order.handler.controller;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
-import com.bachlinh.order.exception.system.CriticalException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.ContainerWrapper;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;

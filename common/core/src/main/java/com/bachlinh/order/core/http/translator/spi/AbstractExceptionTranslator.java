@@ -7,7 +7,7 @@ import com.bachlinh.order.core.http.handler.ErrorHandler;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
 import com.bachlinh.order.core.http.handler.ThrowableHandler;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.exception.system.CriticalException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
