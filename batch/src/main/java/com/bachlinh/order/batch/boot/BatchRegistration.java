@@ -29,8 +29,8 @@ public class BatchRegistration extends AbstractExecutor<JobManager> {
     private BatchReportRepository batchReportRepository;
 
     @ActiveReflection
-    public BatchRegistration(DependenciesContainerResolver containerResolver) {
-        super(containerResolver);
+    public BatchRegistration(DependenciesContainerResolver containerResolver, String profile) {
+        super(containerResolver, profile);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class BatchRegistration extends AbstractExecutor<JobManager> {
 
     @Override
     protected void doExecute(JobManager bootObject) {
-        Trigger trigger = new CronTrigger("0 0 * * *");
+        Trigger trigger = new CronTrigger("0 0 0 * * *");
         scheduler.schedule(getTask(bootObject), trigger);
 
         Collection<Job> jobs = bootObject.getJobCenter().getJobExecuteOnce();

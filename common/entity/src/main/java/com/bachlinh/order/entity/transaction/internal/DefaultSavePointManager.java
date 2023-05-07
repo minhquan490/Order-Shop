@@ -47,6 +47,6 @@ class DefaultSavePointManager implements EntitySavePointManager {
 
     @Override
     public boolean hasSavePoint() {
-        return savePointContext.get().isEmpty();
+        return !savePointContext.get().isEmpty();
     }
 }

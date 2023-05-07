@@ -1,10 +1,9 @@
 package com.bachlinh.order.handler.strategy;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.environment.Environment;
-
-import java.util.concurrent.Executor;
 
 public interface ResourcePushStrategies {
     void pushResource(NativeResponse<?> response, HttpServletRequest request);
@@ -13,7 +12,7 @@ public interface ResourcePushStrategies {
         return DefaultResourcePushStrategies.getInstance(environment);
     }
 
-    static ResourcePushStrategies getAsyncPushStrategies(Environment environment, Executor executor) {
+    static ResourcePushStrategies getAsyncPushStrategies(Environment environment, ThreadPoolTaskExecutor executor) {
         return new AyncResourcePushStrategies(environment, executor);
     }
 }

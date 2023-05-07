@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.service.impl;
 
 import javax.imageio.ImageIO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Isolation;
@@ -44,7 +45,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 @ServiceComponent
 @ActiveReflection
@@ -62,7 +62,7 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
 
     @ActiveReflection
     @DependenciesInitialize
-    public ProductMediaServiceImpl(Executor executor, ContainerWrapper wrapper, String profile) {
+    public ProductMediaServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, @Value("${active.profile}") String profile) {
         super(executor, wrapper, profile);
     }
 

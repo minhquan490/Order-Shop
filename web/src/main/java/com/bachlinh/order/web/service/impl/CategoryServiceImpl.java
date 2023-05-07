@@ -1,5 +1,8 @@
 package com.bachlinh.order.web.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -12,8 +15,6 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.CategoryForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
-import org.springframework.data.domain.Page;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @ServiceComponent
 @ActiveReflection
@@ -23,7 +24,7 @@ public class CategoryServiceImpl extends AbstractService<CategoryResp, CategoryF
 
     @DependenciesInitialize
     @ActiveReflection
-    public CategoryServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
+    public CategoryServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, @Value("${active.profile}") String profile) {
         super(executor, wrapper, profile);
     }
 

@@ -1,12 +1,13 @@
 package com.bachlinh.order.web.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -17,11 +18,15 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.security.auth.internal.TokenManagerProvider;
+import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.filter.AuthenticationFilter;
 import com.bachlinh.order.security.filter.ClientSecretFilter;
 import com.bachlinh.order.security.filter.LoggingRequestFilter;
 import com.bachlinh.order.security.filter.PermissionFilter;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
+import com.bachlinh.order.security.handler.UnAuthorizationHandler;
+import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.ArrayList;
@@ -69,7 +74,18 @@ class SecurityConfiguration {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile, PathMatcher pathMatcher) throws Exception {
+    TokenManager tokenManager(ApplicationContext applicationContext, @Value("${active.profile}") String profile) {
+        TokenManagerProvider provider = new TokenManagerProvider(ContainerWrapper.wrap(applicationContext), profile);
+        return provider.getTokenManager();
+    }
+
+    @Bean
+    UnAuthorizationHandler unAuthorizationHandler() {
+        return new UnAuthorizationHandler();
+    }
+
+    @Bean
+    DefaultSecurityFilterChain filterChain(HttpSecurity http, DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile, PathMatcher pathMatcher) throws Exception {
         Environment environment = Environment.getInstance(profile);
         String clientUrl = environment.getProperty("shop.url.client");
         String urlAdmin = environment.getProperty("shop.url.pattern.admin");

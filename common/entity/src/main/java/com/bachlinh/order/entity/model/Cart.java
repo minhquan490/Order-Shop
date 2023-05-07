@@ -1,7 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,10 +8,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
 
 import java.util.Collection;
 
@@ -33,6 +35,15 @@ public class Cart extends AbstractEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "cart", orphanRemoval = true)
     private Collection<CartDetail> cartDetails;
+
+    @ManyToMany
+    @JoinTable(
+            name = "PRODUCT_CART",
+            joinColumns = @JoinColumn(name = "CART_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID"),
+            indexes = @Index(name = "idx_product_cart", columnList = "CART_ID")
+    )
+    private Collection<Product> products;
 
     @ActiveReflection
     Cart() {
@@ -82,5 +93,14 @@ public class Cart extends AbstractEntity {
     @ActiveReflection
     public void setCartDetails(Collection<CartDetail> cartDetails) {
         this.cartDetails = cartDetails;
+    }
+
+    public Collection<Product> getProducts() {
+        return products;
+    }
+
+    @ActiveReflection
+    public void setProducts(Collection<Product> products) {
+        this.products = products;
     }
 }

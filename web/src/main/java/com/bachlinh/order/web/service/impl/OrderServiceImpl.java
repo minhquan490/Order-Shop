@@ -2,9 +2,11 @@ package com.bachlinh.order.web.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
@@ -39,7 +41,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -56,7 +57,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
 
     @ActiveReflection
     @DependenciesInitialize
-    public OrderServiceImpl(Executor executor, ContainerWrapper wrapper, String profile) {
+    public OrderServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, @Value("${active.profile}") String profile) {
         super(executor, wrapper, profile);
     }
 

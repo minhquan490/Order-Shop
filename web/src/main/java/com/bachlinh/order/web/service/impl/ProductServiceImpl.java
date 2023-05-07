@@ -1,9 +1,11 @@
 package com.bachlinh.order.web.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -32,7 +34,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @ServiceComponent
@@ -45,12 +46,13 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
 
     @ActiveReflection
     @DependenciesInitialize
-    public ProductServiceImpl(Executor executor, ContainerWrapper wrapper, String profile) {
+    public ProductServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, @Value("${active.profile}") String profile) {
         super(executor, wrapper, profile);
     }
 
     @Override
     public Page<ProductResp> searchProduct(ProductSearchForm form, Pageable pageable) {
+        inject();
         Map<String, Object> conditions = new HashMap<>();
         conditions.put(Product_.NAME, form.productName());
         conditions.put(Product_.PRICE, Integer.parseInt(form.price()));
@@ -70,6 +72,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
 
     @Override
     public Page<ProductResp> fullTextSearch(ProductSearchForm form, Pageable pageable) {
+        inject();
         EntityContext entityContext = entityFactory.getEntityContext(Product.class);
         Collection<String> productIds = entityContext.search(form.productName());
         Map<String, Object> conditions = new HashMap<>();
@@ -92,6 +95,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
 
     @Override
     public Page<ProductResp> productList(Pageable pageable) {
+        inject();
         Map<String, Object> conditions = new HashMap<>();
         Page<Product> products = productRepository.getProductsByCondition(conditions, pageable);
         return products.map(product -> ProductResp.toDto(product, resourceUrl));
@@ -99,6 +103,7 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
 
     @Override
     public Page<ProductResp> getProductsWithId(Collection<Object> ids) {
+        inject();
         Pageable pageable = Pageable.ofSize(ids.size());
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("IDS", ids);

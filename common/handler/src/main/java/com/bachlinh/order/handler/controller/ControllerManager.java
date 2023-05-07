@@ -1,11 +1,11 @@
 package com.bachlinh.order.handler.controller;
 
-import com.bachlinh.order.core.http.handler.RequestHandler;
-import com.bachlinh.order.service.container.ContainerWrapper;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import com.bachlinh.order.core.http.handler.RequestHandler;
+import com.bachlinh.order.service.container.ContainerWrapper;
 
-public interface ControllerManager extends RequestHandler {
+public sealed interface ControllerManager extends RequestHandler permits AbstractControllerManager {
     <T, U> void addController(Controller<T, U> controller);
 
     <T, U> void removeController(Controller<T, U> controller);

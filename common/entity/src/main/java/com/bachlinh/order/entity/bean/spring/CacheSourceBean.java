@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.configuration;
+package com.bachlinh.order.entity.bean.spring;
 
 import jakarta.persistence.Cacheable;
 import javax.cache.CacheManager;
@@ -22,11 +22,11 @@ import java.util.Optional;
 
 @Configuration
 @EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
-class CacheConfiguration {
-    private static final Logger log = LogManager.getLogger(CacheConfiguration.class);
+public class CacheSourceBean {
+    private static final Logger log = LogManager.getLogger(CacheSourceBean.class);
 
     @Bean
-    SpringCacheManager cacheManager() {
+    public SpringCacheManager cacheManager() {
         SpringCacheManager cacheManager = new SpringCacheManager(initCacheManager());
         cacheManager.setAllowNullValues(false);
         cacheManager.setTransactionAware(true);

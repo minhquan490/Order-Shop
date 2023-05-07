@@ -1,7 +1,7 @@
 package com.bachlinh.order.core;
 
-import com.bachlinh.order.core.scanner.ApplicationScanner;
 import org.springframework.boot.SpringApplication;
+import com.bachlinh.order.core.scanner.ApplicationScanner;
 
 public class Application {
     private Application() {

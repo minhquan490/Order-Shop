@@ -1,11 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -19,7 +13,14 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 
+import java.util.Collection;
 import java.util.Set;
 
 @Entity
@@ -69,13 +70,13 @@ public class Product extends AbstractEntity {
     private boolean enabled = true;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
-    private Set<ProductMedia> medias;
+    private Collection<ProductMedia> medias;
 
     @ManyToMany(mappedBy = "products")
-    private Set<Category> categories;
+    private Collection<Category> categories;
 
     @ManyToMany(mappedBy = "products")
-    private Set<Cart> carts;
+    private Collection<Cart> carts;
 
     @ActiveReflection
     Product() {
@@ -148,17 +149,17 @@ public class Product extends AbstractEntity {
     }
 
     @ActiveReflection
-    public Set<ProductMedia> getMedias() {
+    public Collection<ProductMedia> getMedias() {
         return this.medias;
     }
 
     @ActiveReflection
-    public Set<Category> getCategories() {
+    public Collection<Category> getCategories() {
         return this.categories;
     }
 
     @ActiveReflection
-    public Set<Cart> getCarts() {
+    public Collection<Cart> getCarts() {
         return this.carts;
     }
 

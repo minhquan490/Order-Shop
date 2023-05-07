@@ -1,9 +1,11 @@
-package com.bachlinh.order.web.configuration;
+package com.bachlinh.order.entity.bean.spring;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.EntityManager;
 import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.SQLServerDialect;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +27,6 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.ApplicationAvailableSettings;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -34,7 +35,8 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
-class DataSourceConfiguration {
+public class DataSourceBean {
+
     private String databaseAddress;
     private String databaseName;
     private String username;
@@ -60,11 +62,16 @@ class DataSourceConfiguration {
     }
 
     @Bean
-    EntityFactory entityFactory(ApplicationContext applicationContext, @Value("active.profile") String profile) throws IOException {
+    EntityFactory entityFactory(ApplicationContext applicationContext, @Value("${active.profile}") String profile) throws IOException {
         return InternalProvider.useDefaultEntityFactoryBuilder()
                 .container(ContainerWrapper.wrap(applicationContext))
                 .profile(profile)
                 .build();
+    }
+
+    @Bean
+    EntityManager entityManager(SessionFactory sessionFactory) {
+        return sessionFactory.createEntityManager();
     }
 
     @Bean
@@ -76,19 +83,18 @@ class DataSourceConfiguration {
         } else {
             principal = "Application";
         }
-        return () -> Optional
-                .of((principal));
+        return () -> Optional.of((principal));
     }
 
     private Properties hibernateProperties() {
         Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty(ApplicationAvailableSettings.HBM2DDL_AUTO, "update");
-        hibernateProperties.setProperty(ApplicationAvailableSettings.SHOW_SQL, "true");
-        hibernateProperties.setProperty(ApplicationAvailableSettings.FORMAT_SQL, "false");
-        hibernateProperties.setProperty(ApplicationAvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-        hibernateProperties.setProperty(ApplicationAvailableSettings.DIALECT, sqlDialect(useDatabase));
-        hibernateProperties.setProperty(ApplicationAvailableSettings.USE_SECOND_LEVEL_CACHE, "true");
-        hibernateProperties.setProperty(ApplicationAvailableSettings.USE_QUERY_CACHE, "true");
+        hibernateProperties.setProperty(AvailableSettings.HBM2DDL_AUTO, "update");
+        hibernateProperties.setProperty(AvailableSettings.SHOW_SQL, "true");
+        hibernateProperties.setProperty(AvailableSettings.FORMAT_SQL, "false");
+        hibernateProperties.setProperty(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+        hibernateProperties.setProperty(AvailableSettings.DIALECT, sqlDialect(useDatabase));
+        hibernateProperties.setProperty(AvailableSettings.USE_SECOND_LEVEL_CACHE, "true");
+        hibernateProperties.setProperty(AvailableSettings.USE_QUERY_CACHE, "true");
         return hibernateProperties;
     }
 

@@ -1,6 +1,7 @@
 package com.bachlinh.order.handler.strategy;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.environment.Environment;
 
@@ -10,7 +11,7 @@ class AyncResourcePushStrategies implements ResourcePushStrategies {
     private final Executor executor;
     private final DefaultResourcePushStrategies defaultResourcePushStrategies;
 
-    AyncResourcePushStrategies(Environment environment, Executor executor) {
+    AyncResourcePushStrategies(Environment environment, ThreadPoolTaskExecutor executor) {
         this.executor = executor;
         this.defaultResourcePushStrategies = DefaultResourcePushStrategies.getInstance(environment);
     }

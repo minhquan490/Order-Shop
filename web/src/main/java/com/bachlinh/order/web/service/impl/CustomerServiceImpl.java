@@ -1,5 +1,15 @@
 package com.bachlinh.order.web.service.impl;
 
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -30,15 +40,6 @@ import com.bachlinh.order.web.service.business.LoginService;
 import com.bachlinh.order.web.service.business.LogoutService;
 import com.bachlinh.order.web.service.business.RegisterService;
 import com.bachlinh.order.web.service.common.CustomerService;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -56,7 +57,7 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @DependenciesInitialize
     @ActiveReflection
-    public CustomerServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
+    public CustomerServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, @Value("${active.profile}") String profile) {
         super(executor, wrapper, profile);
     }
 

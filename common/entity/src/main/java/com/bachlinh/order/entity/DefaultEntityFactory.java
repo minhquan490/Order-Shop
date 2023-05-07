@@ -1,5 +1,7 @@
 package com.bachlinh.order.entity;
 
+import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.context.internal.DefaultEntityContext;
@@ -14,8 +16,6 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -116,6 +116,7 @@ public final class DefaultEntityFactory implements EntityFactory {
                     .toList()
                     .toArray(new String[0]));
             builder.threadPool(containerResolver.getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class));
+            builder.profile(activeProfile);
             return builder.build().obtainManager();
         }
     }

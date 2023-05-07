@@ -12,8 +12,8 @@ public class ScannerResourceReleaseExecution extends AbstractExecutor<Void> {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ScannerResourceReleaseExecution.class);
 
     @ActiveReflection
-    public ScannerResourceReleaseExecution(DependenciesContainerResolver containerResolver) {
-        super(containerResolver);
+    public ScannerResourceReleaseExecution(DependenciesContainerResolver containerResolver, String profile) {
+        super(containerResolver, profile);
     }
 
     @Override

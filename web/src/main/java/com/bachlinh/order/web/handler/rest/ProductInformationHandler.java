@@ -45,7 +45,7 @@ public class ProductInformationHandler extends AbstractController<ResponseEntity
         if (productInfoUrl == null) {
             productInfoUrl = getEnvironment().getProperty("shop.url.content.product.info");
         }
-        return null;
+        return productInfoUrl;
     }
 
     @Override

@@ -1,26 +1,25 @@
 package com.bachlinh.order.validator.internal;
 
+import org.hibernate.validator.internal.util.DomainNameUtil;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validator.spi.AbstractValidator;
 import com.bachlinh.order.validator.spi.Result;
-import org.hibernate.validator.internal.util.DomainNameUtil;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 @ActiveReflection
 public class CustomerValidator extends AbstractValidator<Customer> {
     private CustomerRepository customerRepository;
 
     @ActiveReflection
-    public CustomerValidator(DependenciesContainerResolver containerResolver) {
-        super(containerResolver.getDependenciesResolver());
+    public CustomerValidator(DependenciesResolver resolver) {
+        super(resolver);
     }
 
     @Override

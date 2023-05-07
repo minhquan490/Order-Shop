@@ -8,6 +8,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.FrameworkServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -38,14 +40,17 @@ import com.bachlinh.order.web.servlet.WebServlet;
 @Configuration
 @EnableWebMvc
 @EnableWebSocket
+@Order(Ordered.HIGHEST_PRECEDENCE)
 class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
     private final TokenManager tokenManager;
     private final Environment environment;
+    private final DependenciesResolver resolver;
 
     @Autowired
-    WebBaseConfiguration(TokenManager tokenManager, @Value("${active.profile}") String profile) {
+    WebBaseConfiguration(TokenManager tokenManager, DependenciesResolver resolver, @Value("${active.profile}") String profile) {
         this.tokenManager = tokenManager;
         this.environment = Environment.getInstance(profile);
+        this.resolver = resolver;
     }
 
     @Bean
@@ -74,31 +79,19 @@ class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
     }
 
     @Bean
-    DependenciesContainerResolver containerResolver(ApplicationContext applicationContext, @Value("${active.profile}") String profile) {
-        return DependenciesContainerResolver.buildResolver(applicationContext, profile);
-    }
-
-    @Bean
-    DependenciesResolver resolver(DependenciesContainerResolver containerResolver) {
-        return containerResolver.getDependenciesResolver();
-    }
-
-    @Bean
     WebSocketSessionManager webSocketSessionManager() {
         return new WebSocketManager();
     }
 
     @Bean
-    WebSocketHandlerRegistry registry(DependenciesResolver resolver, WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketHandler(webSocketSessionManager(), resolver), environment.getProperty("shop.url.socket.endpoint"));
-        return registry;
+    ApplicationListener<ApplicationEvent> applicationEventApplicationListener(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile) {
+        return new WebApplicationEventListener(containerResolver, profile);
     }
 
     @Bean
-    ApplicationListener<ApplicationEvent> applicationEventApplicationListener(DependenciesContainerResolver containerResolver) {
-        return new WebApplicationEventListener(containerResolver.resolveContainer());
+    ContainerWrapper containerWrapper(ApplicationContext applicationContext) {
+        return ContainerWrapper.wrap(applicationContext);
     }
-
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -107,6 +100,6 @@ class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // Do nothing
+        registry.addHandler(new SocketHandler(webSocketSessionManager(), resolver), environment.getProperty("shop.url.socket.endpoint"));
     }
 }

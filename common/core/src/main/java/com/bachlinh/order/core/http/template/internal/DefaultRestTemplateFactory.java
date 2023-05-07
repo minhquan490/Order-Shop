@@ -1,12 +1,13 @@
 package com.bachlinh.order.core.http.template.internal;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import static java.net.http.HttpClient.Redirect.NORMAL;
 import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.core.http.template.spi.RestTemplateFactory;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.net.CookieManager;
 import java.net.http.HttpClient;
 import java.security.KeyManagementException;
@@ -14,8 +15,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
-
-import static java.net.http.HttpClient.Redirect.NORMAL;
 
 public class DefaultRestTemplateFactory implements RestTemplateFactory {
     private final String pemCertificatePath;
@@ -48,7 +47,7 @@ public class DefaultRestTemplateFactory implements RestTemplateFactory {
     private SSLContext createSslContext(SslStoreProvider provider) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(provider.getKeyStore());
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("RSA");
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(provider.getKeyStore(), provider.getKeyPassword().toCharArray());
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());

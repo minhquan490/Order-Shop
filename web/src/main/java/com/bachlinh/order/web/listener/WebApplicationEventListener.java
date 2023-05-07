@@ -23,13 +23,13 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
     private final DependenciesResolver resolver;
 
     @SuppressWarnings("unchecked")
-    public WebApplicationEventListener(DependenciesContainerResolver dependenciesContainerResolver) {
+    public WebApplicationEventListener(DependenciesContainerResolver dependenciesContainerResolver, String profile) {
         ApplicationScanner scanner = new ApplicationScanner();
         eventExecutors.addAll(scanner.findComponents()
                 .stream()
                 .filter(Executor.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends Executor<?>>) clazz)
-                .map(clazz -> instanceExecutor(clazz, dependenciesContainerResolver))
+                .map(clazz -> instanceExecutor(clazz, dependenciesContainerResolver, profile))
                 .filter(Objects::nonNull)
                 .toList());
         this.resolver = dependenciesContainerResolver.getDependenciesResolver();
@@ -89,10 +89,10 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
         });
     }
 
-    private Executor<?> instanceExecutor(Class<? extends Executor<?>> initiator, DependenciesContainerResolver containerResolver) {
+    private Executor<?> instanceExecutor(Class<? extends Executor<?>> initiator, DependenciesContainerResolver containerResolver, String profile) {
         try {
-            Constructor<?> constructor = initiator.getConstructor(DependenciesContainerResolver.class);
-            return (Executor<?>) constructor.newInstance(containerResolver);
+            Constructor<?> constructor = initiator.getConstructor(DependenciesContainerResolver.class, String.class);
+            return (Executor<?>) constructor.newInstance(containerResolver, profile);
         } catch (Exception e) {
             return null;
         }

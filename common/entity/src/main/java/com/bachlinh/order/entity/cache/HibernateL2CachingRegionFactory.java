@@ -1,13 +1,12 @@
 package com.bachlinh.order.entity.cache;
 
-import com.bachlinh.order.service.container.DependenciesResolver;
-import org.hibernate.boot.spi.SessionFactoryOptions;
-import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
-import org.springframework.cache.jcache.JCacheCacheManager;
-import org.springframework.lang.Nullable;
-
 import javax.cache.Cache;
 import javax.cache.CacheManager;
+import org.hibernate.boot.spi.SessionFactoryOptions;
+import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
+import org.springframework.lang.Nullable;
+import com.bachlinh.order.service.container.DependenciesResolver;
+
 import java.util.Map;
 
 /**
@@ -17,10 +16,10 @@ import java.util.Map;
  * @author Hoang Minh Quan.
  */
 public final class HibernateL2CachingRegionFactory extends JCacheRegionFactory {
-    private final transient JCacheCacheManager cacheManager;
+    private final transient SpringCacheManager cacheManager;
 
     public HibernateL2CachingRegionFactory(DependenciesResolver dependenciesResolver) {
-        this.cacheManager = dependenciesResolver.resolveDependencies(JCacheCacheManager.class);
+        this.cacheManager = dependenciesResolver.resolveDependencies(SpringCacheManager.class);
     }
 
     @Override
@@ -31,9 +30,8 @@ public final class HibernateL2CachingRegionFactory extends JCacheRegionFactory {
     @Override
     protected Cache<Object, Object> createCache(String regionName) {
         Cache<Object, Object> cache = getCacheManager().getCache(regionName);
-        SpringCacheManager springCacheManager = (SpringCacheManager) cacheManager;
         if (cache == null) {
-            cache = getCacheManager().createCache(regionName, springCacheManager.getDefaultConfig());
+            cache = getCacheManager().createCache(regionName, cacheManager.getDefaultConfig());
         }
         return cache;
     }

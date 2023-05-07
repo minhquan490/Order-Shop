@@ -1,11 +1,5 @@
 package com.bachlinh.order.entity.index.internal;
 
-import com.bachlinh.order.analyzer.VietnameseAnalyzer;
-import com.bachlinh.order.analyzer.VietnameseConfig;
-import com.bachlinh.order.entity.index.spi.SearchManager;
-import com.bachlinh.order.entity.index.spi.SearchManagerFactory;
-import com.bachlinh.order.entity.index.spi.StopWordLoader;
-import com.bachlinh.order.environment.Environment;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -13,6 +7,12 @@ import org.apache.lucene.codecs.lucene95.Lucene95Codec;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.NoMergePolicy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import com.bachlinh.order.analyzer.VietnameseAnalyzer;
+import com.bachlinh.order.analyzer.VietnameseConfig;
+import com.bachlinh.order.entity.index.spi.SearchManager;
+import com.bachlinh.order.entity.index.spi.SearchManagerFactory;
+import com.bachlinh.order.entity.index.spi.StopWordLoader;
+import com.bachlinh.order.environment.Environment;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,8 +142,7 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
 
         @Override
         public SearchManagerFactory.Builder profile(String profile) {
-            String p = Objects.requireNonNull(profile, "Profile must not be null");
-            this.profile = p;
+            this.profile = Objects.requireNonNull(profile, "Profile must not be null");
             return this;
         }
 

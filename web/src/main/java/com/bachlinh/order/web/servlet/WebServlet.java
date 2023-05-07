@@ -1,10 +1,12 @@
 package com.bachlinh.order.web.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.context.WebApplicationContext;
@@ -34,10 +36,16 @@ public class WebServlet extends FrameworkServlet {
     protected void doService(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response) throws Exception {
         ResponseEntity<?> responseEntity = frontRequestHandler.handle(request, response);
         response.setStatus(responseEntity.getStatusCode().value());
-        responseEntity.getHeaders().forEach((s, strings) -> strings.forEach(s1 -> response.addHeader(s, s1)));
-        String json = objectMapper.writeValueAsString(responseEntity.getBody());
-        response.getOutputStream().write(json.getBytes(StandardCharsets.UTF_8));
+        responseEntity.getHeaders().forEach((s, strings) -> {
+            if (!s.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
+                strings.forEach(s1 -> response.addHeader(s, s1));
+            }
+        });
         response.flushBuffer();
+        ServletOutputStream outputStream = response.getOutputStream();
+        String json = objectMapper.writeValueAsString(responseEntity.getBody());
+        byte[] data = json.getBytes(StandardCharsets.UTF_8);
+        outputStream.write(data);
     }
 
     @Override

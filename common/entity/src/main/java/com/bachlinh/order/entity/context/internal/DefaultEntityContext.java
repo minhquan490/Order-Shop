@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class DefaultEntityContext implements EntityContext {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(DefaultEntityContext.class);
@@ -186,14 +187,16 @@ public class DefaultEntityContext implements EntityContext {
         } catch (Exception e) {
             log.error("Can not create trigger", e);
         }
-        entityTriggers.sort(Comparator.comparing(entityTrigger -> {
-            Order order = entityTrigger.getClass().getAnnotation(Order.class);
-            if (order == null) {
-                return Ordered.LOWEST_PRECEDENCE;
-            }
-            return order.value();
-        }));
-        return entityTriggers;
+        return entityTriggers.stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(entityTrigger -> {
+                    Order order = entityTrigger.getClass().getAnnotation(Order.class);
+                    if (order == null) {
+                        return Ordered.LOWEST_PRECEDENCE;
+                    }
+                    return order.value();
+                }))
+                .toList();
     }
 
     private Class<?> queryIdType(Class<?> entityType) {

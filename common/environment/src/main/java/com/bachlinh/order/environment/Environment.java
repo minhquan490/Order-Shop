@@ -41,7 +41,10 @@ public final class Environment {
      * @return Environment object.
      */
     public static Environment getInstance(String name) {
-        return environments.computeIfAbsent(name, v -> new Environment(name));
+        if (!environments.containsKey(name)) {
+            environments.put(name, new Environment(name));
+        }
+        return environments.get(name);
     }
 
     /**
@@ -72,9 +75,12 @@ public final class Environment {
     private Properties loadProperties(String path) {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         Properties properties = new Properties();
-        URL url = classLoader.getResource(path.concat(".properties"));
+        String propertiesName = path.concat(".properties");
+        URL url = classLoader.getResource(propertiesName);
         try {
-            assert url != null;
+            if (url == null) {
+                throw new IllegalArgumentException("Properties [" + propertiesName + "] not found");
+            }
             File file = new File(url.toURI());
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;

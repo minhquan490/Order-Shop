@@ -24,13 +24,13 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
     }
 
     public void setWrapper(ContainerWrapper wrapper, String profile) {
+        this.containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile);
+        this.environment = Environment.getInstance(profile);
         for (Method method : this.getClass().getDeclaredMethods()) {
             if (method.getName().equals("internalHandler")) {
                 NativeMethodHandleRequestMetadataReader.getInstance().defineMetadata(getPath(), method);
             }
         }
-        this.containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile);
-        this.environment = Environment.getInstance(profile);
     }
 
     @Override

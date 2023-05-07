@@ -1,5 +1,6 @@
 package com.bachlinh.order.setup;
 
+import org.apache.logging.log4j.Logger;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
@@ -8,7 +9,6 @@ import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.setup.internal.SetupManagerFactoryProvider;
 import com.bachlinh.order.setup.spi.SetupManagerFactory;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Executor for execute all setup available in classpath. This class is listener
@@ -23,16 +23,18 @@ import org.apache.logging.log4j.Logger;
 public class SetupExecutor extends AbstractExecutor<Void> {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SetupExecutor.class);
     private SetupManager manager;
+    private String profile;
 
     @ActiveReflection
-    public SetupExecutor(DependenciesContainerResolver containerResolver) {
-        super(containerResolver);
+    public SetupExecutor(DependenciesContainerResolver containerResolver, String profile) {
+        super(containerResolver, profile);
+        this.profile = profile;
     }
 
     private SetupManager buildSetupManager(ContainerWrapper context) {
         SetupManagerFactoryProvider provider = new SetupManagerFactoryProvider();
         SetupManagerFactory.Builder builder = provider.provideBuilder();
-        SetupManagerFactory setupManagerFactory = builder.container(context).build();
+        SetupManagerFactory setupManagerFactory = builder.container(context).profile(profile).build();
         return setupManagerFactory.buildManager();
     }
 

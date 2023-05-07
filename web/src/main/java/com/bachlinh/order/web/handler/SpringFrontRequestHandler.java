@@ -1,5 +1,10 @@
 package com.bachlinh.order.web.handler;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.RequestHandler;
 import com.bachlinh.order.core.http.handler.SpringServletHandler;
@@ -9,12 +14,8 @@ import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.router.AbstractChildRouteContext;
 import com.bachlinh.order.handler.router.ChildRoute;
 import com.bachlinh.order.handler.router.ChildRouteContext;
+import com.bachlinh.order.handler.router.ChildRouteDecorator;
 import com.bachlinh.order.handler.router.SmartChildRouteContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,13 +24,14 @@ public class SpringFrontRequestHandler {
     private static final String SEPARATOR = "/";
 
     private final ChildRouteContext childRouteContext;
-    
+
     public SpringFrontRequestHandler(ControllerManager controllerManager, EntityFactory entityFactory, ExceptionTranslator<NativeResponse<String>> exceptionTranslator) {
         SimpleChildRouteContext simpleChildRouteContext = new SimpleChildRouteContext();
         simpleChildRouteContext.controllerManager(controllerManager);
         simpleChildRouteContext.entityFactory(entityFactory);
         simpleChildRouteContext.exceptionTranslator(exceptionTranslator);
-        this.childRouteContext = simpleChildRouteContext;
+        ChildRouteDecorator decorator = ChildRouteDecorator.wrap(simpleChildRouteContext);
+        this.childRouteContext = decorator.decorate(controllerManager);
     }
 
     public <T> ResponseEntity<T> handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {

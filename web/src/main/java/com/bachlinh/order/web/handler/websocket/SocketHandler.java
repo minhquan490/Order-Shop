@@ -2,6 +2,7 @@ package com.bachlinh.order.web.handler.websocket;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.WebSocketSession;
 import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.core.tcp.handler.SpringWebSocketHandler;
@@ -60,7 +61,7 @@ public class SocketHandler extends SpringWebSocketHandler {
             entityFactory = resolver.resolveDependencies(EntityFactory.class);
         }
         if (executor == null) {
-            executor = resolver.resolveDependencies(Executor.class);
+            executor = resolver.resolveDependencies(ThreadPoolTaskExecutor.class);
         }
         if (customerRepository == null) {
             customerRepository = resolver.resolveDependencies(CustomerRepository.class);

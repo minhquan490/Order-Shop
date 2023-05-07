@@ -1,6 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,9 +10,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
 
 @Entity
-@Table(name = "CART_DETAIL", indexes = @Index(name = "idx_cart_cart-detail", columnList = "CART_ID"))
+@Table(name = "CART_DETAIL", indexes = @Index(name = "idx_cart_cartDetail", columnList = "CART_ID"))
 @ActiveReflection
 public class CartDetail extends AbstractEntity {
 

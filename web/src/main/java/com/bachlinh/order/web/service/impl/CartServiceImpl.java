@@ -1,5 +1,10 @@
 package com.bachlinh.order.web.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -18,10 +23,6 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +42,7 @@ public class CartServiceImpl extends AbstractService<CartResp, CartForm> impleme
 
     @DependenciesInitialize
     @ActiveReflection
-    CartServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, String profile) {
+    CartServiceImpl(ThreadPoolTaskExecutor executor, ContainerWrapper wrapper, @Value("${active.profile}") String profile) {
         super(executor, wrapper, profile);
     }
 

@@ -1,5 +1,11 @@
 package com.bachlinh.order.repository.implementer;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -8,12 +14,6 @@ import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @RepositoryComponent
 @ActiveReflection
@@ -21,8 +21,8 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
 
     @DependenciesInitialize
     @ActiveReflection
-    public EmailFoldersRepositoryImpl(Class<EmailFolders> domainClass, DependenciesContainerResolver containerResolver) {
-        super(domainClass, containerResolver.getDependenciesResolver());
+    public EmailFoldersRepositoryImpl(DependenciesContainerResolver containerResolver) {
+        super(EmailFolders.class, containerResolver.getDependenciesResolver());
     }
 
     @Override

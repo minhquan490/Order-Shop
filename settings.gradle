@@ -9,7 +9,6 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('tomcatVersion', '10.1.7')
             version('lunceneVersion', '9.5.0')
             version('gmailApi', 'v1-rev20230206-2.0.0')
             version('guavaVersion', '31.1-jre')

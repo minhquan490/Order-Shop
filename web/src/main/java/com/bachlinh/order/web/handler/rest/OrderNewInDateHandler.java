@@ -10,12 +10,12 @@ import com.bachlinh.order.web.service.business.OrderInDateService;
 
 @RouteProvider
 @ActiveReflection
-public class OrderNewInDataHandler extends AbstractController<Integer, Object> {
+public class OrderNewInDateHandler extends AbstractController<Integer, Object> {
     private String url;
     private OrderInDateService orderInDateService;
 
     @ActiveReflection
-    public OrderNewInDataHandler() {
+    public OrderNewInDateHandler() {
     }
 
     @Override
@@ -36,7 +36,7 @@ public class OrderNewInDataHandler extends AbstractController<Integer, Object> {
         if (url == null) {
             url = getEnvironment().getProperty("shop.url.admin.order.new-in-date");
         }
-        return null;
+        return url;
     }
 
     @Override
