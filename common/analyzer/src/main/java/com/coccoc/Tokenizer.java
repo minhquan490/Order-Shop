@@ -1,17 +1,20 @@
 package com.coccoc;
 
 import com.bachlinh.order.annotation.Native;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.utils.UnsafeUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 @Native
 public class Tokenizer {
-    public static final String DEFAULT_LIB_LOCATION = "coccoc_tokenizer_jni";
 
     static {
-        System.loadLibrary(DEFAULT_LIB_LOCATION);
+        Environment environment = Environment.getInstance("native");
+        File nativeLib = new File(environment.getProperty("native.library"));
+        System.load(nativeLib.getAbsolutePath());
     }
 
     public enum TokenizeOption {

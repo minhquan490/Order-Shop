@@ -42,13 +42,9 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <AsyncLogger name="com.bachlinh.order.core" level="DEBUG" additivity="false">
+        <AsyncLogger name="com.bachlinh.order" level="DEBUG" additivity="false">
             <AppenderRef ref="applicationLog"/>
-            <AppenderRef ref="stdout"/>
-        </AsyncLogger>
-        <AsyncLogger name="com.bachlinh.order.aot" level="DEBUG" additivity="false">
-            <AppenderRef ref="applicationLog"/>
-            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="errorFile"/>
         </AsyncLogger>
         <AsyncLogger name="org.hibernate.SQL" level="DEBUG" additivity="false">
             <AppenderRef ref="query"/>
@@ -57,10 +53,6 @@
         <AsyncLogger name="org.hibernate.type.descriptor.sql" level="trace" additivity="false">
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="query"/>
-        </AsyncLogger>
-        <AsyncLogger name="org.springframework.web" level="DEBUG" additivity="false">
-            <AppenderRef ref="errorFile"/>
-            <AppenderRef ref="infoFile"/>
         </AsyncLogger>
         <AsyncLogger name="org.eclipse.jetty" level="DEBUG" additivity="false">
             <AppenderRef ref="infoFile"/>

@@ -57,9 +57,9 @@ public class CacheSourceBean {
                     queryCacheStorage().forEach(cache -> {
                         Cache cacheStorage = cache.getAnnotation(Cache.class);
                         if (cacheManager.getCache(cacheStorage.region()) == null) {
-                            log.info("Create cache storage {}", cacheStorage.region());
+                            log.debug("Create cache storage {}", cacheStorage.region());
                             cacheManager.createCache(cacheStorage.region(), defaultConfiguration());
-                            log.info("Create done");
+                            log.debug("Create done");
                         }
                     });
                     return cacheManager;

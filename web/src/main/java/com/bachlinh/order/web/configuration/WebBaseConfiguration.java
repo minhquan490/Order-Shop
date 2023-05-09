@@ -12,10 +12,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.FrameworkServlet;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import com.bachlinh.order.core.http.NativeResponse;
@@ -38,8 +36,6 @@ import com.bachlinh.order.web.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.servlet.WebServlet;
 
 @Configuration
-@EnableWebMvc
-@EnableWebSocket
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
     private final TokenManager tokenManager;

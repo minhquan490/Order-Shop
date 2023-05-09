@@ -1,6 +1,5 @@
 package com.bachlinh.order.batch.job;
 
-import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.Collection;
@@ -14,8 +13,6 @@ public sealed interface JobCenter extends JobRegistry, JobOperation, JobHolder p
     Collection<Job> getYearlyJob();
 
     Collection<Job> getJobExecuteOnce();
-
-    Collection<Report> getAllReport();
 
     interface Builder {
         Builder dependenciesResolver(DependenciesResolver dependenciesResolver);

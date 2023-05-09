@@ -7,7 +7,9 @@ import java.time.LocalDateTime;
 public sealed interface Job permits AbstractJob {
     String getName();
 
-    LocalDateTime timeExecute();
+    LocalDateTime getNextExecutionTime();
+
+    LocalDateTime getPreviousExecutionTime();
 
     void execute();
 

@@ -1,6 +1,7 @@
 package com.bachlinh.order.batch.job.internal;
 
 import org.springframework.util.StringUtils;
+import com.bachlinh.order.batch.boot.JobCenterBooster;
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.exception.system.batch.JobCenterInitializeException;
@@ -18,7 +19,7 @@ class JobCenterBuilderAdapter implements JobCenter.Builder {
     @Override
     public JobCenter.Builder dependenciesResolver(DependenciesResolver dependenciesResolver) {
         this.dependenciesResolver = dependenciesResolver;
-        return delegate.dependenciesResolver(dependenciesResolver);
+        return this;
     }
 
     public JobCenter.Builder profile(String profile) {
@@ -28,6 +29,10 @@ class JobCenterBuilderAdapter implements JobCenter.Builder {
 
     @Override
     public JobCenter build() {
+        if (delegate instanceof JobCenterBooster booster) {
+            this.profile = booster.getProfile();
+            this.dependenciesResolver = booster.getDependenciesResolver();
+        }
         if (!StringUtils.hasText(profile)) {
             throw new JobCenterInitializeException("Profile must be specify");
         }

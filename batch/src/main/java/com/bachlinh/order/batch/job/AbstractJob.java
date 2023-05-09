@@ -6,11 +6,14 @@ import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
+import java.time.LocalDateTime;
+
 public abstract non-sealed class AbstractJob implements Job {
     private final String name;
     private Report report;
     private final Environment environment;
     private final DependenciesResolver dependenciesResolver;
+    private boolean excuted = false;
 
     protected AbstractJob(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         this.name = name;
@@ -32,6 +35,8 @@ public abstract non-sealed class AbstractJob implements Job {
             doExecuteInternal();
         } catch (Exception e) {
             addException(e);
+        } finally {
+            this.excuted = true;
         }
     }
 
@@ -42,6 +47,19 @@ public abstract non-sealed class AbstractJob implements Job {
         } finally {
             report = new Report(name);
         }
+    }
+
+    @Override
+    public final LocalDateTime getNextExecutionTime() {
+        if (!excuted) {
+            return doGetNextExecutionTime();
+        }
+        return getPreviousExecutionTime();
+    }
+
+    @Override
+    public final LocalDateTime getPreviousExecutionTime() {
+        return doGetPreviousExecutionTime();
     }
 
     protected void addException(Exception exception) {
@@ -59,4 +77,8 @@ public abstract non-sealed class AbstractJob implements Job {
     protected abstract void inject();
 
     protected abstract void doExecuteInternal() throws Exception;
+
+    protected abstract LocalDateTime doGetNextExecutionTime();
+
+    protected abstract LocalDateTime doGetPreviousExecutionTime();
 }

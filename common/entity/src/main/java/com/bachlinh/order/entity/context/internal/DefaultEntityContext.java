@@ -159,7 +159,7 @@ public class DefaultEntityContext implements EntityContext {
         for (String validatorName : v.validators()) {
             try {
                 Class<?> validator = Class.forName(validatorName);
-                log.info("Create validator [{}]", validator.getName());
+                log.debug("Create validator [{}]", validator.getName());
                 EntityValidator<? extends BaseEntity> entityValidator = (EntityValidator<? extends BaseEntity>) newInstance(validator, new Class[]{DependenciesResolver.class}, new Object[]{resolver});
                 vs.add(entityValidator);
             } catch (Exception e) {

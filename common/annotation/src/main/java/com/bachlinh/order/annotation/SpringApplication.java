@@ -14,7 +14,9 @@ import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,7 +26,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @SpringBootApplication
+@EnableWebSecurity
 @EnableWebMvc
+@EnableWebSocket
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableAsync(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @EnableScheduling

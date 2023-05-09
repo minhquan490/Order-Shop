@@ -89,6 +89,9 @@ public final class Environment {
                     continue;
                 }
                 String[] keyPair = line.split("=");
+                if (keyPair[1].contains(",")) {
+                    throw new IllegalStateException("Environment does not support multi value on key");
+                }
                 if (keyPair[1].startsWith("classpath:")) {
                     URL u = classLoader.getResource(keyPair[1].replace("classpath:", ""));
                     if (u != null) {

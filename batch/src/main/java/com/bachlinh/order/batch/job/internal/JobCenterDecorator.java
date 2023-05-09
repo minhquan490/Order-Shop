@@ -1,5 +1,6 @@
 package com.bachlinh.order.batch.job.internal;
 
+import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJobCenter;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobCenter;
@@ -20,13 +21,16 @@ final class JobCenterDecorator {
     @SuppressWarnings("unchecked")
     AbstractJobCenter decorate(ApplicationScanner scanner) {
         AbstractJobCenter abstractJobCenter = (AbstractJobCenter) jobCenter;
-        scanner.findComponents().forEach(clazz -> {
-            if (Job.class.isAssignableFrom(clazz)) {
-                Class<? extends Job> jobClass = (Class<? extends Job>) clazz;
-                Job job = new JobInstanceStrategy(jobClass, profile, dependenciesResolver).newInstance();
-                abstractJobCenter.registerJob(job);
-            }
-        });
+        scanner.findComponents()
+                .stream()
+                .filter(clazz -> clazz.isAnnotationPresent(BatchJob.class))
+                .filter(Job.class::isAssignableFrom)
+                .toList()
+                .forEach(clazz -> {
+                    Class<? extends Job> jobClass = (Class<? extends Job>) clazz;
+                    Job job = new JobInstanceStrategy(jobClass, profile, dependenciesResolver).newInstance();
+                    abstractJobCenter.registerJob(job);
+                });
         return abstractJobCenter;
     }
 }

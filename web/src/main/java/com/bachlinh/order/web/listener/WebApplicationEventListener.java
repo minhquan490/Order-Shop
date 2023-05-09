@@ -1,5 +1,7 @@
 package com.bachlinh.order.web.listener;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import com.bachlinh.order.core.enums.ExecuteEvent;
@@ -15,6 +17,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public final class WebApplicationEventListener implements ApplicationListener<ApplicationEvent> {
+    private static final Logger log = LogManager.getLogger(WebApplicationEventListener.class);
     private static final String STARTED_EVENT = "org.springframework.context.event.ContextStartedEvent";
     private static final String READY_EVENT = "org.springframework.boot.context.event.ApplicationReadyEvent";
     private static final String REFRESH_EVENT = "org.springframework.context.event.ContextRefreshedEvent";
@@ -92,7 +95,9 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
     private Executor<?> instanceExecutor(Class<? extends Executor<?>> initiator, DependenciesContainerResolver containerResolver, String profile) {
         try {
             Constructor<?> constructor = initiator.getConstructor(DependenciesContainerResolver.class, String.class);
-            return (Executor<?>) constructor.newInstance(containerResolver, profile);
+            Executor<?> executor = (Executor<?>) constructor.newInstance(containerResolver, profile);
+            log.debug("Init event executor [{}]", initiator.getName());
+            return executor;
         } catch (Exception e) {
             return null;
         }

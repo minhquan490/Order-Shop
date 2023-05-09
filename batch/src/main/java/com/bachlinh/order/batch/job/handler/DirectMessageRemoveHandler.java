@@ -14,7 +14,8 @@ import java.util.Collection;
 @BatchJob(name = "directMessageRemoveHandler")
 @ActiveReflection
 public class DirectMessageRemoveHandler extends AbstractJob {
-    private static final int REMOVAL_POLICY = -3;
+    private static final int REMOVAL_POLICY = 3;
+    private LocalDateTime previousTimeExecution;
 
     private DirectMessageRepository directMessageRepository;
 
@@ -37,9 +38,16 @@ public class DirectMessageRemoveHandler extends AbstractJob {
     }
 
     @Override
-    public LocalDateTime timeExecute() {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        return localDateTime.plusYears(REMOVAL_POLICY);
+    protected LocalDateTime doGetNextExecutionTime() {
+        return getPreviousExecutionTime().plusYears(REMOVAL_POLICY);
+    }
+
+    @Override
+    protected LocalDateTime doGetPreviousExecutionTime() {
+        if (previousTimeExecution == null) {
+            previousTimeExecution = LocalDateTime.now();
+        }
+        return previousTimeExecution;
     }
 
     @Override

@@ -29,4 +29,12 @@ public class JobCenterBooster implements JobCenter.Builder {
     public JobCenter build() {
         return new DefaultJobCenter(dependenciesResolver, profile);
     }
+
+    public DependenciesResolver getDependenciesResolver() {
+        return dependenciesResolver;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
 }

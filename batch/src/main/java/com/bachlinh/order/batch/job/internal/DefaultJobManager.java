@@ -1,22 +1,45 @@
 package com.bachlinh.order.batch.job.internal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.bachlinh.order.batch.Report;
+import com.bachlinh.order.batch.boot.JobCenterBooster;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.batch.job.JobManager;
+import com.bachlinh.order.batch.job.Worker;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.LinkedList;
 
 class DefaultJobManager implements JobManager {
+    private static final Logger log = LogManager.getLogger(DefaultJobManager.class);
+
     private final JobCenter jobCenter;
+    private final Collection<Worker> workers = new LinkedList<>();
 
     DefaultJobManager(JobCenter.Builder jobCenterBuilder, String profile, DependenciesResolver dependenciesResolver) {
-        jobCenter = JobCenterBuilderAdapter.wrap(jobCenterBuilder)
-                .profile(profile)
-                .dependenciesResolver(dependenciesResolver)
-                .build();
+        if (jobCenterBuilder instanceof JobCenterBooster) {
+            this.jobCenter = JobCenterBuilderAdapter.wrap(jobCenterBuilder).build();
+        } else {
+            this.jobCenter = jobCenterBuilder.profile(profile).dependenciesResolver(dependenciesResolver).build();
+        }
+        workers.addAll(jobCenter.getDailyJob().stream().map(job -> {
+            Worker worker = new DefaultJobWorker(job);
+            writeLog(job);
+            return worker;
+        }).toList());
+        workers.addAll(jobCenter.getMonthlyJob().stream().map(job -> {
+            Worker worker = new DefaultJobWorker(job);
+            writeLog(job);
+            return worker;
+        }).toList());
+        workers.addAll(jobCenter.getYearlyJob().stream().map(job -> {
+            Worker worker = new DefaultJobWorker(job);
+            writeLog(job);
+            return worker;
+        }).toList());
     }
 
     @Override
@@ -30,35 +53,10 @@ class DefaultJobManager implements JobManager {
     }
 
     @Override
-    public Collection<Job> getDailyDeadlineJob() {
-        LocalDateTime now = LocalDateTime.now();
-        return jobCenter.getDailyJob()
-                .stream()
-                .filter(job -> now.isBefore(job.timeExecute()) || now.isEqual(job.timeExecute()))
-                .toList();
-    }
-
-    @Override
-    public Collection<Job> getMonthlyDeadlineJob() {
-        LocalDateTime now = LocalDateTime.now();
-        return jobCenter.getMonthlyJob()
-                .stream()
-                .filter(job -> now.isBefore(job.timeExecute()) || now.isEqual(job.timeExecute()))
-                .toList();
-    }
-
-    @Override
-    public Collection<Job> getYearlyDeadlineJob() {
-        LocalDateTime now = LocalDateTime.now();
-        return jobCenter.getYearlyJob()
-                .stream()
-                .filter(job -> now.isBefore(job.timeExecute()) || now.isEqual(job.timeExecute()))
-                .toList();
-    }
-
-    @Override
     public Collection<Report> getAllReport() {
-        return jobCenter.getAllReport();
+        Collection<Report> reports = new LinkedList<>();
+        workers.forEach(worker -> reports.addAll(worker.getAllReport()));
+        return reports;
     }
 
     @Override
@@ -69,5 +67,9 @@ class DefaultJobManager implements JobManager {
     @Override
     public Report exportReport(String jobName) {
         return jobCenter.exportReport(jobName);
+    }
+
+    private void writeLog(Job job) {
+        log.debug("Subscribe job [{}]", job.getName());
     }
 }

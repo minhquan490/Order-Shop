@@ -30,6 +30,7 @@ public class WebServlet extends FrameworkServlet {
         super(webApplicationContext);
         new ApplicationScanner().findComponents();
         this.frontRequestHandler = webApplicationContext.getBean(SpringFrontRequestHandler.class);
+        setEnableLoggingRequestDetails(true);
     }
 
     @Override
