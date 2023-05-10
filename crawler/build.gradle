@@ -10,8 +10,10 @@ version = '1.0.0'
 
 dependencies {
     implementation "org.seleniumhq.selenium:selenium-java:${libs.versions.selenium.get()}"
+    implementation project(":common:core")
     implementation project(":common:environment")
     implementation project(":common:exception")
+    implementation project(":common:utils")
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'jakarta.persistence:jakarta.persistence-api'
 }

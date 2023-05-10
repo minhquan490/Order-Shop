@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -89,10 +88,7 @@ class SecurityConfiguration {
         String urlAdmin = environment.getProperty("shop.url.pattern.admin");
         String urlCustomer = environment.getProperty("shop.url.pattern.customer");
         return http
-                .csrf(csrf -> {
-                    csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-                    csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0]));
-                })
+                .csrf(csrf -> csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0])))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl)))
                 .anonymous()
                 .disable()
