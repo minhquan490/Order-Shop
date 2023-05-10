@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "story-community",
+  "private_key_id": "db16d0ac040b8642fc8bcce60a7416470da0e744",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCpgtGWQn6DegvF\nhoBvlckQziLs9+exBhWWkby+IY6SE3fyMC0v3Qw6geNni5GM4O105UAURfVshM6t\nN3GgD0kWpLV30MAPjAfcjVo5nIDhIXlFydq38v3L81hU2LVu2SHNEEmwqnY3UP3v\nZqIRgnGQLsCg5oqaZCC961z4qnp5VbFRGMup9hXz4Ab5alM1woI2QSiHPMY/Q3wi\ndSirgEdPVFT1mohHjtItAXebkUOUm0HeqiM3FL5TCFEeVv4RTLLJHu7iSWFPVV+H\n4CS78ZUicIUNxwq6iTFX0mStXRxG7oVgdOCfaRA5+N5+cawg9u5cgaSHEbpUsyRW\ngS39i9V9AgMBAAECggEAN/sTk2+fT3VhaNjcFr3dWrbxEthmRHCxdXno3tO/PV+/\nl5Swf6OdU78spjgSF/f6g8XoLSnTfQS5KrxqQoV5ykgYBBtFKn1A5WYrO2aDq5X9\n8n3QxToy9gWGEPNGq/Z6croj0/vfsbIGQudes7CkJ41BIYIxmP5jT8VofVjzvJj2\nKjgjODaLm+W7s9bN95HLK6eCDNxgtehNJ8ivWA58vz66Juu6rp/aUMyuCbCzRWTL\nTpM/9TJcBjybZiFvwwUFG0bJpoOa9r6enJM33tJQNXdOFyEO7pThQpar8/XcpsUz\nOYCNVBF/P8YOtlTdBgLhPM1UyA9Y+wXuFJhWCwluowKBgQDUGz66NlT2g7QmC30C\nfaVeYq5jATJf3tuNNqaXw7/2JFZ83l6BcXqFoImNJc91/yhinCgJQ/Bi6L8Bwqvx\n77PKGKVaP+xzUWlNzSbryE8W9b0P5uh+zgZS+ojxg0XQYhl9g+1X432A08azcPsF\niwCr+y4HXvMOqNePv/8NGGPx6wKBgQDMlv9vA19QUXSz4CWzqwdotSZGyzAqfOZK\nmWQcu8DBzDCxq+uPNA76JBkRnMBRsKD2rMhLX7Osu1SaqhJ8G5RUewmBRKcDyWwl\nFu5TNyKYk8/MAwLJdSITZtO4FDGPLRLYFGheh7yog0iMBqlV5wC65laCwgHDLNZq\nkAiQc+WUNwKBgQDI/GwrHZLS6SgKqPYzJwZNcurWK+slB1M586BWzQmYXwSJXFln\nBTXZa68LzdlRcZA+KMSTSwp9XxinvWUbY00VYtdEtrAC8hD7xTttTykKk58sc1y5\n09YQSRD88ax08pA+7IU5s/pX2dU+cf+bWAUx8ljCaUmeCYYB1CgFq6gBMwKBgQDF\nfn3VjEvWHMurWBUM+2yLh1MLw9kbKrakDK63jgblDVd0K6GY+4f5sB8DAW4lbXv0\no5Y2LIwlkjB5nPN7GqR1aNAkGUGgRjA/HYOykOa0ovtU1RM7pfbfA8QdTmEI9Vnb\nfNfDaQSVJyZBBa0xX200/mVElENfRUk2VRPvXfGgwQKBgQCJc7+cmp0MQ0cSf+gT\nHL9309P4NUZwrrhyluxMKKWZWRxzyD037xwDl2ih7bP6QniK3/EAQ3k99FE/pjKb\nivZo1pxmvOE1/t3HdPMZEmEq7gUMwC+DsHuYjhy1SQEAnEkaWHq7T4l0arQcaqwH\nl5g6Q46txm9yvzrxcAbZR3/deg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "bachlinhshopadmin@story-community.iam.gserviceaccount.com",
+  "client_id": "104924690505837634335",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bachlinhshopadmin%40story-community.iam.gserviceaccount.com"
+}

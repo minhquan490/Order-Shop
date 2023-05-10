@@ -1,8 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,6 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
 
 @Label("ETE-")
 @Entity
@@ -22,7 +22,8 @@ import jakarta.persistence.Table;
         indexes = {
                 @Index(name = "idx_email_template_owner", columnList = "OWNER_ID"),
                 @Index(name = "idx_email_template_folder", columnList = "FOLDER_ID"),
-                @Index(name = "idx_email_template_title", columnList = "TITLE")
+                @Index(name = "idx_email_template_title", columnList = "TITLE"),
+                @Index(name = "idx_email_template_name", columnList = "NAME")
         }
 )
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateValidator")
@@ -33,6 +34,9 @@ public class EmailTemplate extends AbstractEntity {
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
     private String id;
 
+    @Column(name = "NAME", columnDefinition = "nvarchar(100)")
+    private String name;
+
     @Column(name = "TITLE", nullable = false, unique = true)
     private String title;
 
@@ -41,6 +45,9 @@ public class EmailTemplate extends AbstractEntity {
 
     @Column(name = "EXPIRY_POLICY", nullable = false)
     private Integer expiryPolicy = -1;
+
+    @Column(name = "TOTAL_ARGUMENT", nullable = false)
+    private Integer totalArgument;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
@@ -130,5 +137,23 @@ public class EmailTemplate extends AbstractEntity {
     @ActiveReflection
     public void setFolder(EmailTemplateFolder folder) {
         this.folder = folder;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getTotalArgument() {
+        return totalArgument;
+    }
+
+    @ActiveReflection
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @ActiveReflection
+    public void setTotalArgument(Integer totalArgument) {
+        this.totalArgument = totalArgument;
     }
 }

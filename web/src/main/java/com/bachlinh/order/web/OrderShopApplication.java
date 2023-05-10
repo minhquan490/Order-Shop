@@ -7,10 +7,11 @@ import com.bachlinh.order.core.Application;
 import com.bachlinh.order.core.bean.spring.SpringContainerBean;
 import com.bachlinh.order.entity.bean.spring.CacheSourceBean;
 import com.bachlinh.order.entity.bean.spring.DataSourceBean;
+import com.bachlinh.order.mail.bean.spring.EmailBean;
 
 @SpringApplication(
         runtimeHints = GlobalReflectiveRuntimeHint.class,
-        beanClasses = {SpringContainerBean.class, DataSourceBean.class, CacheSourceBean.class, BatchBean.class},
+        beanClasses = {SpringContainerBean.class, DataSourceBean.class, CacheSourceBean.class, BatchBean.class, EmailBean.class},
         scanBasePackages = {"com.bachlinh.order.repository", "com.bachlinh.order.service", "com.bachlinh.order.web"}
 )
 public class OrderShopApplication {

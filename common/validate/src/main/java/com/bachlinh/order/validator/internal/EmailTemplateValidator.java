@@ -42,6 +42,9 @@ public class EmailTemplateValidator extends AbstractValidator<EmailTemplate> {
         if (emailTemplateRepository.isEmailTemplateTitleExisted(entity.getTitle())) {
             result.addMessageError("Email template title: Title is existed");
         }
+        if (entity.getName().length() > 100) {
+            result.addMessageError("Email template name: Name must be less or equal 100 character");
+        }
         return result;
     }
 }

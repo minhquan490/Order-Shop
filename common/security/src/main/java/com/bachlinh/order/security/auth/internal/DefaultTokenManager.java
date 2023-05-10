@@ -1,28 +1,36 @@
 package com.bachlinh.order.security.auth.internal;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.util.Assert;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.RefreshToken;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.JwtDecoder;
 import com.bachlinh.order.security.auth.spi.JwtEncoder;
 import com.bachlinh.order.security.auth.spi.RefreshTokenGenerator;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
+import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.util.Assert;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-class DefaultTokenManager implements TokenManager, RefreshTokenGenerator {
+class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, TemporaryTokenGenerator {
+    private static final String TEMP_TOKEN_ALGORITHM = "SHA-512";
+    private static final String TEMP_TOKEN_KEY = "Refresh-account";
 
     private final JwtDecoder decoder;
     private final JwtEncoder encoder;
@@ -145,5 +153,22 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator {
     @Override
     public void removeClientSecret(String clientSecret, String refreshToken) {
         clientSecretHandler.removeClientSecret(refreshToken, clientSecret);
+    }
+
+    @Override
+    public String generateTempToken() {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance(TEMP_TOKEN_ALGORITHM);
+            byte[] encodedMessage = messageDigest.digest(TEMP_TOKEN_KEY.getBytes(StandardCharsets.UTF_8));
+            BigInteger signum = new BigInteger(1, encodedMessage);
+            StringBuilder token = new StringBuilder(signum.toString());
+            while (token.length() < 32) {
+                token.append("0");
+                token.append(token);
+            }
+            return token.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new CriticalException("Can not get encryptor with algorithm [" + TEMP_TOKEN_ALGORITHM + "]");
+        }
     }
 }

@@ -138,6 +138,8 @@ class SecurityConfiguration {
         excludeUrls.add(environment.getProperty("shop.url.register"));
         excludeUrls.add(environment.getProperty("shop.url.home"));
         excludeUrls.add(environment.getProperty("shop.url.pattern.resource"));
+        excludeUrls.add(environment.getProperty("shop.url.customer.reset.sending-mail"));
+        excludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
         return excludeUrls;
     }
 }

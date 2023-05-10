@@ -1,9 +1,10 @@
 package com.bachlinh.order.mail.oauth2;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public interface CredentialAdapter {
-    InputStream getCredentialResources();
+    InputStream getCredentialResources() throws FileNotFoundException;
 
     String getSslPemLocation();
 

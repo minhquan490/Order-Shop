@@ -1,12 +1,5 @@
 package com.bachlinh.order.mail.service;
 
-import com.bachlinh.order.core.http.converter.spi.Converter;
-import com.bachlinh.order.mail.http.ssl.SslHttpTransportFactory;
-import com.bachlinh.order.mail.model.MessageModel;
-import com.bachlinh.order.mail.model.MessageSendingResult;
-import com.bachlinh.order.mail.model.converter.GmailConverter;
-import com.bachlinh.order.mail.oauth2.CredentialAdapter;
-import com.bachlinh.order.mail.oauth2.Credentials;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.gson.GsonFactory;
@@ -14,6 +7,13 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.google.auth.http.HttpCredentialsAdapter;
 import org.apache.http.HttpStatus;
+import com.bachlinh.order.core.http.converter.spi.Converter;
+import com.bachlinh.order.mail.http.ssl.SslHttpTransportFactory;
+import com.bachlinh.order.mail.model.MessageModel;
+import com.bachlinh.order.mail.model.MessageSendingResult;
+import com.bachlinh.order.mail.model.converter.GmailConverter;
+import com.bachlinh.order.mail.oauth2.CredentialAdapter;
+import com.bachlinh.order.mail.oauth2.Credentials;
 
 import java.io.IOException;
 import java.util.ArrayList;
