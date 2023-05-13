@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.FrameworkServlet;
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
@@ -25,7 +24,7 @@ public class WebServlet extends FrameworkServlet {
     private final ObjectMapper objectMapper = JacksonUtils.getSingleton();
 
     @ActiveReflection
-    @Autowired
+    @DependenciesInitialize
     public WebServlet(WebApplicationContext webApplicationContext) {
         super(webApplicationContext);
         new ApplicationScanner().findComponents();
@@ -47,10 +46,5 @@ public class WebServlet extends FrameworkServlet {
         String json = objectMapper.writeValueAsString(responseEntity.getBody());
         byte[] data = json.getBytes(StandardCharsets.UTF_8);
         outputStream.write(data);
-    }
-
-    @Override
-    protected void onRefresh(ApplicationContext context) {
-        super.onRefresh(context);
     }
 }
