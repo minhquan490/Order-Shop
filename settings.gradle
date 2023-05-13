@@ -3,6 +3,7 @@ pluginManagement {
         id 'org.springframework.boot' version '3.0.6'
         id 'io.spring.dependency-management' version '1.1.0'
         id 'org.graalvm.buildtools.native' version '0.9.21'
+        id 'com.google.protobuf' version '0.9.3'
     }
 }
 
@@ -21,6 +22,8 @@ dependencyResolutionManagement {
             version('findbugs', '3.0.2')
             version('disruptor', '3.4.4')
             version('selenium', '4.9.1')
+            version('grpc', '1.55.1')
+            version('protoc', '4.0.0-rc-2')
         }
     }
     repositories {

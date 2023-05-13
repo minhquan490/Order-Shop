@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
+    id 'com.google.protobuf'
     id 'java-library'
 }
 
@@ -13,6 +14,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-aspects'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation project(":common:core")
     implementation project(":common:exception")
     implementation project(":common:utils")
     implementation project(":common:entity")
@@ -21,6 +23,9 @@ dependencies {
     implementation project(":service")
     implementation 'jakarta.persistence:jakarta.persistence-api'
     implementation 'org.hibernate.orm:hibernate-core'
+    implementation "io.grpc:grpc-netty:${libs.versions.grpc.get()}"
+    implementation "io.grpc:grpc-protobuf:${libs.versions.grpc.get()}"
+    implementation "io.grpc:grpc-stub:${libs.versions.grpc.get()}"
 
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly 'org.projectlombok:lombok'

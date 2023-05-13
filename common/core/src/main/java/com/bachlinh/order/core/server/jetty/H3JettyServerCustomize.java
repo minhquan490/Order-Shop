@@ -1,4 +1,4 @@
-package com.bachlinh.order.core.server;
+package com.bachlinh.order.core.server.jetty;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;

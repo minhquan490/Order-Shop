@@ -1,10 +1,5 @@
-package com.bachlinh.order.security.filter;
+package com.bachlinh.order.security.filter.servlet;
 
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.UnAuthorizationException;
-import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.handler.UnAuthorizationHandler;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -12,6 +7,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import org.springframework.util.PathMatcher;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.exception.http.UnAuthorizationException;
+import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.security.filter.AbstractWebFilter;
+import com.bachlinh.order.security.handler.UnAuthorizationHandler;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.io.IOException;
 import java.util.Arrays;

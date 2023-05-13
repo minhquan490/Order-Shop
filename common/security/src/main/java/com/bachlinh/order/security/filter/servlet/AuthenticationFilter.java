@@ -1,4 +1,4 @@
-package com.bachlinh.order.security.filter;
+package com.bachlinh.order.security.filter.servlet;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,6 +12,7 @@ import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.PrincipalHolder;
 import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.security.helper.AuthenticationHelper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;

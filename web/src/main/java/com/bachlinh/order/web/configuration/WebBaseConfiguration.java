@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.FrameworkServlet;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -19,7 +17,8 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
-import com.bachlinh.order.core.server.H3JettyServerCustomize;
+import com.bachlinh.order.core.server.grpc.GrpcHandler;
+import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
 import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.environment.Environment;
@@ -54,8 +53,8 @@ class WebBaseConfiguration implements WebMvcConfigurer, WebSocketConfigurer {
         return new H3JettyServerCustomize(Integer.parseInt(environment.getProperty("server.port")), environment.getProperty("server.address"), profile);
     }
 
-    @Bean(name = "dispatcherServlet")
-    FrameworkServlet servlet(WebApplicationContext applicationContext) {
+    @Bean
+    GrpcHandler servlet(ApplicationContext applicationContext) {
         return new WebServlet(applicationContext);
     }
 

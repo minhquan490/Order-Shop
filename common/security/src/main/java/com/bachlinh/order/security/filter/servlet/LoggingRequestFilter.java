@@ -1,5 +1,13 @@
-package com.bachlinh.order.security.filter;
+package com.bachlinh.order.security.filter.servlet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
@@ -11,17 +19,10 @@ import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.enums.RequestType;
+import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.io.IOException;
 import java.sql.Date;

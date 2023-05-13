@@ -1,11 +1,5 @@
-package com.bachlinh.order.security.filter;
+package com.bachlinh.order.security.filter.servlet;
 
-import com.bachlinh.order.entity.enums.Role;
-import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.AccessDeniedException;
-import com.bachlinh.order.security.handler.AccessDeniedHandler;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +7,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.PathMatcher;
+import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.exception.http.AccessDeniedException;
+import com.bachlinh.order.security.filter.AbstractWebFilter;
+import com.bachlinh.order.security.handler.AccessDeniedHandler;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.io.IOException;
 import java.util.Collection;

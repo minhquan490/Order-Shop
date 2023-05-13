@@ -39,6 +39,9 @@ dependencies {
     implementation 'org.hibernate.orm:hibernate-jcache'
     implementation 'com.zaxxer:HikariCP'
     implementation "com.lmax:disruptor:${libs.versions.disruptor.get()}"
+    implementation "io.grpc:grpc-netty:${libs.versions.grpc.get()}"
+    implementation "io.grpc:grpc-protobuf:${libs.versions.grpc.get()}"
+    implementation "io.grpc:grpc-stub:${libs.versions.grpc.get()}"
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

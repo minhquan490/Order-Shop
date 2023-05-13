@@ -12,10 +12,20 @@ import com.bachlinh.order.utils.HeaderUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class AuthenticationHelper {
+    private static final Map<String, HttpServletResponse> responseHolder = new ConcurrentHashMap<>();
 
     private AuthenticationHelper() {
+    }
+
+    public static void holdResponse(String requestId, HttpServletResponse response) {
+        responseHolder.put(requestId, response);
+    }
+
+    public static HttpServletResponse getResponse(String requestId) {
+        return responseHolder.remove(requestId);
     }
 
     public static String findClientSecret(HttpServletRequest request) {

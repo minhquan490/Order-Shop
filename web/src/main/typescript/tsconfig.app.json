@@ -1,0 +1,41 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@assets/*": [
+        "./src/client/assets/*"
+      ],
+      "@components/*": [
+        "./src/client/components/*"
+      ],
+      "@core/*": [
+        "./src/client/common/core/*"
+      ],
+      "@router/*": [
+        "./src/client/router/*"
+      ],
+      "@services/*": [
+        "./src/client/common/services/*"
+      ],
+      "@stores/*": [
+        "./src/client/stores/*"
+      ],
+      "@styles/*": [
+        "./src/client/common/styles/*"
+      ],
+      "@types/*": [
+        "./src/client/common/types/*"
+      ],
+      "@views/*": [
+        "./src/client/views/*"
+      ]
+    }
+  }
+}
