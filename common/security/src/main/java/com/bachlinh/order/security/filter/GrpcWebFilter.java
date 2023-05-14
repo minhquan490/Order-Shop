@@ -18,6 +18,7 @@ import com.bachlinh.order.security.helper.AuthenticationHelper;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.UUID;
 
 public abstract class GrpcWebFilter implements ServerInterceptor {
@@ -40,12 +41,16 @@ public abstract class GrpcWebFilter implements ServerInterceptor {
                     ServerCall<InboundMessage, OutboundMessage> castedCall = (ServerCall<InboundMessage, OutboundMessage>) call;
                     m = m.toBuilder().setRequestId(UUID.randomUUID().toString()).build();
                     if (!shouldNotFilter(ServletRequestAdapter.wrap(m))) {
-                        HttpServletResponse response = new ServletResponseAdapter(castedCall);
-                        AuthenticationHelper.holdResponse(m.getRequestId(), response);
+                        HttpServletResponse response = AuthenticationHelper.getResponse(m.getRequestId());
+                        if (response == null) {
+                            response = new ServletResponseAdapter(castedCall);
+                            AuthenticationHelper.holdResponse(m.getRequestId(), response);
+                        }
                         try {
-                            intercept(ServletRequestAdapter.wrap(m), response, castedCall);
+                            intercept(ServletRequestAdapter.wrap(m), response);
                         } catch (IOException e) {
                             call.close(Status.CANCELLED, new Metadata());
+                            AuthenticationHelper.release(m.getRequestId());
                             return;
                         }
                     }
@@ -54,6 +59,8 @@ public abstract class GrpcWebFilter implements ServerInterceptor {
             }
         };
     }
+
+    public abstract GrpcWebFilter setExcludePaths(Collection<String> excludePaths);
 
     protected DependenciesResolver getDependenciesResolver() {
         return dependenciesResolver;
@@ -65,7 +72,7 @@ public abstract class GrpcWebFilter implements ServerInterceptor {
 
     protected abstract boolean shouldNotFilter(@NonNull HttpServletRequest request);
 
-    protected abstract <U> void intercept(HttpServletRequest request, HttpServletResponse response, ServerCall<InboundMessage, U> call) throws IOException;
+    protected abstract void intercept(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     protected abstract void inject();
 }

@@ -3,8 +3,8 @@
   "include": [
     "env.d.ts",
     "src/**/*.ts",
-    "src/**/*.vue"
-  ],
+    "src/**/*.vue", 
+    "src/server/entry-server.js"  ],
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",

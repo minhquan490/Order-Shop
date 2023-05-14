@@ -30,7 +30,11 @@ public class WebServlet extends GrpcHandlerAdapter {
 
     @Override
     protected ServletResponseAdapter getResponse(String requestId) {
-        return (ServletResponseAdapter) AuthenticationHelper.getResponse(requestId);
+        try {
+            return (ServletResponseAdapter) AuthenticationHelper.getResponse(requestId);
+        } finally {
+            AuthenticationHelper.release(requestId);
+        }
     }
 
     @Override

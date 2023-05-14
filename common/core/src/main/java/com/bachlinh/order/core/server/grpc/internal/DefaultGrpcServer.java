@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-class DefaultGrpcServer implements GrpcServer {
+public class DefaultGrpcServer implements GrpcServer {
     private final Server internalServer;
 
     private DefaultGrpcServer(Server internalServer) {

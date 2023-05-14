@@ -2,7 +2,7 @@ import { fileURLToPath, URL } from 'node:url';
 
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import { ConfigEnv, defineConfig, UserConfigExport } from 'vite';
+import { ConfigEnv, defineConfig, splitVendorChunkPlugin, UserConfigExport } from 'vite';
 
 const virtualFile = '@virtual-file';
 const virtualId = '\0' + virtualFile;
@@ -17,6 +17,7 @@ export default function (configEnv: ConfigEnv): UserConfigExport {
     plugins: [
       vue(), 
       vueJsx(),
+      splitVendorChunkPlugin(),
       {
         name: 'virtual',
         resolveId(id) {
@@ -121,6 +122,7 @@ export default function (configEnv: ConfigEnv): UserConfigExport {
         '@types': fileURLToPath(new URL('./src/client/common/types', import.meta.url)),
         '@views': fileURLToPath(new URL('./src/client/views', import.meta.url)),
       }
-    }
+    },
+    
   });
 }

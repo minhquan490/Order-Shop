@@ -40,6 +40,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     compileOnly "jakarta.servlet:jakarta.servlet-api"
+    compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
@@ -76,13 +77,13 @@ protobuf {
         artifact = "com.google.protobuf:protoc:${libs.versions.protoc.get()}"
     }
     generateProtoTasks {
-        all().configureEach { task ->
-            task.generateDescriptorSet = true
+        all()*.plugins {
+            grpc {}
         }
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${libs.versions.grpc.get()}"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.55.1"
         }
     }
 }

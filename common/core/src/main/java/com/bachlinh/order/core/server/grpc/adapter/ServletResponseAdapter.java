@@ -72,11 +72,13 @@ public class ServletResponseAdapter implements HttpServletResponse {
     public void sendError(int sc, String msg) throws IOException {
         builder.setStatus(sc);
         builder.setBody(ByteString.copyFrom(JacksonUtils.writeObjectAsBytes(msg)));
+        call.sendMessage(convert());
+        call.close(Status.UNKNOWN, new Metadata());
     }
 
     @Override
     public void sendError(int sc) throws IOException {
-        builder.setStatus(sc);
+        sendError(sc, "");
     }
 
     @Override
@@ -174,6 +176,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
                 builder.setBody(ByteString.copyFrom(outputStream.toByteArray()));
                 call.sendMessage(convert());
                 call.close(Status.OK, new Metadata());
+                outputStream.flush();
             }
         };
     }
@@ -205,7 +208,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public void setBufferSize(int size) {
-
+        // Do nothing
     }
 
     @Override

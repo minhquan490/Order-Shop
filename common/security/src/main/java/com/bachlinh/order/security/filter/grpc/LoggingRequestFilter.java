@@ -1,12 +1,11 @@
-package com.bachlinh.order.security.filter.servlet;
+package com.bachlinh.order.security.filter.grpc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
@@ -20,28 +19,20 @@ import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.enums.RequestType;
-import com.bachlinh.order.security.filter.AbstractWebFilter;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.security.filter.GrpcWebFilter;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Map;
 
-/**
- * Logging filter to log coming request.
- *
- * @author Hoang Minh Quan
- */
-public class LoggingRequestFilter extends AbstractWebFilter {
-    private static final String H3_HEADER = "Alt-Svc";
-    private static final int REMOVAL_POLICY_YEAR = 1;
+public class LoggingRequestFilter extends GrpcWebFilter {
     private static final Logger log = LogManager.getLogger(LoggingRequestFilter.class);
-    private final String clientUrl;
-    private final int h3Port;
+    private static final int REMOVAL_POLICY_YEAR = 1;
     private final ObjectMapper objectMapper = JacksonUtils.getSingleton();
     private CustomerHistoryRepository customerHistoryRepository;
     private CustomerRepository customerRepository;
@@ -50,19 +41,23 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     private TokenManager tokenManager;
     private EntityFactory entityFactory;
 
-    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port) {
-        super(containerResolver.getDependenciesResolver());
-        this.clientUrl = clientUrl;
-        this.h3Port = h3Port;
+    public LoggingRequestFilter(DependenciesResolver dependenciesResolver, String profile) {
+        super(dependenciesResolver, profile);
     }
 
     @Override
-    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // TODO implement ddos protection
-        addH3Header(response);
-        logRequest(request);
+    public LoggingRequestFilter setExcludePaths(Collection<String> excludePaths) {
+        return this;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        return false;
+    }
+
+    @Override
+    protected void intercept(HttpServletRequest request, HttpServletResponse response) throws IOException {
         executor.execute(() -> logCustomerRequest(request));
-        filterChain.doFilter(request, response);
     }
 
     @Override
@@ -84,31 +79,6 @@ public class LoggingRequestFilter extends AbstractWebFilter {
         }
         if (refreshTokenRepository == null) {
             refreshTokenRepository = getDependenciesResolver().resolveDependencies(RefreshTokenRepository.class);
-        }
-    }
-
-    /**
-     * Log request metadata into rolling file.
-     */
-    private void logRequest(HttpServletRequest request) {
-        String userAgent = HeaderUtils.getRequestHeaderValue("User-Agent", request);
-        String referer = HeaderUtils.getRequestHeaderValue("Referer", request);
-        log.info("user-agent: {}\nuser-locale: {}\nuser-address: {}\nreferer: {}\nrequest-path: {}",
-                userAgent,
-                request.getLocale(),
-                request.getRemoteAddr(),
-                referer,
-                request.getServletPath());
-        if (referer != null && !referer.contains(clientUrl)) {
-            log.info("Request not come to client");
-        }
-    }
-
-    private void addH3Header(HttpServletResponse response) {
-        String h3Header = response.getHeader(H3_HEADER);
-        if (h3Header == null) {
-            String headerPattern = "h3=\":{0}\"; ma=2592000";
-            response.addHeader(H3_HEADER, MessageFormat.format(headerPattern, h3Port).replace(",", ""));
         }
     }
 

@@ -25,7 +25,11 @@ public final class AuthenticationHelper {
     }
 
     public static HttpServletResponse getResponse(String requestId) {
-        return responseHolder.remove(requestId);
+        return responseHolder.get(requestId);
+    }
+
+    public static void release(String requestId) {
+        responseHolder.remove(requestId);
     }
 
     public static String findClientSecret(HttpServletRequest request) {

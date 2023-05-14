@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-    id 'com.google.protobuf'
     id 'java-library'
 }
 
@@ -14,6 +13,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-aspects'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation project(":common:annotation")
     implementation project(":common:core")
     implementation project(":common:exception")
     implementation project(":common:utils")

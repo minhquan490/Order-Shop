@@ -12,6 +12,8 @@
     "module": "ESNext",
     "types": [
       "node"
-    ]
+    ],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
   }
 }

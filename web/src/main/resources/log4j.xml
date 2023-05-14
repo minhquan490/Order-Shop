@@ -54,7 +54,7 @@
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="query"/>
         </AsyncLogger>
-        <AsyncLogger name="org.eclipse.jetty" level="DEBUG" additivity="false">
+        <AsyncLogger name="io.grpc.netty" level="DEBUG" additivity="false">
             <AppenderRef ref="infoFile"/>
             <AppenderRef ref="errorFile"/>
         </AsyncLogger>

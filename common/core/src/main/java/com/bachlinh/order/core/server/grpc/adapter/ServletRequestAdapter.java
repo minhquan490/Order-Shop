@@ -461,6 +461,16 @@ public class ServletRequestAdapter implements HttpServletRequest {
         }
 
         @Override
+        public byte[] readAllBytes() throws IOException {
+            return delegate.readAllBytes();
+        }
+
+        @Override
+        public byte[] readNBytes(int len) throws IOException {
+            return delegate.readNBytes(len);
+        }
+
+        @Override
         public long skip(long n) throws IOException {
             return this.delegate.skip(n);
         }
