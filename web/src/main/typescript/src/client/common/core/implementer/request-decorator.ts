@@ -1,5 +1,5 @@
-import { Decorator } from '@core/decorator';
-import { Strategy } from '@core/strategy';
+import { Decorator } from '@client/core/decorator';
+import { Strategy } from '@client/core/strategy';
 
 export class RequestDecorator extends Decorator<XMLHttpRequest, Strategy<XMLHttpRequest>> {
   override decorate(target: XMLHttpRequest, param: Strategy<XMLHttpRequest>): XMLHttpRequest {

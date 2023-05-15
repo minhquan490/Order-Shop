@@ -1,8 +1,8 @@
 import { createSSRApp, inject, type App } from 'vue';
 
-import { JsonStringConverter, ObjectConverter } from '@core/implementer/json-converter';
-import { HttpJsonOpener } from '@services/implementer/http-json-opener';
-import { SocketConnector } from '@services/implementer/socket-connector';
+import { JsonStringConverter, ObjectConverter } from '@client/core/implementer/json-converter';
+import { HttpJsonOpener } from '@client/services/implementer/http-json-opener';
+import { SocketConnector } from '@client/services/implementer/socket-connector';
 import { createPinia } from 'pinia';
 import VueApp from './App.vue';
 import { createAppRouter } from './router';

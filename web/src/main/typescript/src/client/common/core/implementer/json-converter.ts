@@ -1,4 +1,4 @@
-import { Converter } from '@core/converter';
+import { Converter } from "@client/core/converter";
 
 export class JsonStringConverter extends Converter<string, any> {
   convert(target: any): string {

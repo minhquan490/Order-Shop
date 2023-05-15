@@ -112,15 +112,17 @@ export default function (configEnv: ConfigEnv): UserConfigExport {
     },
     resolve: {
       alias: {
-        '@assets': fileURLToPath(new URL('./src/client/assets', import.meta.url)),
-        '@components': fileURLToPath(new URL('./src/client/components', import.meta.url)),
-        '@core': fileURLToPath(new URL('./src/client/common/core', import.meta.url)),
-        '@router': fileURLToPath(new URL('./src/client/router', import.meta.url)),
-        '@services': fileURLToPath(new URL('./src/client/common/services', import.meta.url)),
-        '@stores': fileURLToPath(new URL('./src/client/stores', import.meta.url)),
-        '@styles': fileURLToPath(new URL('./src/client/common/styles', import.meta.url)),
-        '@types': fileURLToPath(new URL('./src/client/common/types', import.meta.url)),
-        '@views': fileURLToPath(new URL('./src/client/views', import.meta.url)),
+        '@client/assets': fileURLToPath(new URL('./src/client/assets', import.meta.url)),
+        '@client/components': fileURLToPath(new URL('./src/client/components', import.meta.url)),
+        '@client/core': fileURLToPath(new URL('./src/client/common/core', import.meta.url)),
+        '@client/router': fileURLToPath(new URL('./src/client/router', import.meta.url)),
+        '@client/services': fileURLToPath(new URL('./src/client/common/services', import.meta.url)),
+        '@client/stores': fileURLToPath(new URL('./src/client/stores', import.meta.url)),
+        '@client/styles': fileURLToPath(new URL('./src/client/common/styles', import.meta.url)),
+        '@client/types': fileURLToPath(new URL('./src/client/common/types', import.meta.url)),
+        '@client/views': fileURLToPath(new URL('./src/client/views', import.meta.url)),
+        '@server/grpc': fileURLToPath(new URL('./src/server/grpc', import.meta.url)),
+        '@server/adapter': fileURLToPath(new URL('./src/server/adapter', import.meta.url)),
       }
     },
     

@@ -1,7 +1,9 @@
 import { basename } from 'node:path';
 import { renderToString } from 'vue/server-renderer';
 import { createApp } from '../client/main';
+import { WebSocketAdapter } from './adapter/socket-adapter';
 import { GrpcConnector } from './grpc/grpc-connector';
+import { DefaultHttpMessageHandler } from './grpc/handler/default-http-message-handler';
 
 export async function render(url, manifest) {
     const { app, router } = createApp();
@@ -26,6 +28,14 @@ export async function render(url, manifest) {
 
 export async function createGrpcConnector() {
     return new GrpcConnector().connect();
+}
+
+export function createHttpHandler(grpcFunction) {
+    return new DefaultHttpMessageHandler(grpcFunction);
+}
+
+export function adapterServer(spdyServer, wss, grpcFunction) {
+    return new WebSocketAdapter(spdyServer, wss, grpcFunction).execute();
 }
 
 function renderPreloadLinks(modules, manifest) {

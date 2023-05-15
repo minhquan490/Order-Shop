@@ -11,6 +11,10 @@ const readFileSync = require('node:fs').readFileSync;
 const _resolve = require('node:path').resolve;
 const dirname = require('node:path').dirname;
 const spdy = require('spdy');
+const cookieParser = require('cookie-parser');
+
+let ssrModule;
+let grpcFunction;
 
 async function createServer() {
     const root = process.cwd();
@@ -24,10 +28,8 @@ async function createServer() {
         : {};
 
     const app = express();
-
     let vite;
-    let ssrModule;
-    let grpcFunction;
+    let handler;
 
     if (!isProd) {
         vite = await require('vite').createServer({
@@ -63,14 +65,18 @@ async function createServer() {
         );
         ssrModule = await vite.ssrLoadModule(builtServerEntry);
         grpcFunction = await ssrModule.createGrpcConnector;
+        handler = await ssrModule.createHttpHandler(grpcFunction);
     }
+
+    app.use(cookieParser());
 
     app.use('/api(/*)?', (req, res) => {
         console.log('Test called');
-        if (!grpcFunction) {
+        if (!handler) {
             res.status(404).end();
+            return;
         }
-        req.body
+        handler.handle(req, res);
     });
 
     app.use('*', async (req, res) => {
@@ -132,7 +138,8 @@ if (!isTest) {
                     plain: false
                 }
             };
-            spdy.createServer(option, server.app).listen(port, host);
+            const spdyServer = spdy.createServer(option, server.app);
+            ssrModule.adapterServer(spdyServer, require('express-ws')(server.app, spdyServer).getWss(), grpcFunction).listen(port, host);
         })
         .catch((e) => console.log(e));
 }

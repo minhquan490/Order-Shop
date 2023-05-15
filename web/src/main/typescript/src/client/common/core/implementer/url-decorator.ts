@@ -1,4 +1,4 @@
-import { Decorator } from "@core/decorator";
+import { Decorator } from "@client/core/decorator";
 
 export class UrlDecorator extends Decorator<string, Map<string, string>> {
   override decorate(target: string, param: Map<string, string>): string {

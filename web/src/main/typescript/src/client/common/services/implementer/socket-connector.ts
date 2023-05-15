@@ -1,4 +1,4 @@
-import { SocketConnectorService, SocketOperator } from "@services/socket-service";
+import { SocketConnectorService, SocketOperator } from "@client/services/socket-service";
 
 export class SocketConnector extends SocketConnectorService {
     connect(callback: Function): SocketOperator {

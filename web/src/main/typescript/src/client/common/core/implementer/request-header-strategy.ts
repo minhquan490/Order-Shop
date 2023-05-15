@@ -1,4 +1,4 @@
-import { Strategy } from "@core/strategy";
+import { Strategy } from "@client/core/strategy";
 
 export class RequestHeaderStrategy extends Strategy<XMLHttpRequest> {
   override applyStrategy(target: XMLHttpRequest): XMLHttpRequest {

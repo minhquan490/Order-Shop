@@ -1,12 +1,12 @@
-import { Converter } from '@core/converter';
-import { Decorator } from '@core/decorator';
-import { Factory } from '@core/factory';
-import { RequestDecorator } from '@core/implementer/request-decorator';
-import { RequestFactory } from '@core/implementer/request-factory';
-import { RequestHeaderStrategy } from '@core/implementer/request-header-strategy';
-import { UrlDecorator } from '@core/implementer/url-decorator';
-import { Strategy } from '@core/strategy';
-import type { HttpService, HttpServiceProvider } from '@services/http-service';
+import { Converter } from '@client/core/converter';
+import { Decorator } from '@client/core/decorator';
+import { Factory } from '@client/core/factory';
+import { RequestDecorator } from '@client/core/implementer/request-decorator';
+import { RequestFactory } from '@client/core/implementer/request-factory';
+import { RequestHeaderStrategy } from '@client/core/implementer/request-header-strategy';
+import { UrlDecorator } from '@client/core/implementer/url-decorator';
+import { Strategy } from '@client/core/strategy';
+import type { HttpService, HttpServiceProvider } from '@client/services/http-service';
 
 export class HttpJsonOpener implements HttpServiceProvider {
   private jsonConverter: Converter<string, any>;

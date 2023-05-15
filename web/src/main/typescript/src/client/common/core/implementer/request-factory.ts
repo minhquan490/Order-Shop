@@ -1,4 +1,4 @@
-import { Factory } from "@core/factory";
+import { Factory } from "@client/core/factory";
 
 export class RequestFactory implements Factory<XMLHttpRequest> {
   getInstance(): XMLHttpRequest;

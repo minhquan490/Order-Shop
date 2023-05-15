@@ -9,33 +9,35 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@assets/*": [
+      "@client/assets/*": [
         "./src/client/assets/*"
       ],
-      "@components/*": [
+      "@client/components/*": [
         "./src/client/components/*"
       ],
-      "@core/*": [
+      "@client/core/*": [
         "./src/client/common/core/*"
       ],
-      "@router/*": [
+      "@client/router/*": [
         "./src/client/router/*"
       ],
-      "@services/*": [
+      "@client/services/*": [
         "./src/client/common/services/*"
       ],
-      "@stores/*": [
+      "@client/stores/*": [
         "./src/client/stores/*"
       ],
-      "@styles/*": [
+      "@client/styles/*": [
         "./src/client/common/styles/*"
       ],
-      "@types/*": [
+      "@client/types/*": [
         "./src/client/common/types/*"
       ],
-      "@views/*": [
+      "@client/views/*": [
         "./src/client/views/*"
-      ]
+      ], 
+      "@server/grpc/*": ["./src/server/grpc/*"],
+      "@server/adapter/*": ["./src/server/adapter/*"]
     }
   }
 }
