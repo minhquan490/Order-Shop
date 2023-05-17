@@ -13,7 +13,8 @@ export class GrpcHttpMessageHandler extends HttpMessageHandler {
     constructor() {
         super();
         this.requestConverter = new GrpcRequestConverter();
-        this.grpcRemoteMethod = new GrpcConnector().connect();
+        const connector = new GrpcConnector();
+        this.grpcRemoteMethod = connector.connect();
     }
 
     handle(request: IncomingMessage, response: ServerResponse<IncomingMessage>): void {
