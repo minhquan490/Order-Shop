@@ -91,3 +91,11 @@ protobuf {
 processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

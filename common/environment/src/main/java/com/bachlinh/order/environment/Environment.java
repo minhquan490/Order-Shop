@@ -1,10 +1,13 @@
 package com.bachlinh.order.environment;
 
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import com.bachlinh.order.exception.system.environment.EnvironmentException;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
@@ -21,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Environment {
     private static final String PREFIX = "config/application-";
     private static final Map<String, Environment> environments = new ConcurrentHashMap<>();
+    private static final ResourceLoader SINGLETON_LOADER = new DefaultResourceLoader();
     private final String environmentName;
     private final Properties properties;
 
@@ -76,13 +80,11 @@ public final class Environment {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         Properties properties = new Properties();
         String propertiesName = path.concat(".properties");
-        URL url = classLoader.getResource(propertiesName);
         try {
-            if (url == null) {
-                throw new IllegalArgumentException("Properties [" + propertiesName + "] not found");
-            }
-            File file = new File(url.toURI());
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            Resource resource = SINGLETON_LOADER.getResource(propertiesName);
+            byte[] content = resource.getContentAsByteArray();
+            URL url = resource.getURL();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(content)));
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("#")) {
@@ -105,7 +107,7 @@ public final class Environment {
             }
             reader.close();
         } catch (Exception e) {
-            throw new EnvironmentException("Can not load properties file", e);
+            throw new EnvironmentException("Can not load properties file[" + propertiesName + "]", e);
         }
         return properties;
     }

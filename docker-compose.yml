@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    env_file: .env
+    environment:
+      - "SA_PASSWORD=${PASSWORD}"
+      - "ACCEPT_EULA=${EULA}"
+  server:
+    container_name: server
+    restart: always
+    env_file: .env
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: "java -Xms512m -Xmx5g -server -jar /web/server/Order-shop-web.jar"
+    depends_on:
+      - db
+  client:
+    container_name: client
+    restart: always
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: ./web/src/main/typescript/Dockerfile
+    command: "npm run start"
+    depends_on:
+      - server
+  proxy:
+    image: nginx:latest
+    container_name: proxy
+    env_file: .env
+    hostname: ${HOST}
+    ports:
+      - "${APP_PORT}:80"
+    volumes:
+      - .proxy:/etc/nginx/conf.d
+      - "${LOG_PATH}:/var/log/nginx"
+    depends_on:
+      - client

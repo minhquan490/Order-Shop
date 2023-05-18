@@ -18,9 +18,6 @@ export default defineNuxtConfig({
     },
     nitro: {
         minify: true,
-        appConfig: {
-            beans: Map<string, object>
-        },
     },
     csurf: {
         cookie: {
