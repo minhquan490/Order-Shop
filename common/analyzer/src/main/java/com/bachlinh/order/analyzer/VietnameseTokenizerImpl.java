@@ -19,7 +19,7 @@ final class VietnameseTokenizerImpl {
     VietnameseTokenizerImpl(VietnameseConfig config, Reader input) {
         this.input = input;
         this.option = Tokenizer.TokenizeOption.NORMAL;
-        tokenizer = Tokenizer.getInstance(config.getDictPath());
+        tokenizer = new Tokenizer(config.getDictPath());
         pending = new CopyOnWriteArrayList<>();
     }
 

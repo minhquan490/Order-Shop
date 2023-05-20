@@ -95,18 +95,22 @@ public class LoggingRequestFilter extends GrpcWebFilter {
         } catch (JwtException | IOException | NullPointerException e) {
             String refreshToken = HeaderUtils.getRefreshHeader(request);
             if (refreshToken == null) {
-                log.debug("Log request of address [{}] failure", request.getRemoteAddr());
+                if (log.isDebugEnabled()) {
+                    log.debug("Log request of address [{}] failure", request.getRemoteAddr());
+                }
                 return;
             }
             RefreshToken token = refreshTokenRepository.getRefreshToken(refreshToken);
             if (token == null) {
-                log.debug("Invalid user has address [{}] request to endpoint [{}]", request.getRemoteAddr(), request.getContextPath());
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid user has address [{}] request to endpoint [{}]", request.getRemoteAddr(), request.getContextPath());
+                }
                 return;
             }
             try {
                 logCustomer(token.getCustomer().getId(), request);
             } catch (IOException e1) {
-                log.debug("Log customer has id [{}] failure because IOException. Message [{}]", token.getCustomer().getId(), e1.getMessage());
+                log.warn("Log customer has id [{}] failure because IOException. Message [{}]", token.getCustomer().getId(), e1.getMessage());
             }
         }
     }

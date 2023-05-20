@@ -7,7 +7,4 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005,quiet=y
-    ports:
-      - 8443:8443
-      - 5005:5005
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:45231,suspend=y,server=n

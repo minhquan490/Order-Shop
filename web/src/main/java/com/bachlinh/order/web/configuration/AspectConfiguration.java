@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.repository.monitor.RepositoryMonitor;
 import com.bachlinh.order.service.monitor.ServiceMonitor;
-import com.bachlinh.order.trigger.TriggerInterceptor;
 import com.bachlinh.order.validator.ValidateInterceptor;
 
 @Configuration
@@ -19,11 +18,6 @@ class AspectConfiguration {
     @Bean
     ServiceMonitor serviceMonitor() {
         return new ServiceMonitor();
-    }
-
-    @Bean
-    TriggerInterceptor triggerInterceptor(EntityFactory entityFactory) {
-        return new TriggerInterceptor(entityFactory);
     }
 
     @Bean

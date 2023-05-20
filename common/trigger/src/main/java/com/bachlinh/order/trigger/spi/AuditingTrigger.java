@@ -95,6 +95,6 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
 
     @Override
     public TriggerExecution[] getExecuteOn() {
-        return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_DELETE};
+        return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_DELETE, TriggerExecution.ON_UPDATE};
     }
 }

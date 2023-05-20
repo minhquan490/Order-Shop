@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,13 +94,8 @@ public final class Environment {
                     throw new IllegalStateException("Environment does not support multi value on key");
                 }
                 if (keyPair[1].startsWith("classpath:")) {
-                    URL u = classLoader.getResource(keyPair[1].replace("classpath:", ""));
-                    if (u != null) {
-                        keyPair[1] = u.toString().replace("file:", "");
-                    } else {
-                        String pattern = "{0}/{1}";
-                        keyPair[1] = MessageFormat.format(pattern, url.toString().replace("file:", ""), keyPair[1]);
-                    }
+                    URL u = SINGLETON_LOADER.getResource(keyPair[1].replace("classpath:", "")).getURL();
+                    keyPair[1] = u.toString();
                 }
                 properties.setProperty(keyPair[0], keyPair[1]);
             }

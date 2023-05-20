@@ -52,7 +52,9 @@ public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
     @Override
     public void registerHints(@NonNull RuntimeHints hints, ClassLoader classLoader) {
         Collection<ClassMetadata> classMetadata = new LinkedHashSet<>(serviceLoader.loadClass("com.bachlinh.order"));
-        log.debug("Total class should register [{}]", classMetadata.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Total class should register [{}]", classMetadata.size());
+        }
         List<ClassMetadata> filteredClassMetadata = classMetadata.stream().filter(this::filtered).toList();
         registerReflection(filteredClassMetadata, hints);
         List<ClassMetadata> serializableMetadata = classMetadata.stream().filter(ClassMetadata::isSerializable).toList();
@@ -68,8 +70,9 @@ public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
 
     private void registerReflection(Collection<ClassMetadata> classMetadata, RuntimeHints runtimeHints) {
         classMetadata.stream().filter(metadata -> metadata.needRegisterToRuntimeHints() || metadata.isNative()).toList().forEach(metadata -> {
-            log.debug("Register reflection for class [{}]", metadata.getName());
-
+            if (log.isDebugEnabled()) {
+                log.debug("Register reflection for class [{}]", metadata.getName());
+            }
             Collection<MethodMetadata> methodMetadata = serviceLoader.loadMethods(metadata).stream().filter(this::needRegisterToRuntime).toList();
             Collection<FieldMetadata> fieldMetadata = serviceLoader.loadFields(metadata).stream().filter(this::needRegisterToRuntime).toList();
             Collection<ConstructorMetadata> constructorMetadata = serviceLoader.loadConstructors(metadata).stream().filter(this::needRegisterToRuntime).toList();
@@ -161,15 +164,18 @@ public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
     @SuppressWarnings("unchecked")
     private void registerSerializable(Collection<ClassMetadata> classMetadata, RuntimeHints runtimeHints) {
         classMetadata.forEach(metadata -> {
-            log.debug("Register serializable for class [{}]", metadata.getName());
+            if (log.isDebugEnabled()) {
+                log.debug("Register serializable for class [{}]", metadata.getName());
+            }
             runtimeHints.serialization().registerType((Class<? extends Serializable>) metadata.getTarget());
         });
     }
 
     private void registerReachable(Collection<ClassMetadata> classMetadata, RuntimeHints runtimeHints) {
         classMetadata.stream().filter(ClassMetadata::isReachable).toList().forEach(metadata -> {
-            log.debug("Register reachable for class [{}]", metadata.getName());
-
+            if (log.isDebugEnabled()) {
+                log.debug("Register reachable for class [{}]", metadata.getName());
+            }
             Reachable reachable = metadata.getAnnotation(Reachable.class);
             for (Class<?> clazz : reachable.onClasses()) {
                 runtimeHints.reflection().registerType(clazz, builder -> {
@@ -200,7 +206,9 @@ public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
                 folders.addAll(f == null ? Collections.emptyList() : Arrays.asList(f));
             } else {
                 String path = file.getPath();
-                log.debug("Register resource [{}]", path);
+                if (log.isDebugEnabled()) {
+                    log.debug("Register resource [{}]", path);
+                }
                 target.add(path.split("main")[1]);
             }
         }

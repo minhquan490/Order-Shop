@@ -159,11 +159,17 @@ public class DefaultEntityContext implements EntityContext {
         for (String validatorName : v.validators()) {
             try {
                 Class<?> validator = Class.forName(validatorName);
-                log.debug("Create validator [{}]", validator.getName());
+                if (log.isDebugEnabled()) {
+                    log.debug("Create validator [{}]", validator.getName());
+                }
                 EntityValidator<? extends BaseEntity> entityValidator = (EntityValidator<? extends BaseEntity>) newInstance(validator, new Class[]{DependenciesResolver.class}, new Object[]{resolver});
                 vs.add(entityValidator);
             } catch (Exception e) {
                 log.error("Can not create validator because [{}]", e.getClass().getName(), e);
+            } finally {
+                if (log.isDebugEnabled()) {
+                    log.debug("Init validator [{}] for class [{}]", validatorName, baseEntity.getClass().getName());
+                }
             }
         }
         return vs;
@@ -239,6 +245,10 @@ public class DefaultEntityContext implements EntityContext {
         } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException |
                  NoSuchMethodException e) {
             throw new CriticalException("Can not init trigger [" + triggerName + "]");
+        } finally {
+            if (log.isDebugEnabled()) {
+                log.debug("Init trigger [{}] for entity [{}]", triggerName, baseEntity.getClass().getName());
+            }
         }
     }
 }

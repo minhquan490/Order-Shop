@@ -14,7 +14,11 @@ public class Tokenizer {
     static {
         Environment environment = Environment.getInstance("native");
         File nativeLib = new File(environment.getProperty("native.library"));
-        System.load(nativeLib.getAbsolutePath());
+        try {
+            System.load(nativeLib.getAbsolutePath());
+        } catch (UnsatisfiedLinkError e) {
+            System.loadLibrary(environment.getProperty("native.library.name"));
+        }
     }
 
     public enum TokenizeOption {
@@ -34,30 +38,10 @@ public class Tokenizer {
     }
 
     public static final String SPACE = " ";
-    public static final String UNDERSCORE = "_";
     public static final String COMMA = ",";
     public static final String DOT = ".";
 
-
-    private static String dictPath = null;
-
-    private static final class Loader {
-        private static final Tokenizer INSTANCE = get();
-
-        private Loader() {
-        }
-
-        private static Tokenizer get() {
-            return new Tokenizer(dictPath);
-        }
-    }
-
-    public static Tokenizer getInstance(String dictPath) {
-        Tokenizer.dictPath = dictPath;
-        return Loader.INSTANCE;
-    }
-
-    private Tokenizer(String dictPath) {
+    public Tokenizer(String dictPath) {
         int status = initialize(dictPath);
         if (0 > status) {
             throw new IllegalArgumentException(String.format("Cannot initialize Tokenizer: %s", dictPath));
