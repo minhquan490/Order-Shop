@@ -2,8 +2,6 @@ package com.bachlinh.order.setup.internal;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.annotation.Order;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.SetupManager;
@@ -42,7 +40,6 @@ class DefaultSetupManager implements SetupManager {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void run() throws ClassNotFoundException {
         Collection<Setup> forSetup = loadSetup();
         forSetup.forEach(Setup::beforeExecute);

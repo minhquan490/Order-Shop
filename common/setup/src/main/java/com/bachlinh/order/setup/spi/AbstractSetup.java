@@ -1,5 +1,7 @@
 package com.bachlinh.order.setup.spi;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.ContainerWrapper;
@@ -43,6 +45,7 @@ public abstract class AbstractSetup implements Setup {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public final void execute() {
         doExecute();
     }

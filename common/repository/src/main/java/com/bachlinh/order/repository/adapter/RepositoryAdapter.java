@@ -171,7 +171,13 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
             if (existing == null) {
                 return null;
             }
-
+            boolean springActualTransactionActive = entityFactory.getTransactionManager().isActualTransactionActive();
+            if (!springActualTransactionActive) {
+                asyncEntityManager.getTransaction().begin();
+                asyncEntityManager.remove(asyncEntityManager.contains(entity) ? entity : asyncEntityManager.merge(entity));
+                asyncEntityManager.getTransaction().commit();
+                return entity;
+            }
             em.remove(em.contains(entity) ? entity : em.merge(entity));
             return entity;
         }, entity, domainClass, TriggerExecution.ON_DELETE);

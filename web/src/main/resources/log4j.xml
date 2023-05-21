@@ -45,10 +45,7 @@
         <AsyncLogger name="com.bachlinh.order" level="DEBUG" additivity="false">
             <AppenderRef ref="applicationLog"/>
             <AppenderRef ref="errorFile"/>
-        </AsyncLogger>
-        <AsyncLogger name="com.coccoc" level="DEBUG" additivity="false">
-            <AppenderRef ref="applicationLog"/>
-            <AppenderRef ref="errorFile"/>
+            <AppenderRef ref="stdout"/>
         </AsyncLogger>
         <AsyncLogger name="org.hibernate.SQL" level="DEBUG" additivity="false">
             <AppenderRef ref="query"/>
@@ -65,9 +62,5 @@
         <AsyncLogger name="com.zaxxer.hikari" level="DEBUG" additivity="false">
             <AppenderRef ref="infoFile"/>
         </AsyncLogger>
-        <AsyncRoot level="DEBUG" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="errorFile"/>
-        </AsyncRoot>
     </Loggers>
 </Configuration>

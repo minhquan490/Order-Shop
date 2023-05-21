@@ -14,6 +14,7 @@ import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,6 +30,7 @@ import java.lang.annotation.Target;
 @EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @ImportRuntimeHints(value = {})
 @Import(value = {})
+@EnableTransactionManagement(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 public @interface SpringGrpc {
     @AliasFor(annotation = SpringBootApplication.class)
     Class<?>[] exclude() default {DataSourceAutoConfiguration.class, WebMvcAutoConfiguration.class, MultipartAutoConfiguration.class, ErrorMvcAutoConfiguration.class};

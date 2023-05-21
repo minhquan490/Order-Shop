@@ -17,7 +17,7 @@ public abstract class AbstractExecutor<T> implements Executor<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public final void execute(BootWrapper<?> wrapper) {
+    public void execute(BootWrapper<?> wrapper) {
         inject();
         T source = (T) wrapper.getSource();
         if (source != null) {
