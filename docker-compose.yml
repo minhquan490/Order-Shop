@@ -8,9 +8,11 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: "java -Xss100m -Xms512m -Xmx5g -server -jar /web/server/Order-shop-web.jar"
+    command: "java -Xss100m -Xms512m -Xmx5g -server -jar /web/server/Order-shop-web.jar --active.profile=prod"
     volumes:
       - "${LOG_PATH}/server:/log"
+    networks:
+      - nginx_network
   client:
     container_name: client
     restart: always
@@ -22,11 +24,12 @@ services:
     command: "npm run start"
     depends_on:
       - server
+    networks:
+      - nginx_network
   proxy:
     image: nginx:latest
     container_name: proxy
     env_file: .env
-    hostname: ${HOST}
     ports:
       - "${APP_PORT}:433"
     volumes:
@@ -34,3 +37,8 @@ services:
       - "${LOG_PATH}/proxy:/var/log/nginx"
     depends_on:
       - client
+    networks:
+      - nginx_network
+networks:
+  nginx_network:
+    external: true

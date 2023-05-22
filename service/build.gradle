@@ -13,6 +13,7 @@ dependencies {
     implementation project(":common:exception")
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework:spring-context'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.aspectj:aspectjrt'
     implementation 'org.apache.logging.log4j:log4j-core'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
