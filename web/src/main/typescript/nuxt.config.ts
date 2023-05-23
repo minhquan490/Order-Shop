@@ -2,7 +2,9 @@
 export default defineNuxtConfig({
     modules: [
         '@nuxtjs/tailwindcss',
-        'nuxt-csurf'
+        'nuxt-csurf',
+        '@nuxtjs/google-fonts',
+        'nuxt-icon',
     ],
     ssr: true,
     devtools: {
@@ -19,6 +21,13 @@ export default defineNuxtConfig({
     nitro: {
         minify: true,
     },
+    pages: true,
+    components: true,
+    typescript: {
+        tsConfig: {
+            "include": ["./types/*", "./services/*"],
+        }
+    },
     csurf: {
         cookie: {
             path: '/',
@@ -26,13 +35,30 @@ export default defineNuxtConfig({
             sameSite: 'strict'
         },
         methodsToProtect: ['POST', 'PUT', 'DELETE'],
-        encryptAlgorithm: 'aes-256-cbc'
+        encryptAlgorithm: 'aes-256-cbc',
     },
-    pages: true,
-    components: true,
-    typescript: {
-        tsConfig: {
-            "include": ["./types/*", "./services/*"],
-        }
+    googleFonts: {
+        families: {
+            Roboto: {
+                wght: [100, 300, 400, 500, 700, 900]
+            }
+        },
+        display: 'swap',
+        preconnect: true,
+        preload: true,
+        prefetch: true,
+        useStylesheet: false
+    },
+    icon: {
+        size: '24px',
+        class: 'icon'
+    },
+    app: {
+        keepalive: {
+            max: 10000
+        },
+    },
+    tailwindcss: {
+        viewer: false,
     }
 })

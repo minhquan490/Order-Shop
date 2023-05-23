@@ -2,8 +2,11 @@ package com.bachlinh.order.crawler.core.visitor;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebElement;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class InnerElementVisitor {
     private final WebElement element;
@@ -42,5 +45,20 @@ public class InnerElementVisitor {
 
     public WebElement getElementById(String domElementId) {
         return element.findElement(By.id(domElementId));
+    }
+
+    @Override
+    public String toString() {
+        if (element instanceof RemoteWebElement castedElement) {
+            return castedElement.toString();
+        }
+        return "";
+    }
+
+    public Map<String, Object> getJson() {
+        if (element instanceof RemoteWebElement castedElement) {
+            return castedElement.toJson();
+        }
+        return Collections.emptyMap();
     }
 }

@@ -35,6 +35,7 @@ public class DirectMessageRemoveHandler extends AbstractJob {
     protected void doExecuteInternal() throws Exception {
         Collection<DirectMessage> directMessages = directMessageRepository.getDirectForRemove();
         directMessageRepository.deleteMessage(directMessages);
+        this.previousTimeExecution = LocalDateTime.now();
     }
 
     @Override

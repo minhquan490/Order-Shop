@@ -11,12 +11,15 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "^0.4.6",
+    "@nuxtjs/google-fonts": "^3.0.1",
     "@nuxtjs/tailwindcss": "^6.7.0",
     "@types/node": "^18",
     "nuxt": "^3.5.0",
-    "nuxt-csurf": "^1.2.0"
+    "nuxt-csurf": "^1.2.0",
+    "nuxt-icon": "^0.4.1"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.8.14"
+    "@grpc/grpc-js": "^1.8.14",
+    "sass": "^1.62.1"
   }
 }
