@@ -1,4 +1,4 @@
-import { Converter } from "../converter";
+import { Converter } from "../../server/core/converter";
 
 
 export class JsonStringConverter extends Converter<string, any> {

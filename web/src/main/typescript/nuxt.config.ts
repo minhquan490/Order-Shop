@@ -60,5 +60,8 @@ export default defineNuxtConfig({
     },
     tailwindcss: {
         viewer: false,
+    },
+    build: {
+        transpile: ['rxjs']
     }
 })
