@@ -1,8 +1,8 @@
 import { map, mergeMap, of, switchMap } from 'rxjs';
-import { ChunkFileUploadService } from "~/services/chunk-file-upload-service";
-import { HttpServiceProvider } from "~/services/http-service";
-import { UploadFileResult } from "~/types/file-upload-result";
-import { Resource } from "~/types/resource-upload";
+import { ChunkFileUploadService } from "~/services/chunk-file-upload.service";
+import { HttpServiceProvider } from "~/services/http.service";
+import { UploadFileResult } from "~/types/file-upload-result.type";
+import { Resource } from "~/types/resource-upload.type";
 
 export class DefaultChunkFileUploadService extends ChunkFileUploadService {
     private httpClient: HttpServiceProvider;

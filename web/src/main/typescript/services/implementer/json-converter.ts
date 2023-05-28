@@ -9,6 +9,9 @@ export class JsonStringConverter extends Converter<string, any> {
 
 export class ObjectConverter extends Converter<any, string> {
   convert(target: string): any {
+    if (target.length === 0) {
+      return {};
+    }
     return JSON.parse(target);
   }
 }

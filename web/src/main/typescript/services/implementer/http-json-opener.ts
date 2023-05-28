@@ -6,27 +6,18 @@ import { RequestFactory } from "~/server/core/implementer/request-factory";
 import { RequestHeaderStrategy } from "~/server/core/implementer/request-header-strategy";
 import { UrlDecorator } from "~/server/core/implementer/url-decorator";
 import { Strategy } from "~/server/core/strategy";
-import { HttpService, HttpServiceProvider } from "../http-service";
+import { HttpService, HttpServiceProvider } from "../http.service";
 
 export class HttpJsonOpener implements HttpServiceProvider {
-  private jsonConverter: Converter<string, any>;
-  private objectConverter: Converter<any, string>;
-  private requestDecorator: Decorator<XMLHttpRequest, Strategy<XMLHttpRequest>>;
-  private requestFactory: Factory<XMLHttpRequest>;
-  private urlDecorator: Decorator<string, Map<string, string>>;
-  private requestHeaderStrategy: Strategy<XMLHttpRequest>;
+  private singleton: InternalHttpService;
 
   constructor(jsonConverter: Converter<string, any>, objectConverter: Converter<any, string>) {
-    this.jsonConverter = jsonConverter;
-    this.objectConverter = objectConverter;
-    this.requestDecorator = new RequestDecorator();
-    this.requestFactory = new RequestFactory();
-    this.urlDecorator = new UrlDecorator();
-    this.requestHeaderStrategy = new RequestHeaderStrategy();
+    this.singleton = new InternalHttpService(jsonConverter, objectConverter, new RequestDecorator(), new RequestFactory(), new UrlDecorator(), new RequestHeaderStrategy());
   }
 
   open(url: string): HttpService {
-    return new InternalHttpService(url, this.jsonConverter, this.objectConverter, this.requestDecorator, this.requestFactory, this.urlDecorator, this.requestHeaderStrategy);
+    this.singleton.setUrl(url);
+    return this.singleton;
   }
 }
 
@@ -40,7 +31,6 @@ class InternalHttpService implements HttpService {
   private requestHeaderStrategy: Strategy<XMLHttpRequest>;
 
   constructor(
-    url: string,
     jsonConverter: Converter<string, any>,
     objectConverter: Converter<any, string>,
     requestDecorator: Decorator<XMLHttpRequest, Strategy<XMLHttpRequest>>,
@@ -48,13 +38,17 @@ class InternalHttpService implements HttpService {
     urlDecorator: Decorator<string, Map<string, string>>,
     requestHeaderStrategy: Strategy<XMLHttpRequest>
   ) {
-    this.url = url;
     this.jsonConverter = jsonConverter;
     this.objectConverter = objectConverter;
     this.requestDecorator = requestDecorator;
     this.requestFactory = requestFactory;
     this.urlDecorator = urlDecorator;
     this.requestHeaderStrategy = requestHeaderStrategy;
+    this.url = ''
+  }
+
+  setUrl(url: string) {
+    this.url = url;
   }
 
   get<T, U>(request?: T, urlParams?: Map<string, string>): U {
@@ -73,17 +67,20 @@ class InternalHttpService implements HttpService {
   private sendRequest<T, U>(method: string, request?: T, urlParams?: Map<string, string>): U {
     let req = this.requestFactory.getInstance();
     const path = this.createPath(this.url, urlParams);
-    req.open(method, path);
-    req = this.requestDecorator.decorate(req, this.requestHeaderStrategy);
+    req.open(method, path, false);
+
     if (request) {
       const requestString = this.jsonConverter.convert(request);
-      req.setRequestHeader("Content-Type", "application/json");
-      req.setRequestHeader("Content-Length", requestString.length.toString());
-      req.send();
+      req = this.requestDecorator.decorate(req, this.requestHeaderStrategy);
+      req.send(requestString);
     } else {
       req.send();
     }
-    return this.objectConverter.convert(req.response);
+    const contentType = req.getResponseHeader('Content-Type');
+    if (contentType !== null && contentType === 'application/json') {
+      return this.objectConverter.convert(req.response);
+    }
+    return {} as U;
   }
 
   private createPath(path: string, urlParams?: Map<string, string>): string {

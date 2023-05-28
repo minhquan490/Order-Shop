@@ -1,4 +1,4 @@
-import { HttpService, HttpServiceProvider } from "~/services/http-service";
+import { HttpService, HttpServiceProvider } from "~/services/http.service";
 
 export const useHttpClient = () => {
   const httpClientProvider: HttpServiceProvider = inject('httpClient') as HttpServiceProvider;
@@ -7,5 +7,5 @@ export const useHttpClient = () => {
     return httpClientProvider.open(url);
   }
 
-  return { httpClient };
+  return ref(httpClient);
 }

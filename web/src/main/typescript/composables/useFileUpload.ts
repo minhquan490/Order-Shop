@@ -1,5 +1,5 @@
-import { ChunkFileUploadService } from "~/services/chunk-file-upload-service";
-import { UploadFileResult } from "~/types/file-upload-result";
+import { ChunkFileUploadService } from "~/services/chunk-file-upload.service";
+import { UploadFileResult } from "~/types/file-upload-result.type";
 
 export const useFileUpload = () => {
   const fileUploadService: ChunkFileUploadService = inject('fileUploadService') as ChunkFileUploadService;
@@ -8,5 +8,5 @@ export const useFileUpload = () => {
     return fileUploadService.uploadFile(file);
   }
 
-  return { upload };
+  return ref(upload);
 }

@@ -1,14 +1,3 @@
-<script lang="ts" setup>
-const route = useRoute();
-useServerSeoMeta({
-  title: 'Not found',
-  description: 'Not found page, this page will be displayed when requested page is unavailable',
-  ogUrl: route.path,
-  ogTitle: 'Not found',
-  ogDescription: 'Not found page, this page will be displayed when requested page is unavailable',
-})
-</script>
-
 <template>
   <div class="box">
     <div class="box__ghost">
@@ -46,4 +35,4 @@ useServerSeoMeta({
   </div>
 </template>
 
-<style scoped lang="scss" src="~/assets/404.scss"></style>
+<style scoped lang="scss" src="~/assets/styles/pc/404.scss"></style>

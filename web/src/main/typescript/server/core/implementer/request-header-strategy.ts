@@ -2,8 +2,9 @@ import { Strategy } from "../strategy";
 
 export class RequestHeaderStrategy extends Strategy<XMLHttpRequest> {
   override applyStrategy(target: XMLHttpRequest): XMLHttpRequest {
-    const authorization = process.env.AUTHORIZATION;
-    const refresh = process.env.REFRESH_TOKEN;
+    const appConfig = useAppConfig();
+    const authorization = appConfig.authorization;
+    const refresh = appConfig.refreshToken;
     if (!authorization) {
       throw new Error('No config for Auth header');
     }

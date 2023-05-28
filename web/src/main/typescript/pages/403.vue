@@ -1,14 +1,3 @@
-<script lang="ts" setup>
-const route = useRoute();
-useServerSeoMeta({
-  title: 'Forbidden',
-  description: 'Forbidden page, display when you do not have permission to access page',
-  ogTitle: 'Forbidden',
-  ogDescription: 'Forbidden page, display when you do not have permission to access page',
-  ogUrl: route.path
-})
-</script>
-
 <template>
   <div>
     <div id="app">
@@ -18,4 +7,4 @@ useServerSeoMeta({
   </div>
 </template>
 
-<style lang="scss" scoped src="~/assets/403.scss"></style>
+<style lang="scss" scoped src="~/assets/styles/pc/403.scss"></style>

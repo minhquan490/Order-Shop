@@ -1,12 +1,5 @@
 <script lang="ts" setup>
-const route = useRoute();
-useServerSeoMeta({
-  title: 'Home',
-  description: 'Home page of application',
-  ogTitle: 'Home',
-  ogDescription: 'Home page of application',
-  ogUrl: route.path
-})
+
 </script>
 
 <template>
@@ -15,4 +8,4 @@ useServerSeoMeta({
   </div>
 </template>
 
-<style scoped></style>
+<style scoped src="~/assets/styles/pc/index.scss"></style>

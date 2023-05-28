@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    Component: head
+    Component: login.mobile
   </div>
 </template>
 

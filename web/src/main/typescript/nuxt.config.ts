@@ -2,9 +2,9 @@
 export default defineNuxtConfig({
     modules: [
         '@nuxtjs/tailwindcss',
-        'nuxt-csurf',
         '@nuxtjs/google-fonts',
         'nuxt-icon',
+        '@pinia/nuxt'
     ],
     ssr: true,
     devtools: {
@@ -27,15 +27,6 @@ export default defineNuxtConfig({
         tsConfig: {
             "include": ["./types/*", "./services/*"],
         }
-    },
-    csurf: {
-        cookie: {
-            path: '/',
-            httpOnly: true,
-            sameSite: 'strict'
-        },
-        methodsToProtect: ['POST', 'PUT', 'DELETE'],
-        encryptAlgorithm: 'aes-256-cbc',
     },
     googleFonts: {
         families: {
@@ -60,8 +51,11 @@ export default defineNuxtConfig({
     },
     tailwindcss: {
         viewer: false,
+        exposeConfig: true,
+        configPath: './tailwind.config.js'
     },
     build: {
         transpile: ['rxjs']
-    }
+    },
+    css: ['~/assets/styles/global.scss'],
 })

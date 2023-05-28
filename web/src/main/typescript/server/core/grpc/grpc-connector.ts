@@ -1,32 +1,21 @@
 import * as grpc from '@grpc/grpc-js';
-import { ServiceClientConstructor } from '@grpc/grpc-js';
-import * as protoLoader from '@grpc/proto-loader';
+import * as proto from "../proto/front-grpc-handler";
 
 export class GrpcConnector {
     private readonly serverUrl = process.env.SERVER_GRPC;
-    private grpcObject: ServiceClientConstructor;
 
-    constructor() {
-        const packageDefinition = protoLoader.loadSync(
-            __dirname + '../../../../../../../../common/core/src/main/proto/front-grpc-handler.proto',
+    constructor() {}
+
+    connect(): proto.com.bachlinh.order.core.server.grpc.GrpcHandlerClient {
+        return new proto.com.bachlinh.order.core.server.grpc.GrpcHandlerClient(this.serverUrl as string, 
+            grpc.ChannelCredentials.createInsecure(), 
             {
-                keepCase: true,
-                longs: String,
-                enums: String,
-                defaults: true,
-                oneofs: true,
-                objects: true
-            }
+                "grpc.keepalive_time_ms": 50000,
+                "grpc.enable_retries": 10,
+                "grpc.max_reconnect_backoff_ms": 100,
+                "grpc.max_concurrent_streams": 10000,
+                "grpc.keepalive_permit_without_calls": 50000
+            },
         );
-        const object = grpc.loadPackageDefinition(packageDefinition);
-        //@ts-ignore
-        this.grpcObject = object.com['bachlinh'].order.core.server.grpc.GrpcHandler;
-    }
-
-    connect(): Function {
-        return new this.grpcObject(
-            this.serverUrl as string,
-            grpc.ChannelCredentials.createInsecure()
-        ).handleGrpcCall;
     }
 }
