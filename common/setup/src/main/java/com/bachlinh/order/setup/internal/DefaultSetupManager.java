@@ -1,13 +1,11 @@
 package com.bachlinh.order.setup.internal;
 
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.annotation.Order;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.SetupManager;
 import com.bachlinh.order.service.container.ContainerWrapper;
-import org.apache.logging.log4j.Logger;
-import org.springframework.core.annotation.Order;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -42,7 +40,6 @@ class DefaultSetupManager implements SetupManager {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void run() throws ClassNotFoundException {
         Collection<Setup> forSetup = loadSetup();
         forSetup.forEach(Setup::beforeExecute);
@@ -66,7 +63,9 @@ class DefaultSetupManager implements SetupManager {
                 constructor.setAccessible(true);
             }
             Object result = constructor.newInstance(param);
-            log.debug("Init instance for class [{}] complete", clazz.getName());
+            if (log.isDebugEnabled()) {
+                log.debug("Init instance for class [{}] complete", clazz.getName());
+            }
             return result;
         } catch (Exception e) {
             log.warn("Init instance for class [{}] failure, skip it !", clazz.getName());

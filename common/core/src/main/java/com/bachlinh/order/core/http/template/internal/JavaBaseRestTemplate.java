@@ -1,13 +1,14 @@
 package com.bachlinh.order.core.http.template.internal;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import org.springframework.lang.Nullable;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.converter.spi.JavaBaseResponseConverter;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.utils.JacksonUtils;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import org.springframework.lang.Nullable;
-import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
 import java.net.URI;
@@ -48,6 +49,9 @@ class JavaBaseRestTemplate implements RestTemplate {
     }
 
     private JsonNode request(String url, RequestMethod method, @Nullable Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
+        if (headers == null) {
+            headers = new LinkedMultiValueMap<>();
+        }
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(URI.create(buildRequestUrl(url, uriVariables)));
         switch (method) {
             case GET -> requestBuilder.GET();

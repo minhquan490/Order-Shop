@@ -15,6 +15,7 @@ dependencies {
     implementation project(":common:utils")
     implementation project(":common:exception")
     implementation project(":service")
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.aspectj:aspectjweaver'
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework.security:spring-security-core'
@@ -32,4 +33,12 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
 }

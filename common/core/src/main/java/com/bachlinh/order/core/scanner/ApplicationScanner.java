@@ -29,7 +29,9 @@ public final class ApplicationScanner extends ClassPathScanningCandidateComponen
         if (CACHE_SCANNING_RESULT.isEmpty()) {
             for (BeanDefinition beanDefinition : findCandidateComponents(APPLICATION_PACKAGE)) {
                 try {
-                    log.debug("Found class [{}]", beanDefinition.getBeanClassName());
+                    if (log.isDebugEnabled()) {
+                        log.debug("Found class [{}]", beanDefinition.getBeanClassName());
+                    }
                     CACHE_SCANNING_RESULT.add(Class.forName(beanDefinition.getBeanClassName()));
                 } catch (ClassNotFoundException e) {
                     log.warn("Class [{}] not found", beanDefinition.getBeanClassName());

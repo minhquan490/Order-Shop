@@ -1,12 +1,11 @@
 package com.bachlinh.order.environment;
 
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
+import com.bachlinh.order.environment.parser.ClasspathParser;
+import com.bachlinh.order.environment.strategies.PropertiesStrategy;
 import com.bachlinh.order.exception.system.environment.EnvironmentException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.net.URL;
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,8 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Hoang Minh Quan
  */
 public final class Environment {
-    private static final String PREFIX = "config/application-";
+    public static final String PREFIX = "config/application-";
+    public static final String SUFFIX = ".properties";
+    public static final String CLASSPATH = "classpath:";
+    public static final ResourceLoader SINGLETON_LOADER = new DefaultResourceLoader();
     private static final Map<String, Environment> environments = new ConcurrentHashMap<>();
+    private static final PropertiesStrategy STRATEGY = new PropertiesStrategy(new ClasspathParser(SINGLETON_LOADER));
     private final String environmentName;
     private final Properties properties;
 
@@ -30,7 +33,7 @@ public final class Environment {
         } else {
             this.environmentName = name;
         }
-        String path = name.replace(environmentName, PREFIX.concat(environmentName));
+        String path = name.replace(environmentName, PREFIX.concat(environmentName).concat(SUFFIX));
         this.properties = loadProperties(path);
     }
 
@@ -73,40 +76,13 @@ public final class Environment {
      * @return Properties of system environment.
      */
     private Properties loadProperties(String path) {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        Properties properties = new Properties();
-        String propertiesName = path.concat(".properties");
-        URL url = classLoader.getResource(propertiesName);
+        Properties p = new Properties();
         try {
-            if (url == null) {
-                throw new IllegalArgumentException("Properties [" + propertiesName + "] not found");
-            }
-            File file = new File(url.toURI());
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("#")) {
-                    continue;
-                }
-                String[] keyPair = line.split("=");
-                if (keyPair[1].contains(",")) {
-                    throw new IllegalStateException("Environment does not support multi value on key");
-                }
-                if (keyPair[1].startsWith("classpath:")) {
-                    URL u = classLoader.getResource(keyPair[1].replace("classpath:", ""));
-                    if (u != null) {
-                        keyPair[1] = u.toString().replace("file:", "");
-                    } else {
-                        String pattern = "{0}/{1}";
-                        keyPair[1] = MessageFormat.format(pattern, url.toString().replace("file:", ""), keyPair[1]);
-                    }
-                }
-                properties.setProperty(keyPair[0], keyPair[1]);
-            }
-            reader.close();
+            path = SINGLETON_LOADER.getResource(CLASSPATH + path).getURL().toString();
+            STRATEGY.apply(path, p);
         } catch (Exception e) {
-            throw new EnvironmentException("Can not load properties file", e);
+            throw new EnvironmentException("Can not load properties file[" + path + "]", e);
         }
-        return properties;
+        return p;
     }
 }

@@ -15,6 +15,7 @@ dependencies {
     implementation project(":common:exception")
     implementation project(":common:environment")
     implementation project(":service")
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly "com.google.code.findbugs:jsr305:${libs.versions.findbugs.get()}"
@@ -22,4 +23,12 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
 }

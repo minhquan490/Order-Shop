@@ -1,11 +1,6 @@
 package com.bachlinh.order.repository.adapter;
 
 
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityManagerHolder;
-import com.bachlinh.order.entity.HintDecorator;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
@@ -19,6 +14,8 @@ import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Cache;
 import org.springframework.data.domain.Example;
@@ -47,8 +44,23 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
+import static org.springframework.data.jpa.repository.query.QueryUtils.COUNT_QUERY_STRING;
+import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_BY_ID_STRING;
+import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_STRING;
+import static org.springframework.data.jpa.repository.query.QueryUtils.applyAndBind;
+import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
+import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityManagerHolder;
+import com.bachlinh.order.entity.EntityTrigger;
+import com.bachlinh.order.entity.HintDecorator;
+import com.bachlinh.order.entity.enums.TriggerExecution;
+import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,15 +68,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static org.springframework.data.jpa.repository.query.QueryUtils.COUNT_QUERY_STRING;
-import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_BY_ID_STRING;
-import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_STRING;
-import static org.springframework.data.jpa.repository.query.QueryUtils.applyAndBind;
-import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
-import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
 
 public abstract class RepositoryAdapter<T extends BaseEntity, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
     private static final String ENTITY_NULL_MESSAGE = "Entity must not be null";
@@ -78,6 +84,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
     private final SessionFactory sessionFactory;
     private final EntityFactory entityFactory;
     private final boolean useCache;
+    private final InternalTriggerExecution triggerExecution;
 
     protected RepositoryAdapter(Class<T> domainClass, DependenciesResolver resolver) {
         this.domainClass = domainClass;
@@ -85,6 +92,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
         this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
         this.useCache = getDomainClass().isAnnotationPresent(Cacheable.class) && getDomainClass().isAnnotationPresent(Cache.class);
         this.asyncEntityManager = resolver.resolveDependencies(EntityManager.class);
+        this.triggerExecution = new InternalTriggerExecution(entityFactory);
     }
 
     protected void setEntityManager(EntityManager entityManager) {
@@ -148,22 +156,31 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
     @SuppressWarnings("unchecked")
     public void delete(@NonNull T entity) {
 
-        Assert.notNull(entity, ENTITY_NULL_MESSAGE);
+        triggerExecution.trigger(t -> {
+            Assert.notNull(entity, ENTITY_NULL_MESSAGE);
 
-        if (entityInformation.isNew(entity)) {
-            return;
-        }
+            if (entityInformation.isNew(entity)) {
+                return null;
+            }
 
-        Class<?> type = ProxyUtils.getUserClass(entity);
+            Class<?> type = ProxyUtils.getUserClass(entity);
 
-        T existing = (T) em.find(type, entityInformation.getId(entity));
+            T existing = (T) em.find(type, entityInformation.getId(entity));
 
-        // if the entity to be deleted doesn't exist, delete is a NOOP
-        if (existing == null) {
-            return;
-        }
-
-        em.remove(em.contains(entity) ? entity : em.merge(entity));
+            // if the entity to be deleted doesn't exist, delete is a NOOP
+            if (existing == null) {
+                return null;
+            }
+            boolean springActualTransactionActive = entityFactory.getTransactionManager().isActualTransactionActive();
+            if (!springActualTransactionActive) {
+                asyncEntityManager.getTransaction().begin();
+                asyncEntityManager.remove(asyncEntityManager.contains(entity) ? entity : asyncEntityManager.merge(entity));
+                asyncEntityManager.getTransaction().commit();
+                return entity;
+            }
+            em.remove(em.contains(entity) ? entity : em.merge(entity));
+            return entity;
+        }, entity, domainClass, TriggerExecution.ON_DELETE);
     }
 
     @Override
@@ -549,11 +566,22 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
     public <S extends T> S save(@NonNull S entity) {
 
         Assert.notNull(entity, ENTITY_NULL_MESSAGE);
-
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            return saveAsync(entity);
+        if (entity.getId() == null) {
+            return triggerExecution.trigger(t -> {
+                if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+                    return saveAsync(entity);
+                } else {
+                    return saveSync(entity);
+                }
+            }, entity, domainClass, TriggerExecution.ON_INSERT);
         } else {
-            return saveSync(entity);
+            return triggerExecution.trigger(t -> {
+                if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+                    return saveAsync(entity);
+                } else {
+                    return saveSync(entity);
+                }
+            }, entity, domainClass, TriggerExecution.ON_UPDATE);
         }
     }
 
@@ -817,6 +845,63 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
         @Override
         public Predicate toPredicate(@NonNull Root<T> root, @NonNull CriteriaQuery<?> query, @NonNull CriteriaBuilder cb) {
             return QueryByExamplePredicateBuilder.getPredicate(root, cb, example, escapeCharacter);
+        }
+    }
+
+    private class InternalTriggerExecution {
+        private final Logger log = LogManager.getLogger(InternalTriggerExecution.class);
+        private final EntityFactory entityFactory;
+
+        InternalTriggerExecution(EntityFactory entityFactory) {
+            this.entityFactory = entityFactory;
+        }
+
+        @SuppressWarnings("unchecked")
+        <S extends T> S trigger(UnaryOperator<S> function, S entity, Class<T> domainClass, TriggerExecution execution) {
+            Collection<EntityTrigger<S>> triggers = entityFactory.getEntityContext(domainClass)
+                    .getTrigger()
+                    .stream()
+                    .map(entityTrigger -> (EntityTrigger<S>) entityTrigger)
+                    .toList();
+            return runTrigger(triggers, entity, execution, function);
+        }
+
+        private <S extends T> S runTrigger(Collection<EntityTrigger<S>> bases, S entity, TriggerExecution execution, UnaryOperator<S> function) {
+            Collection<EntityTrigger<S>> triggers = extractTriggers(bases, execution);
+            executeBeforeAction(triggers, entity);
+            S result = function.apply(entity);
+            executeAfterAction(triggers, entity);
+            return result;
+        }
+
+        private <S extends T> Collection<EntityTrigger<S>> extractTriggers(Collection<EntityTrigger<S>> triggers, TriggerExecution triggerExecution) {
+            return triggers.stream()
+                    .filter(trigger -> Arrays.asList(trigger.getExecuteOn()).contains(triggerExecution))
+                    .toList();
+        }
+
+        private <S extends T> void executeBeforeAction(Collection<EntityTrigger<S>> triggers, S entity) {
+            Collection<EntityTrigger<S>> beforeAction = triggers.stream()
+                    .filter(trigger -> trigger.getMode() == TriggerMode.BEFORE)
+                    .toList();
+            beforeAction.forEach(trigger -> {
+                if (log.isDebugEnabled()) {
+                    log.debug("Execute trigger [{}] with type [BEFORE] on entity [{}]", trigger.getClass().getName(), entity.getClass().getName());
+                }
+                trigger.execute(entity);
+            });
+        }
+
+        private <S extends T> void executeAfterAction(Collection<EntityTrigger<S>> triggers, S entity) {
+            Collection<EntityTrigger<S>> beforeAction = triggers.stream()
+                    .filter(trigger -> trigger.getMode() == TriggerMode.AFTER)
+                    .toList();
+            beforeAction.forEach(trigger -> {
+                if (log.isDebugEnabled()) {
+                    log.debug("Execute trigger [{}] with type [AFTER] on entity [{}]", trigger.getClass().getName(), entity.getClass().getName());
+                }
+                trigger.execute(entity);
+            });
         }
     }
 }

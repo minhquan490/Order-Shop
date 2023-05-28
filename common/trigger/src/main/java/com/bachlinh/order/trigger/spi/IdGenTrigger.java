@@ -1,5 +1,8 @@
 package com.bachlinh.order.trigger.spi;
 
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.spi.EntityContext;
@@ -7,11 +10,6 @@ import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import org.apache.logging.log4j.Logger;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ActiveReflection
@@ -26,7 +24,6 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity> {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void doExecute(BaseEntity entity) {
         EntityContext entityContext = entityFactory.getEntityContext(entity.getClass());
         if (entity.getId() == null) {

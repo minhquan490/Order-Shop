@@ -10,7 +10,6 @@ import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.SQLServerDialect;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -18,7 +17,6 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.cache.HibernateL2CachingRegionFactory;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
@@ -34,7 +32,6 @@ import java.util.Optional;
 import java.util.Properties;
 
 @Configuration
-@EnableTransactionManagement(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 public class DataSourceBean {
 
     private String databaseAddress;

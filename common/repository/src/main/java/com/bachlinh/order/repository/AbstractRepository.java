@@ -1,12 +1,5 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.annotation.Validated;
-import com.bachlinh.order.entity.EntityManagerHolder;
-import com.bachlinh.order.entity.HintDecorator;
-import com.bachlinh.order.entity.context.spi.EntityContext;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.repository.adapter.RepositoryAdapter;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.CacheRetrieveMode;
 import jakarta.persistence.CacheStoreMode;
 import jakarta.persistence.NoResultException;
@@ -22,6 +15,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.lang.NonNull;
+import com.bachlinh.order.annotation.Validated;
+import com.bachlinh.order.entity.EntityManagerHolder;
+import com.bachlinh.order.entity.HintDecorator;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.repository.adapter.RepositoryAdapter;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,15 +69,8 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
     @Validated(targetIndex = 0)
     @NonNull
     public <S extends T> S save(@NonNull S entity) {
-        Object id = entity.getId();
-        if (id == null) {
-            EntityContext entityContext = getEntityFactory().getEntityContext(entity.getClass());
-            entityContext.beginTransaction();
-            entity.setId(entityContext.getNextId());
-            entityContext.commit();
-        }
         S result = super.save(entity);
-        if (getSessionFactory().getCache().containsEntity(entity.getClass(), entity.getId())) {
+        if (entity.getId() != null && getSessionFactory().getCache().containsEntity(entity.getClass(), entity.getId())) {
             getSessionFactory().getCache().evict(entity.getClass(), entity.getId());
         }
         return result;
