@@ -31,8 +31,10 @@ import com.bachlinh.order.security.filter.grpc.ClientSecretFilter;
 import com.bachlinh.order.security.filter.grpc.CsrfFilter;
 import com.bachlinh.order.security.filter.grpc.LoggingRequestFilter;
 import com.bachlinh.order.security.filter.grpc.PermissionFilter;
+import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.security.handler.CsrfCookieHandler;
+import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -41,9 +43,11 @@ import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import com.bachlinh.order.web.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.servlet.WebServlet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -85,6 +89,16 @@ class WebBaseConfiguration {
     }
 
     @Bean
+    AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandler();
+    }
+
+    @Bean
+    UnAuthorizationHandler unAuthorizationHandler() {
+        return new UnAuthorizationHandler();
+    }
+
+    @Bean
     WebSocketSessionManager webSocketSessionManager() {
         return new WebSocketManager();
     }
@@ -104,8 +118,7 @@ class WebBaseConfiguration {
                           ApplicationContext applicationContext,
                           DependenciesResolver resolver,
                           @Value("${active.profile}") String profile,
-                          ThreadPoolTaskExecutor executor) {
-        Environment environment = Environment.getInstance(profile);
+                          ThreadPoolTaskExecutor executor) throws IOException {
         Collection<String> excludeUrls = getExcludeUrls(profile);
         GrpcServer.Builder builder = DefaultGrpcServer.builder(port);
         builder.addService(new WebServlet(applicationContext));
@@ -116,9 +129,11 @@ class WebBaseConfiguration {
         builder.intercept(new PermissionFilter(resolver, profile).setExcludePaths(excludeUrls));
         builder.compressorRegistry(CompressorRegistry.getDefaultInstance());
         builder.decompressorRegistry(DecompressorRegistry.getDefaultInstance());
-        builder.useTransportSecurity(environment.getProperty("server.ssl.certificate"), environment.getProperty("server.ssl.certificate-private-key"));
+//        builder.useTransportSecurity(environment.getProperty("server.ssl.certificate"), environment.getProperty("server.ssl.certificate-private-key"));
+        builder.keepAliveTime(20, TimeUnit.SECONDS);
+        builder.keepAliveTimeout(30, TimeUnit.SECONDS);
         builder.executor(executor);
-        return builder.build();
+        return builder.build().start();
     }
 
     @Bean

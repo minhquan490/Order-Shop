@@ -19,7 +19,6 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.UUID;
 
 public abstract class GrpcWebFilter implements ServerInterceptor {
     private final DependenciesResolver dependenciesResolver;
@@ -39,13 +38,12 @@ public abstract class GrpcWebFilter implements ServerInterceptor {
                 if (message instanceof InboundMessage m) {
                     @SuppressWarnings("unchecked")
                     ServerCall<InboundMessage, OutboundMessage> castedCall = (ServerCall<InboundMessage, OutboundMessage>) call;
-                    m = m.toBuilder().setRequestId(UUID.randomUUID().toString()).build();
+                    HttpServletResponse response = AuthenticationHelper.getResponse(m.getRequestId());
+                    if (response == null) {
+                        response = new ServletResponseAdapter(castedCall);
+                        AuthenticationHelper.holdResponse(m.getRequestId(), response);
+                    }
                     if (!shouldNotFilter(ServletRequestAdapter.wrap(m))) {
-                        HttpServletResponse response = AuthenticationHelper.getResponse(m.getRequestId());
-                        if (response == null) {
-                            response = new ServletResponseAdapter(castedCall);
-                            AuthenticationHelper.holdResponse(m.getRequestId(), response);
-                        }
                         try {
                             intercept(ServletRequestAdapter.wrap(m), response);
                         } catch (IOException e) {

@@ -32,6 +32,7 @@ export class GrpcHttpMessageHandler extends HttpMessageHandler {
                     response.write(json);
                 }
             } catch (e) {
+                console.log(e);
                 const error: Error = this.assignError(e);
                 this.errorHandler.applyErrorToResponse(error, response);
             }

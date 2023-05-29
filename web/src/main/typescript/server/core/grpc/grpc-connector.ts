@@ -7,7 +7,9 @@ export class GrpcConnector {
     constructor() {}
 
     connect(): proto.com.bachlinh.order.core.server.grpc.GrpcHandlerClient {
-        return new proto.com.bachlinh.order.core.server.grpc.GrpcHandlerClient(this.serverUrl as string, 
+        const url = this.serverUrl as string;
+        console.log(`Server url: ${url}`);
+        return new proto.com.bachlinh.order.core.server.grpc.GrpcHandlerClient(url, 
             grpc.ChannelCredentials.createInsecure(), 
             {
                 "grpc.keepalive_time_ms": 50000,
