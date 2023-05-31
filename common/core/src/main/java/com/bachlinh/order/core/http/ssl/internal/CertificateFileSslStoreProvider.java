@@ -2,7 +2,6 @@ package com.bachlinh.order.core.http.ssl.internal;
 
 import com.bachlinh.order.core.http.ssl.spi.Ssl;
 import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
-import com.bachlinh.order.exception.system.common.CriticalException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -35,13 +34,7 @@ public final class CertificateFileSslStoreProvider implements SslStoreProvider {
     @Override
     public KeyStore getTrustStore() {
         if (this.ssl.getTrustCertificate() == null) {
-            try {
-                KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                trustStore.load(null, null);
-                return trustStore;
-            } catch (Exception e) {
-                throw new CriticalException("Can not load trust store");
-            }
+            return null;
         }
         return createKeyStore(this.ssl.getTrustCertificate(), this.ssl.getTrustCertificatePrivateKey(),
                 this.ssl.getTrustStoreType(), this.ssl.getKeyAlias());

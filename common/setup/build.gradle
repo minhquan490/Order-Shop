@@ -15,7 +15,6 @@ dependencies {
     implementation project(":common:entity")
     implementation project(':common:repository')
     implementation project(":service")
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework:spring-context'
@@ -31,12 +30,4 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
 }

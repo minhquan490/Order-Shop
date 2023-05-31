@@ -11,7 +11,6 @@ version = '1.0.0'
 dependencies {
     implementation project(":common:exception")
     implementation project(":common:annotation")
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation "com.google.guava:guava:${libs.versions.guavaVersion.get()}"
     implementation "org.apache.commons:commons-lang3:${libs.versions.commonLang3Version.get()}"
     implementation "com.fasterxml.jackson.core:jackson-databind"
@@ -34,12 +33,4 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
 }

@@ -9,20 +9,13 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 class ByteBufferConverter implements Converter<ByteBuffer, InnerElementVisitor> {
 
     @Override
     public ByteBuffer convert(InnerElementVisitor message) {
-        Map<String, Object> json = message.getJson();
-        byte[] data;
-        if (json.isEmpty()) {
-            Element element = new Element(message);
-            data = JacksonUtils.writeObjectAsBytes(element);
-        } else {
-            data = JacksonUtils.writeObjectAsBytes(json);
-        }
+        Element element = new Element(message);
+        byte[] data = JacksonUtils.writeObjectAsBytes(element);
         return ByteBuffer.wrap(data);
     }
 

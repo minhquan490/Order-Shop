@@ -10,6 +10,4 @@ public interface EntityTransactionManager {
     boolean isRollbackOnly();
 
     boolean isNewTransaction();
-
-    boolean isActualTransactionActive();
 }
