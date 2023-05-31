@@ -47,7 +47,7 @@ class SecurityConfiguration {
     @Bean
     LoggingRequestFilter loggingRequestFilter(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile) {
         Environment environment = Environment.getInstance(profile);
-        return new LoggingRequestFilter(containerResolver, environment.getProperty("shop.url.client"), Integer.parseInt(environment.getProperty("server.port")));
+        return new LoggingRequestFilter(containerResolver, environment.getProperty("shop.url.client"), Integer.parseInt(environment.getProperty("server.port")), profile);
     }
 
     @Bean
@@ -103,8 +103,8 @@ class SecurityConfiguration {
                 .disable()
                 .and()
                 .requiresChannel()
-                .anyRequest()
-                .requiresSecure()
+//                .anyRequest()
+//                .requiresSecure()
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers(urlAdmin).hasAuthority(Role.ADMIN.name())

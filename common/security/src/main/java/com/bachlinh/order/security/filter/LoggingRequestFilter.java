@@ -1,11 +1,22 @@
 package com.bachlinh.order.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerHistory;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.RefreshToken;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
@@ -14,14 +25,6 @@ import com.bachlinh.order.security.enums.RequestType;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -34,12 +37,14 @@ import java.util.Map;
  *
  * @author Hoang Minh Quan
  */
-@Log4j2
 public class LoggingRequestFilter extends AbstractWebFilter {
     private static final String H3_HEADER = "Alt-Svc";
     private static final int REMOVAL_POLICY_YEAR = 1;
+    private static final Logger log = LogManager.getLogger(LoggingRequestFilter.class);
     private final String clientUrl;
     private final int h3Port;
+    private final boolean enableHttp3;
+    private final Environment environment;
     private final ObjectMapper objectMapper = JacksonUtils.getSingleton();
     private CustomerHistoryRepository customerHistoryRepository;
     private CustomerRepository customerRepository;
@@ -48,15 +53,21 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     private TokenManager tokenManager;
     private EntityFactory entityFactory;
 
-    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port) {
+    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port, String profile) {
         super(containerResolver.getDependenciesResolver());
         this.clientUrl = clientUrl;
         this.h3Port = h3Port;
+        this.environment = Environment.getInstance(profile);
+        this.enableHttp3 = Boolean.parseBoolean(this.environment.getProperty("server.http3.enable"));
     }
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // TODO implement ddos protection
+        if (!isClientFetch(request)) {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
         addH3Header(response);
         logRequest(request);
         executor.execute(() -> logCustomerRequest(request));
@@ -104,7 +115,7 @@ public class LoggingRequestFilter extends AbstractWebFilter {
 
     private void addH3Header(HttpServletResponse response) {
         String h3Header = response.getHeader(H3_HEADER);
-        if (h3Header == null) {
+        if (h3Header == null && enableHttp3) {
             String headerPattern = "h3=\":{0}\"; ma=2592000";
             response.addHeader(H3_HEADER, MessageFormat.format(headerPattern, h3Port).replace(",", ""));
         }
@@ -123,18 +134,22 @@ public class LoggingRequestFilter extends AbstractWebFilter {
         } catch (JwtException | IOException | NullPointerException e) {
             String refreshToken = HeaderUtils.getRefreshHeader(request);
             if (refreshToken == null) {
-                log.debug("Log request of address [{}] failure", request.getRemoteAddr());
+                if (log.isDebugEnabled()) {
+                    log.debug("Log request of address [{}] failure", request.getRemoteAddr());
+                }
                 return;
             }
             RefreshToken token = refreshTokenRepository.getRefreshToken(refreshToken);
             if (token == null) {
-                log.debug("Invalid user has address [{}] request to endpoint [{}]", request.getRemoteAddr(), request.getContextPath());
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid user has address [{}] request to endpoint [{}]", request.getRemoteAddr(), request.getContextPath());
+                }
                 return;
             }
             try {
                 logCustomer(token.getCustomer().getId(), request);
             } catch (IOException e1) {
-                log.debug("Log customer has id [{}] failure because IOException. Message [{}]", token.getCustomer().getId(), e1.getMessage());
+                log.warn("Log customer has id [{}] failure because IOException. Message [{}]", token.getCustomer().getId(), e1.getMessage());
             }
         }
     }
@@ -171,5 +186,12 @@ public class LoggingRequestFilter extends AbstractWebFilter {
         LocalDate now = LocalDate.now();
         int year = now.getYear() + REMOVAL_POLICY_YEAR;
         return Date.valueOf(LocalDate.of(year, now.getMonth(), now.getDayOfMonth()));
+    }
+
+    private boolean isClientFetch(HttpServletRequest request) {
+        String headerKey = environment.getProperty("shop.client.identify.header.key");
+        String headerValue = environment.getProperty("shop.client.identify.header.value");
+        String actualHeader = request.getHeader(headerKey);
+        return actualHeader != null && actualHeader.equals(headerValue);
     }
 }

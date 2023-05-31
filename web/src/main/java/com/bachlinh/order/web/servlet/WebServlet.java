@@ -41,10 +41,13 @@ public class WebServlet extends FrameworkServlet {
                 strings.forEach(s1 -> response.addHeader(s, s1));
             }
         });
-        response.flushBuffer();
-        ServletOutputStream outputStream = response.getOutputStream();
         String json = objectMapper.writeValueAsString(responseEntity.getBody());
         byte[] data = json.getBytes(StandardCharsets.UTF_8);
+        response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(data.length));
+        response.setHeader(HttpHeaders.TRANSFER_ENCODING, "chucked");
+        response.setBufferSize(data.length);
+        ServletOutputStream outputStream = response.getOutputStream();
         outputStream.write(data);
+        response.flushBuffer();
     }
 }
