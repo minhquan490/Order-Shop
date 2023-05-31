@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
+    id 'org.graalvm.buildtools.native'
 }
 
 group = 'com.bachlinh.order'
@@ -9,7 +10,6 @@ version = '1.0.0'
 
 dependencies {
     implementation project(":aot")
-    implementation project(":common:analyzer")
     implementation project(":batch")
     implementation project(":service")
     implementation project(":common:annotation")
@@ -27,6 +27,8 @@ dependencies {
     implementation project(":common:mail")
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.data:spring-data-jpa'
@@ -37,16 +39,11 @@ dependencies {
     implementation 'org.hibernate.orm:hibernate-jcache'
     implementation 'com.zaxxer:HikariCP'
     implementation "com.lmax:disruptor:${libs.versions.disruptor.get()}"
-    implementation "io.grpc:grpc-all:${libs.versions.grpc.get()}"
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    runtimeOnly "io.grpc:grpc-census:${libs.versions.grpc.get()}"
-    runtimeOnly "org.bouncycastle:bcpkix-jdk15on:${libs.versions.bouncycastle.get()}"
-    runtimeOnly "io.opencensus:opencensus-impl:${libs.versions.opencensus.get()}"
-    runtimeOnly "io.opentelemetry:opentelemetry-opentracing-shim:${libs.versions.opentelemetry.get()}"
 
     modules {
         module("org.springframework.boot:spring-boot-starter-tomcat") {
@@ -62,14 +59,6 @@ test {
     useJUnitPlatform()
 }
 
-//processAot {
-//    jvmArgs(List.of('-Xmx6096M'))
-//}
-
-bootJar {
-    enabled = true
-}
-
-jar {
-    enabled = false
+processAot {
+    jvmArgs(List.of('-Xmx6096M'))
 }

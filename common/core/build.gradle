@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-    id 'com.google.protobuf'
     id 'java-library'
 }
 
@@ -32,15 +31,11 @@ dependencies {
     implementation "com.google.apis:google-api-services-gmail:${libs.versions.gmailApi.get()}"
     implementation 'org.hibernate.validator:hibernate-validator'
     implementation 'jakarta.persistence:jakarta.persistence-api'
-    implementation "io.grpc:grpc-netty:${libs.versions.grpc.get()}"
-    implementation "io.grpc:grpc-protobuf:${libs.versions.grpc.get()}"
-    implementation "io.grpc:grpc-stub:${libs.versions.grpc.get()}"
 
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 
     compileOnly 'org.projectlombok:lombok'
     compileOnly "jakarta.servlet:jakarta.servlet-api"
-    compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
@@ -56,46 +51,4 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-sourceSets {
-    main {
-        proto {
-            srcDir 'src/main/proto'
-            include '**/*.protodevel'
-        }
-    }
-    test {
-        proto {
-            srcDir 'src/test/proto'
-        }
-    }
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:${libs.versions.protoc.get()}"
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.55.1"
-        }
-    }
-}
-
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
 }

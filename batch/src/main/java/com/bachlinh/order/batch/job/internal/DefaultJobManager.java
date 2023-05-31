@@ -70,8 +70,6 @@ class DefaultJobManager implements JobManager {
     }
 
     private void writeLog(Job job) {
-        if (log.isDebugEnabled()) {
-            log.debug("Subscribe job [{}]", job.getName());
-        }
+        log.debug("Subscribe job [{}]", job.getName());
     }
 }
