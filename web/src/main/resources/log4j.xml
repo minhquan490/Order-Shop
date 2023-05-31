@@ -60,6 +60,7 @@
         </AsyncLogger>
         <AsyncLogger name="com.zaxxer.hikari" level="DEBUG" additivity="false">
             <AppenderRef ref="infoFile"/>
+            <AppenderRef ref="errorFile"/>
         </AsyncLogger>
         <AsyncRoot level="DEBUG">
             <AppenderRef ref="stdout"/>
