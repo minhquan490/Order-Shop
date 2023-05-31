@@ -182,12 +182,14 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @Override
     public CustomerInformationResp getCustomerInformation(String customerId) {
+        inject();
         Customer customer = customerRepository.getCustomerById(customerId, false);
         return CustomerInformationResp.toDto(customer);
     }
 
     @Override
     public Page<CustomerResp> getFullInformationOfCustomer(Pageable pageable) {
+        inject();
         return new PageImpl<>(
                 customerRepository.getAll(pageable, Sort.by(Customer_.ID))
                         .stream()
@@ -197,6 +199,7 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @Override
     public LoginResp login(LoginForm loginForm, NativeRequest<?> request) {
+        inject();
         if (loginForm.username() == null || loginForm.username().isBlank() || loginForm.password() == null || loginForm.password().isBlank()) {
             return new LoginResp(null, null, false);
         }
@@ -218,6 +221,7 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @Override
     public RegisterResp register(RegisterForm registerForm) {
+        inject();
         Customer customer = registerForm.toCustomer(entityFactory, passwordEncoder);
         Cart cart = entityFactory.getEntity(Cart.class);
         cart.setCustomer(customer);
@@ -232,6 +236,7 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @Override
     public boolean logout(Customer customer, String secret) {
+        inject();
         customer = customerRepository.getCustomerById(customer.getId(), false);
         clientSecretHandler.removeClientSecret(customer.getRefreshToken().getRefreshTokenValue(), secret);
         customer.setRefreshToken(null);
@@ -251,6 +256,7 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @Override
     public void sendEmailResetPassword(String email) {
+        inject();
         String urlResetPassword = MessageFormat.format("https://{0}:{1}{2}", getEnvironment().getProperty("server.address"), getEnvironment().getProperty("server.port"), getEnvironment().getProperty("shop.url.customer.reset.password"));
         String tempToken = tokenGenerator.generateTempToken();
         TempTokenHolder holder = new TempTokenHolder(LocalDateTime.now(), email);
@@ -269,6 +275,7 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
 
     @Override
     public void resetPassword(String temporaryToken, String newPassword) {
+        inject();
         TempTokenHolder holder = tempTokenMap.get(temporaryToken);
         if (holder == null) {
             throw new InvalidTokenException("Your token is invalid");
