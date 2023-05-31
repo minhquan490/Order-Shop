@@ -33,6 +33,7 @@ public class H3JettyServerCustomize implements JettyServerCustomizer {
 
     @Override
     public void customize(Server server) {
+
         Environment environment = Environment.getInstance(activeProfile);
         boolean enableH3 = Boolean.parseBoolean(environment.getProperty("server.http3.enable"));
         if (!enableH3) {
