@@ -46,7 +46,11 @@ export class ServerResponseConverter extends Converter<string, proto.com.bachlin
                 this.resp.setHeader(key, value);
             }
         });
-        return this.decoder.decode(target.body);
+        let json = this.decoder.decode(target.body);
+        if (json.length === 0) {
+            json = "{}";
+        }
+        return json;
     }
     
 }
