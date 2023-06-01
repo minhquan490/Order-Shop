@@ -47,7 +47,7 @@ export class LoginServiceImpl extends LoginService {
     }
 
     login(form: LoginForm): SuccessResponse | FailureResponse | undefined {
-        const httpService = this.httpClientProvider.open("/api/login");
+        const httpService = this.httpClientProvider.open("https://localhost:8443/login");
         const response = httpService.post<LoginForm, SuccessResponse | FailureResponse>(form);
         if ("status" in response) {
             return {

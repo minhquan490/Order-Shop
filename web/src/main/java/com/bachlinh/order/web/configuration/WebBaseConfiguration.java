@@ -12,10 +12,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.WebRequestInterceptor;
 import org.springframework.web.servlet.FrameworkServlet;
+import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
-import com.bachlinh.order.core.server.H3JettyServerCustomize;
+import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
 import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.environment.Environment;
@@ -23,6 +24,7 @@ import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import com.bachlinh.order.web.interceptor.RequestMonitor;
@@ -32,6 +34,12 @@ import com.bachlinh.order.web.servlet.WebServlet;
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class WebBaseConfiguration {
+    private DependenciesResolver resolver;
+
+    @DependenciesInitialize
+    public void setResolver(DependenciesResolver resolver) {
+        this.resolver = resolver;
+    }
 
     @Bean
     JettyServerCustomizer jettyServerCustomizer(@Value("${active.profile}") String profile) {
