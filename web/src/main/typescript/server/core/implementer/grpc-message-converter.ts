@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { IncomingMessage, ServerResponse } from "http";
 import { Converter } from "../converter";
 import * as proto from "../proto/front-grpc-handler";
@@ -20,7 +21,7 @@ export class GrpcRequestConverter extends Converter<Promise<proto.com.bachlinh.o
         result.method = target.method as string;
         result.remoteAddress = target.socket.remoteAddress as string;
         result.url = endpoint;
-        result.requestId = '';
+        result.requestId = randomUUID();
         return result;
     }
 }
@@ -45,7 +46,11 @@ export class ServerResponseConverter extends Converter<string, proto.com.bachlin
                 this.resp.setHeader(key, value);
             }
         });
-        return this.decoder.decode(target.body);
+        let json = this.decoder.decode(target.body);
+        if (json.length === 0) {
+            json = "{}";
+        }
+        return json;
     }
     
 }
