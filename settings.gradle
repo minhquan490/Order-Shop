@@ -24,6 +24,9 @@ dependencyResolutionManagement {
             version('selenium', '4.9.1')
             version('grpc', '1.55.1')
             version('protoc', '4.0.0-rc-2')
+            version('bouncycastle', '1.70')
+            version('opencensus', '0.31.1')
+            version('opentelemetry', '1.26.0')
         }
     }
     repositories {
