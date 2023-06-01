@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -80,18 +79,7 @@ public class ServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        Iterator<String> headers = List.of(delegate.getHeadersMap().get(name)).iterator();
-        return new Enumeration<String>() {
-            @Override
-            public boolean hasMoreElements() {
-                return headers.hasNext();
-            }
-
-            @Override
-            public String nextElement() {
-                return headers.next();
-            }
-        };
+        throw new UnsupportedOperationException();
     }
 
     @Override

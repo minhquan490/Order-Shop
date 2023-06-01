@@ -1,8 +1,5 @@
 package com.bachlinh.order.core.http.converter.internal;
 
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import com.bachlinh.order.core.NativeMethodHandleRequestMetadataReader;
 import com.bachlinh.order.core.http.HttpServletNativeRequest;
 import com.bachlinh.order.core.http.NativeCookie;
@@ -14,6 +11,9 @@ import com.bachlinh.order.core.http.parser.internal.ServletRequestBodyParser;
 import com.bachlinh.order.core.http.parser.spi.RequestBodyParser;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.utils.map.MultiValueMap;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,8 +45,8 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
     }
 
     private MultiValueMap<String, String> parseToQueryParams(HttpServletRequest request) {
-        String queryString = request.getQueryString() == null ? "" : request.getQueryString();
-        if (!queryString.isBlank()) {
+        if (request.getQueryString() != null) {
+            String queryString = request.getQueryString();
             String[] queryParams = queryString.split("&");
             MultiValueMap<String, String> queryParamMap = new LinkedMultiValueMap<>(queryParams.length);
             for (String queryParam : queryParams) {

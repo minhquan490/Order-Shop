@@ -96,7 +96,9 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
         try {
             Constructor<?> constructor = initiator.getConstructor(DependenciesContainerResolver.class, String.class);
             Executor<?> executor = (Executor<?>) constructor.newInstance(containerResolver, profile);
-            log.debug("Init event executor [{}]", initiator.getName());
+            if (log.isDebugEnabled()) {
+                log.debug("Init event executor [{}]", initiator.getName());
+            }
             return executor;
         } catch (Exception e) {
             return null;

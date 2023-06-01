@@ -36,7 +36,7 @@ public class CrawlResultCleaner extends AbstractJob {
 
     @Override
     protected LocalDateTime doGetNextExecutionTime() {
-        return doGetPreviousExecutionTime().plusMonths(1);
+        return previousExecution.plusMonths(1);
     }
 
     @Override

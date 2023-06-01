@@ -1,5 +1,9 @@
 package com.bachlinh.order.setup.execution;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.entity.EntityFactory;
@@ -11,10 +15,6 @@ import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.WardRepository;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.setup.spi.AbstractSetup;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,7 +98,9 @@ public class VnAddressSetupExecution extends AbstractSetup {
         } else {
             Collection<Province> provinces = provinceRepository.getAllProvinces();
             provinces.forEach(province -> {
-                log.debug("Remove province [{}]", province.getId());
+                if (log.isDebugEnabled()) {
+                    log.debug("Remove province [{}]", province.getId());
+                }
                 provinceRepository.remove(province);
             });
         }

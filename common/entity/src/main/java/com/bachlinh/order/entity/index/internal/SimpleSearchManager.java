@@ -1,15 +1,15 @@
 package com.bachlinh.order.entity.index.internal;
 
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.entity.index.spi.EntityIndexer;
-import com.bachlinh.order.entity.index.spi.EntitySearcher;
-import com.bachlinh.order.entity.index.spi.MetadataFactory;
-import com.bachlinh.order.entity.index.spi.SearchManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.entity.index.spi.EntityIndexer;
+import com.bachlinh.order.entity.index.spi.EntitySearcher;
+import com.bachlinh.order.entity.index.spi.MetadataFactory;
+import com.bachlinh.order.entity.index.spi.SearchManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

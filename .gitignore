@@ -39,5 +39,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 log
-.vim
+
+.web
+logs
 dicts
+.vim

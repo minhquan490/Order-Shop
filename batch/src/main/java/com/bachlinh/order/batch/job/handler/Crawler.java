@@ -9,8 +9,10 @@ import com.bachlinh.order.crawler.core.visitor.PageVisitor;
 import com.bachlinh.order.crawler.core.writer.ElementWriter;
 import com.bachlinh.order.crawler.driver.Driver;
 import com.bachlinh.order.crawler.loader.DriverLoader;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.model.CrawlResult;
 import com.bachlinh.order.exception.system.crawler.AwakeCrawlerException;
+import com.bachlinh.order.repository.CrawlResultRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
@@ -29,7 +31,9 @@ public class Crawler extends AbstractJob {
     private boolean isAlive;
     private Driver driver;
     private final String browserPath;
-    private Environment crawlerEnvironment;
+    private EntityFactory entityFactory;
+    private CrawlResultRepository repository;
+    private LocalDateTime previousExecution;
 
     @ActiveReflection
     public Crawler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
@@ -56,23 +60,27 @@ public class Crawler extends AbstractJob {
 
     @Override
     protected void inject() {
-        if (crawlerEnvironment == null) {
-            crawlerEnvironment = Environment.getInstance("crawler");
+        if (entityFactory == null) {
+            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+        }
+        if (repository == null) {
+            repository = getDependenciesResolver().resolveDependencies(CrawlResultRepository.class);
         }
     }
 
     @Override
     protected void doExecuteInternal() throws Exception {
-        String tempPath = crawlerEnvironment.getProperty("temp.file.path");
+        String tempPath = getEnvironment().getProperty("temp.file.path");
         Path tempFolderPath = Path.of(tempPath);
         if (Files.exists(tempFolderPath)) {
             Files.createDirectory(tempFolderPath);
         }
         awake();
         try {
-            ElementWriter writer = ElementWriter.channelWriter(MessageFormat.format(FILE_TEMPLATE, tempPath, LocalDate.now().toString()));
-            String classList = crawlerEnvironment.getProperty("element.data.classes");
-            String[] urls = crawlerEnvironment.getProperty("target.urls").split(",");
+            String tempDataFolder = MessageFormat.format(FILE_TEMPLATE, tempPath, LocalDate.now().toString());
+            ElementWriter writer = ElementWriter.channelWriter(tempDataFolder);
+            String classList = getEnvironment().getProperty("element.data.classes");
+            String[] urls = getEnvironment().getProperty("target.urls").split(",");
             for (String url : urls) {
                 if (!url.isBlank()) {
                     PageVisitor pageVisitor = new PageVisitor(driver, url);
@@ -85,9 +93,14 @@ public class Crawler extends AbstractJob {
                             addException(e);
                         }
                     });
+                    CrawlResult crawlResult = entityFactory.getEntity(CrawlResult.class);
+                    crawlResult.setSourcePath(url);
+                    crawlResult.setResources(tempDataFolder);
+                    repository.saveCrawlResult(crawlResult);
                 }
             }
         } finally {
+            previousExecution = LocalDateTime.now();
             destroy();
         }
     }
@@ -99,7 +112,10 @@ public class Crawler extends AbstractJob {
 
     @Override
     protected LocalDateTime doGetPreviousExecutionTime() {
-        return LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
+        if (previousExecution == null) {
+            previousExecution = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
+        }
+        return previousExecution;
     }
 
     @Override

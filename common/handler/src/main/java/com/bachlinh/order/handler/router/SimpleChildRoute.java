@@ -3,7 +3,6 @@ package com.bachlinh.order.handler.router;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -61,7 +60,7 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> ResponseEntity<T> handleServletRequest(String controllerPath, @NonNull HttpServletRequest servletRequest, @NonNull HttpServletResponse servletResponse) {
+    public <T> ResponseEntity<T> handleServletRequest(String controllerPath, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         try {
             setNativeRequest(NativeRequest.buildNativeFromServletRequest(servletRequest));
             setNativeResponse(parseFrom(servletResponse));
