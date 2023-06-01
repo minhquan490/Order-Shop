@@ -27,8 +27,6 @@ dependencyResolutionManagement {
             version('bouncycastle', '1.70')
             version('opencensus', '0.31.1')
             version('opentelemetry', '1.26.0')
-            version('logback', '1.4.7')
-            version('sl4f', '2.0.7')
         }
     }
     repositories {
@@ -41,7 +39,6 @@ dependencyResolutionManagement {
         maven { url 'https://repo.spring.io/milestone' }
     }
 }
-
 rootProject.name = 'order-shop-refactor'
 include 'common'
 include 'web'
@@ -64,7 +61,6 @@ include 'common:entity'
 include 'common:handler'
 include 'common:trigger'
 include 'common:setup'
-
 findProject(':common:core')?.name = 'core'
 findProject(':common:mail')?.name = 'mail'
 findProject(':common:utils')?.name = 'utils'

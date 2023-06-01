@@ -18,7 +18,6 @@ import org.springframework.lang.NonNull;
 import com.bachlinh.order.annotation.Validated;
 import com.bachlinh.order.entity.EntityManagerHolder;
 import com.bachlinh.order.entity.HintDecorator;
-import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.repository.adapter.RepositoryAdapter;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -70,13 +69,6 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
     @Validated(targetIndex = 0)
     @NonNull
     public <S extends T> S save(@NonNull S entity) {
-        Object id = entity.getId();
-        if (id == null) {
-            EntityContext entityContext = getEntityFactory().getEntityContext(entity.getClass());
-            entityContext.beginTransaction();
-            entity.setId(entityContext.getNextId());
-            entityContext.commit();
-        }
         S result = super.save(entity);
         if (entity.getId() != null && getSessionFactory().getCache().containsEntity(entity.getClass(), entity.getId())) {
             getSessionFactory().getCache().evict(entity.getClass(), entity.getId());

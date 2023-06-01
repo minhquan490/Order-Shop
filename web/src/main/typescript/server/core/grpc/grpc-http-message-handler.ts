@@ -19,24 +19,23 @@ export class GrpcHttpMessageHandler extends HttpMessageHandler {
         this.errorHandler = new GrpcErrorHandler();
     }
 
-    override async handle(request: IncomingMessage, response: ServerResponse<IncomingMessage>): Promise<ServerResponse<IncomingMessage>> {
+    override async handle(request: IncomingMessage, response: ServerResponse<IncomingMessage>): Promise<ServerResponse<IncomingMessage> | string> {
         const responseConverter = new ServerResponseConverter(response);
         
-        return this.requestConverter.convert(request).then(async req => {
-            let data;
-
-            try {
-                data = await this.processRequest(this.grpcService, req);
-                if (data) {
-                    const json = responseConverter.convert(data);
-                    response.write(json);
-                }
-            } catch (e) {
-                const error: Error = this.assignError(e);
-                this.errorHandler.applyErrorToResponse(error, response);
+        const req = await this.requestConverter.convert(request);
+        const data = await this.processRequest(this.grpcService, req);
+        try {
+            if (typeof data !== 'undefined') {
+                grpcService.getChannel().close();
+                return responseConverter.convert(data);
+            } else {
+                return response;
             }
-            return response.end();
-        });
+        } catch (e) {
+            const error: Error = this.assignError(e);
+            this.errorHandler.applyErrorToResponse(error, response);
+            return response;
+        }
     }
 
     private async processRequest(grpcService: proto.com.bachlinh.order.core.server.grpc.GrpcHandlerClient, req: proto.com.bachlinh.order.core.server.grpc.InboundMessage) {
