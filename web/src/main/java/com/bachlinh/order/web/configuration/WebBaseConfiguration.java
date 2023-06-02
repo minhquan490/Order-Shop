@@ -9,9 +9,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.lang.NonNull;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.WebRequestInterceptor;
 import org.springframework.web.servlet.FrameworkServlet;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.server.RequestUpgradeStrategy;
+import org.springframework.web.socket.server.jetty.JettyRequestUpgradeStrategy;
+import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
@@ -26,24 +32,27 @@ import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
+import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import com.bachlinh.order.web.interceptor.RequestMonitor;
+import com.bachlinh.order.web.interceptor.SocketAuthorizeInterceptor;
 import com.bachlinh.order.web.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.servlet.WebServlet;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
-class WebBaseConfiguration {
+class WebBaseConfiguration implements WebSocketConfigurer {
     private DependenciesResolver resolver;
+    private Environment environment;
 
     @DependenciesInitialize
-    public void setResolver(DependenciesResolver resolver) {
+    public void inject(DependenciesResolver resolver, @Value("${active.profile}") String profile) {
         this.resolver = resolver;
+        this.environment = Environment.getInstance(profile);
     }
 
     @Bean
     JettyServerCustomizer jettyServerCustomizer(@Value("${active.profile}") String profile) {
-        Environment environment = Environment.getInstance(profile);
         return new H3JettyServerCustomize(Integer.parseInt(environment.getProperty("server.port")), environment.getProperty("server.address"), profile);
     }
 
@@ -85,5 +94,19 @@ class WebBaseConfiguration {
     @Bean
     WebRequestInterceptor interceptor(TokenManager tokenManager) {
         return new RequestMonitor(tokenManager);
+    }
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(new SocketHandler(webSocketSessionManager(), resolver), environment.getProperty("shop.url.websocket"))
+                .addInterceptors(new SocketAuthorizeInterceptor(resolver))
+                .setAllowedOrigins(environment.getProperty("shop.url.client"))
+                .setHandshakeHandler(new AbstractHandshakeHandler() {
+                    @Override
+                    @NonNull
+                    public RequestUpgradeStrategy getRequestUpgradeStrategy() {
+                        return new JettyRequestUpgradeStrategy();
+                    }
+                });
     }
 }

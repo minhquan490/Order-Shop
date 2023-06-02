@@ -1,7 +1,6 @@
 package com.bachlinh.order.web.handler.advice;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteExceptionHandler;
@@ -9,8 +8,8 @@ import com.bachlinh.order.core.http.handler.ExceptionHandler;
 
 @RouteExceptionHandler
 @ActiveReflection
+@Slf4j
 public class GlobalExceptionHandler extends ExceptionHandler {
-    private static final Logger log = LogManager.getLogger(GlobalExceptionHandler.class);
 
     @ActiveReflection
     public GlobalExceptionHandler() {

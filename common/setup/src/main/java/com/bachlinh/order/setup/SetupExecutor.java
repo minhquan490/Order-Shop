@@ -1,6 +1,6 @@
 package com.bachlinh.order.setup;
 
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
@@ -20,8 +20,8 @@ import com.bachlinh.order.setup.spi.SetupManagerFactory;
  * @author Hoang Minh Quan.
  */
 @ActiveReflection
+@Slf4j
 public class SetupExecutor extends AbstractExecutor<Void> {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SetupExecutor.class);
     private SetupManager manager;
     private String profile;
 

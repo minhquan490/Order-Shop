@@ -1,16 +1,17 @@
 package com.bachlinh.order.core.tcp.messaging;
 
+import org.springframework.lang.NonNull;
 import org.springframework.web.socket.WebSocketMessage;
 import com.bachlinh.order.utils.JacksonUtils;
 
 public class JsonMessage implements WebSocketMessage<String> {
     private final String payload;
 
-    private JsonMessage(Object payload) {
+    private JsonMessage(@NonNull Object payload) {
         this.payload = JacksonUtils.writeObjectAsString(payload);
     }
 
-    public static JsonMessage convert(Object message) {
+    public static JsonMessage convert(@NonNull Object message) {
         return new JsonMessage(message);
     }
 

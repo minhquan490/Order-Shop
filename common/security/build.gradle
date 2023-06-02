@@ -12,7 +12,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-aspects'
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation project(":common:annotation")
     implementation project(":common:core")
@@ -27,6 +26,8 @@ dependencies {
     implementation "io.grpc:grpc-netty:${libs.versions.grpc.get()}"
     implementation "io.grpc:grpc-protobuf:${libs.versions.grpc.get()}"
     implementation "io.grpc:grpc-stub:${libs.versions.grpc.get()}"
+    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
+    implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
 
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly 'org.projectlombok:lombok'

@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.index.internal;
 
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 class SimpleSearchManager implements SearchManager {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SimpleSearchManager.class);
     private final Map<Class<?>, EntityIndexer> indexerMap;
 
     private final ThreadPoolTaskExecutor executor;

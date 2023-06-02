@@ -15,7 +15,8 @@ dependencies {
     implementation 'org.springframework:spring-websocket'
     implementation 'org.springframework:spring-tx'
     implementation 'jakarta.persistence:jakarta.persistence-api'
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
+    implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
 
     // Empty
 }

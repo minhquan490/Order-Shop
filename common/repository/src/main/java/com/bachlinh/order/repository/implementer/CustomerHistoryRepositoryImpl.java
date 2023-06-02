@@ -1,5 +1,12 @@
 package com.bachlinh.order.repository.implementer;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -9,22 +16,14 @@ import com.bachlinh.order.entity.model.CustomerHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.apache.logging.log4j.Logger;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.Collection;
 
 @RepositoryComponent
 @ActiveReflection
+@Slf4j
 public class CustomerHistoryRepositoryImpl extends AbstractRepository<CustomerHistory, Integer> implements CustomerHistoryRepository {
-
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(CustomerHistoryRepositoryImpl.class);
 
     @DependenciesInitialize
     @ActiveReflection

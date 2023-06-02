@@ -43,10 +43,16 @@ public final class AuthenticationHelper {
     }
 
     public static Map<String, Object> parseAuthentication(HttpServletRequest request, HttpServletResponse response, TokenManager tokenManager) {
-        Map<String, Object> claims = new HashMap<>();
-
+        Map<String, Object> claims;
         String jwtToken = HeaderUtils.getAuthorizeHeader(request);
         String refreshToken = HeaderUtils.getRefreshHeader(request);
+        claims = parseAuthentication(jwtToken, refreshToken, tokenManager);
+        response.addHeader(HeaderUtils.getAuthorizeHeader(), jwtToken);
+        return claims;
+    }
+
+    public static Map<String, Object> parseAuthentication(String jwtToken, String refreshToken, TokenManager tokenManager) {
+        Map<String, Object> claims = new HashMap<>();
         if (jwtToken == null && refreshToken == null) {
             return claims;
         }
@@ -61,7 +67,6 @@ public final class AuthenticationHelper {
             jwtToken = tryToRevoke(refreshToken, tokenManager);
             claims.putAll(tokenManager.getClaimsFromToken(jwtToken));
         }
-        response.addHeader(HeaderUtils.getAuthorizeHeader(), jwtToken);
         return claims;
     }
 

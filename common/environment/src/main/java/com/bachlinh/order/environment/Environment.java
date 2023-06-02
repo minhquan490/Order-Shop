@@ -44,6 +44,9 @@ public final class Environment {
      * @return Environment object.
      */
     public static Environment getInstance(String name) {
+        if (name == null) {
+            return null;
+        }
         if (!environments.containsKey(name)) {
             environments.put(name, new Environment(name));
         }

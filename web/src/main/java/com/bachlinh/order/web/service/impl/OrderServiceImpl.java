@@ -1,7 +1,6 @@
 package com.bachlinh.order.web.service.impl;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -46,8 +45,8 @@ import java.util.stream.Collectors;
 
 @ServiceComponent
 @ActiveReflection
+@Slf4j
 public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductForm> implements OrderService, OrderChangeStatusService, OrderInDateService {
-    private static final Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     private OrderRepository orderRepository;
     private ProductRepository productRepository;

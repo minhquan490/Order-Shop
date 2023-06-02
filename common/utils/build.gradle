@@ -11,11 +11,12 @@ version = '1.0.0'
 dependencies {
     implementation project(":common:exception")
     implementation project(":common:annotation")
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation "com.google.guava:guava:${libs.versions.guavaVersion.get()}"
     implementation "org.apache.commons:commons-lang3:${libs.versions.commonLang3Version.get()}"
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.fasterxml.jackson.core:jackson-core"
+    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
+    implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation 'jakarta.persistence:jakarta.persistence-api'
 
     compileOnly 'jakarta.servlet:jakarta.servlet-api'

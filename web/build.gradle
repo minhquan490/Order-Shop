@@ -26,7 +26,6 @@ dependencies {
     implementation project(":common:validate")
     implementation project(":common:mail")
     implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.data:spring-data-jpa'
@@ -38,7 +37,11 @@ dependencies {
     implementation 'com.zaxxer:HikariCP'
     implementation "com.lmax:disruptor:${libs.versions.disruptor.get()}"
     implementation "io.grpc:grpc-all:${libs.versions.grpc.get()}"
+    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
+    implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
 
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -47,13 +50,11 @@ dependencies {
     runtimeOnly "org.bouncycastle:bcpkix-jdk15on:${libs.versions.bouncycastle.get()}"
     runtimeOnly "io.opencensus:opencensus-impl:${libs.versions.opencensus.get()}"
     runtimeOnly "io.opentelemetry:opentelemetry-opentracing-shim:${libs.versions.opentelemetry.get()}"
+    runtimeOnly "ch.qos.logback:logback-access:${libs.versions.logback.get()}"
 
     modules {
         module("org.springframework.boot:spring-boot-starter-tomcat") {
             replacedBy("org.springframework.boot:spring-boot-starter-jetty", "Use Jetty instead of Tomcat")
-        }
-        module("org.springframework.boot:spring-boot-starter-logging") {
-            replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of logging")
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.bachlinh.order.validator;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -30,7 +30,7 @@ import java.util.Set;
 @Aspect
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE + 2)
-@Log4j2
+@Slf4j
 public class ValidateInterceptor<T extends BaseEntity> {
     private final EntityFactory entityFactory;
 

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+
+<configuration>
+    <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+    <import class="ch.qos.logback.core.ConsoleAppender"/>
+    <import class="ch.qos.logback.classic.AsyncAppender"/>
+    <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
+    <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
+    <import class="ch.qos.logback.classic.filter.LevelFilter"/>
+
+    <variable name="PATTERN" value="[%d{HH:mm:ss.SSS}] [%t] [%-5level] [%logger{36}] - %msg%n"/>
+    <variable name="LOG_FOLDER" value="./logs"/>
+    <variable name="ZIP_PATTERN" value="app.%d{yyyy-MM-dd}.%i.log.gz"/>
+
+    <appender name="STDOUT" class="ConsoleAppender">
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="APPLICATION-FILE" class="RollingFileAppender">
+        <file>${LOG_FOLDER}/application.log</file>
+        <filter class="ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FOLDER}/application.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="QUERY-FILE" class="RollingFileAppender">
+        <file>${LOG_FOLDER}/query.log</file>
+        <filter class="LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FOLDER}/query.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="SERVER-FILE" class="RollingFileAppender">
+        <file>${LOG_FOLDER}/server.log</file>
+        <filter class="ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FOLDER}/server.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="ERROR-FILE" class="RollingFileAppender">
+        <file>${LOG_FOLDER}/error.log</file>
+        <filter class="LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FOLDER}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="APPLICATION-LOG" class="AsyncAppender">
+        <appender-ref ref="APPLICATION-FILE"/>
+    </appender>
+
+    <appender name="WEB-SERVER-LOG" class="AsyncAppender">
+        <appender-ref ref="SERVER-FILE"/>
+    </appender>
+
+    <appender name="QUERY-LOG" class="AsyncAppender">
+        <appender-ref ref="QUERY-FILE"/>
+    </appender>
+
+    <appender name="ERROR-LOG" class="AsyncAppender">
+        <appender-ref ref="ERROR-FILE"/>
+    </appender>
+
+    <logger name="com.bachlinh.order" level="DEBUG" additivity="false">
+        <appender-ref ref="APPLICATION-LOG"/>
+        <appender-ref ref="ERROR-LOG"/>
+    </logger>
+
+    <logger name="org.eclipse.jetty" level="INFO" additivity="false">
+        <appender-ref ref="WEB-SERVER-LOG"/>
+        <appender-ref ref="ERROR-LOG"/>
+    </logger>
+
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="QUERY-LOG"/>
+    </logger>
+</configuration>

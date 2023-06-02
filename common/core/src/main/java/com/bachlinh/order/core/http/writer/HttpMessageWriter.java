@@ -1,8 +1,7 @@
 package com.bachlinh.order.core.http.writer;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.utils.JacksonUtils;
@@ -10,8 +9,8 @@ import com.bachlinh.order.utils.JacksonUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 
+@Slf4j
 class HttpMessageWriter implements MessageWriter {
-    private static final Logger log = LogManager.getLogger(HttpMessageWriter.class);
 
     private final HttpServletResponse actualResponse;
 
@@ -48,8 +47,7 @@ class HttpMessageWriter implements MessageWriter {
             outputStream.write(messageBody);
             outputStream.flush();
         } catch (IOException e) {
-            log.warn("Can not write response to client");
-            log.warn(e);
+            log.warn("Can not write response to client", e);
         }
     }
 

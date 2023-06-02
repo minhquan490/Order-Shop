@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Log4j2
+@Slf4j
 public final class DefaultEntityFactory implements EntityFactory {
 
     private final Map<Class<?>, EntityContext> entityContext;

@@ -19,4 +19,6 @@ public interface WebSocketSessionContext {
     void close() throws IOException;
 
     boolean isAdminConnection();
+
+    boolean isClosed();
 }

@@ -1,6 +1,6 @@
 package com.bachlinh.order.trigger;
 
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,8 +22,8 @@ import java.util.Set;
 
 @Aspect
 @Order(Ordered.HIGHEST_PRECEDENCE + 3)
+@Slf4j
 public class TriggerInterceptor {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(TriggerInterceptor.class);
     private final EntityFactory entityFactory;
 
     public TriggerInterceptor(EntityFactory entityFactory) {

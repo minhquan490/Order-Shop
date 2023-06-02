@@ -22,4 +22,6 @@ public interface WebSocketSessionManager {
     void pushMessage(Object message, String receiver) throws IOException;
 
     void pushMessageToAllAdmin(Object message) throws IOException;
+
+    void clearDisconnectConnection();
 }

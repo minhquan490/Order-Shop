@@ -1,7 +1,7 @@
 package com.bachlinh.order.setup.execution;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Log4j2
+@Slf4j
 @ActiveReflection
 public class VnAddressSetupExecution extends AbstractSetup {
     private static final String DIVISION_TYPE = "division_type";

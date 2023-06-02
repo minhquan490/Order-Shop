@@ -1,7 +1,6 @@
 package com.bachlinh.order.service.monitor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,8 +8,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.util.StopWatch;
 
 @Aspect
+@Slf4j
 public class ServiceMonitor {
-    private static final Logger log = LogManager.getLogger(ServiceMonitor.class);
 
     @Pointcut("@within(com.bachlinh.order.annotation.ServiceComponent)")
     private void servicePointcut() {

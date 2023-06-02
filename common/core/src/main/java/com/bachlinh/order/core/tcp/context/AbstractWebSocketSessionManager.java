@@ -48,6 +48,11 @@ public abstract class AbstractWebSocketSessionManager implements WebSocketSessio
         }
     }
 
+    @Override
+    public void clearDisconnectConnection() {
+        connectedClient.entrySet().removeIf(entry -> entry.getValue().isClosed());
+    }
+
     protected void addConnection(WebSocketSession session, String userId, String role, String clientSecret, boolean isAdmin) {
         WebSocketSessionContext context = new DefaultWebSocketSessionContext(session, userId, role, clientSecret, isAdmin);
         connectedClient.put(userId, context);

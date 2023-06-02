@@ -62,4 +62,9 @@ class DefaultWebSocketSessionContext implements WebSocketSessionContext {
     public boolean isAdminConnection() {
         return isAdmin;
     }
+
+    @Override
+    public boolean isClosed() {
+        return !session.isOpen();
+    }
 }

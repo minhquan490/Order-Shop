@@ -1,8 +1,7 @@
 package com.bachlinh.order.core.tcp.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.socket.CloseStatus;
@@ -14,8 +13,8 @@ import com.bachlinh.order.utils.JacksonUtils;
 
 import java.security.Principal;
 
+@Slf4j
 public abstract class SpringWebSocketHandler implements WebSocketHandler {
-    private static final Logger log = LogManager.getLogger(SpringWebSocketHandler.class);
     private final WebSocketSessionManager socketSessionManager;
 
     protected SpringWebSocketHandler(WebSocketSessionManager socketSessionManager) {
@@ -23,7 +22,7 @@ public abstract class SpringWebSocketHandler implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         socketSessionManager.openConnection(session);
     }
 
@@ -54,13 +53,11 @@ public abstract class SpringWebSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, @Nullable CloseStatus closeStatus) throws Exception {
         Principal principal = session.getPrincipal();
-        String identifier;
         if (principal != null) {
-            identifier = principal.getName();
+            socketSessionManager.disconnect(principal.getName());
         } else {
-            identifier = session.getId();
+            socketSessionManager.clearDisconnectConnection();
         }
-        socketSessionManager.disconnect(identifier);
     }
 
     @Override
