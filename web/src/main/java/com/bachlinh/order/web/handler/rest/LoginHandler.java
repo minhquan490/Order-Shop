@@ -38,7 +38,7 @@ public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, 
                     .cookies(new NativeCookie[]{cookie})
                     .build();
         } else {
-            throw new UnAuthorizationException("Login failure");
+            throw new UnAuthorizationException("Login failure", loginUrl);
         }
     }
 
@@ -75,7 +75,7 @@ public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, 
     private LoginResp login(LoginForm loginForm) {
         LoginResp loginResp = loginService.login(loginForm, getNativeRequest());
         if (!loginResp.isLogged()) {
-            throw new UnAuthorizationException("Login failure");
+            throw new UnAuthorizationException("Login failure", loginUrl);
         }
         return loginResp;
     }

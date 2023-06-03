@@ -27,7 +27,7 @@ public class ProductInformationHandler extends AbstractController<ResponseEntity
     protected ResponseEntity<ProductResp> internalHandler(Payload<Object> request) {
         String productId = getNativeRequest().getUrlQueryParam().getFirst("id");
         if (productId == null || productId.isBlank()) {
-            throw new ResourceNotFoundException("Specific url is not found");
+            throw new ResourceNotFoundException("Specific url is not found", productInfoUrl);
         }
         return productInformation(productId);
     }

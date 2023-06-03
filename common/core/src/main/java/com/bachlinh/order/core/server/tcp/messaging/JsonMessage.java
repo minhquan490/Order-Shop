@@ -1,4 +1,4 @@
-package com.bachlinh.order.core.tcp.messaging;
+package com.bachlinh.order.core.server.tcp.messaging;
 
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.WebSocketMessage;

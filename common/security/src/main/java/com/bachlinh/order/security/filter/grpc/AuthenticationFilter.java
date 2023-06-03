@@ -45,12 +45,12 @@ public class AuthenticationFilter extends GrpcWebFilter {
     protected void intercept(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> claims = AuthenticationHelper.parseAuthentication(request, response, tokenManager);
         if (claims.isEmpty()) {
-            authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Missing token, login is required"));
+            authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Missing token, login is required", request.getRequestURI()));
             return;
         }
         Customer customer = customerRepository.getCustomerById((String) claims.get("customerId"), true);
         if (customer == null) {
-            authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Invalid credential"));
+            authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Invalid credential", request.getRequestURI()));
             return;
         }
         SecurityContextHolder.getContext().setAuthentication(new PrincipalHolder(customer, AuthenticationHelper.findClientSecret(request)));

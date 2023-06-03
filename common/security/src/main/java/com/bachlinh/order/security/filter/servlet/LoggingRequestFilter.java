@@ -52,6 +52,7 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     private ThreadPoolTaskExecutor executor;
     private TokenManager tokenManager;
     private EntityFactory entityFactory;
+    private final String websocketUrl;
 
     public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port, String profile) {
         super(containerResolver.getDependenciesResolver());
@@ -59,6 +60,12 @@ public class LoggingRequestFilter extends AbstractWebFilter {
         this.h3Port = h3Port;
         this.environment = Environment.getInstance(profile);
         this.enableHttp3 = Boolean.parseBoolean(this.environment.getProperty("server.http3.enable"));
+        this.websocketUrl = environment.getProperty("shop.url.websocket");
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return request.getRequestURI().startsWith(websocketUrl.concat("?"));
     }
 
     @Override

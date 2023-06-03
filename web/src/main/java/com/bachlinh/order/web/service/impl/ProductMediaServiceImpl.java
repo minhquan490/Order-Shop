@@ -147,7 +147,7 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
         Product product = productRepository.getProductByCondition(condition);
 
         if (product == null) {
-            throw new ResourceNotFoundException("Product with id [" + form.productId() + "] not found");
+            throw new ResourceNotFoundException("Product with id [" + form.productId() + "] not found", "");
         }
 
         boolean productTempFolderExist = Files.exists(Path.of(tempFilePath, form.productId()));
@@ -210,13 +210,13 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
                 channel.read(buffer);
                 resp.setTotalSize(channel.size());
             } catch (IOException e) {
-                throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed");
+                throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed", "");
             }
         } else {
             try {
                 buffer = ByteBuffer.wrap(compressImage(media.getUrl(), media.getContentType()));
             } catch (IOException e) {
-                throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed");
+                throw new ResourceNotFoundException("Resource has id [" + id + "] did not existed", "");
             }
         }
         resp.setData(buffer.array());

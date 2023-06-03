@@ -6,17 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.converter.spi.ResponseConverter;
-import com.bachlinh.order.core.http.converter.spi.ServletCookieConverter;
 import com.bachlinh.order.core.http.handler.SpringServletHandler;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.handler.strategy.ResourcePushStrategies;
-import com.bachlinh.order.utils.map.LinkedMultiValueMap;
-import com.bachlinh.order.utils.map.MultiValueMap;
+import com.bachlinh.order.handler.strategy.ServletResponseStrategy;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +24,7 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
     private final String path;
     private final ChildRoute parent;
     private final String rootPath;
-    private final ServletCookieConverter<NativeCookie> nativeCookieConverter = ServletCookieConverter.servletCookieConverter();
+    private final ServletResponseStrategy responseStrategy = ServletResponseStrategy.defaultStrategy();
 
     private Boolean useAsyncPushStrategies;
     private ResourcePushStrategies resourcePushStrategies;
@@ -59,33 +56,14 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> ResponseEntity<T> handleServletRequest(String controllerPath, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-        try {
-            setNativeRequest(NativeRequest.buildNativeFromServletRequest(servletRequest));
-            setNativeResponse(parseFrom(servletResponse));
-            RequestMethod method = RequestMethod.valueOf(servletRequest.getMethod().toUpperCase());
-            NativeResponse<T> nativeResponse = handleRequest(getNativeRequest(), controllerPath, method);
-            resolveCookie(nativeResponse, servletResponse);
-            resolvePushResource(nativeResponse, servletRequest);
-            resolveHeader(nativeResponse, servletResponse);
-            return resolveBody(nativeResponse);
-        } catch (Throwable e) {
-            NativeResponse<String> errorResponse;
-            if (e instanceof Error error) {
-                errorResponse = getExceptionTranslator().translateError(error);
-            } else {
-                errorResponse = getExceptionTranslator().translateException((Exception) e);
-            }
-            MultiValueMap<String, String> headers = errorResponse.getHeaders();
-            if (headers == null) {
-                headers = new LinkedMultiValueMap<>(0);
-            }
-            headers.forEach((key, values) -> values.forEach(value -> servletResponse.setHeader(key, value)));
-            return (ResponseEntity<T>) ResponseEntity
-                    .status(errorResponse.getStatusCode())
-                    .body(errorResponse.getBody());
-        }
+        setNativeRequest(NativeRequest.buildNativeFromServletRequest(servletRequest));
+        setNativeResponse(parseFrom(servletResponse));
+        RequestMethod method = RequestMethod.valueOf(servletRequest.getMethod().toUpperCase());
+        NativeResponse<T> nativeResponse = handleRequest(getNativeRequest(), controllerPath, method);
+        responseStrategy.apply(nativeResponse, servletResponse);
+        resolvePushResource(nativeResponse, servletRequest);
+        return resolveBody(nativeResponse);
     }
 
     @Override
@@ -137,22 +115,6 @@ class SimpleChildRoute extends AbstractChildRoute implements SpringServletHandle
                 resourcePushStrategies = ResourcePushStrategies.getAsyncPushStrategies(getEnvironment(), getEntityFactory().getResolver().resolveDependencies(ThreadPoolTaskExecutor.class));
             }
             resourcePushStrategies.pushResource(response, servletRequest);
-        }
-    }
-
-    private void resolveHeader(NativeResponse<?> response, HttpServletResponse servletResponse) {
-        MultiValueMap<String, String> headers = response.getHeaders();
-        if (headers == null) {
-            headers = new LinkedMultiValueMap<>(0);
-        }
-        headers.forEach((key, values) -> values.forEach(value -> servletResponse.setHeader(key, value)));
-    }
-
-    private void resolveCookie(NativeResponse<?> response, HttpServletResponse servletResponse) {
-        if (response.getCookies() != null) {
-            for (NativeCookie cookie : response.getCookies()) {
-                servletResponse.addCookie(nativeCookieConverter.convert(cookie));
-            }
         }
     }
 

@@ -3,6 +3,7 @@ package com.bachlinh.order.core.http.writer;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.utils.JacksonUtils;
 
@@ -11,11 +12,39 @@ import java.io.OutputStream;
 
 @Slf4j
 class HttpMessageWriter implements MessageWriter {
-
+    private static final int DEFAULT_STATUS = 200;
     private final HttpServletResponse actualResponse;
 
     HttpMessageWriter(HttpServletResponse actualResponse) {
         this.actualResponse = actualResponse;
+    }
+
+    @Override
+    public void writeHttpStatus(String status) {
+        try {
+            int code = Integer.parseInt(status);
+            writeHttpStatus(code);
+        } catch (NumberFormatException e) {
+            writeHttpStatus(DEFAULT_STATUS);
+        }
+    }
+
+    @Override
+    public void writeHttpStatus(int status) {
+        if (status < 100) {
+            this.actualResponse.setStatus(DEFAULT_STATUS);
+        } else {
+            this.actualResponse.setStatus(status);
+        }
+    }
+
+    @Override
+    public void writeHttpStatus(HttpStatus status) {
+        if (status == null) {
+            writeHttpStatus(DEFAULT_STATUS);
+        } else {
+            writeHttpStatus(status.value());
+        }
     }
 
     @Override

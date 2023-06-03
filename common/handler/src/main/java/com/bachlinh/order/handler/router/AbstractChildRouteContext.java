@@ -24,12 +24,10 @@ public abstract class AbstractChildRouteContext implements ChildRouteContext {
         String[] routes = fullChildPath.split("/");
         AbstractChildRoute parent = new SimpleChildRoute(null, "/".concat(routes[1]), rootPath);
         parent.setControllerManager(controllerManager);
-        parent.setExceptionTranslator(exceptionTranslator);
         parent.setEntityFactory(entityFactory);
         for (int i = 2; i < routes.length; i++) {
             parent = new SimpleChildRoute(parent, "/".concat(routes[i]), null);
             parent.setControllerManager(controllerManager);
-            parent.setExceptionTranslator(exceptionTranslator);
             parent.setEntityFactory(entityFactory);
         }
         childRoutes.put(childName, parent);
@@ -45,5 +43,9 @@ public abstract class AbstractChildRouteContext implements ChildRouteContext {
 
     protected void setEntityFactory(EntityFactory entityFactory) {
         this.entityFactory = entityFactory;
+    }
+
+    protected ExceptionTranslator<NativeResponse<String>> getExceptionTranslator() {
+        return this.exceptionTranslator;
     }
 }

@@ -2,7 +2,6 @@ package com.bachlinh.order.web.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import com.bachlinh.order.core.http.NativeResponse;
@@ -16,6 +15,7 @@ import com.bachlinh.order.handler.router.ChildRoute;
 import com.bachlinh.order.handler.router.ChildRouteContext;
 import com.bachlinh.order.handler.router.ChildRouteDecorator;
 import com.bachlinh.order.handler.router.SmartChildRouteContext;
+import com.bachlinh.order.handler.strategy.ServletResponseStrategy;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,6 +46,7 @@ public class SpringFrontRequestHandler {
 
     private static class SimpleChildRouteContext extends AbstractChildRouteContext implements SmartChildRouteContext {
         private final Map<String, String> childNameCache = new ConcurrentHashMap<>();
+        private final ServletResponseStrategy servletResponseStrategy = ServletResponseStrategy.defaultStrategy();
 
         @Override
         public RequestHandler getHandler(String name) {
@@ -82,14 +83,25 @@ public class SpringFrontRequestHandler {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> ResponseEntity<T> handleRequest(String path, String prefix, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-            ChildRouteWrapper childRouteWrapper = findRoute(path, prefix);
-            SpringServletHandler servletHandler = childRouteWrapper.childRoute().getServletHandler();
-            ResponseEntity<T> response = servletHandler.handleServletRequest("/".concat(childRouteWrapper.endpoint()), servletRequest, servletResponse);
-            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+            try {
+                ChildRouteWrapper childRouteWrapper = findRoute(path, prefix);
+                SpringServletHandler servletHandler = childRouteWrapper.childRoute().getServletHandler();
+                return servletHandler.handleServletRequest("/".concat(childRouteWrapper.endpoint()), servletRequest, servletResponse);
+            } catch (Throwable e) {
                 evictCache(path);
+                NativeResponse<String> errorResponse;
+                if (e instanceof Error error) {
+                    errorResponse = getExceptionTranslator().translateError(error);
+                } else {
+                    errorResponse = getExceptionTranslator().translateException((Exception) e);
+                }
+                servletResponseStrategy.apply(errorResponse, servletResponse);
+                return (ResponseEntity<T>) ResponseEntity
+                        .status(errorResponse.getStatusCode())
+                        .body(errorResponse.getBody());
             }
-            return response;
         }
 
         void controllerManager(ControllerManager controllerManager) {

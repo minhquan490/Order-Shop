@@ -27,11 +27,11 @@ public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, 
     protected NativeResponse<?> internalHandler(Payload<Map<String, Object>> request) {
         var tokens = getNativeRequest().getUrlQueryParam().get("token");
         if (tokens == null || tokens.isEmpty()) {
-            throw new ResourceNotFoundException("Your request url not existed");
+            throw new ResourceNotFoundException("Your request url not existed", url);
         }
         String newPassword = (String) request.data().get("password");
         if (newPassword == null || newPassword.isBlank()) {
-            throw new ResourceNotFoundException("Url not existed");
+            throw new ResourceNotFoundException("Url not existed", url);
         }
         forgotPasswordService.resetPassword(tokens.get(0), newPassword);
         NativeResponse<?> response = getNativeResponse();

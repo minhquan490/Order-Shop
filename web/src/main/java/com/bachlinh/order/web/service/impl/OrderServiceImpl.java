@@ -104,7 +104,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderRepository.getOrder(param.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found");
+            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found", "");
         }
         OrderStatusValue orderStatusValue;
         try {
@@ -142,7 +142,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
     protected OrderResp doDelete(OrderProductForm param) {
         Order order = orderRepository.getOrder(param.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found");
+            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found", "");
         }
         orderRepository.deleteOrder(order);
         return null;
@@ -152,7 +152,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
     protected OrderResp doGetOne(OrderProductForm param) {
         Order order = orderRepository.getOrder(param.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] did not existed");
+            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] did not existed", "");
         }
         return new OrderResp(order.getId(),
                 order.getTimeOrder().toString(),
@@ -203,7 +203,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderRepository.getOrder(form.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + form.orderId() + "] not found");
+            throw new ResourceNotFoundException("Order with id [" + form.orderId() + "] not found", "");
         }
         OrderStatusValue orderStatusValue;
         try {

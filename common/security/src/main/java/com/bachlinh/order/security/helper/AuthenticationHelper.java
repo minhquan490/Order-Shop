@@ -79,7 +79,7 @@ public final class AuthenticationHelper {
             tokenManager.encode(Customer_.USERNAME, customer.getUsername());
             jwt = tokenManager.getTokenValue();
         } else {
-            throw new UnAuthorizationException("Token is expired");
+            throw new UnAuthorizationException("Token is expired", "");
         }
         return jwt;
     }

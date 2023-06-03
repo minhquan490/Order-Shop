@@ -1,7 +1,7 @@
-package com.bachlinh.order.core.tcp.context;
+package com.bachlinh.order.core.server.tcp.context;
 
 import org.springframework.web.socket.WebSocketSession;
-import com.bachlinh.order.core.tcp.messaging.JsonMessage;
+import com.bachlinh.order.core.server.tcp.messaging.JsonMessage;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

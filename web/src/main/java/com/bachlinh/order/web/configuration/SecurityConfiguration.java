@@ -27,12 +27,13 @@ import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @Configuration
 class SecurityConfiguration {
+    private List<String> lazyExcludeUrls;
 
     @Bean
     PathMatcher pathMatcher() {
@@ -131,15 +132,18 @@ class SecurityConfiguration {
     }
 
     private List<String> getExcludeUrls(String profile) {
-        Environment environment = Environment.getInstance(profile);
-        List<String> excludeUrls = new ArrayList<>();
-        excludeUrls.add(environment.getProperty("shop.url.pattern.base"));
-        excludeUrls.add(environment.getProperty("shop.url.login"));
-        excludeUrls.add(environment.getProperty("shop.url.register"));
-        excludeUrls.add(environment.getProperty("shop.url.home"));
-        excludeUrls.add(environment.getProperty("shop.url.pattern.resource"));
-        excludeUrls.add(environment.getProperty("shop.url.customer.reset.sending-mail"));
-        excludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
-        return excludeUrls;
+        if (lazyExcludeUrls == null) {
+            Environment environment = Environment.getInstance(profile);
+            lazyExcludeUrls = new LinkedList<>();
+            lazyExcludeUrls.add(environment.getProperty("shop.url.pattern.base"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.login"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.register"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.home"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.pattern.resource"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.sending-mail"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.websocket"));
+        }
+        return lazyExcludeUrls;
     }
 }

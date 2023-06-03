@@ -29,8 +29,8 @@ public class WebServlet extends FrameworkServlet {
     @Override
     protected void doService(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response) {
         ResponseEntity<?> responseEntity = frontRequestHandler.handle(request, response);
-        response.setStatus(responseEntity.getStatusCode().value());
         MessageWriter messageWriter = MessageWriter.httpMessageWriter(response);
+        messageWriter.writeHttpStatus(responseEntity.getStatusCode().value());
         messageWriter.writeHeader(responseEntity);
         messageWriter.writeMessage(responseEntity);
     }

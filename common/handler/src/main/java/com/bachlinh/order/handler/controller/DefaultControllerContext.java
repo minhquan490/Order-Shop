@@ -31,7 +31,7 @@ class DefaultControllerContext implements ControllerContext {
         try {
             Controller<T, U> controller = (Controller<T, U>) controllerMap.get(path);
             if (controller == null) {
-                throw new ResourceNotFoundException("Request path [" + path + "] not found");
+                throw new ResourceNotFoundException("Request path [" + path + "] not found", path);
             }
             if (controller.getRequestMethod().equals(requestMethod)) {
                 if (log.isDebugEnabled()) {

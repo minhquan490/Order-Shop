@@ -1,4 +1,4 @@
-package com.bachlinh.order.core.tcp.handler;
+package com.bachlinh.order.core.server.tcp.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
-import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
+import com.bachlinh.order.core.server.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.utils.JacksonUtils;
 
 import java.security.Principal;

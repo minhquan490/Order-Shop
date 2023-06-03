@@ -109,12 +109,17 @@
         <appender-ref ref="ERROR-LOG"/>
     </logger>
 
-    <logger name="org.eclipse.jetty" level="INFO" additivity="false">
+    <logger name="org.eclipse.jetty" level="DEBUG" additivity="false">
         <appender-ref ref="WEB-SERVER-LOG"/>
         <appender-ref ref="ERROR-LOG"/>
     </logger>
 
     <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
         <appender-ref ref="QUERY-LOG"/>
+    </logger>
+
+    <logger name="org.springframework" level="DEBUG" additivity="false">
+        <appender-ref ref="ERROR-LOG"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
 </configuration>

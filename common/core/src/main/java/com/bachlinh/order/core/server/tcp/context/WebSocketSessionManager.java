@@ -1,4 +1,4 @@
-package com.bachlinh.order.core.tcp.context;
+package com.bachlinh.order.core.server.tcp.context;
 
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
