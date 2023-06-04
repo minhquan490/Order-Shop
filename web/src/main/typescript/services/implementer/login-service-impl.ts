@@ -28,10 +28,10 @@ export class LoginServiceImpl extends LoginService {
         let passwordErrorDetail = "";
         let usernameErrorDetail = "";
         if (isPasswordInvalid) {
-        passwordErrorDetail = "Password is require";
+            passwordErrorDetail = "Password is require";
         }
         if (isUsernameInvalid) {
-        usernameErrorDetail = "Length of username must be in range 4 - 32";
+            usernameErrorDetail = "Length of username must be in range 4 - 32";
         }
         const isValid = passwordErrorDetail.length === 0 && usernameErrorDetail.length === 0;
         let result: ValidateResult;

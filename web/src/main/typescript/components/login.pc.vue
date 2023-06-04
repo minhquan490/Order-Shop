@@ -87,8 +87,7 @@ export default {
     </div>
     <div></div>
     <div class="absolute top-10 problem w-full flex items-center justify-center">
-      <span v-if="loginFailureDetail.length !== 0" v-text="`Can not login because: ${loginFailureDetail.join(', ')}`"
-        class="hover:cursor-default"></span>
+      <span v-if="loginFailureDetail.length !== 0" v-text="loginFailureDetail.join(', ')" class="hover:cursor-default text-red-500"></span>
     </div>
   </div>
 </template>
