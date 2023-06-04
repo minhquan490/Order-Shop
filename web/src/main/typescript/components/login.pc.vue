@@ -79,7 +79,7 @@ export default {
             </div>
             <div class="col-span-3 flex justify-center text-sm">
               <span class="pr-1 hover:cursor-default opacity-70">Forgot</span>
-              <NuxtLink class="opacity-80 hover:text-green-700" to="/forgot-password">Password ?</NuxtLink>
+              <a href="/forgot-password" class="opacity-80 hover:text-green-700">Password ?</a>
             </div>
           </div>
         </div>

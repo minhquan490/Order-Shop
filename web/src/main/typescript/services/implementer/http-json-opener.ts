@@ -69,9 +69,6 @@ class InternalHttpService implements HttpService {
     // req.timeout = 3000;
     const path = this.createPath(this.url, urlParams);
     req.open(method, path);
-    req.onreadystatechange = (event) => {
-      console.log(event);
-    }
     if (!(typeof request === 'undefined')) {
       const requestString = this.jsonConverter.convert(request);
       req = this.requestDecorator.decorate(req, this.requestHeaderStrategy);

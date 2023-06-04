@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import LoginMobile from '~/components/login.mobile.vue';
-import LoginPc from '~/components/login.pc.vue';
-
 const title: string = "Login page";
 const description: string = "Login and order every thing product on taobao whatever you want";
 
@@ -57,7 +54,7 @@ useHead({
   title: title
 })
 
-const device = useState(inject('device'));
+const device = useState(inject('device')).value;
 
 </script>
 
