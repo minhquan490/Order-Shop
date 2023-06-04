@@ -21,6 +21,7 @@ export default {
   methods: {
     submit() {
       this.errorMsg = this.validateEmail();
+      setTimeout(() => { this.errorMsg = '' }, 3000);
       if (this.errorMsg.length !== 0) {
         return;
       }
@@ -46,9 +47,12 @@ export default {
       service.requestRequestPasswordEmail(this.email);
     },
     resetPassword() {
-      this.isSubmitted = true;
       this.passwordErrMsg = this.validatePassword(this.newPassword);
       this.confirmPasswordErrMsg = this.validateConfirmPassword(this.newPassword, this.confirmPassword);
+      setTimeout(() => {
+        this.passwordErrMsg = '';
+        this.confirmPasswordErrMsg = '';
+      }, 3000);
       if (this.passwordErrMsg.length === 0 && this.confirmPasswordErrMsg.length === 0) {
         const service = this.forgotPasswordService as ForgotPasswordService;
         let error;
@@ -86,7 +90,6 @@ export default {
     }
   }
 }
-
 </script>
 
 <template>
