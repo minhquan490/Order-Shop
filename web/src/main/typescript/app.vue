@@ -8,6 +8,7 @@ import { HttpJsonOpener } from '~/services/implementer/http-json-opener';
 import { JsonStringConverter, ObjectConverter } from '~/services/implementer/json-converter';
 import { LoginServiceImpl } from '~/services/implementer/login-service-impl';
 import { ForgotPasswordServiceImpl } from './services/implementer/forgot-password-service-impl';
+import { RegisterServiceImpl } from './services/implementer/register-service';
 
 const checkDevice = () => {
   const headers = useRequestHeaders();
@@ -27,7 +28,8 @@ provide('authService', authService);
 provide('httpClient', httpServiceProvider);
 provide('fileUploadService', new DefaultChunkFileUploadService(httpServiceProvider));
 provide('loginService', new LoginServiceImpl(httpServiceProvider, authService));
-provide('forgotPasswordService', new ForgotPasswordServiceImpl(httpServiceProvider))
+provide('forgotPasswordService', new ForgotPasswordServiceImpl(httpServiceProvider));
+provide('registerService', new RegisterServiceImpl(httpServiceProvider));
 provide('device', checkDevice);
 
 </script>
