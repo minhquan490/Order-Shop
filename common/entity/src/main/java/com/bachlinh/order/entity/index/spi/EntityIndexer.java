@@ -7,11 +7,5 @@ package com.bachlinh.order.entity.index.spi;
  */
 public interface EntityIndexer {
 
-    /**
-     * Index the entity to file local.
-     *
-     * @param entity     Entity for index.
-     * @param closedHook The hook close, true if you to close {@link org.apache.lucene.index.IndexWriter} otherwise false.
-     */
-    void index(Object entity, boolean closedHook);
+    void index(Object entity);
 }

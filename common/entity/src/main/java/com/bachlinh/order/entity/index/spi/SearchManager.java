@@ -22,10 +22,9 @@ public interface SearchManager {
     /**
      * Analyze the entity and full text search field of it.
      *
-     * @param entity     The entity for search engine analyze.
-     * @param closedHook Hook for close {@link org.apache.lucene.index.IndexWriter}
+     * @param entity The entity for search engine analyze.
      */
-    void analyze(Object entity, boolean closedHook);
+    void analyze(Object entity);
 
     /**
      * Analyze all entity in collection.

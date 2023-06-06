@@ -145,4 +145,18 @@ type FormError = {
   </div>
 </template>
 
-<style scoped src="~/assets/styles/pc/register.scss"></style>
+<style lang="scss" scoped>
+.register-pc {
+  height: 100vh;
+  background: #50C9C3;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #96DEDA, #50C9C3);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #96DEDA, #50C9C3);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  & .form {
+    background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  }
+}
+</style>

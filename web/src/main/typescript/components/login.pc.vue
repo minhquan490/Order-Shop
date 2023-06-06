@@ -87,9 +87,50 @@ export default {
     </div>
     <div></div>
     <div class="absolute top-10 problem w-full flex items-center justify-center">
-      <span v-if="loginFailureDetail.length !== 0" v-text="loginFailureDetail.join(', ')" class="hover:cursor-default text-red-500"></span>
+      <span v-if="loginFailureDetail.length !== 0" v-text="loginFailureDetail.join(', ')"
+        class="hover:cursor-default text-red-500"></span>
     </div>
   </div>
 </template>
 
-<style scoped src="~/assets/styles/pc/login.scss"></style>
+<style lang="scss" scoped>
+.login {
+  background: linear-gradient(90deg, rgba(33, 105, 158, 1) 0%, rgba(123, 123, 237, 1) 100%);
+  height: 100vh;
+  & .main {
+    position: relative;
+    height: 90vh;
+    background-color: #fff;
+    top: 5%;
+  }
+  & .form {
+    & .detail {
+      & .input {
+        position: relative;
+        & input {
+          background-color: #e6e6e6;
+          border-radius: 30px;
+          line-height: 1.5;
+          height: 3rem;
+          padding: 0 30px 0 68px;
+        }
+        & svg {
+          top: 0.82rem;
+          left: 2rem;
+          font-size: 1.2rem;
+          opacity: 0.6;
+          position: absolute;
+        }
+      }
+      & .submit {
+        background-color: #57b846;
+        color: #fff;
+        line-height: 1.5;
+        height: 3rem;
+      }
+    }
+  }
+  & .problem {
+    color: rgb(231, 35, 35);
+  }
+}</style>

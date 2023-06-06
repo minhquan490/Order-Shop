@@ -165,4 +165,17 @@ export default {
   </div>
 </template>
 
-<style scoped src="~/assets/styles/mobile/forgot-password.scss"></style>
+<style lang="scss" scoped>
+.forgot-password {
+    height: 100vh;
+    & .form {
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        & .custom-bottom {
+            bottom: 40%;
+        }
+        & .custom-width {
+            width: 84%;
+        }
+    }
+}
+</style>

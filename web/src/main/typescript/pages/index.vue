@@ -8,4 +8,4 @@
   </div>
 </template>
 
-<style scoped src="~/assets/styles/pc/index.scss"></style>
+<style scoped></style>

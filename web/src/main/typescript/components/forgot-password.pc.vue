@@ -164,4 +164,20 @@ export default {
   </div>
 </template>
 
-<style scoped src="~/assets/styles/pc/forgot-password.scss"></style>
+<style lang="scss" scoped>
+.forgot-password {
+    height: 100vh;
+    & .email-form {
+        margin-top: 6rem;
+        height: 60vh;
+        background-color: #fff;
+        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+        & .icon {
+            font-size: 4rem;
+        }
+        & .form {
+            width: 40%;
+        }
+    }
+}
+</style>

@@ -52,7 +52,7 @@ class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearch
     }
 
     @Override
-    public void index(Object entity, boolean closedHook) {
+    public void index(Object entity) {
         try {
             if (indexWriter == null || !indexWriter.isOpen()) {
                 indexWriter = buildIndexWriter();
@@ -68,11 +68,6 @@ class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearch
                 document.add(findField(e.getId(), "id"));
             }
             indexWriter.addDocument(document);
-//            if (closedHook) {
-//                indexWriter.close();
-//            } else {
-//                indexWriter.commit();
-//            }
             indexWriter.commit();
         } catch (IOException e) {
             log.warn("Can not index entity [{}] because IOException, detail [{}]", entity.getClass().getName(), e.getMessage());

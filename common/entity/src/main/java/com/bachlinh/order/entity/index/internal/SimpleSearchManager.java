@@ -12,11 +12,9 @@ import com.bachlinh.order.entity.index.spi.MetadataFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -41,18 +39,16 @@ class SimpleSearchManager implements SearchManager {
     }
 
     @Override
-    public void analyze(Object entity, boolean closedHook) {
+    public void analyze(Object entity) {
         if (!entity.getClass().isAnnotationPresent(EnableFullTextSearch.class)) {
             return;
         }
-        indexerMap.get(entity.getClass()).index(entity, closedHook);
+        indexerMap.get(entity.getClass()).index(entity);
     }
 
     @Override
     public void analyze(Collection<Object> entities) {
-        int lastElementPosition = entities.size() - 1;
-        List<Object> transferredEntities = new ArrayList<>(entities);
-        transferredEntities.forEach(entity -> analyze(entity, transferredEntities.get(lastElementPosition).equals(entity)));
+        entities.forEach(this::analyze);
     }
 
     @Override

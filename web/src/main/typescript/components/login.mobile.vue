@@ -105,4 +105,9 @@ export default {
   </div>
 </template>
 
-<style scoped src="~/assets/styles/mobile/login.scss"></style>
+<style lang="scss" scoped>
+.login-mobile {
+    height: 100vh;
+    background-color: #fff;
+}
+</style>

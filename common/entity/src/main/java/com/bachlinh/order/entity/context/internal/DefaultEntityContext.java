@@ -142,8 +142,8 @@ public class DefaultEntityContext implements EntityContext {
     }
 
     @Override
-    public void analyze(Object entity, boolean closedHook) {
-        searchManager.analyze(entity, closedHook);
+    public void analyze(Object entity) {
+        searchManager.analyze(entity);
     }
 
     @Override
