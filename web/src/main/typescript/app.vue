@@ -8,7 +8,8 @@ import { HttpJsonOpener } from '~/services/implementer/http-json-opener';
 import { JsonStringConverter, ObjectConverter } from '~/services/implementer/json-converter';
 import { LoginServiceImpl } from '~/services/implementer/login-service-impl';
 import { ForgotPasswordServiceImpl } from './services/implementer/forgot-password-service-impl';
-import { RegisterServiceImpl } from './services/implementer/register-service';
+import { RegisterServiceImpl } from './services/implementer/register-service-impl';
+
 
 export default {
   setup() {

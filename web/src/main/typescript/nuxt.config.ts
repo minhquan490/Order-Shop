@@ -46,9 +46,18 @@ export default defineNuxtConfig({
     keepalive: {
       max: 10000,
     },
+    head: {
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/x-icon', 
+          href: '/favicon.png'
+        }
+      ]
+    }
   },
   build: {
-    transpile: ["rxjs"],
+    transpile: ["rxjs", "vuetify"],
   },
   $production: {
     sourcemap: false,
@@ -66,5 +75,5 @@ export default defineNuxtConfig({
       },
     },
   },
-  css: ['~/assets/styles/global.scss']
+  css: ['~/assets/styles/global.scss'],
 });

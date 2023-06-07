@@ -2,6 +2,7 @@
 
 const title: string = "Reset password page";
 const description: string = "Reset your password.";
+const img: string = '/logo-blue.png';
 
 useHead({
   meta: [
@@ -19,7 +20,7 @@ useHead({
     },
     {
       property: 'og:image',
-      content: "/login-img.webp"
+      content: img
     },
     {
       property: 'og:url',
@@ -35,7 +36,7 @@ useHead({
     },
     {
       name: 'twitter:image',
-      content: "/login-img.webp"
+      content: img
     },
     {
       name: 'twitter:card',
@@ -49,7 +50,7 @@ useHead({
     {
       rel: 'icon',
       type: 'image/png',
-      href: '/favicon.ico'
+      href: '/favicon.png'
     }
   ],
   title: title

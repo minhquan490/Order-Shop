@@ -29,7 +29,7 @@
         <div class="box__description-title">Whoops!</div>
         <div class="box__description-text">It seems like we couldn't find the page you were looking for</div>
       </div>
-      <nuxt-link to="/home" class="box__button">Go back</nuxt-link>
+      <a title="Go to home page" href="/home" class="box__button">Go back</a>
     </div>
 
   </div>

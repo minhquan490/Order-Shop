@@ -10,6 +10,7 @@ export class RegisterServiceImpl extends RegisterService {
 
     register(registerForm: Map<string, string>): { message: string; } {
         const httpService = this.httpServiceProvider.open(`${useAppConfig().serverUrl}/register`);
+        registerForm.delete('confirmPassword');
         return httpService.post<Map<string, string>, { message: string }>(registerForm);
     }
 

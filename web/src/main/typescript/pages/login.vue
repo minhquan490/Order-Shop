@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const title: string = "Login page";
 const description: string = "Login and order every thing product on taobao whatever you want";
+const img: string = '/logo-blue.png';
 
 useHead({
   meta: [
@@ -18,7 +19,7 @@ useHead({
     },
     {
       property: 'og:image',
-      content: "/login-img.webp"
+      content: img
     },
     {
       property: 'og:url',
@@ -34,7 +35,7 @@ useHead({
     },
     {
       name: 'twitter:image',
-      content: "/login-img.webp"
+      content: img
     },
     {
       name: 'twitter:card',
@@ -48,7 +49,7 @@ useHead({
     {
       rel: 'icon',
       type: 'image/png',
-      href: '/favicon.ico'
+      href: '/favicon.png'
     }
   ],
   title: title

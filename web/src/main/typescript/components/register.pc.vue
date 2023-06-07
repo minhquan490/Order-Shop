@@ -76,7 +76,7 @@ type FormError = {
 <template>
   <div class="grid grid-cols-6 p-8 register-pc relative">
     <div class="col-span-2 flex items-center justify-center">
-      <img src="/register-7424066_640.png" alt="register img">
+      <img src="/favicon.png" alt="register img">
     </div>
     <div class="col-span-4 bg-transparent rounded-lg form p-8">
       <div>
@@ -101,7 +101,7 @@ type FormError = {
             <label for="username" class="text-gray-700">Username</label>
             <input v-model="form.username"
               class="bg-transparent border border-gray-700 rounded leading-8 outline-none px-4 focus:border-green-500"
-              type="text" name="username" id="username" max="10">
+              type="text" name="username" id="username" max="32">
             <span v-text="formError.usernameError" class="text-red-600 text-xs hover:cursor-default"></span>
           </div>
           <div class="flex flex-col pt-4">
@@ -131,15 +131,15 @@ type FormError = {
             <label for="confirm-password" class="text-gray-700">Confirm password</label>
             <input v-model="form.confirmPassword"
               class="bg-transparent border border-gray-700 rounded leading-8 outline-none px-4 focus:border-green-500"
-              type="password" name="confirm-password" id="confirm-password" max="10">
+              type="password" name="confirm-password" id="confirm-password" max="32">
             <span v-text="formError.confirmPasswordError" class="text-red-600 text-xs hover:cursor-default"></span>
           </div>
         </div>
       </div>
       <div class="pt-10 flex items-center justify-end">
-        <button @click="submit"
-          class="relative active:translate-y-1 rounded-md border bg-green-700 text-white hover:opacity-75 py-2 px-4">Sign
-          up</button>
+        <button @click="submit" class="relative active:translate-y-1 rounded-md border bg-green-700 text-white hover:opacity-75 py-2 px-4">
+          Signup
+        </button>
       </div>
     </div>
   </div>
