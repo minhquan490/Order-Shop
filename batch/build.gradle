@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.seleniumhq.selenium:selenium-java'
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
+    implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
     runtimeOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

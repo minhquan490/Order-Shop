@@ -48,7 +48,11 @@ class FireFoxDriver extends AbstractDriver implements Driver, WebStorage, HasExt
         return internalDriver.maybeGetBiDi();
     }
 
+    /**
+     * @deprecated Use W3C-compliant BiDi protocol. Use {{@link #maybeGetBiDi()}}
+     */
     @Override
+    @Deprecated(forRemoval = true)
     public Optional<DevTools> maybeGetDevTools() {
         return internalDriver.maybeGetDevTools();
     }

@@ -5,6 +5,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -91,27 +93,17 @@ class SecurityConfiguration {
         return http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0])))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl)))
-                .anonymous()
-                .disable()
-                .formLogin()
-                .disable()
-                .logout()
-                .disable()
-                .httpBasic()
-                .disable()
-                .headers()
-                .cacheControl()
-                .disable()
-                .and()
-                .requiresChannel()
-                .anyRequest()
-                .requiresSecure()
-                .and()
-                .authorizeHttpRequests()
-                .requestMatchers(urlAdmin).hasAuthority(Role.ADMIN.name())
-                .requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name())
-                .requestMatchers(getExcludeUrls(profile).toArray(new String[0])).permitAll()
-                .and()
+                .anonymous(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
+                .requiresChannel(channelRequestMatcherRegistry -> channelRequestMatcherRegistry.anyRequest().requiresSecure())
+                .authorizeHttpRequests(registry -> {
+                    registry.requestMatchers(urlAdmin).hasAuthority(Role.ADMIN.name());
+                    registry.requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name());
+                    registry.requestMatchers(getExcludeUrls(profile).toArray(new String[0])).permitAll();
+                })
                 .addFilterAfter(loggingRequestFilter(containerResolver, profile), CsrfFilter.class)
                 .addFilterBefore(authenticationFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(clientSecretFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)

@@ -31,6 +31,9 @@ export default defineNuxtConfig({
       Roboto: {
         wght: [100, 300, 400, 500, 700, 900],
       },
+      Pacifico: {
+        wght: [100, 300, 400, 500, 700, 900],
+      }
     },
     display: "swap",
     preconnect: true,
@@ -69,8 +72,8 @@ export default defineNuxtConfig({
     config: {
       content() {
         return [
-          "components/*.{vue,html,jsx,tsx}",
-          "pages/*.{vue,html,jsx,tsx}",
+          "components/**/*.{vue,html,jsx,tsx}",
+          "pages/**/*.{vue,html,jsx,tsx}",
         ];
       },
     },

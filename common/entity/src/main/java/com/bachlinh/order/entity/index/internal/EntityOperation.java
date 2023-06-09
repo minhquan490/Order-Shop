@@ -116,10 +116,10 @@ class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearch
     private Field findField(Object value, String name) {
         return switch (value.getClass().getSimpleName()) {
             case "String" -> new TextField(name, (String) value, Field.Store.YES);
-            case "Integer" -> new IntField(name, (Integer) value);
-            case "Float" -> new FloatField(name, (Float) value);
-            case "Double" -> new DoubleField(name, (Double) value);
-            case "Long" -> new LongField(name, (Long) value);
+            case "Integer" -> new IntField(name, (Integer) value, Field.Store.NO);
+            case "Float" -> new FloatField(name, (Float) value, Field.Store.NO);
+            case "Double" -> new DoubleField(name, (Double) value, Field.Store.NO);
+            case "Long" -> new LongField(name, (Long) value, Field.Store.NO);
             default -> new Field(name, String.valueOf(value), TextField.TYPE_STORED);
         };
     }

@@ -9,11 +9,15 @@ group = 'com.bachlinh.order'
 version = '1.0.0'
 
 dependencies {
+    implementation project(":common:annotation")
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'jakarta.persistence:jakarta.persistence-api'
-//    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
-//    implementation "org.slf4j:slf4j-api:${libs.versions.sl4f.get()}"
-//    runtimeOnly "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
+    implementation "com.google.auto.service:auto-service:${libs.versions.googleAutoService.get()}"
+    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
+    implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
+    runtimeOnly "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
+
+    annotationProcessor "com.google.auto.service:auto-service:${libs.versions.googleAutoService.get()}"
 }
 
 test {

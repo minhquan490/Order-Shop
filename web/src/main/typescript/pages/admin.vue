@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-definePageMeta({
-  middleware: ['permission']
-})
+// definePageMeta({
+//   middleware: ['permission']
+// })
 </script>
 
 <template>
@@ -9,5 +9,3 @@ definePageMeta({
     <NuxtPage />
   </div>
 </template>
-
-<style scoped></style>

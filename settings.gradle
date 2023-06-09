@@ -1,8 +1,8 @@
 pluginManagement {
     plugins {
-        id 'org.springframework.boot' version '3.0.6'
+        id 'org.springframework.boot' version '3.1.0'
         id 'io.spring.dependency-management' version '1.1.0'
-        id 'org.graalvm.buildtools.native' version '0.9.21'
+        id 'org.graalvm.buildtools.native' version '0.9.22'
         id 'com.google.protobuf' version '0.9.3'
     }
 }
@@ -10,8 +10,8 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('lunceneVersion', '9.5.0')
-            version('gmailApi', 'v1-rev20230206-2.0.0')
+            version('lunceneVersion', '9.6.0')
+            version('gmailApi', 'v1-rev20230515-2.0.0')
             version('guavaVersion', '31.1-jre')
             version('googleLib', '2.2.0')
             version('googleOauth', '1.16.1')
@@ -28,6 +28,8 @@ dependencyResolutionManagement {
             version('opencensus', '0.31.1')
             version('opentelemetry', '1.26.0')
             version('logback', '1.4.7')
+            version('slf4j', '2.0.7')
+            version('googleAutoService', '1.1.0')
         }
     }
     repositories {

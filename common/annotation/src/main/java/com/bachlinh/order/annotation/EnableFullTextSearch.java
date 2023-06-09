@@ -13,4 +13,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface EnableFullTextSearch {
+    String proxyPackage() default "com.bachlinh.order.entity.proxy";
 }

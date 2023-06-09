@@ -1,4 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
+  console.log('hear');
   if (to.fullPath.startsWith("/admin")) {
     const config = useAppConfig();
     const headers = useRequestHeaders();

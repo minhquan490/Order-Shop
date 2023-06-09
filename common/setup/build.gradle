@@ -18,11 +18,11 @@ dependencies {
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework:spring-context'
-    implementation 'org.apache.logging.log4j:log4j-core'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.hibernate.orm:hibernate-core'
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
+    implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
 
     compileOnly 'org.projectlombok:lombok'
     compileOnly "com.google.code.findbugs:jsr305:${libs.versions.findbugs.get()}"
