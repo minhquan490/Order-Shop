@@ -60,7 +60,7 @@ export default defineNuxtConfig({
     }
   },
   build: {
-    transpile: ["rxjs", "vuetify"],
+    transpile: ["rxjs"],
   },
   $production: {
     sourcemap: false,
