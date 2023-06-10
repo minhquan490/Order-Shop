@@ -1,23 +1,9 @@
-import { WebSocketServer } from "ws";
-import { GrpcConnector } from "../core/grpc/grpc-connector";
-import { GrpcHttpMessageHandler } from "../core/grpc/grpc-http-message-handler";
-import { LoggedPool } from "../core/implementer/logged-pool";
-
 export default defineEventHandler((event) => {
-    if (!globalThis.grpc) {
-        globalThis.grpc = new GrpcConnector();
-    }
-    if (!globalThis.wss) {
-        //@ts-ignore
-        globalThis.wss = new WebSocketServer({server: event.node.res.socket?.server});
-    }
-    if (!globalThis.loggedPool) {
-        globalThis.loggedPool = new LoggedPool();
-    }
-    if (!globalThis.grpcService) {
-        globalThis.grpcService = globalThis.grpc.connect();
-    }
-    if (!globalThis.httpMessageHandler) {
-        globalThis.httpMessageHandler = new GrpcHttpMessageHandler(globalThis.grpcService);
-    }
-})
+  if (process.env.NODE_ENV == "production") {
+    const url = event.node.req.url as string;
+    const maxage = url.match(/(.+)\.(jpg|jpeg|gif|png|ico|svg|css|js|mjs)/)
+      ? 60 * 60 * 12 * 30
+      : 60 * 60;
+    appendHeader(event, "Cache-Control", `max-age=${maxage},immutable`);
+  }
+});

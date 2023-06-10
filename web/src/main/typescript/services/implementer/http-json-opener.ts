@@ -29,6 +29,8 @@ class InternalHttpService implements HttpService {
   private requestFactory: Factory<XMLHttpRequest>;
   private urlDecorator: Decorator<string, Map<string, string>>;
   private requestHeaderStrategy: Strategy<XMLHttpRequest>;
+  private accessTokenKey: string;
+  private storage?: Storage;
 
   constructor(
     jsonConverter: Converter<string, any>,
@@ -45,6 +47,8 @@ class InternalHttpService implements HttpService {
     this.urlDecorator = urlDecorator;
     this.requestHeaderStrategy = requestHeaderStrategy;
     this.url = ''
+    this.accessTokenKey = useAppConfig().authorization;
+    this.storage = useAppStorage().value;
   }
 
   setUrl(url: string) {
@@ -69,15 +73,17 @@ class InternalHttpService implements HttpService {
     // req.timeout = 3000;
     const path = this.createPath(this.url, urlParams);
     req.open(method, path);
-    req.onreadystatechange = (event) => {
-      console.log(event);
-    }
     if (!(typeof request === 'undefined')) {
       const requestString = this.jsonConverter.convert(request);
       req = this.requestDecorator.decorate(req, this.requestHeaderStrategy);
       req.send(requestString);
     } else {
       req.send();
+    }
+    const accessToken = req.getResponseHeader(this.accessTokenKey);
+    if (this.storage && accessToken) {
+      this.storage.removeItem(this.accessTokenKey);
+      this.storage.setItem(this.accessTokenKey, accessToken);
     }
     const contentType = req.getResponseHeader('Content-Type');
     if (contentType !== null && contentType === 'application/json') {

@@ -44,14 +44,14 @@ public abstract class AbstractService<T, U> implements BaseService<T, U> {
     }
 
     @Override
-    public final Result<T> getOne(Form<U> form) {
+    public Result<T> getOne(Form<U> form) {
         inject();
         return new InternalResult<>(doGetOne(form.get()));
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public final <X extends Iterable<T>> Result<X> getList(Form<U> form) {
+    public <X extends Iterable<T>> Result<X> getList(Form<U> form) {
         inject();
         return new InternalResult<>(doGetList(form.get()));
     }

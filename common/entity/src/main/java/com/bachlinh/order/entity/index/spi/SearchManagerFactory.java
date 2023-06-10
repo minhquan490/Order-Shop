@@ -2,7 +2,7 @@ package com.bachlinh.order.entity.index.spi;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
 
@@ -88,15 +88,9 @@ public interface SearchManagerFactory {
          */
         Builder entities(Class<?>... entities);
 
-        /**
-         * Thread pool for concurrency executing.
-         *
-         * @param executor Thread pool executor.
-         * @return This builder for continue building.
-         */
-        Builder threadPool(ThreadPoolTaskExecutor executor);
-
         Builder profile(String profile);
+
+        Builder dependenciesResolver(DependenciesResolver resolver);
 
         /**
          * Build {@link SearchManagerFactory} with builder options.

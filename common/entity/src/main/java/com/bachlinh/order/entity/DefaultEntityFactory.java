@@ -1,7 +1,6 @@
 package com.bachlinh.order.entity;
 
-import lombok.extern.log4j.Log4j2;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import lombok.extern.slf4j.Slf4j;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.context.internal.DefaultEntityContext;
@@ -23,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Log4j2
+@Slf4j
 public final class DefaultEntityFactory implements EntityFactory {
 
     private final Map<Class<?>, EntityContext> entityContext;
@@ -115,8 +114,8 @@ public final class DefaultEntityFactory implements EntityFactory {
                     .map(clazz -> clazz.getSimpleName().toLowerCase())
                     .toList()
                     .toArray(new String[0]));
-            builder.threadPool(containerResolver.getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class));
             builder.profile(activeProfile);
+            builder.dependenciesResolver(containerResolver.getDependenciesResolver());
             return builder.build().obtainManager();
         }
     }

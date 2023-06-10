@@ -2,7 +2,7 @@ package com.bachlinh.order.entity.context.internal;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.store.Directory;
 import org.hibernate.annotations.Cache;
 import org.springframework.core.Ordered;
@@ -33,8 +33,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 public class DefaultEntityContext implements EntityContext {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(DefaultEntityContext.class);
+
     private final Class<?> idType;
     private final BaseEntity baseEntity;
     private final String prefix;
@@ -141,8 +142,8 @@ public class DefaultEntityContext implements EntityContext {
     }
 
     @Override
-    public void analyze(Object entity, boolean closedHook) {
-        searchManager.analyze(entity, closedHook);
+    public void analyze(Object entity) {
+        searchManager.analyze(entity);
     }
 
     @Override

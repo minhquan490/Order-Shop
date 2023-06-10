@@ -9,7 +9,6 @@ export class RequestDecorator extends Decorator<XMLHttpRequest, Strategy<XMLHttp
 
   override decorate(target: XMLHttpRequest, param: Strategy<XMLHttpRequest>): XMLHttpRequest {
     target.setRequestHeader("Content-Type", "application/json");
-    target.setRequestHeader("Request-From", "XMLHttpRequest");
     return param.applyStrategy(target);
   }
 }

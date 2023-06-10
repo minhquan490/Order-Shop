@@ -19,6 +19,7 @@ export class RequestHeaderStrategy extends Strategy<XMLHttpRequest> {
     if (refreshHeader != null) {
       target.setRequestHeader(refresh, refreshHeader);
     }
+    target.setRequestHeader('X-Sec-Client-UA', '?1');
     return target;
   }
 

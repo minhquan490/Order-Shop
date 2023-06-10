@@ -1,15 +1,14 @@
 package com.bachlinh.order.web.handler.advice;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.http.handler.ErrorHandler;
 
 @RouteExceptionHandler
 @ActiveReflection
+@Slf4j
 public class GlobalErrorHandler extends ErrorHandler {
-    private static final Logger log = LogManager.getLogger(GlobalErrorHandler.class);
 
     @ActiveReflection
     public GlobalErrorHandler() {

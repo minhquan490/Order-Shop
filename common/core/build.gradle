@@ -23,7 +23,6 @@ dependencies {
     implementation 'org.springframework.security:spring-security-aspects'
     implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation "org.eclipse.jetty.http3:http3-server"
     implementation "org.eclipse.jetty.http2:http2-server"
     implementation "org.eclipse.jetty:jetty-alpn-server"
@@ -35,6 +34,9 @@ dependencies {
     implementation "io.grpc:grpc-netty:${libs.versions.grpc.get()}"
     implementation "io.grpc:grpc-protobuf:${libs.versions.grpc.get()}"
     implementation "io.grpc:grpc-stub:${libs.versions.grpc.get()}"
+    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
+    implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
+    implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
 
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 

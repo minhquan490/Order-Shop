@@ -1,32 +1,33 @@
 package com.bachlinh.order.entity.index.internal;
 
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.spi.EntityIndexer;
 import com.bachlinh.order.entity.index.spi.EntitySearcher;
 import com.bachlinh.order.entity.index.spi.MetadataFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
+import com.bachlinh.order.utils.RuntimeUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+@Slf4j
 class SimpleSearchManager implements SearchManager {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(SimpleSearchManager.class);
     private final Map<Class<?>, EntityIndexer> indexerMap;
-
     private final ThreadPoolTaskExecutor executor;
+    private final EntityProxyFactory entityProxyFactory;
 
-    SimpleSearchManager(Map<Class<?>, DirectoryHolder> directoryMap, IndexWriterConfig indexWriterConfig, ThreadPoolTaskExecutor executor) {
+    SimpleSearchManager(Map<Class<?>, DirectoryHolder> directoryMap, IndexWriterConfig indexWriterConfig, ThreadPoolTaskExecutor executor, EntityProxyFactory entityProxyFactory) {
         this.executor = executor;
+        this.entityProxyFactory = entityProxyFactory;
         indexerMap = buildIndexer(directoryMap, indexWriterConfig);
     }
 
@@ -41,18 +42,16 @@ class SimpleSearchManager implements SearchManager {
     }
 
     @Override
-    public void analyze(Object entity, boolean closedHook) {
+    public void analyze(Object entity) {
         if (!entity.getClass().isAnnotationPresent(EnableFullTextSearch.class)) {
             return;
         }
-        indexerMap.get(entity.getClass()).index(entity, closedHook);
+        indexerMap.get(entity.getClass()).index(entity);
     }
 
     @Override
     public void analyze(Collection<Object> entities) {
-        int lastElementPosition = entities.size() - 1;
-        List<Object> transferredEntities = new ArrayList<>(entities);
-        transferredEntities.forEach(entity -> analyze(entity, transferredEntities.get(lastElementPosition).equals(entity)));
+        executor.execute(() -> entities.forEach(this::analyze));
     }
 
     @Override
@@ -65,7 +64,12 @@ class SimpleSearchManager implements SearchManager {
 
     private Map<Class<?>, EntityIndexer> buildIndexer(Map<Class<?>, DirectoryHolder> directoryMap, IndexWriterConfig indexWriterConfig) {
         Map<Class<?>, EntityIndexer> result = new HashMap<>();
-        MetadataFactory metadataFactory = new DefaultMetadataFactory();
+        MetadataFactory metadataFactory;
+        if (RuntimeUtils.getVersion() >= 18) {
+            metadataFactory = new ProxyMetadataFactory(entityProxyFactory);
+        } else {
+            metadataFactory = new DefaultMetadataFactory();
+        }
         Map<String, IndexWriter> sharedIndexWriter = new HashMap<>();
         directoryMap.forEach((entity, directoryHolder) -> {
             EntityOperation entityOperation = new EntityOperation(metadataFactory, indexWriterConfig, directoryHolder, new SimpleFieldDescriptor(entity));

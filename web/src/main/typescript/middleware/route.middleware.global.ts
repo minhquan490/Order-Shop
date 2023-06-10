@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
     const router = useRouter();
     const routes = router.getRoutes().map(r => r.path);
-    if (!routes.includes(to.path) || to.path === '/api') {
+    if (!routes.includes(to.path)) {
         return navigateTo('/404');
     }
 })

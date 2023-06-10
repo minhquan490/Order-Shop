@@ -1,9 +1,8 @@
 package com.bachlinh.order.trigger.internal;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.core.tcp.context.WebSocketSessionManager;
+import com.bachlinh.order.core.server.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Order;
@@ -15,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
+@Slf4j
 public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
-    private static final Logger log = LogManager.getLogger(NewOrderPushingTrigger.class);
     private WebSocketSessionManager webSocketSessionManager;
 
     @ActiveReflection

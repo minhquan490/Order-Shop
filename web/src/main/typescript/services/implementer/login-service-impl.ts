@@ -1,4 +1,5 @@
 import { Auth } from "~/types/auth.type";
+import { ErrorResponse } from "~/types/error-response.type";
 import { AuthService } from "../auth.service";
 import { HttpServiceProvider } from "../http.service";
 import { LoginService } from "../login.service";
@@ -27,10 +28,10 @@ export class LoginServiceImpl extends LoginService {
         let passwordErrorDetail = "";
         let usernameErrorDetail = "";
         if (isPasswordInvalid) {
-        passwordErrorDetail = "Password is require";
+            passwordErrorDetail = "Password is require";
         }
         if (isUsernameInvalid) {
-        usernameErrorDetail = "Length of username must be in range 4 - 32";
+            usernameErrorDetail = "Length of username must be in range 4 - 32";
         }
         const isValid = passwordErrorDetail.length === 0 && usernameErrorDetail.length === 0;
         let result: ValidateResult;
@@ -46,9 +47,10 @@ export class LoginServiceImpl extends LoginService {
         return result;
     }
 
-    login(form: LoginForm): SuccessResponse | FailureResponse | undefined {
-        const httpService = this.httpClientProvider.open("/api/login");
-        const response = httpService.post<LoginForm, SuccessResponse | FailureResponse>(form);
+    login(form: LoginForm): SuccessResponse | ErrorResponse | undefined {
+        const serverUrl = useAppConfig().serverUrl;
+        const httpService = this.httpClientProvider.open(`${serverUrl}/login`);
+        const response = httpService.post<LoginForm, SuccessResponse | ErrorResponse>(form);
         if ("status" in response) {
             return {
                 messages: response.messages,
@@ -78,14 +80,4 @@ type LoginForm = {
 type SuccessResponse = {
     refresh_token: string,
     access_token: string
-}
-
-type FailureResponse = {
-    status: number,
-    messages: Array<string>
-}
-
-type HttpBrowser = {
-    statusCode: number,
-    message: string,
 }

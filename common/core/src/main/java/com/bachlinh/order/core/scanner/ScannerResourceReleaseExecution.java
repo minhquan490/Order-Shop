@@ -1,15 +1,14 @@
 package com.bachlinh.order.core.scanner;
 
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 @ActiveReflection
+@Slf4j
 public class ScannerResourceReleaseExecution extends AbstractExecutor<Void> {
-
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ScannerResourceReleaseExecution.class);
 
     @ActiveReflection
     public ScannerResourceReleaseExecution(DependenciesContainerResolver containerResolver, String profile) {

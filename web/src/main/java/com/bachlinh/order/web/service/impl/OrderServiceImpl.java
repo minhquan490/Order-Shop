@@ -1,7 +1,6 @@
 package com.bachlinh.order.web.service.impl;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -46,8 +45,8 @@ import java.util.stream.Collectors;
 
 @ServiceComponent
 @ActiveReflection
+@Slf4j
 public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductForm> implements OrderService, OrderChangeStatusService, OrderInDateService {
-    private static final Logger log = LogManager.getLogger(OrderServiceImpl.class);
 
     private OrderRepository orderRepository;
     private ProductRepository productRepository;
@@ -105,7 +104,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderRepository.getOrder(param.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found");
+            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found", "");
         }
         OrderStatusValue orderStatusValue;
         try {
@@ -143,7 +142,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
     protected OrderResp doDelete(OrderProductForm param) {
         Order order = orderRepository.getOrder(param.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found");
+            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] not found", "");
         }
         orderRepository.deleteOrder(order);
         return null;
@@ -153,7 +152,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
     protected OrderResp doGetOne(OrderProductForm param) {
         Order order = orderRepository.getOrder(param.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] did not existed");
+            throw new ResourceNotFoundException("Order with id [" + param.orderId() + "] did not existed", "");
         }
         return new OrderResp(order.getId(),
                 order.getTimeOrder().toString(),
@@ -204,7 +203,7 @@ public class OrderServiceImpl extends AbstractService<OrderResp, OrderProductFor
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderRepository.getOrder(form.orderId());
         if (order == null) {
-            throw new ResourceNotFoundException("Order with id [" + form.orderId() + "] not found");
+            throw new ResourceNotFoundException("Order with id [" + form.orderId() + "] not found", "");
         }
         OrderStatusValue orderStatusValue;
         try {

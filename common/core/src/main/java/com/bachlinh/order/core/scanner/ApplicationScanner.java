@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.scanner;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.ClassMetadata;
@@ -15,10 +15,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-@Log4j2
+@Slf4j
 public final class ApplicationScanner extends ClassPathScanningCandidateComponentProvider {
     private static final String APPLICATION_PACKAGE = "com.bachlinh.order";
-    private static final String COCOC_PACKAGE = "com.coccoc";
     private static final Collection<Class<?>> CACHE_SCANNING_RESULT = new HashSet<>();
 
     public ApplicationScanner() {

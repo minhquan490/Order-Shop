@@ -31,7 +31,7 @@ public class ServingFileHandler extends AbstractController<NativeResponse<byte[]
     protected NativeResponse<byte[]> internalHandler(Payload<Object> request) {
         String resourceId = getNativeRequest().getUrlQueryParam().getFirst("id");
         if (resourceId == null) {
-            throw new ResourceNotFoundException("Not found");
+            throw new ResourceNotFoundException("Not found", url);
         }
         String cursor = getNativeRequest().getUrlQueryParam().getFirst("cursor");
         long position;

@@ -5,6 +5,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -18,21 +21,22 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.security.auth.internal.TokenManagerProvider;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.filter.AuthenticationFilter;
-import com.bachlinh.order.security.filter.ClientSecretFilter;
-import com.bachlinh.order.security.filter.LoggingRequestFilter;
-import com.bachlinh.order.security.filter.PermissionFilter;
+import com.bachlinh.order.security.filter.servlet.AuthenticationFilter;
+import com.bachlinh.order.security.filter.servlet.ClientSecretFilter;
+import com.bachlinh.order.security.filter.servlet.LoggingRequestFilter;
+import com.bachlinh.order.security.filter.servlet.PermissionFilter;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @Configuration
 class SecurityConfiguration {
+    private List<String> lazyExcludeUrls;
 
     @Bean
     PathMatcher pathMatcher() {
@@ -90,27 +94,20 @@ class SecurityConfiguration {
         return http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0])))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl)))
-                .anonymous()
-                .disable()
-                .formLogin()
-                .disable()
-                .logout()
-                .disable()
-                .httpBasic()
-                .disable()
-                .headers()
-                .cacheControl()
-                .disable()
-                .and()
-                .requiresChannel()
-//                .anyRequest()
-//                .requiresSecure()
-                .and()
-                .authorizeHttpRequests()
-                .requestMatchers(urlAdmin).hasAuthority(Role.ADMIN.name())
-                .requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name())
-                .requestMatchers(getExcludeUrls(profile).toArray(new String[0])).permitAll()
-                .and()
+                .anonymous(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
+                .requiresChannel(channelRequestMatcherRegistry -> channelRequestMatcherRegistry.anyRequest().requiresSecure())
+                .authorizeHttpRequests(registry -> {
+                    registry.requestMatchers(urlAdmin).hasAuthority(Role.ADMIN.name());
+                    registry.requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name());
+                    registry.requestMatchers(getExcludeUrls(profile).toArray(new String[0])).permitAll();
+                })
+                .requestCache(RequestCacheConfigurer::disable)
+                .jee(AbstractHttpConfigurer::disable)
+                .rememberMe(AbstractHttpConfigurer::disable)
                 .addFilterAfter(loggingRequestFilter(containerResolver, profile), CsrfFilter.class)
                 .addFilterBefore(authenticationFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(clientSecretFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
@@ -131,15 +128,18 @@ class SecurityConfiguration {
     }
 
     private List<String> getExcludeUrls(String profile) {
-        Environment environment = Environment.getInstance(profile);
-        List<String> excludeUrls = new ArrayList<>();
-        excludeUrls.add(environment.getProperty("shop.url.pattern.base"));
-        excludeUrls.add(environment.getProperty("shop.url.login"));
-        excludeUrls.add(environment.getProperty("shop.url.register"));
-        excludeUrls.add(environment.getProperty("shop.url.home"));
-        excludeUrls.add(environment.getProperty("shop.url.pattern.resource"));
-        excludeUrls.add(environment.getProperty("shop.url.customer.reset.sending-mail"));
-        excludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
-        return excludeUrls;
+        if (lazyExcludeUrls == null) {
+            Environment environment = Environment.getInstance(profile);
+            lazyExcludeUrls = new LinkedList<>();
+            lazyExcludeUrls.add(environment.getProperty("shop.url.pattern.base"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.login"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.register"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.home"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.pattern.resource"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.sending-mail"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.websocket"));
+        }
+        return lazyExcludeUrls;
     }
 }

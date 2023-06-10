@@ -9,9 +9,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.analyzer.StopWordLoader;
 import com.bachlinh.order.analyzer.VietnameseAnalyzer;
 import com.bachlinh.order.analyzer.VietnameseConfig;
+import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.index.spi.SearchManagerFactory;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,15 +29,17 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
     private final String stopWordPath;
     private final Collection<Class<?>> entities;
     private final ThreadPoolTaskExecutor executor;
+    private final EntityProxyFactory entityProxyFactory;
     private final String profile;
 
-    public DefaultSearchManagerFactory(String indexFilePath, String[] indexNames, boolean useStandard, String stopWordPath, Collection<Class<?>> entities, ThreadPoolTaskExecutor executor, String profile) {
+    public DefaultSearchManagerFactory(String indexFilePath, String[] indexNames, boolean useStandard, String stopWordPath, Collection<Class<?>> entities, DependenciesResolver dependenciesResolver, String profile) {
         this.indexFilePath = indexFilePath;
         this.indexNames = indexNames;
         this.useStandard = useStandard;
         this.stopWordPath = stopWordPath;
         this.entities = entities;
-        this.executor = executor;
+        this.executor = dependenciesResolver.resolveDependencies(ThreadPoolTaskExecutor.class);
+        this.entityProxyFactory = dependenciesResolver.resolveDependencies(EntityProxyFactory.class);
         this.profile = profile;
     }
 
@@ -47,11 +51,11 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
                 .filter(clazz -> indexes.contains(clazz.getSimpleName().toLowerCase()))
                 .collect(Collectors.toMap(entity -> entity, entity -> openDirectory(entity, indexFilePath, findIndexName(entity))));
         if (useStandard) {
-            return new SimpleSearchManager(directoryHolderMap, configWriter(new StandardAnalyzer()), executor);
+            return new SimpleSearchManager(directoryHolderMap, configWriter(new StandardAnalyzer()), executor, entityProxyFactory);
         } else {
             Environment environment = Environment.getInstance(profile);
             Analyzer analyzer = new VietnameseAnalyzer(new VietnameseConfig(environment.getProperty("server.tokenizer.path"), StopWordLoader.defaultLoader(stopWordPath).loadStopWord()));
-            return new SimpleSearchManager(directoryHolderMap, configWriter(analyzer), executor);
+            return new SimpleSearchManager(directoryHolderMap, configWriter(analyzer), executor, entityProxyFactory);
         }
     }
 
@@ -89,7 +93,7 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
         private boolean useStandard = false;
         private String stopWordPath;
         private Collection<Class<?>> entities;
-        private ThreadPoolTaskExecutor executor;
+        private DependenciesResolver resolver;
         private String profile;
 
         @Override
@@ -123,21 +127,22 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
         }
 
         @Override
-        public SearchManagerFactory.Builder threadPool(ThreadPoolTaskExecutor executor) {
-            this.executor = executor;
-            return this;
-        }
-
-        @Override
         public SearchManagerFactory.Builder profile(String profile) {
             this.profile = Objects.requireNonNull(profile, "Profile must not be null");
             return this;
         }
 
         @Override
+        public SearchManagerFactory.Builder dependenciesResolver(DependenciesResolver resolver) {
+            this.resolver = resolver;
+            return this;
+        }
+
+        @Override
         public SearchManagerFactory build() {
             Objects.requireNonNull(profile, "Profile must be specific");
-            return new DefaultSearchManagerFactory(indexFilePath, indexNames, useStandard, stopWordPath, entities, executor, profile);
+            Objects.requireNonNull(resolver, "Dependencies resolver must be specific");
+            return new DefaultSearchManagerFactory(indexFilePath, indexNames, useStandard, stopWordPath, entities, resolver, profile);
         }
     }
 }

@@ -50,20 +50,20 @@ public class ClientSecretFilter extends AbstractWebFilter {
         Collection<Cookie> cookies = request.getCookies() == null ? Collections.emptyList() : Arrays.asList(request.getCookies());
         Cookie secretCookie = containsSecretCookie(cookies);
         if (cookies.isEmpty() || secretCookie == null) {
-            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE));
+            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE, request.getRequestURI()));
             return;
         }
         if (!secretCookie.isHttpOnly() || !secretCookie.getSecure()) {
-            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE));
+            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE, request.getRequestURI()));
             return;
         }
         String clientSecret = secretCookie.getValue();
         if (clientSecret == null) {
-            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE));
+            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE, request.getRequestURI()));
             return;
         }
         if (!tokenManager.isWrapped(clientSecret)) {
-            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE));
+            handler.onAuthenticationFailure(response, new UnAuthorizationException(ERROR_MESSAGE, request.getRequestURI()));
             return;
         }
         filterChain.doFilter(request, response);

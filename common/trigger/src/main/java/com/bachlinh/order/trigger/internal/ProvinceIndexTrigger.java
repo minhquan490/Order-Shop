@@ -1,5 +1,6 @@
 package com.bachlinh.order.trigger.internal;
 
+import lombok.extern.slf4j.Slf4j;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.spi.EntityContext;
@@ -8,12 +9,11 @@ import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
-import lombok.extern.log4j.Log4j2;
 
 import java.util.Collections;
 
 @ActiveReflection
-@Log4j2
+@Slf4j
 public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
     private EntityFactory entityFactory;
 

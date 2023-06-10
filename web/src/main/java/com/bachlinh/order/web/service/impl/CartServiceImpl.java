@@ -68,7 +68,7 @@ public class CartServiceImpl extends AbstractService<CartResp, CartForm> impleme
             }
             Product product = this.searchProduct(products, id);
             if (product == null) {
-                throw new ResourceNotFoundException("Product has name [" + form.name() + "] did not existed");
+                throw new ResourceNotFoundException("Product has name [" + form.name() + "] did not existed", "");
             }
             CartDetail cartDetail = entityFactory.getEntity(CartDetail.class);
             cartDetail.setCart(cart);

@@ -1,13 +1,6 @@
 package com.bachlinh.order.entity.index.internal;
 
-import com.bachlinh.order.entity.index.spi.DirectoryOperation;
-import com.bachlinh.order.entity.index.spi.EntityIndexer;
-import com.bachlinh.order.entity.index.spi.EntitySearcher;
-import com.bachlinh.order.entity.index.spi.FieldDescriptor;
-import com.bachlinh.order.entity.index.spi.FullTextSearchMetadata;
-import com.bachlinh.order.entity.index.spi.MetadataFactory;
-import com.bachlinh.order.entity.model.BaseEntity;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
@@ -26,6 +19,13 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
+import com.bachlinh.order.entity.index.spi.DirectoryOperation;
+import com.bachlinh.order.entity.index.spi.EntityIndexer;
+import com.bachlinh.order.entity.index.spi.EntitySearcher;
+import com.bachlinh.order.entity.index.spi.FieldDescriptor;
+import com.bachlinh.order.entity.index.spi.FullTextSearchMetadata;
+import com.bachlinh.order.entity.index.spi.MetadataFactory;
+import com.bachlinh.order.entity.model.BaseEntity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearcher {
-    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(EntityOperation.class);
     private final MetadataFactory metadataFactory;
     private final IndexWriterConfig config;
     private final DirectoryHolder directoryHolder;
@@ -52,7 +52,7 @@ class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearch
     }
 
     @Override
-    public void index(Object entity, boolean closedHook) {
+    public void index(Object entity) {
         try {
             if (indexWriter == null || !indexWriter.isOpen()) {
                 indexWriter = buildIndexWriter();
@@ -68,11 +68,6 @@ class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearch
                 document.add(findField(e.getId(), "id"));
             }
             indexWriter.addDocument(document);
-//            if (closedHook) {
-//                indexWriter.close();
-//            } else {
-//                indexWriter.commit();
-//            }
             indexWriter.commit();
         } catch (IOException e) {
             log.warn("Can not index entity [{}] because IOException, detail [{}]", entity.getClass().getName(), e.getMessage());
@@ -121,10 +116,10 @@ class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearch
     private Field findField(Object value, String name) {
         return switch (value.getClass().getSimpleName()) {
             case "String" -> new TextField(name, (String) value, Field.Store.YES);
-            case "Integer" -> new IntField(name, (Integer) value);
-            case "Float" -> new FloatField(name, (Float) value);
-            case "Double" -> new DoubleField(name, (Double) value);
-            case "Long" -> new LongField(name, (Long) value);
+            case "Integer" -> new IntField(name, (Integer) value, Field.Store.NO);
+            case "Float" -> new FloatField(name, (Float) value, Field.Store.NO);
+            case "Double" -> new DoubleField(name, (Double) value, Field.Store.NO);
+            case "Long" -> new LongField(name, (Long) value, Field.Store.NO);
             default -> new Field(name, String.valueOf(value), TextField.TYPE_STORED);
         };
     }

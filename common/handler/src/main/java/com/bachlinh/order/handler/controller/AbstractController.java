@@ -57,13 +57,14 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
     @SuppressWarnings("unchecked")
     public final NativeResponse<T> handle(NativeRequest<U> request) {
         inject();
+        var metadata = NativeMethodHandleRequestMetadataReader.getInstance().getNativeMethodMetadata(getPath());
         T returnValue = internalHandler(request.getBody());
         if (ResponseEntity.class.isAssignableFrom(returnValue.getClass())) {
             ResponseEntity<T> res = (ResponseEntity<T>) returnValue;
             return getNativeResponse().merge((NativeResponse<T>) NativeResponse
                     .builder()
                     .statusCode(res.getStatusCode().value())
-                    .body(res.getBody())
+                    .body(metadata.returnTypes().equals(Void.class) ? null : res.getBody())
                     .headers(new LinkedMultiValueMap<>(res.getHeaders()))
                     .build());
         }
@@ -74,7 +75,7 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
                 .builder()
                 .activePushBuilder(getNativeResponse().isActivePushBuilder())
                 .statusCode(getNativeResponse().getStatusCode() <= 0 ? 200 : getNativeResponse().getStatusCode())
-                .body(returnValue)
+                .body(metadata.returnTypes().equals(Void.class) ? null : returnValue)
                 .build());
     }
 

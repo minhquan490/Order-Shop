@@ -5,8 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
@@ -15,6 +15,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerHistory;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.RefreshToken;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
@@ -36,12 +37,14 @@ import java.util.Map;
  *
  * @author Hoang Minh Quan
  */
+@Slf4j
 public class LoggingRequestFilter extends AbstractWebFilter {
     private static final String H3_HEADER = "Alt-Svc";
     private static final int REMOVAL_POLICY_YEAR = 1;
-    private static final Logger log = LogManager.getLogger(LoggingRequestFilter.class);
     private final String clientUrl;
     private final int h3Port;
+    private final boolean enableHttp3;
+    private final Environment environment;
     private final ObjectMapper objectMapper = JacksonUtils.getSingleton();
     private CustomerHistoryRepository customerHistoryRepository;
     private CustomerRepository customerRepository;
@@ -49,16 +52,28 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     private ThreadPoolTaskExecutor executor;
     private TokenManager tokenManager;
     private EntityFactory entityFactory;
+    private final String websocketUrl;
 
-    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port) {
+    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String clientUrl, int h3Port, String profile) {
         super(containerResolver.getDependenciesResolver());
         this.clientUrl = clientUrl;
         this.h3Port = h3Port;
+        this.environment = Environment.getInstance(profile);
+        this.enableHttp3 = Boolean.parseBoolean(this.environment.getProperty("server.http3.enable"));
+        this.websocketUrl = environment.getProperty("shop.url.websocket");
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return request.getRequestURI().startsWith(websocketUrl.concat("?"));
     }
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // TODO implement ddos protection
+        if (!isClientFetch(request)) {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
         addH3Header(response);
         logRequest(request);
         executor.execute(() -> logCustomerRequest(request));
@@ -106,7 +121,7 @@ public class LoggingRequestFilter extends AbstractWebFilter {
 
     private void addH3Header(HttpServletResponse response) {
         String h3Header = response.getHeader(H3_HEADER);
-        if (h3Header == null) {
+        if (h3Header == null && enableHttp3) {
             String headerPattern = "h3=\":{0}\"; ma=2592000";
             response.addHeader(H3_HEADER, MessageFormat.format(headerPattern, h3Port).replace(",", ""));
         }
@@ -177,5 +192,12 @@ public class LoggingRequestFilter extends AbstractWebFilter {
         LocalDate now = LocalDate.now();
         int year = now.getYear() + REMOVAL_POLICY_YEAR;
         return Date.valueOf(LocalDate.of(year, now.getMonth(), now.getDayOfMonth()));
+    }
+
+    private boolean isClientFetch(HttpServletRequest request) {
+        String headerKey = environment.getProperty("shop.client.identify.header.key");
+        String headerValue = environment.getProperty("shop.client.identify.header.value");
+        String actualHeader = request.getHeader(headerKey);
+        return actualHeader != null && actualHeader.equals(headerValue);
     }
 }
