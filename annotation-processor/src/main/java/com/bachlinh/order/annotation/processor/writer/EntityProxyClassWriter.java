@@ -32,7 +32,6 @@ class EntityProxyClassWriter implements ClassWriter {
             writeMethod(writer, parser.getEntityField(), element);
             writeSetter(writer, parser.getEntityField());
             writeGetWrappedObjectType(writer, parser.getEntityField());
-            writeCloneMethod(writer);
             writer.write('}');
         }
     }
@@ -53,7 +52,7 @@ class EntityProxyClassWriter implements ClassWriter {
     }
 
     private void writeClass(Writer writer, String className) throws IOException {
-        var template = "public class {0} implements EntityProxy ";
+        var template = "public class {0} extends AbstractEntityProxy ";
         writer.write("@ActiveReflection");
         writer.write(System.lineSeparator());
         writer.write(MessageFormat.format(template, className.substring(className.lastIndexOf(".") + 1)));
@@ -120,21 +119,6 @@ class EntityProxyClassWriter implements ClassWriter {
         writeDoubleSeparator(writer);
     }
 
-    private void writeCloneMethod(Writer writer) throws IOException {
-        var methodName = "public Object clone() throws CloneNotSupportedException {";
-        writeOverride(writer);
-        writeTab(writer);
-        writer.write(methodName);
-        writer.write(System.lineSeparator());
-        writeTab(writer);
-        writeTab(writer);
-        writer.write("return super.clone();");
-        writer.write(System.lineSeparator());
-        writeTab(writer);
-        writer.write('}');
-        writer.write(System.lineSeparator());
-    }
-
     private void writeDoubleSeparator(Writer writer) throws IOException {
         writer.write(System.lineSeparator());
         writer.write(System.lineSeparator());
@@ -195,6 +179,10 @@ class EntityProxyClassWriter implements ClassWriter {
         }
 
         private void writeMethodContent(List<CharSequence> fieldNames, Writer writer) throws IOException {
+            if (fieldNames.isEmpty()) {
+                writer.write(System.lineSeparator());
+                return;
+            }
             var template = "data.put(\"{0}\", {1});";
             var methods = getFullTextMethods(fieldNames);
             for (int i = 0; i < fieldNames.size(); i++) {

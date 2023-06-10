@@ -36,7 +36,7 @@ class EntityProxyClassMetadataParser implements ClassMetadataParser {
             cachedImport = new LinkedList<>();
             cachedImport.add(ActiveReflection.class.getName());
             cachedImport.add(type.toString());
-            cachedImport.add("com.bachlinh.order.entity.proxy.EntityProxy");
+            cachedImport.add("com.bachlinh.order.entity.proxy.AbstractEntityProxy");
             cachedImport.add(Map.class.getName());
             cachedImport.add(HashMap.class.getName());
         }
