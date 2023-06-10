@@ -31,7 +31,7 @@ class EntityProxyClassWriter implements ClassWriter {
             writeConstructor(writer, parser.getClassName());
             writeMethod(writer, parser.getEntityField(), element);
             writeSetter(writer, parser.getEntityField());
-            writeGetWrappedObjectType(writer);
+            writeGetWrappedObjectType(writer, parser.getEntityField());
             writeCloneMethod(writer);
             writer.write('}');
         }
@@ -104,7 +104,8 @@ class EntityProxyClassWriter implements ClassWriter {
         writeDoubleSeparator(writer);
     }
 
-    private void writeGetWrappedObjectType(Writer writer) throws IOException {
+    private void writeGetWrappedObjectType(Writer writer, FieldMeta meta) throws IOException {
+        var returnTemplate = "return {0}.class;";
         var methodName = "public Class<?> getWrappedObjectType() {";
         writeOverride(writer);
         writeTab(writer);
@@ -112,7 +113,7 @@ class EntityProxyClassWriter implements ClassWriter {
         writer.write(System.lineSeparator());
         writeTab(writer);
         writeTab(writer);
-        writer.write("return this.delegate.getClass();");
+        writer.write(MessageFormat.format(returnTemplate, meta.type()));
         writer.write(System.lineSeparator());
         writeTab(writer);
         writer.write('}');
