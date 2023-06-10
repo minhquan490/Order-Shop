@@ -18,7 +18,6 @@ import java.util.List;
 @Slf4j
 public final class ApplicationScanner extends ClassPathScanningCandidateComponentProvider {
     private static final String APPLICATION_PACKAGE = "com.bachlinh.order";
-    private static final String COCOC_PACKAGE = "com.coccoc";
     private static final Collection<Class<?>> CACHE_SCANNING_RESULT = new HashSet<>();
 
     public ApplicationScanner() {

@@ -32,6 +32,7 @@ class EntityProxyClassWriter implements ClassWriter {
             writeMethod(writer, parser.getEntityField(), element);
             writeSetter(writer, parser.getEntityField());
             writeGetWrappedObjectType(writer);
+            writeCloneMethod(writer);
             writer.write('}');
         }
     }
@@ -112,6 +113,21 @@ class EntityProxyClassWriter implements ClassWriter {
         writeTab(writer);
         writeTab(writer);
         writer.write("return this.delegate.getClass();");
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writer.write('}');
+        writeDoubleSeparator(writer);
+    }
+
+    private void writeCloneMethod(Writer writer) throws IOException {
+        var methodName = "public Object clone() throws CloneNotSupportedException {";
+        writeOverride(writer);
+        writeTab(writer);
+        writer.write(methodName);
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writeTab(writer);
+        writer.write("return super.clone();");
         writer.write(System.lineSeparator());
         writeTab(writer);
         writer.write('}');

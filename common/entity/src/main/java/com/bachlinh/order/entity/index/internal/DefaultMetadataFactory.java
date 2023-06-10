@@ -1,10 +1,10 @@
 package com.bachlinh.order.entity.index.internal;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import com.bachlinh.order.entity.index.spi.FieldDescriptor;
 import com.bachlinh.order.entity.index.spi.FullTextSearchMetadata;
 import com.bachlinh.order.entity.index.spi.MetadataFactory;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.Method;
 import java.text.MessageFormat;

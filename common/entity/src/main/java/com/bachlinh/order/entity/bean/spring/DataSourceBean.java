@@ -18,6 +18,7 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.cache.HibernateL2CachingRegionFactory;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
@@ -69,6 +70,11 @@ public class DataSourceBean {
     @Bean
     EntityManager entityManager(SessionFactory sessionFactory) {
         return sessionFactory.createEntityManager();
+    }
+
+    @Bean
+    EntityProxyFactory entityProxyFactory() {
+        return InternalProvider.useDefaultEntityProxyFactory();
     }
 
     @Bean
