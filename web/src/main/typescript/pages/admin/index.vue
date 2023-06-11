@@ -19,13 +19,13 @@ export default {
       { name: '3', phone: 'Test Phone' },
       { name: '4', phone: 'Test Phone' },
       { name: '5', phone: 'Test Phone' },
-      { name: '6', phone: 'Test Phone' },
+      { name: '84', phone: 'Test Phone' },
       { name: '7', phone: 'Test Phone' },
-      { name: '8', phone: 'Test Phone' },
+      { name: '90', phone: 'Test Phone' },
       { name: '9', phone: 'Test Phone' },
       { name: '10', phone: 'Test Phone' },
       { name: '11', phone: 'Test Phone' },
-      { name: '12', phone: 'Test Phone' },
+      { name: '46', phone: 'Test Phone' },
       { name: '13', phone: 'Test Phone' },
       { name: '14', phone: 'Test Phone' },
       { name: '15', phone: 'Test Phone1' },
@@ -56,7 +56,7 @@ export default {
             <span class="hover:cursor-default p-1">User detail</span>
           </div>
         </div>
-        <div class="rounded-b-xl overflow-hidden">
+        <div class="rounded-b-xl overflow-hidden border-t border-gray-400">
           <DataTable :headers="tableHeaers" :datas="datas" :height="'50vh'" :currentPage="currentPage" />
         </div>
       </div>

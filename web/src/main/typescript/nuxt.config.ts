@@ -79,4 +79,7 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/styles/global.scss'],
+  experimental: {
+    componentIslands: true
+  }
 });
