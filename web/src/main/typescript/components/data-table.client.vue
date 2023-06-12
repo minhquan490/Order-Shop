@@ -7,7 +7,7 @@ export default {
     datas: Array<Record<string, string>>,
     itemPerPage: Number,
     height: String,
-    currentPage: Number
+    currentPage: Number,
   },
   data() {
     const table: Table = {
@@ -15,7 +15,7 @@ export default {
       itemsPerPage: (this.itemPerPage) ? this.itemPerPage : 5,
       height: (this.height) ? this.height : '300px',
       currentPage: (this.currentPage) ? this.currentPage : 1,
-      source: this.datas
+      source: this.datas,
     }
 
     const calculatePage = (datas: Array<any> | undefined) => {
@@ -37,18 +37,25 @@ export default {
     const tableRender = this.datas && this.datas.length !== 0;
     const totalPage = calculatePage(this.datas);
     table.data = sliceData(this.datas, table);
-    console.log(RecordSortUtils.mergeSort('name', table.source as Array<Record<string, string>>));
+    const resetButtons = (event: Event, buttons: any) => {
+      [...buttons].map(button => {
+        if (button !== event.target) {
+          button.removeAttribute("data-dir");
+        }
+      });
+    };
     return {
       table,
       tableRender,
       totalPage,
       calculatePage,
-      sliceData
+      sliceData,
+      resetButtons
     }
   },
   methods: {
     goRight() {
-      if (this.table.currentPage === this.totalPage) {
+      if (this.table.currentPage === this.totalPage || this.table.source?.length === 0) {
         return;
       }
       this.table.currentPage = parseInt(this.table.currentPage.toString()) + parseInt('1');
@@ -56,7 +63,7 @@ export default {
       this.storageCurrentPage(this.table.currentPage.toString());
     },
     goLeft() {
-      if (this.table.currentPage === 1) {
+      if (this.table.currentPage === 1 || this.table.source?.length === 0) {
         return;
       }
       this.table.currentPage = parseInt(this.table.currentPage.toString()) - parseInt('1');
@@ -65,7 +72,7 @@ export default {
     },
     jump(event: KeyboardEvent) {
       event.preventDefault();
-      if (event.key !== 'Enter') {
+      if (event.key !== 'Enter' || this.table.source?.length === 0) {
         return;
       }
       if (this.table.currentPage < 1) {
@@ -85,7 +92,6 @@ export default {
       event.preventDefault();
       const ele: any = event.target;
       const searchValue: string = ele.value;
-      console.log(searchValue);
       if (searchValue.length === 0) {
         this.table.data = this.sliceData(this.datas, this.table);
         this.totalPage = this.calculatePage(this.datas);
@@ -114,6 +120,22 @@ export default {
       this.table.data = this.sliceData(this.datas, this.table);
       this.totalPage = this.calculatePage(this.datas);
     },
+    sort(header: string, event: Event) {
+      const buttons = toRaw(this.$refs['table-head-button']) as Array<Element>;
+      this.resetButtons(event, buttons);
+      let source = this.table.source;
+      const element = event.target as Element;
+      if (element.getAttribute("data-dir") == "desc") {
+        source = source?.reverse();
+        element.setAttribute('data-dir', 'asc');
+      } else {
+        source = RecordSortUtils.mergeSort(header, source as Array<Record<string, string>>);
+          element.setAttribute('data-dir', 'desc');
+      }
+      this.table.source = source;
+      this.table.data = this.sliceData(source, this.table);
+    },
+    
   }
 }
 
@@ -151,8 +173,10 @@ type Table = {
     <table class="w-full table">
       <thead class="border-b">
         <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
-          <th v-for="header in headers" class="col-span-1 border-gray-400">
-            <span class="hover:cursor-default text-sm" v-text="header.name"></span>
+          <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
+            <button class="flex items-center w-full" @click="sort(header.dataPropertyName, $event)" ref="table-head-button">
+              <span class="hover:cursor-pointer text-sm" v-text="header.name"></span>
+            </button>
           </th>
         </tr>
       </thead>
@@ -160,7 +184,7 @@ type Table = {
         <template v-if="tableRender">
           <tr v-for="data in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
             :style="`--cols: ${table.columns}`">
-            <td v-for="header, i in headers" class="col-span-1 flex items-center justify-center border-gray-400">
+            <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
               <span class="hover:cursor-default text-sm" v-text="data[header.dataPropertyName]"></span>
             </td>
           </tr>
@@ -212,6 +236,21 @@ type Table = {
 
   & .row {
     grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  }
+
+  th {
+    & button[data-dir="asc"] {
+      &::after {
+        padding-left: 1rem;
+        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpolygon points='0, 0 8,0 4,8 8' fill='%23818688'/%3E%3C/svg%3E");
+      }
+    }
+    & button[data-dir="desc"] {
+      &::after {
+        padding-left: 1rem;
+        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpolygon points='4 0,8 8,0 8' fill='%23818688'/%3E%3C/svg%3E");
+      }
+    }
   }
 }
 </style>

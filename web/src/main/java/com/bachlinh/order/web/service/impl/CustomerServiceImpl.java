@@ -39,6 +39,7 @@ import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.service.AbstractService;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.web.dto.admin.TableCustomerInfo;
 import com.bachlinh.order.web.dto.form.CrudCustomerForm;
 import com.bachlinh.order.web.dto.form.LoginForm;
 import com.bachlinh.order.web.dto.form.RegisterForm;
@@ -57,6 +58,7 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -195,6 +197,14 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
                         .stream()
                         .map(CustomerResp::toDto)
                         .toList());
+    }
+
+    @Override
+    public Collection<TableCustomerInfo> getCustomerDataTable() {
+        return customerRepository.getAll(PageRequest.of(1, 500), Sort.unsorted())
+                .stream()
+                .map(TableCustomerInfo::new)
+                .toList();
     }
 
     @Override

@@ -47,7 +47,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @Override
     public Customer getCustomerById(String id, boolean useJoin) {
         Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> {
-            if (!useJoin) {
+            if (useJoin) {
                 root.join(Customer_.refreshToken, JoinType.INNER);
                 root.join(Customer_.addresses, JoinType.LEFT);
             }

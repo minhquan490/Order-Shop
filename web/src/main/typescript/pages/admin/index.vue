@@ -1,47 +1,56 @@
 <script lang="ts">
+import { HttpServiceProvider } from '~/services/http.service';
 import { TableHeaders } from '~/types/table-header.type';
 
 export default {
+  inject: ['httpClient'],
   data() {
     const tableHeaers: Array<TableHeaders> = [
+      {
+        name: 'ID',
+        dataPropertyName: 'id'
+      },
       {
         name: 'Name',
         dataPropertyName: 'name'
       },
       {
+        name: 'Username',
+        dataPropertyName: 'username'
+      },
+      {
         name: 'Phone',
         dataPropertyName: 'phone'
+      },
+      {
+        name: 'Email',
+        dataPropertyName: 'emai'
       }
     ];
-    const datas = [
-      { name: '1', phone: 'Test Phone' },
-      { name: '2', phone: 'Test Phone' },
-      { name: '3', phone: 'Test Phone' },
-      { name: '4', phone: 'Test Phone' },
-      { name: '5', phone: 'Test Phone' },
-      { name: '84', phone: 'Test Phone' },
-      { name: '7', phone: 'Test Phone' },
-      { name: '90', phone: 'Test Phone' },
-      { name: '9', phone: 'Test Phone' },
-      { name: '10', phone: 'Test Phone' },
-      { name: '11', phone: 'Test Phone' },
-      { name: '46', phone: 'Test Phone' },
-      { name: '13', phone: 'Test Phone' },
-      { name: '14', phone: 'Test Phone' },
-      { name: '15', phone: 'Test Phone1' },
-      { name: '16', phone: 'Test Phone' }
-    ];
-    let currentPage
-    if (process.client) {
-      const storage: Storage = useAppStorage().value;
-      currentPage = storage.getItem(useAppConfig().customerDataTableCurrentPage);
+    const httpServiceProvider: HttpServiceProvider = this.httpClient as HttpServiceProvider;
+    const serverUrl = useAppConfig().serverUrl;
+    const service = httpServiceProvider.open(`${serverUrl}/admin/table/customer`);
+    let datas: TableCustomerInfo[] = service.get<undefined, TableCustomerInfo[]>();
+    if (Object.keys(datas).length === 0) {
+      datas = [];
     }
+    let currentPage
+    const storage: Storage = useAppStorage().value;
+    currentPage = storage.getItem(useAppConfig().customerDataTableCurrentPage);
     return {
       tableHeaers,
       datas,
       currentPage
     }
   }
+}
+
+type TableCustomerInfo = {
+  id: string,
+  name: string,
+  username: string,
+  phone: string,
+  email: string
 }
 </script>
 
