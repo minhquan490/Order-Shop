@@ -2,7 +2,8 @@
 
 <template>
   <div>
-    <Nav />
+    <Header />
+    <NuxtPage />
   </div>
 </template>
 

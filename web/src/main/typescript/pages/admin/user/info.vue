@@ -2,8 +2,7 @@
 
 <template>
   <div>
-    <Header />
-    <NuxtPage />
+    Page: foo
   </div>
 </template>
 

@@ -62,7 +62,7 @@ const device = useState(inject('device')).value;
 <template>
   <div>
     <div v-if="device === 'pc'">
-      <LoginPc />
+      <LoginDesktop />
     </div>
     <div v-if="device === 'mobile'">
       <LoginMobile />

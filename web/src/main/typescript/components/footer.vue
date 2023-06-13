@@ -2,8 +2,7 @@
 
 <template>
   <div>
-    <Header />
-    <NuxtPage />
+    Component: footer
   </div>
 </template>
 

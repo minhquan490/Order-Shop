@@ -130,7 +130,7 @@ export default {
         element.setAttribute('data-dir', 'asc');
       } else {
         source = RecordSortUtils.mergeSort(header, source as Array<Record<string, string>>);
-          element.setAttribute('data-dir', 'desc');
+        element.setAttribute('data-dir', 'desc');
       }
       this.table.source = source;
       this.table.data = this.sliceData(source, this.table);
@@ -175,7 +175,7 @@ type Table = {
         <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
           <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
             <button class="flex items-center w-full" @click="sort(header.dataPropertyName, $event)" ref="table-head-button">
-              <span class="hover:cursor-pointer text-sm" v-text="header.name"></span>
+              <span class="hover:cursor-pointer text-xs w-max" v-text="header.name"></span>
             </button>
           </th>
         </tr>
@@ -185,7 +185,8 @@ type Table = {
           <tr v-for="data in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
             :style="`--cols: ${table.columns}`">
             <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
-              <span class="hover:cursor-default text-sm" v-text="data[header.dataPropertyName]"></span>
+              <a v-if="header.isId" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`" class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>
+              <span v-if="!header.isId" class="hover:cursor-default text-sm" v-text="data[header.dataPropertyName]"></span>
             </td>
           </tr>
         </template>
@@ -226,7 +227,7 @@ type Table = {
 <style lang="scss" scoped>
 .table {
   & .body {
-    max-height: var(--height);
+    height: var(--height);
     overflow-y: scroll;
 
     &::-webkit-scrollbar {

@@ -2,7 +2,7 @@
 
 <template>
   <div class="thrid-party">
-    <Nav />
+    <Header />
     <iframe class="w-full frame" src="http://my.orderhangquangchau.com/login"></iframe>
   </div>
 </template>

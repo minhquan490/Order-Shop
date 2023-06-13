@@ -89,8 +89,8 @@ export default {
             <div
               class="col-span-1 border before:absolute before:right-1/2 before:content-[''] before:block before:w-20 border-green-700 border-dashed h-px relative top-1/2">
             </div>
-            <div class="col-span-2 px-1">
-              <a class="text-blue-500" href="/register">Register new account</a>
+            <div class="col-span-2 px-1 flex items-center justify-center">
+              <a class="text-blue-500 text-xs" href="/register">Register new account</a>
             </div>
             <div
               class="col-span-1 border before:absolute before:right-1/2 before:content-[''] before:block before:w-20 border-green-700 border-dashed h-px relative top-1/2">
