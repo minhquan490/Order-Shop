@@ -2,5 +2,6 @@ export default defineAppConfig({
     authorization: 'Authorization',
     refreshToken: 'Refresh',
     logged: 'logged',
-    serverUrl: 'https://localhost:8443'
+    serverUrl: 'https://localhost:8443',
+    customerDataTableCurrentPage: 'customerCurrentPage'
 })

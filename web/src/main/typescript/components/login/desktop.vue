@@ -77,7 +77,7 @@ export default {
               <button class="w-full submit rounded-3xl hover:opacity-80 relative focus:translate-y-1"
                 @click="submit($event)">Login</button>
             </div>
-            <div class="col-span-3 flex justify-center text-sm">
+            <div class="col-span-3 flex justify-end text-sm">
               <span class="pr-1 hover:cursor-default opacity-70">Forgot</span>
               <a href="/forgot-password" class="opacity-80 hover:text-green-700">Password ?</a>
             </div>
