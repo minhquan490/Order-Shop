@@ -1,5 +1,5 @@
 <script lang="ts">
-import { from, map, mergeMap } from 'rxjs';
+import { Subscription, from, map, mergeMap } from 'rxjs';
 import { HttpServiceProvider } from '~/services/http.service';
 import { TableHeaders } from '~/types/table-header.type';
 
@@ -10,8 +10,10 @@ export default {
       return {};
     }
     const pageData = new PageData();
+    const subscriptions: Array<Subscription> = [];
     return {
-      pageData
+      pageData,
+      subscriptions
     }
   },
   created() {
@@ -20,7 +22,7 @@ export default {
     }
     const serverUrl = useAppConfig().serverUrl;
     const httpServiceProvider: HttpServiceProvider = this.httpClient as HttpServiceProvider;
-    this.subscription = from([`${serverUrl}/admin/table/customer`, `${serverUrl}/admin/orders/new-in-date`])
+    const subscription = from([`${serverUrl}/admin/table/customer`, `${serverUrl}/admin/orders/new-in-date`])
       .pipe(
         map(url => httpServiceProvider.open(url)),
         mergeMap(async service => service.get<undefined, any>()),
@@ -128,9 +130,12 @@ export default {
           this.pageData.tableOrerData = data.tableOrerData;
         }
       });
+    this.subscriptions?.push(subscription);
   },
   beforeUnmount() {
-    this.subscription.unsubscribe();
+    if (this.subscriptions) {
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+    }
   }
 }
 

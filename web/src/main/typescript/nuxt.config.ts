@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/google-fonts", "nuxt-icon"],
+  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/google-fonts", "nuxt-icon", "@pinia/nuxt"],
   ssr: true,
   devtools: {
     enabled: true,
@@ -82,4 +82,10 @@ export default defineNuxtConfig({
   experimental: {
     componentIslands: true
   },
+  pinia: {
+    autoImports: [
+      'defineStore',
+      ['defineStore', 'definePiniaStore']
+    ],
+  }
 });

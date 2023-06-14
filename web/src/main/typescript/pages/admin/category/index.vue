@@ -1,5 +1,5 @@
 <script lang="ts">
-import { map, of } from 'rxjs';
+import { Subscription, map, of } from 'rxjs';
 import { HttpServiceProvider } from '~/services/http.service';
 import { Category } from '~/types/category.type';
 import { TableHeaders } from '~/types/table-header.type';
@@ -14,8 +14,10 @@ export default {
       tableHeaders: [],
       tableData: []
     }
+    const subscriptions: Array<Subscription> = [];
     return {
-      pageData
+      pageData,
+      subscriptions
     }
   },
   created() {
@@ -24,7 +26,7 @@ export default {
     }
     const serverUrl = useAppConfig().serverUrl;
     const httpServiceProvider: HttpServiceProvider = this.httpClient as HttpServiceProvider;
-    this.subscription = of(`${serverUrl}/admin/category/list`)
+    const subscription = of(`${serverUrl}/admin/category/list`)
       .pipe(
         map(url => httpServiceProvider.open(url)),
         map(service => service.get<undefined, Category[]>()),
@@ -65,9 +67,12 @@ export default {
         const tableHeaders = result.tableHeaders;
         tableHeaders.forEach(header => this.pageData?.tableHeaders.push(header));
       })
+    this.subscriptions?.push(subscription);
   },
   beforeUnmount() {
-    this.subscription.unsubscribe();
+    if (this.subscriptions) {
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+    }
   }
 }
 
