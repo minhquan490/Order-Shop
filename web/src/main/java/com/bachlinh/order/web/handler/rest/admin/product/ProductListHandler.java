@@ -1,8 +1,7 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.admin.product;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -13,13 +12,11 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider
-public class ProductListHandler extends AbstractController<ResponseEntity<Map<String, Object>>, Object> {
+public class ProductListHandler extends AbstractController<Page<ProductResp>, Object> {
 
     private ProductService productService;
     private String productListUrl;
@@ -30,7 +27,7 @@ public class ProductListHandler extends AbstractController<ResponseEntity<Map<St
     }
 
     @Override
-    protected ResponseEntity<Map<String, Object>> internalHandler(Payload<Object> request) {
+    protected Page<ProductResp> internalHandler(Payload<Object> request) {
         String page = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("page")).orElse("1");
         String size = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("size")).orElse("100");
         return productList(page, size);
@@ -57,7 +54,7 @@ public class ProductListHandler extends AbstractController<ResponseEntity<Map<St
         return RequestMethod.GET;
     }
 
-    private ResponseEntity<Map<String, Object>> productList(String page, String size) {
+    private Page<ProductResp> productList(String page, String size) {
         int p;
         int s;
         try {
@@ -68,9 +65,6 @@ public class ProductListHandler extends AbstractController<ResponseEntity<Map<St
         }
 
         PageRequest pageRequest = PageRequest.of(p, s);
-        Map<String, Object> resp = new HashMap<>();
-        Page<ProductResp> results = productService.productList(pageRequest);
-        resp.put("products", results);
-        return ResponseEntity.ok(resp);
+        return productService.productList(pageRequest);
     }
 }

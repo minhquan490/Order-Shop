@@ -68,4 +68,7 @@ const device = useState(inject('device')).value;
       <LoginMobile />
     </div>
   </div>
+  <footer>
+    <Footer />
+  </footer>
 </template>

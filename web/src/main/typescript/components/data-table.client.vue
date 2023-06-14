@@ -4,16 +4,18 @@ import { TableHeaders } from '~/types/table-header.type';
 export default {
   props: {
     headers: Array<TableHeaders>,
-    datas: Array<Record<string, string>>,
+    datas: Array<Record<string, any>>,
     itemPerPage: Number,
     height: String,
     currentPage: Number,
+    tableIconName: String,
+    tableTittle: String
   },
   data() {
     const table: Table = {
       columns: (this.headers?.length) ? this.headers?.length : 1,
       itemsPerPage: (this.itemPerPage) ? this.itemPerPage : 5,
-      height: (this.height) ? this.height : '300px',
+      height: (this.height) ? this.height : '50px',
       currentPage: (this.currentPage) ? this.currentPage : 1,
       source: this.datas,
     }
@@ -44,13 +46,17 @@ export default {
         }
       });
     };
+    const tableIconName = (this.tableIconName) ? this.tableIconName : '';
+    const tableTittle = (this.tableTittle) ? this.tableTittle : '';
     return {
       table,
       tableRender,
       totalPage,
       calculatePage,
       sliceData,
-      resetButtons
+      resetButtons,
+      tableIconName,
+      tableTittle
     }
   },
   methods: {
@@ -121,106 +127,126 @@ export default {
       this.totalPage = this.calculatePage(this.datas);
     },
     sort(header: string, event: Event) {
+      let source = this.table.source;
+      if (Array.isArray(source?.[0][header])) {
+        return;
+      }
       const buttons = toRaw(this.$refs['table-head-button']) as Array<Element>;
       this.resetButtons(event, buttons);
-      let source = this.table.source;
       const element = event.target as Element;
       if (element.getAttribute("data-dir") == "desc") {
         source = source?.reverse();
         element.setAttribute('data-dir', 'asc');
       } else {
-        source = RecordSortUtils.mergeSort(header, source as Array<Record<string, string>>);
+        source = RecordSortUtils.mergeSort(header, source as Array<Record<string, any>>);
         element.setAttribute('data-dir', 'desc');
       }
       this.table.source = source;
       this.table.data = this.sliceData(source, this.table);
     },
-    
+
   }
 }
 
 type Table = {
   columns: number,
-  data?: Array<Record<string, string>>,
+  data?: Array<Record<string, any>>,
   itemsPerPage: number,
   height: string,
   currentPage: number,
-  source?: Array<Record<string, string>>
+  source?: Array<Record<string, any>>
 }
 </script>
 
 <template>
-  <div class="w-full px-8 pt-4 pb-0">
-    <div class="flex items-center justify-between">
-      <div class="flex">
-        <div class="pr-2">
-          <span>Show</span>
-        </div>
-        <div class="flex items-center justify-center w-[10%]">
-          <input type="text" v-model="table.itemsPerPage"
-            class="text-center w-full bg-transparent outline-none border border-gray-300" @keyup="changeDataSize($event)">
-        </div>
-        <div class="pl-2">
-          <span>entries</span>
+  <div>
+    <div class="rounded-xl box-shadow w-full">
+      <div>
+        <div class="p-4">
+          <Icon :name="tableIconName" width="28" height="28" />
+          <span class="hover:cursor-default p-1" v-text="tableTittle"></span>
         </div>
       </div>
-      <div class="flex">
-        <label for="search" class="pr-2">Search</label>
-        <input @input="filter($event)" id="search" type="text"
-          class="border border-gray-400 rounded-lg outline-none px-3 bg-transparent">
+      <div class="rounded-b-xl overflow-hidden border-t border-gray-400">
+        <div class="w-full px-8 pt-4 pb-0">
+          <div class="flex items-center justify-between">
+            <div class="flex">
+              <div class="pr-2">
+                <span>Show</span>
+              </div>
+              <div class="flex items-center justify-center w-[10%]">
+                <input type="text" v-model="table.itemsPerPage"
+                  class="text-center w-full bg-transparent outline-none border border-gray-300"
+                  @keyup="changeDataSize($event)">
+              </div>
+              <div class="pl-2">
+                <span>entries</span>
+              </div>
+            </div>
+            <div class="flex">
+              <label for="search" class="pr-2">Search</label>
+              <input @input="filter($event)" id="search" type="text"
+                class="border border-gray-400 rounded-lg outline-none px-3 bg-transparent">
+            </div>
+          </div>
+          <table class="w-full table">
+            <thead class="border-b">
+              <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
+                <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
+                  <button class="flex items-center w-full" @click="sort(header.dataPropertyName, $event)"
+                    ref="table-head-button">
+                    <span class="hover:cursor-pointer text-xs w-max" v-text="header.name"></span>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody :style="`--height: ${table.height}`" class="body block">
+              <template v-if="tableRender">
+                <tr v-for="data in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
+                  :style="`--cols: ${table.columns}`">
+                  <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
+                    <a v-if="header.isId && !header.isImg" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`"
+                      class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>
+                    <span v-if="!header.isId && !header.isImg" class="hover:cursor-default text-sm"
+                      v-text="data[header.dataPropertyName]"></span>
+                    <img v-if="header.isImg" :src="data[header.dataPropertyName][0]" class="h-full">
+                  </td>
+                </tr>
+              </template>
+              <template v-if="!tableRender">
+                <tr class="p-4 bg-gray-300 flex items-center justify-center">
+                  <td>
+                    <span class="hover:cursor-default">No record available</span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+            <tfoot>
+              <tr class="p-4 block">
+                <td class="flex items-center justify-center">
+                  <button @click="goLeft" class="hover:cursor-pointer">
+                    <Icon class="text-gray-500" name="raphael:arrowleft" width="28" height="28" />
+                  </button>
+                  <div class="flex items-center justify-center w-[5%]">
+                    <input type="text" v-model="table.currentPage"
+                      class="text-center w-full bg-transparent outline-none border border-gray-300" @keyup="jump($event)">
+                  </div>
+                  <div class="px-2">
+                    <span class="hover:cursor-default">/</span>
+                  </div>
+                  <div class="px-2">
+                    <span class="hover:cursor-default" v-text="totalPage"></span>
+                  </div>
+                  <button @click="goRight" class="hover:cursor-pointer">
+                    <Icon class="text-gray-500" name="raphael:arrowright" width="28" height="28" />
+                  </button>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
-    <table class="w-full table">
-      <thead class="border-b">
-        <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
-          <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
-            <button class="flex items-center w-full" @click="sort(header.dataPropertyName, $event)" ref="table-head-button">
-              <span class="hover:cursor-pointer text-xs w-max" v-text="header.name"></span>
-            </button>
-          </th>
-        </tr>
-      </thead>
-      <tbody :style="`--height: ${table.height}`" class="body block">
-        <template v-if="tableRender">
-          <tr v-for="data in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
-            :style="`--cols: ${table.columns}`">
-            <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
-              <a v-if="header.isId" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`" class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>
-              <span v-if="!header.isId" class="hover:cursor-default text-sm" v-text="data[header.dataPropertyName]"></span>
-            </td>
-          </tr>
-        </template>
-        <template v-if="!tableRender">
-          <tr class="p-4 bg-gray-300 flex items-center justify-center">
-            <td>
-              <span class="hover:cursor-default">No record available</span>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-      <tfoot>
-        <tr class="p-4 block">
-          <td class="flex items-center justify-center">
-            <button @click="goLeft" class="hover:cursor-pointer">
-              <Icon class="text-gray-500" name="raphael:arrowleft" width="28" height="28" />
-            </button>
-            <div class="flex items-center justify-center w-[5%]">
-              <input type="text" v-model="table.currentPage"
-                class="text-center w-full bg-transparent outline-none border border-gray-300" @keyup="jump($event)">
-            </div>
-            <div class="px-2">
-              <span class="hover:cursor-default">/</span>
-            </div>
-            <div class="px-2">
-              <span class="hover:cursor-default" v-text="totalPage"></span>
-            </div>
-            <button @click="goRight" class="hover:cursor-pointer">
-              <Icon class="text-gray-500" name="raphael:arrowright" width="28" height="28" />
-            </button>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
   </div>
 </template>
 
@@ -246,6 +272,7 @@ type Table = {
         content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpolygon points='0, 0 8,0 4,8 8' fill='%23818688'/%3E%3C/svg%3E");
       }
     }
+
     & button[data-dir="desc"] {
       &::after {
         padding-left: 1rem;
@@ -253,5 +280,9 @@ type Table = {
       }
     }
   }
+}
+
+.box-shadow {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 </style>

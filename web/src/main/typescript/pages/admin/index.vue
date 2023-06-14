@@ -57,27 +57,32 @@ export default {
             {
               name: 'ID',
               dataPropertyName: 'id',
-              isId: true
+              isId: true,
+              isImg: false
             },
             {
               name: 'Name',
               dataPropertyName: 'name',
-              isId: false
+              isId: false,
+              isImg: false
             },
             {
               name: 'Username',
               dataPropertyName: 'username',
-              isId: false
+              isId: false,
+              isImg: false
             },
             {
               name: 'Phone',
               dataPropertyName: 'phone',
-              isId: false
+              isId: false,
+              isImg: false
             },
             {
               name: 'Email',
               dataPropertyName: 'emai',
-              isId: false
+              isId: false,
+              isImg: false
             }
           ];
           page.tableUserHeaders = tableHeaers;
@@ -88,22 +93,26 @@ export default {
             {
               name: 'ID',
               dataPropertyName: 'id',
-              isId: true
+              isId: true,
+              isImg: false
             },
             {
               name: 'Deposited',
               dataPropertyName: 'deposited',
-              isId: false
+              isId: false,
+              isImg: false
             },
             {
               name: 'Total Deposit',
               dataPropertyName: 'totalDeposit',
-              isId: false
+              isId: false,
+              isImg: false
             },
             {
               name: 'Time Order',
               dataPropertyName: 'timeOrder',
-              isId: false
+              isId: false,
+              isImg: false
             }
           ];
           page.tableOrderHeaders = tableHeaers;
@@ -152,29 +161,12 @@ class TableOrderInDate {
 <template>
   <div class="admin">
     <Header />
-    <div class="pt-4 px-8 grid grid-cols-5 gap-4">
-      <div class="col-start-2 col-span-4 rounded-xl table">
-        <div>
-          <div class="p-4">
-            <Icon name="mdi:user" width="28" height="28" />
-            <span class="hover:cursor-default p-1">User detail</span>
-          </div>
-        </div>
-        <div class="rounded-b-xl overflow-hidden border-t border-gray-400">
-          <DataTable :headers="pageData?.tableUserHeaders" :datas="pageData?.tableUserData" :height="'50vh'"
-            :currentPage="pageData?.tableUserCurrentPage" />
-        </div>
+    <div class="pt-24 px-8 grid grid-cols-5 gap-4">
+      <div class="col-start-2 col-span-4">
+        <DataTable tableTittle="Customer basic information" tableIconName="majesticons:user-box-line" :headers="pageData?.tableUserHeaders" :datas="pageData?.tableUserData" :height="'50vh'" :currentPage="pageData?.tableUserCurrentPage" />
       </div>
-      <div class="col-start-2 col-span-4 rounded-xl table">
-        <div>
-          <div class="p-4">
-            <Icon name="icon-park-outline:transaction-order" width="28" height="28" />
-            <span class="hover:cursor-default p-1">User order</span>
-          </div>
-        </div>
-        <div class="rounded-b-xl overflow-hidden border-t border-gray-400">
-          <DataTable :headers="pageData?.tableOrderHeaders" :datas="pageData?.tableOrerData" :height="'50vh'" />
-        </div>
+      <div class="col-start-2 col-span-4">
+        <DataTable tableTittle="User order" tableIconName="icon-park-outline:transaction-order" :headers="pageData?.tableOrderHeaders" :datas="pageData?.tableOrerData" :height="'50vh'" />
       </div>
     </div>
   </div>
@@ -186,9 +178,5 @@ $page_bg: #f4f6f9;
 .admin {
   background-color: $page_bg;
   padding-bottom: 1.5rem;
-
-  & .table {
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  }
 }
 </style>

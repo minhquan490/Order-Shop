@@ -9,7 +9,12 @@ export default {
       categoryUrl: '/admin/category',
       userUrl: '/admin/user',
       orderUrl: '/admin/order',
-      thridPartyUrl: '/admin/thrid-party'
+      thridPartyUrl: '/admin/thrid-party',
+      batchUrl: '/admin/batch',
+      countryAddressUrl: '/admin/country-address',
+      emailTemplateUrl: '/admin/email-template',
+      triggerSettingUrl: '/admin/trigger',
+      voucherListUrl: '/admin/voucher'
     };
     return {
       nav,
@@ -24,7 +29,12 @@ type NavBar = {
   categoryUrl: string,
   userUrl: string,
   orderUrl: string,
-  thridPartyUrl: string
+  thridPartyUrl: string,
+  batchUrl: string,
+  countryAddressUrl: string,
+  emailTemplateUrl: string,
+  triggerSettingUrl: string,
+  voucherListUrl: string
 };
 </script>
 
@@ -73,14 +83,48 @@ type NavBar = {
       </a>
     </div>
   </div>
+  <div v-if="nav.adminUrl === path" class="nav border-t">
+    <div class="p-4">
+      <a :href="nav.batchUrl" :class="nav.batchUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
+        <Icon class="text-white" name="material-symbols:auto-timer-outline" width="24" height="24" />
+        <span class="hover:cursor-pointer text-white pl-2">Batch</span>
+      </a>
+    </div>
+    <div class="p-4">
+      <a :href="nav.countryAddressUrl" :class="nav.countryAddressUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
+        <Icon class="text-white" name="entypo:address" width="24" height="24" />
+        <span class="hover:cursor-pointer text-white pl-2">Country Address</span>
+      </a>
+    </div>
+    <div class="p-4">
+      <a :href="nav.emailTemplateUrl" :class="nav.emailTemplateUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
+        <Icon class="text-white" name="mdi:email-plus-outline" width="24" height="24" />
+        <span class="hover:cursor-pointer text-white pl-2">Email Template</span>
+      </a>
+    </div>
+    <div class="p-4">
+      <a :href="nav.triggerSettingUrl" :class="nav.triggerSettingUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
+        <Icon class="text-white" name="grommet-icons:trigger" width="24" height="24" />
+        <span class="hover:cursor-pointer text-white pl-2">Trigger Setting</span>
+      </a>
+    </div>
+    <div class="p-4">
+      <a :href="nav.voucherListUrl" :class="nav.voucherListUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
+        <Icon class="text-white" name="mdi:voucher-outline" width="24" height="24" />
+        <span class="hover:cursor-pointer text-white pl-2">Voucher List</span>
+      </a>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-$header_bg: linear-gradient(90deg, rgba(0,174,207,1) 0%, rgba(1,167,148,1) 75%, rgba(0,174,207,1) 100%);
+$header_bg: linear-gradient(90deg, rgba(0, 174, 207, 1) 0%, rgba(1, 167, 148, 1) 75%, rgba(0, 174, 207, 1) 100%);
 
 .header {
   height: 4.75rem;
   background: $header_bg;
+  position: fixed;
+  width: 100%;
 
   & .logo {
     height: 4.75rem;
@@ -90,19 +134,53 @@ $header_bg: linear-gradient(90deg, rgba(0,174,207,1) 0%, rgba(1,167,148,1) 75%, 
   & .title {
     font-family: 'Pacifico', cursive;
   }
+}
 
-  & .line {
+.nav {
+  position: fixed;
+  top: 4.75rem;
+  background: $header_bg;
+  width: 20%;
+  height: 100%;
+
+  & .btn {
     position: relative;
+
     &::after {
-      position: absolute;
-      content: '';
-      width: 90%;
-      border-bottom-width: 1px;
-      border-color: rgba(255, 255, 255, 0.726);
       display: block;
+      position: absolute;
+      content: "";
+      width: 0;
+      height: 0;
+      transition: .5s;
       bottom: 0;
-      left: calc(5% - 1px);
+      right: 0;
+      border-bottom: 1px solid transparent;
     }
+
+    &:hover {
+      color: #fff;
+
+      &::after {
+        width: 100%;
+        border-color: #fff;
+      }
+    }
+  }
+}
+
+.line {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: '';
+    width: 90%;
+    border-bottom-width: 1px;
+    border-color: rgba(255, 255, 255, 0.726);
+    display: block;
+    bottom: 0;
+    left: calc(5% - 1px);
   }
 }
 </style>
