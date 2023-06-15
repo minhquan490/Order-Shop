@@ -1,9 +1,14 @@
 <script lang="ts">
 import { Subscription, from, map, mergeMap } from 'rxjs';
-import { useHttpClient } from '~/composables/useHttpClient';
 import { TableHeaders } from '~/types/table-header.type';
 
 export default {
+  setup() {
+    const clientProvider = useHttpClient().value;
+    return {
+      clientProvider
+    }
+  },
   data() {
     if (process.server) {
       return {};
@@ -20,10 +25,9 @@ export default {
       return;
     }
     const serverUrl = useAppConfig().serverUrl;
-    const clientProvider = useHttpClient().value;
     const subscription = from([`${serverUrl}/admin/table/customer`, `${serverUrl}/admin/orders/new-in-date`])
       .pipe(
-        map(url => clientProvider(url)),
+        map(url => this.clientProvider(url)),
         mergeMap(async service => service.get<undefined, any>()),
         map(resp => {
           if (Object.keys(resp).length === 0) {

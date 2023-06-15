@@ -1,5 +1,11 @@
 <script lang="ts">
 export default {
+  setup() {
+    const service = useAuth();
+    return {
+      service
+    }
+  },
   data() {
     return {
       username: '',
@@ -11,19 +17,18 @@ export default {
   },
   methods: {
     submit(event: Event): void {
-      const service = useAuth();
       event.preventDefault();
       const form = { username: this.username, password: this.password };
-      const validateResult = service.validateFormLogin(form);
+      const validateResult = this.service.validateFormLogin(form);
       if (validateResult.isValid) {
-        const loginResult = service.login(form);
+        const loginResult = this.service.login(form);
         if (!loginResult) {
           this.loginFailureDetail.push('Has problem when try to login');
         } else {
           if ("status" in loginResult) {
             this.loginFailureDetail = loginResult.messages;
           } else {
-            service.storeAuth(loginResult);
+            this.service.storeAuth(loginResult);
           }
         }
         this.username = '';

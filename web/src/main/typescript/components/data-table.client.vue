@@ -1,5 +1,6 @@
 <script lang="ts">
 import { TableHeaders } from '~/types/table-header.type';
+import { TableActionCallback } from '~/types/table-store.type';
 
 export default {
   props: {
@@ -9,13 +10,14 @@ export default {
     height: String,
     currentPage: Number,
     tableIconName: String,
-    tableTittle: String
+    tableTittle: String,
+    setter: TableActionCallback
   },
   data() {
     const table: Table = {
       columns: (this.headers?.length) ? this.headers?.length : 1,
       itemsPerPage: (this.itemPerPage) ? this.itemPerPage : 5,
-      height: (this.height) ? this.height : '50px',
+      height: (this.height) ? this.height : 'auto',
       currentPage: (this.currentPage) ? this.currentPage : 1,
       source: this.datas,
     }
@@ -144,7 +146,22 @@ export default {
       this.table.source = source;
       this.table.data = this.sliceData(source, this.table);
     },
-
+    selectRow(refIndex: number) {
+      // if (!this.setter) {
+      //   return;
+      // }
+      const data = this.table.data as Record<string, any>[];
+      const selectedClass = 'selected';
+      const refs = this.$refs['table-body'] as Array<Element>;
+      refs.forEach((ref, index) => {
+        if (index === refIndex) {
+          ref.classList.add(selectedClass);
+          this.setter?.dispatchAction(data[index]);
+        } else {
+          ref.classList.remove(selectedClass);
+        }
+      });
+    }
   }
 }
 
@@ -202,8 +219,8 @@ type Table = {
             </thead>
             <tbody :style="`--height: ${table.height}`" class="body block">
               <template v-if="tableRender">
-                <tr v-for="data in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
-                  :style="`--cols: ${table.columns}`">
+                <tr v-for="(data, i) in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
+                  :style="`--cols: ${table.columns}`" @click="selectRow(i)" ref="table-body">
                   <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
                     <a v-if="header.isId && !header.isImg" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`"
                       class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>

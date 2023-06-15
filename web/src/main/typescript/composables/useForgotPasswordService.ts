@@ -1,9 +1,6 @@
 import { ForgotPasswordService } from "~/services/forgot-password.service";
 
 export const useForgotPasswordService = () => {
-    if (process.server) {
-        throw new Error("Client composables only");
-    }
     
     const forgotPasswordService: ForgotPasswordService = inject('forgotPasswordService') as ForgotPasswordService;
     const queryParam = useRoute().query;

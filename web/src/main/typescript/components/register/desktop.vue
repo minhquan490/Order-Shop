@@ -1,5 +1,11 @@
 <script lang="ts">
 export default {
+  setup() {
+    const service = useRegisterService();
+    return {
+      service
+    }
+  },
   data() {
     const form: RegisterForm = {
       firstName: '',
@@ -24,8 +30,7 @@ export default {
   },
   methods: {
     submit() {
-      const service = useRegisterService();
-      const result = service.validateRegisterForm(new Map(Object.entries(this.form)));
+      const result = this.service.validateRegisterForm(new Map(Object.entries(this.form)));
       let isError = false;
       result.forEach((value, key) => {
         if (value.length !== 0) {
@@ -35,7 +40,7 @@ export default {
         }
       });
       if (!isError) {
-        service.register(new Map(Object.entries(this.form)));
+        this.service.register(new Map(Object.entries(this.form)));
       }
       setTimeout(() => {
         this.formError = {

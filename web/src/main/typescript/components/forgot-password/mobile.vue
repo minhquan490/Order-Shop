@@ -1,9 +1,14 @@
 <script lang="ts">
 export default {
+  setup() {
+    const service = useForgotPasswordService();
+    return {
+      service
+    }
+  },
   data() {
     const queryParam = useRoute().query;
     const token = queryParam['token'];
-    const service = useForgotPasswordService();
     return {
       token,
       email: '',
@@ -13,8 +18,7 @@ export default {
       newPassword: '',
       confirmPassword: '',
       confirmPasswordErrMsg: '',
-      passwordErrMsg: '',
-      service
+      passwordErrMsg: ''
     }
   },
   methods: {

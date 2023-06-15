@@ -4,6 +4,12 @@ import { Product } from '~/types/product.type';
 import { TableHeaders } from '~/types/table-header.type';
 
 export default {
+  setup() {
+    const clientProvider = useHttpClient().value;
+    return {
+      clientProvider
+    }
+  },
   data() {
     if (process.server) {
       return {};
@@ -22,11 +28,10 @@ export default {
     if (process.server) {
       return;
     }
-    const clientProvider = useHttpClient().value;
     const serverUrl = useAppConfig().serverUrl;
     const subscription = of(`${serverUrl}/content/product/list`)
       .pipe(
-        map(url => clientProvider(url)),
+        map(url => this.clientProvider(url)),
         map(service => service.get<undefined, Product[]>()),
         map(resp => {
           if (!Array.isArray(resp) && Object.keys(resp).length === 0) {
