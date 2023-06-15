@@ -1,11 +1,10 @@
 <script lang="ts">
-import { ForgotPasswordService } from '~/services/forgot-password.service';
 
 export default {
-  inject: ['forgotPasswordService'],
   data() {
     const queryParam = useRoute().query;
     const token = queryParam['token'];
+    const service = useForgotPasswordService();
     return {
       token,
       email: '',
@@ -15,7 +14,8 @@ export default {
       newPassword: '',
       confirmPassword: '',
       confirmPasswordErrMsg: '',
-      passwordErrMsg: ''
+      passwordErrMsg: '',
+      service
     }
   },
   methods: {
@@ -25,8 +25,7 @@ export default {
       if (this.errorMsg.length !== 0) {
         return;
       }
-      const service = this.forgotPasswordService as ForgotPasswordService;
-      service.requestRequestPasswordEmail(this.email);
+      this.service.sendEmail(this.email);
       this.email = '';
       this.isSubmitted = true;
     },
@@ -43,8 +42,7 @@ export default {
       return '';
     },
     resentEmail() {
-      const service = this.forgotPasswordService as ForgotPasswordService;
-      service.requestRequestPasswordEmail(this.email);
+      this.service.sendEmail(this.email);
     },
     resetPassword() {
       this.passwordErrMsg = this.validatePassword(this.newPassword);
@@ -54,14 +52,7 @@ export default {
         this.confirmPasswordErrMsg = '';
       }, 3000);
       if (this.passwordErrMsg.length === 0 && this.confirmPasswordErrMsg.length === 0) {
-        const service = this.forgotPasswordService as ForgotPasswordService;
-        let error;
-        if (Array.isArray(this.token)) {
-          const t = this.token[0] === null ? '' : this.token[0];
-          error = service.resetPassword(t, this.newPassword); 
-        } else {
-          error = service.resetPassword(this.token === null ? '' : this.token, this.newPassword); 
-        }
+        const error = this.service.resetPassword(this.newPassword);
         if (!error) {
           window.location.href = '/login';
         } else {

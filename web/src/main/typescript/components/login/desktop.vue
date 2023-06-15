@@ -1,8 +1,7 @@
 <script lang="ts">
-import { LoginService } from '~/services/login.service';
+import { LoginForm } from '~/types/login-form.type';
 
 export default {
-  inject: ['loginService'],
   data() {
     return {
       username: '',
@@ -14,10 +13,10 @@ export default {
   },
   methods: {
     submit(event: Event): void {
-      const service = this.loginService as LoginService;
+      const service = useAuth();
       event.preventDefault();
-      const form = { username: this.username, password: this.password };
-      const validateResult = service.validateLoginForm(form);
+      const form: LoginForm = { username: this.username, password: this.password };
+      const validateResult = service.validateFormLogin(form);
       if (validateResult.isValid) {
         const loginResult = service.login(form);
         if (!loginResult) {
@@ -26,7 +25,7 @@ export default {
           if ("status" in loginResult) {
             this.loginFailureDetail = loginResult.messages;
           } else {
-            service.storeAuthentication(loginResult);
+            service.storeAuth(loginResult);
           }
         }
         this.username = '';

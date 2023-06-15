@@ -1,11 +1,9 @@
 <script lang="ts">
 import { Subscription, map, of } from 'rxjs';
-import { HttpServiceProvider } from '~/services/http.service';
 import { Category } from '~/types/category.type';
 import { TableHeaders } from '~/types/table-header.type';
 
 export default {
-  inject: ['httpClient'],
   data() {
     if (process.server) {
       return {};
@@ -24,11 +22,11 @@ export default {
     if (process.server) {
       return;
     }
+    const clientProvider = useHttpClient().value;
     const serverUrl = useAppConfig().serverUrl;
-    const httpServiceProvider: HttpServiceProvider = this.httpClient as HttpServiceProvider;
     const subscription = of(`${serverUrl}/admin/category/list`)
       .pipe(
-        map(url => httpServiceProvider.open(url)),
+        map(url => clientProvider(url)),
         map(service => service.get<undefined, Category[]>()),
         map(resp => {
           if (!Array.isArray(resp) && Object.keys(resp).length === 0) {

@@ -16,18 +16,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         return JSON.parse(res);
       },
     });
+    const navigate = useNavigation().navigate;
     if (fetch.error !== null) {
-      return navigateTo("/403", {
-        replace: true,
-        redirectCode: 301,
-      });
+      return navigate("/403", true, 301);
     }
     const result: { role: string } = fetch.data.value as { role: string };
     if (result.role.toLocaleLowerCase() !== "admin") {
-      return navigateTo("/403", {
-        replace: true,
-        redirectCode: 301,
-      });
+      return navigate("/403", true, 301);
     }
   }
 });

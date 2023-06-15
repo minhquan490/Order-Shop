@@ -33,7 +33,6 @@ export default {
     provide('forgotPasswordService', new ForgotPasswordServiceImpl(httpServiceProvider));
     provide('registerService', new RegisterServiceImpl(httpServiceProvider));
     provide('device', checkDevice);
-
   }
 }
 </script>

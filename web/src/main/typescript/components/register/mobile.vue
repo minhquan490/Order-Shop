@@ -1,8 +1,5 @@
 <script lang="ts">
-import { RegisterService } from '~/services/register.service';
-
 export default {
-  inject: ['registerService'],
   data() {
     const form: RegisterForm = {
       firstName: '',
@@ -27,8 +24,8 @@ export default {
   },
   methods: {
     submit() {
-      const service = this.registerService as RegisterService;
-      const result = service.validateForm(new Map(Object.entries(this.form)));
+      const service = useRegisterService();
+      const result = service.validateRegisterForm(new Map(Object.entries(this.form)));
       let isError = false;
       result.forEach((value, key) => {
         if (value.length !== 0) {
