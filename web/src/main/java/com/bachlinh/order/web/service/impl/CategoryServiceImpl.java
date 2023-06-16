@@ -88,4 +88,9 @@ public class CategoryServiceImpl extends AbstractService<CategoryResp, CategoryF
             entityFactory = resolver.resolveDependencies(EntityFactory.class);
         }
     }
+
+    @Override
+    public boolean isExist(String id) {
+        return categoryRepository.isExits(id);
+    }
 }

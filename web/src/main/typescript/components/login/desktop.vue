@@ -78,8 +78,8 @@ export default {
               </div>
             </div>
             <div class="col-span-3">
-              <button class="w-full submit rounded-3xl hover:opacity-80 relative focus:translate-y-1"
-                @click="submit($event)">Login</button>
+              <button class="w-full submit rounded-3xl hover:opacity-80 relative active:translate-y-1"
+                @click="$event => submit($event)">Login</button>
             </div>
             <div class="col-span-3 flex justify-end text-sm">
               <span class="pr-1 hover:cursor-default opacity-70">Forgot</span>

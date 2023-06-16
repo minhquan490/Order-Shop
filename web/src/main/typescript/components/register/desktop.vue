@@ -139,7 +139,7 @@ type FormError = {
         </div>
       </div>
       <div class="pt-10 flex items-center justify-end">
-        <button @click="submit" class="relative active:translate-y-1 rounded-md border bg-green-700 text-white hover:opacity-75 py-2 px-4">
+        <button @click="$event => submit()" class="relative active:translate-y-1 rounded-md border bg-green-700 text-white hover:opacity-75 py-2 px-4">
           Signup
         </button>
       </div>

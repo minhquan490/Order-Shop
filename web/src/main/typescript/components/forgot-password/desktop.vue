@@ -108,7 +108,7 @@ export default {
                 <span v-text="confirmPasswordErrMsg" class="text-red-600 text-xs hover:cursor-default"></span>
               </div>
               <div class="pt-5">
-                <button @click="resetPassword" class="w-full border bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600 px-4">Reset my password</button>
+                <button @click="$event => resetPassword()" class="w-full border bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600 px-4">Reset my password</button>
               </div>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default {
                 <span v-text="errorMsg" class="text-red-600 text-xs hover:cursor-default"></span>
               </div>
               <div class="pt-5">
-                <button @click="submit"
+                <button @click="$event => submit()"
                   class="w-full bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600">Continue</button>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default {
               </div>
             </div>
             <div style="width: 20%;">
-              <button @click="resentEmail"
+              <button @click="$event => resentEmail()"
                 class="w-full bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600">Resent
                 email</button>
             </div>

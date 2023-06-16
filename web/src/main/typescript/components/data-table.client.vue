@@ -194,7 +194,7 @@ type Table = {
               <div class="flex items-center justify-center w-[10%]">
                 <input type="text" v-model="table.itemsPerPage"
                   class="text-center w-full bg-transparent outline-none border border-gray-300"
-                  @keyup="changeDataSize($event)">
+                  @keyup="$event => changeDataSize($event)">
               </div>
               <div class="pl-2">
                 <span>entries</span>
@@ -202,7 +202,7 @@ type Table = {
             </div>
             <div class="flex">
               <label for="search" class="pr-2">Search</label>
-              <input @input="filter($event)" id="search" type="text"
+              <input @input="$event => filter($event)" id="search" type="text"
                 class="border border-gray-400 rounded-lg outline-none px-3 bg-transparent">
             </div>
           </div>
@@ -210,7 +210,7 @@ type Table = {
             <thead class="border-b">
               <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
                 <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
-                  <button class="flex items-center w-full" @click="sort(header.dataPropertyName, $event)"
+                  <button class="flex items-center w-full" @click="$event => sort(header.dataPropertyName, $event)"
                     ref="table-head-button">
                     <span class="hover:cursor-pointer text-xs w-max" v-text="header.name"></span>
                   </button>
@@ -220,7 +220,7 @@ type Table = {
             <tbody :style="`--height: ${table.height}`" class="body block">
               <template v-if="tableRender">
                 <tr v-for="(data, i) in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
-                  :style="`--cols: ${table.columns}`" @click="selectRow(i)" ref="table-body">
+                  :style="`--cols: ${table.columns}`" @click="$event => selectRow(i)" ref="table-body">
                   <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
                     <a v-if="header.isId && !header.isImg" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`"
                       class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>
@@ -241,12 +241,12 @@ type Table = {
             <tfoot>
               <tr class="p-4 block">
                 <td class="flex items-center justify-center">
-                  <button @click="goLeft" class="hover:cursor-pointer">
+                  <button @click="$event => goLeft()" class="hover:cursor-pointer">
                     <Icon class="text-gray-500" name="raphael:arrowleft" width="28" height="28" />
                   </button>
                   <div class="flex items-center justify-center w-[5%]">
                     <input type="text" v-model="table.currentPage"
-                      class="text-center w-full bg-transparent outline-none border border-gray-300" @keyup="jump($event)">
+                      class="text-center w-full bg-transparent outline-none border border-gray-300" @keyup="$event => jump($event)">
                   </div>
                   <div class="px-2">
                     <span class="hover:cursor-default">/</span>
@@ -254,7 +254,7 @@ type Table = {
                   <div class="px-2">
                     <span class="hover:cursor-default" v-text="totalPage"></span>
                   </div>
-                  <button @click="goRight" class="hover:cursor-pointer">
+                  <button @click="$event => goRight()" class="hover:cursor-pointer">
                     <Icon class="text-gray-500" name="raphael:arrowright" width="28" height="28" />
                   </button>
                 </td>

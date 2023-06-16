@@ -115,7 +115,7 @@ type FormError = {
         <span v-text="formError.confirmPasswordError" class="text-red-600 text-xs hover:cursor-default"></span>
       </div>
       <div class="flex items-center justify-end h-max">
-        <button @click="submit" class="bg-green-700 text-white py-2 px-6 rounded-lg active:translate-y-1">Sign up</button>
+        <button @click="$event => submit()" class="bg-green-700 text-white py-2 px-6 rounded-lg active:translate-y-1">Sign up</button>
       </div>
     </div>
   </div>
