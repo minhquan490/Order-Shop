@@ -28,7 +28,7 @@ export default {
 
     provide('authService', authService);
     provide('httpClient', httpServiceProvider);
-    provide('fileUploadService', new DefaultChunkFileUploadService(httpServiceProvider));
+    provide('fileUploadServiceInitializer', new DefaultChunkFileUploadService(httpServiceProvider));
     provide('loginService', new LoginServiceImpl(httpServiceProvider, authService));
     provide('forgotPasswordService', new ForgotPasswordServiceImpl(httpServiceProvider));
     provide('registerService', new RegisterServiceImpl(httpServiceProvider));

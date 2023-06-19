@@ -2,22 +2,28 @@
 import { Subscription, map, of } from 'rxjs';
 import { Product } from '~/types/product.type';
 import { TableHeaders } from '~/types/table-header.type';
+import { TableActionCallback } from '~/types/table-store.type';
 
 export default {
   setup() {
     const clientProvider = useHttpClient().value;
+    const serverUrl = useAppConfig().serverUrl;
+    const pathPrefix = '/content/product';
+    const listUrl = `${serverUrl}${pathPrefix}/list`;
+    const productStore = useProductStore();
+    const tableAction: TableActionCallback = new TableActionCallback(productStore, "selectedProduct");
     return {
-      clientProvider
+      clientProvider,
+      listUrl,
+      tableAction,
+      productStore
     }
   },
   data() {
     if (process.server) {
       return {};
     }
-    const pageData: PageData = {
-      tableData: [],
-      tableHeaders: []
-    }
+    const pageData = new PageData()
     const subscriptions: Array<Subscription> = [];
     return {
       pageData,
@@ -28,8 +34,7 @@ export default {
     if (process.server) {
       return;
     }
-    const serverUrl = useAppConfig().serverUrl;
-    const subscription = of(`${serverUrl}/content/product/list`)
+    const subscription = of(this.listUrl)
       .pipe(
         map(url => this.clientProvider(url)),
         map(service => service.get<undefined, Product[]>()),
@@ -107,10 +112,10 @@ export default {
         }),
       )
       .subscribe(result => {
-        const tableData = result.tableData;
-        tableData.forEach(data => this.pageData?.tableData.push(data));
-        const tableHeaders = result.tableHeaders;
-        tableHeaders.forEach(header => this.pageData?.tableHeaders.push(header));
+        if (this.pageData) {
+          this.pageData.tableData = result.tableData;
+          this.pageData.tableHeaders = result.tableHeaders;
+        }
       })
     this.subscriptions?.push(subscription);
   },
@@ -118,19 +123,45 @@ export default {
     if (this.subscriptions) {
       this.subscriptions.forEach(sub => sub.unsubscribe());
     }
+  },
+  methods: {
+    async redirectToCreatePage(event: MouseEvent) {
+      event.preventDefault();
+      const navigator = useNavigation();
+      await navigator.navigate('/admin/product/create');
+    },
+    updateProduct(event: MouseEvent) {
+      event.preventDefault();
+      const selectedProduct = this.productStore.getProduct;
+      console.log(selectedProduct);
+    }
   }
 }
 
-type PageData = {
-  tableHeaders: Array<TableHeaders>,
-  tableData: Array<Product>
+class PageData {
+  tableHeaders: Array<TableHeaders> = [];
+  tableData: Array<Product> = []
 }
 </script>
 
 <template>
   <div class="product">
     <div class="pt-24 px-8">
-      <DataTable :headers="pageData?.tableHeaders" :datas="pageData?.tableData" tableIconName="fluent-mdl2:product-list" tableTittle="Products information" />
+      <div class="pb-4 flex items-center justify-end">
+        <div class="pr-4">
+          <ButtonBasic :name="'Update product'" :clickFunc="updateProduct" :bgColor="'rgb(59 130 246)'" />
+        </div>
+        <div>
+          <ButtonBasic :name="'Create product'" :clickFunc="redirectToCreatePage" />
+        </div>
+      </div>
+      <div>
+        <DataTable :headers="pageData?.tableHeaders" 
+                 :datas="pageData?.tableData" 
+                 tableIconName="fluent-mdl2:product-list"
+                 tableTittle="Products information" 
+                 :setter="tableAction" />
+      </div>
     </div>
   </div>
 </template>
@@ -141,5 +172,6 @@ $page_bg: #f4f6f9;
 .product {
   background-color: $page_bg;
   padding-bottom: 1.5rem;
+  min-height: 100vh;
 }
 </style>

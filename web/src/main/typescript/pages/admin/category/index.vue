@@ -179,6 +179,10 @@ export default {
             this.pageData.tableData.push(resp);
           }
         })
+    },
+    resetState(event: MouseEvent) {
+      event.preventDefault();
+      this.categoryStore.setCategory(undefined);
     }
   },
 }
@@ -234,22 +238,13 @@ class CategoryResponse {
           </div>
           <div class="grid grid-cols-3 gap-2 w-full pt-6">
             <div class="col-span-1">
-              <button @click="$event => categoryStore.setCategory(undefined)"
-                class="h-full w-full bg-green-600 text-white text-sm p-2 rounded-md hover:opacity-70 active:translate-y-1 relative">
-                Reset
-              </button>
+              <ButtonBasic :clickFunc="resetState" :name="'Reset'" :textSize="'0.875rem'" :color="'white'" :bgColor="'rgb(22 163 74)'" />
             </div>
             <div class="col-span-1">
-              <button @click="$event => deleteCategory($event)"
-                class="bg-red-600 text-white text-sm p-2 rounded-md hover:opacity-70 h-full w-full active:translate-y-1 relative">
-                Delete
-              </button>
+              <ButtonBasic :clickFunc="deleteCategory" :name="'Delete'" :textSize="'0.875rem'" :color="'white'" :bgColor="'rgb(220 38 38)'" />
             </div>
             <div class="col-span-1">
-              <button @click="$event => updateCategory($event)"
-                class="bg-blue-600 text-white text-sm p-2 rounded-md hover:opacity-70 h-full w-full active:translate-y-1 relative">
-                Update
-              </button>
+              <ButtonBasic :clickFunc="updateCategory" :name="'Update'" :textSize="'0.875rem'" :color="'white'" :bgColor="'rgb(37 99 235)'" />
             </div>
           </div>
         </div>
@@ -264,8 +259,9 @@ class CategoryResponse {
             <input ref="create-category" type="text" class="w-full leading-10 rounded-md bg-slate-200 outline-none px-4">
           </div>
           <div class="row-span-1 flex items-center justify-center">
-            <button @click="$event => createCategory($event)"
-              class="bg-blue-400 text-white py-2 px-4 rounded-md active:translate-y-1 relative hover:opacity-70">Create</button>
+            <div class="w-full">
+              <ButtonBasic :clickFunc="createCategory" :name="'Create'" :textSize="'0.875rem'" :color="'white'" :bgColor="'rgb(96 165 250)'" />
+            </div>
           </div>
         </div>
       </div>

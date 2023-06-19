@@ -1,6 +1,17 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/google-fonts", "nuxt-icon", "@pinia/nuxt"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@nuxtjs/google-fonts",
+    "nuxt-icon",
+    "@pinia/nuxt",
+    [
+      "@vee-validate/nuxt",
+      {
+        autoImports: true,
+      },
+    ],
+  ],
   ssr: true,
   devtools: {
     enabled: true,
@@ -33,7 +44,7 @@ export default defineNuxtConfig({
       },
       Pacifico: {
         wght: [100, 300, 400, 500, 700, 900],
-      }
+      },
     },
     display: "swap",
     preconnect: true,
@@ -52,11 +63,11 @@ export default defineNuxtConfig({
     head: {
       link: [
         {
-          rel: 'icon',
-          type: 'image/x-icon', 
-          href: '/favicon.png'
-        }
-      ]
+          rel: "icon",
+          type: "image/x-icon",
+          href: "/favicon.png",
+        },
+      ],
     },
   },
   build: {
@@ -78,14 +89,11 @@ export default defineNuxtConfig({
       },
     },
   },
-  css: ['~/assets/styles/global.scss'],
+  css: ["~/assets/styles/global.scss"],
   experimental: {
-    componentIslands: true
+    componentIslands: true,
   },
   pinia: {
-    autoImports: [
-      'defineStore',
-      ['defineStore', 'definePiniaStore']
-    ],
-  }
+    autoImports: ["defineStore", ["defineStore", "definePiniaStore"]],
+  },
 });

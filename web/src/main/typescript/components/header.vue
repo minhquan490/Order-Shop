@@ -125,6 +125,7 @@ $header_bg: linear-gradient(90deg, rgba(0, 174, 207, 1) 0%, rgba(1, 167, 148, 1)
   background: $header_bg;
   position: fixed;
   width: 100%;
+  z-index: 1000;
 
   & .logo {
     height: 4.75rem;

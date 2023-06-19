@@ -42,7 +42,7 @@ export default {
     const totalPage = calculatePage(this.datas);
     table.data = sliceData(this.datas, table);
     const resetButtons = (event: Event, buttons: any) => {
-      [...buttons].map(button => {
+      [...buttons].forEach(button => {
         if (button !== event.target) {
           button.removeAttribute("data-dir");
         }
@@ -109,7 +109,7 @@ export default {
         for (const header of this.headers as Array<TableHeaders>) {
           const resolvedObject = toRaw(value);
           const proxyData = resolvedObject[header.dataPropertyName];
-          const data = new String(proxyData);
+          const data = String(proxyData);
 
           if (data.toLocaleUpperCase().indexOf(searchValue.toLocaleUpperCase()) > -1) {
             return value;
@@ -147,9 +147,9 @@ export default {
       this.table.data = this.sliceData(source, this.table);
     },
     selectRow(refIndex: number) {
-      // if (!this.setter) {
-      //   return;
-      // }
+      if (!this.setter) {
+        return;
+      }
       const data = this.table.data as Record<string, any>[];
       const selectedClass = 'selected';
       const refs = this.$refs['table-body'] as Array<Element>;
@@ -207,11 +207,11 @@ type Table = {
             </div>
           </div>
           <table class="w-full table">
+            <caption class="hidden">Table data</caption>
             <thead class="border-b">
               <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
                 <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
-                  <button class="flex items-center w-full" @click="$event => sort(header.dataPropertyName, $event)"
-                    ref="table-head-button">
+                  <button class="flex items-center w-full" @click="$event => sort(header.dataPropertyName, $event)" ref="table-head-button">
                     <span class="hover:cursor-pointer text-xs w-max" v-text="header.name"></span>
                   </button>
                 </th>
@@ -219,14 +219,12 @@ type Table = {
             </thead>
             <tbody :style="`--height: ${table.height}`" class="body block">
               <template v-if="tableRender">
-                <tr v-for="(data, i) in table.data" class="grid p-4 hover:bg-gray-200 border-b row"
-                  :style="`--cols: ${table.columns}`" @click="$event => selectRow(i)" ref="table-body">
-                  <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400">
-                    <a v-if="header.isId && !header.isImg" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`"
-                      class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>
-                    <span v-if="!header.isId && !header.isImg" class="hover:cursor-default text-sm"
-                      v-text="data[header.dataPropertyName]"></span>
-                    <img v-if="header.isImg" :src="data[header.dataPropertyName][0]" class="h-full">
+                <tr v-for="(data, i) in table.data" class="grid p-4 hover:bg-gray-200 border-b row" :style="`--cols: ${table.columns}`" @click="$event => selectRow(i)" ref="table-body">
+                  <td v-for="header, i in headers" class="col-span-1 flex items-center border-gray-400 px-1">
+                    <a v-if="header.isId && !header.isImg" :href="`/admin/product/info?id=${data[header.dataPropertyName]}`" class="underline text-blue-500 text-sm" v-text="data[header.dataPropertyName]"></a>
+                    <span v-if="!header.isId && !header.isImg && Array.isArray(data[header.dataPropertyName])" class="hover:cursor-default text-sm custom-overflow" v-text="(data[header.dataPropertyName] as Array<any>).toLocaleString()"></span>
+                    <span v-if="!header.isId && !header.isImg && !Array.isArray(data[header.dataPropertyName])" class="hover:cursor-default text-sm custom-overflow" v-text="data[header.dataPropertyName]"></span>
+                    <img v-if="header.isImg" :src="data[header.dataPropertyName][0]" class="h-full" alt="Img data">
                   </td>
                 </tr>
               </template>
@@ -275,6 +273,13 @@ type Table = {
 
     &::-webkit-scrollbar {
       display: none;
+    }
+
+    & .custom-overflow {
+      width: 100%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
 

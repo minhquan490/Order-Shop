@@ -1,19 +1,22 @@
 import { map, mergeMap, of, switchMap } from 'rxjs';
-import { ChunkFileUploadService } from "~/services/chunk-file-upload.service";
-import { HttpServiceProvider } from "~/services/http.service";
+import { ChunkFileUploadService, FileUploadServiceInitializer } from "~/services/chunk-file-upload.service";
+import { HttpService, HttpServiceProvider } from "~/services/http.service";
 import { UploadFileResult } from "~/types/file-upload-result.type";
 import { Resource } from "~/types/resource-upload.type";
 
-export class DefaultChunkFileUploadService extends ChunkFileUploadService {
-    private httpClient: HttpServiceProvider;
+export class DefaultChunkFileUploadService implements ChunkFileUploadService, FileUploadServiceInitializer {
+    private uploadService!: HttpService;
+    private flushService!: HttpService;
 
-    constructor(httpClient: HttpServiceProvider) {
-        super();
-        this.httpClient = httpClient;
+    constructor(private httpClient: HttpServiceProvider) {}
+
+    init(uploadUrl: string, flushUrl: string): ChunkFileUploadService {
+        this.uploadService = this.httpClient.open(uploadUrl);
+        this.flushService = this.httpClient.open(flushUrl);
+        return this;
     }
 
-    override uploadFile(file: File): UploadFileResult {
-        const service = this.httpClient.open(process.env.FILE_UPLOAD_URL as string);
+    uploadFile(file: File): UploadFileResult {
         let isError = false;
         let messages: Array<string> = [];
         const reader = new FileReader();
@@ -21,7 +24,7 @@ export class DefaultChunkFileUploadService extends ChunkFileUploadService {
             .pipe(switchMap(file => this.splitFile(file)))
             .pipe(map((chunk, index) => this.convertChunk(chunk, index, reader, file)))
             .pipe(map((callback) => callback()))
-            .pipe(mergeMap(async (resource) => service.post<Resource, { status: number; message: string; }>(resource)))
+            .pipe(mergeMap(async (resource) => this.uploadService.post<Resource, { status: number; message: string; }>(resource)))
             .subscribe((response) => {
                 if (response.status < 400) {
                     isError = this.sendFlush(file, messages);
@@ -56,9 +59,8 @@ export class DefaultChunkFileUploadService extends ChunkFileUploadService {
     }
 
     private sendFlush(file: File, messages: Array<string>): boolean {
-        const flushService = this.httpClient.open(process.env.FILE_FLUSH_URL as string);
         const names: Array<string> = file.name.split('-');
-        const res = flushService.post<
+        const res = this.flushService.post<
             {file_id: string, product_id: string, content_type: string}, 
             {status: number, message: string}
         >({file_id: names[1], product_id: names[0], content_type: file.type});
