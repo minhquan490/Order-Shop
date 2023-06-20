@@ -1,10 +1,12 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.admin.product;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.Form;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -17,7 +19,7 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider
-public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, String>>, DeleteProductForm> {
+public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, DeleteProductForm> {
     private String url;
     private ProductService productService;
 
@@ -26,7 +28,7 @@ public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<
     }
 
     @Override
-    protected ResponseEntity<Map<String, String>> internalHandler(Payload<DeleteProductForm> request) {
+    protected ResponseEntity<Map<String, Object>> internalHandler(Payload<DeleteProductForm> request) {
         String productId = request.data().productId();
         return deleteProduct(productId);
     }
@@ -52,16 +54,16 @@ public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<
         return RequestMethod.DELETE;
     }
 
-    private ResponseEntity<Map<String, String>> deleteProduct(String productId) {
+    private ResponseEntity<Map<String, Object>> deleteProduct(String productId) {
         var form = new ProductForm();
         form.setId(productId);
         var result = productService.delete(Form.wrap(form)).get();
-        Map<String, String> resp = new HashMap<>();
-        if (result.isSuccess()) {
-            resp.put("message", "Delete success");
-        } else {
-            resp.put("message", "Delete failure");
+        Map<String, Object> resp = new HashMap<>();
+        if (!result.isSuccess()) {
+            throw new BadVariableException("Can not delete product has id [" + productId + "]");
         }
+        resp.put("status", HttpStatus.ACCEPTED.value());
+        resp.put("messages", new String[]{"Delete product has id [" + productId + "] success"});
         return ResponseEntity.accepted().body(resp);
     }
 }

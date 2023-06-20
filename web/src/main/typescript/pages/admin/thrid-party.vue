@@ -15,7 +15,8 @@
     display: none;
   }
   & .frame {
-    height: calc(100vh - 4.75rem);
+    padding-top: 4.8rem;
+    height: 100vh;
   }
 }
 </style>

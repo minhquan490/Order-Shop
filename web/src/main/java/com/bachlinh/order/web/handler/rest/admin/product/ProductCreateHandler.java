@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.admin.product;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
