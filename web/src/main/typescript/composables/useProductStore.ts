@@ -6,7 +6,7 @@ export const useProductStore = defineStore("product-store", () => {
       id: "",
       name: "",
       size: "",
-      price: "",
+      price: "0",
       categories: [],
       color: "",
       description: "",

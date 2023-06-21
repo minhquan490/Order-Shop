@@ -20,13 +20,13 @@ export default {
     const productCreateUrl = `${serverUrl}/admin/product/create`;
     const fileUploadUrl = `${serverUrl}/admin/files/upload`;
     const flushFileUrl = `${serverUrl}/admin/files/flush`;
-
+    
     const formSchema = object({
       name: string().required('Name is required').min(4, 'Name must be greater than 4').max(32, 'Name must be less than 32'),
       price: number().required('Price must be specific').min(0, 'Price must be positive').typeError('Price must be a number').required('Price is required'),
-      size: string().min(1, 'Size must be greater than 1 char').max(10, 'Size must be less than 10 char').required("Size is required").matches(/^[S|s]|[M|m]|[L|l]|([X|x]{1,}[L|l])$/, 'Size is invalid'),
+      size: string().min(1, 'Size must be greater than 1 char').max(10, 'Size must be less than 10 char').required("Size is required").matches(RegexUtils.getProductSizeRegex(), 'Size is invalid'),
       color: string().required('Color is required').min(2, 'Name must be greater than 2 char').max(10, 'Name must be less than 10 char'),
-      taobao_url: string().matches(/((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/, 'Enter correct url!').required('Please enter website'),
+      taobao_url: string().matches(RegexUtils.getHttpRegex(), 'Enter correct url!').required('Please enter website'),
       orderPoint: number().min(0, 'Order point must greater than 0').typeError('Order point must be a number').required('Order point is required')
     });
 
