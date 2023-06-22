@@ -226,15 +226,20 @@ class PageData {
 <template>
   <div class="product">
     <div class="pt-24 px-8">
-      <div class="pb-4 flex items-center justify-end">
-        <div class="pr-4">
-          <ButtonBasic :name="'Delete product'" :clickFunc="deleteProduct" :bgColor="'rgb(239 68 68)'" />
+      <div class="pb-4 grid grid-cols-2">
+        <div class="col-span-1">
+          <Breadcrumb />
         </div>
-        <div class="pr-4">
-          <ButtonBasic :name="'Update product'" :clickFunc="updateProduct" :bgColor="'rgb(59 130 246)'" />
-        </div>
-        <div>
-          <ButtonBasic :name="'Create product'" :clickFunc="redirectToCreatePage" />
+        <div class="col-span-1 flex items-center justify-end">
+          <div class="pr-4">
+            <ButtonBasic :name="'Delete product'" :clickFunc="deleteProduct" :bgColor="'rgb(239 68 68)'" />
+          </div>
+          <div class="pr-4">
+            <ButtonBasic :name="'Update product'" :clickFunc="updateProduct" :bgColor="'rgb(59 130 246)'" />
+          </div>
+          <div>
+            <ButtonBasic :name="'Create product'" :clickFunc="redirectToCreatePage" />
+          </div>
         </div>
       </div>
       <div>
