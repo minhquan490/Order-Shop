@@ -27,9 +27,6 @@ export default {
     }
   },
   data() {
-    if (process.server) {
-      return {};
-    }
     const pageData: PageData = new PageData();
     const subscriptions: Array<Subscription> = [];
     return {
@@ -37,24 +34,21 @@ export default {
       subscriptions
     }
   },
-  created() {
-    if (process.server) {
-      return;
-    }
+  beforeMount() {
     const subscription = of(this.listUrl)
       .pipe(
         map(url => this.clientProvider(url)),
         map(service => service.get<undefined, Category[]>()),
         map(resp => {
-          if (!Array.isArray(resp) && Object.keys(resp).length === 0) {
+          if (resp.isError || resp.getResponse === null) {
             return [];
           }
-          return resp;
+          return resp.getResponse;
         }),
         map(result => {
           const pageData = new PageData();
           pageData.tableHeaders = [];
-          pageData.tableData = result;
+          pageData.tableData = result as Category[];
           return pageData;
         }),
         map(data => {
@@ -109,8 +103,8 @@ export default {
           })
         )
         .subscribe(resp => {
-          if (resp.status !== 200 && this.pageData) {
-            this.pageData.deleteErrorMessages = resp.messages;
+          if (resp.isError && this.pageData) {
+            this.pageData.deleteErrorMessages = resp.getResponse === null ? [] : resp.getResponse.messages;
             setTimeout(() => {
               if (this.pageData) {
                 this.pageData.deleteErrorMessages = [];
@@ -136,8 +130,8 @@ export default {
           })
         )
         .subscribe(value => {
-          if (value instanceof ErrorResponse && this.pageData) {
-            this.pageData.updateErrorMessage = value.messages;
+          if (value.isError && this.pageData) {
+            this.pageData.updateErrorMessage = (value.getResponse as ErrorResponse).messages;
             setTimeout(() => {
               if (this.pageData) {
                 this.pageData.updateErrorMessage = [];
@@ -167,8 +161,8 @@ export default {
           }))
         )
         .subscribe(resp => {
-          if (resp instanceof ErrorResponse && this.pageData) {
-            this.pageData.createErrorMessage = resp.messages;
+          if (resp.isError && this.pageData) {
+            this.pageData.createErrorMessage = (resp.getResponse as ErrorResponse).messages;
             setTimeout(() => {
               if (this.pageData) {
                 this.pageData.createErrorMessage = [];

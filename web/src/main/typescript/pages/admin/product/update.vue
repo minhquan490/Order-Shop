@@ -1,8 +1,11 @@
 <script lang="ts">
-import { Subscription, map, of } from 'rxjs';
+import { Subject, Subscription, filter, map, mergeMap, of, takeUntil } from 'rxjs';
 import { ErrorMessage, Field, Form } from 'vee-validate';
 import { number, object, string } from 'yup';
 import { Category } from '~/types/category.type';
+import { ErrorResponse } from '~/types/error-response.type';
+import { UploadFileResult } from '~/types/file-upload-result.type';
+import { Product } from '~/types/product.type';
 
 
 export default {
@@ -18,6 +21,10 @@ export default {
     const navigator = useNavigation();
     const serverUrl = useAppConfig().serverUrl;
     const categoriesUrl = `${serverUrl}/admin/category/list`;
+    const updateProductUrl = `${serverUrl}/admin/product/update`;
+    const fileUploadUrl = `${serverUrl}/admin/files/upload`;
+    const flushFileUrl = `${serverUrl}/admin/files/flush`;
+    const fileUpload = useFileUpload().value;
 
     const formSchema = object({
       name: string().required('Name is required').min(4, 'Name must be greater than 4').max(32, 'Name must be less than 32'),
@@ -34,7 +41,11 @@ export default {
       navigator,
       formSchema,
       categoriesUrl,
-      clientProvider
+      clientProvider,
+      updateProductUrl,
+      fileUploadUrl,
+      flushFileUrl,
+      fileUpload
     }
   },
   data() {
@@ -48,7 +59,74 @@ export default {
     }
   },
   methods: {
+    submit() {
+      const elements = this.$refs['categories'] as HTMLInputElement[];
+      let checkedElements: HTMLInputElement[];
+      if (elements) {
+        checkedElements = elements.filter(ele => ele.checked);
+      } else {
+        checkedElements = [];
+      }
+      if (checkedElements.length === 0 && this.pageData) {
+        this.pageData.errorMsg = ['Categories is required'];
+        return;
+      }
 
+      const abortSignal = new Subject<UploadFileResult>();
+      abortSignal.subscribe(signal => {
+        if (this.pageData && signal.isError) {
+          this.pageData.updateSuccessMsg = '';
+          this.pageData.errorMsg = signal.getMessages;
+        }
+      });
+
+      const files = (this.$refs['product-pictures'] as HTMLInputElement).files;
+
+      of(this.updateProductUrl)
+        .pipe(
+          map(url => this.clientProvider(url)),
+          map(service => {
+            const request: ProductUpdate = {
+              product_id: this.selectedProduct.id,
+              product_name: this.selectedProduct.name,
+              product_color: this.selectedProduct.color,
+              product_categories: checkedElements.map(ele => ele.value),
+              product_description: this.selectedProduct.description,
+              product_enabled: this.selectedProduct.isActive.valueOf.toString(),
+              product_order_point: this.selectedProduct.orderPoint,
+              product_price: this.selectedProduct.price,
+              product_size: this.selectedProduct.size,
+              product_taobao_url: this.selectedProduct.taobao_url
+            };
+            return { service, request };
+          }),
+          mergeMap(async value => {
+            const service = this.fileUpload(this.fileUploadUrl, this.flushFileUrl);
+
+            if (files !== null) {
+              for (const file of files) {
+                const result = service.uploadFile(file);
+                abortSignal.next(result);
+              }
+            }
+            
+            return value;
+          }),
+          map(value => value.service.put<ProductUpdate, Product>(value.request)),
+          takeUntil(abortSignal.pipe(filter(signal => signal.isError)))
+        )
+        .subscribe(resp => {
+          if (this.pageData && resp.getResponse !== null) {
+            if (resp.isError) {
+              this.pageData.errorMsg = (resp.getResponse as ErrorResponse).messages;
+              this.pageData.updateSuccessMsg = '';
+              return;
+            }
+            this.pageData.errorMsg = [];
+            this.pageData.updateSuccessMsg = 'Update product successfully';
+          }
+        });
+    }
   },
   beforeMount() {
     this.productStore.$reset();
@@ -62,10 +140,13 @@ export default {
         map(url => this.clientProvider(url)),
         map(service => service.get<undefined, Category[]>()),
         map(resp => {
-          if (!Array.isArray(resp) && Object.keys(resp).length === 0) {
+          if (resp.isError || resp.getResponse === null) {
+            if (this.pageData) {
+              this.pageData.errorMsg = ['Please, create category before continue'];
+            }
             return [];
           }
-          return resp;
+          return resp.getResponse as Category[];
         })
       )
       .subscribe(categories => {
@@ -83,7 +164,21 @@ export default {
 class PageData {
   subscriptions: Array<Subscription> = [];
   categories: Array<Category> = [];
-  categoryError: string = '';
+  errorMsg: Array<string> = [];
+  updateSuccessMsg: string = '';
+}
+
+type ProductUpdate = {
+  product_id: string,
+  product_name: string,
+  product_price: string,
+  product_size: string,
+  product_color: string,
+  product_taobao_url: string,
+  product_description: string,
+  product_enabled: string,
+  product_categories: Array<string>,
+  product_order_point: string
 }
 </script>
 
@@ -94,14 +189,18 @@ class PageData {
         <span class="text-xl font-semibold">Update product</span>
       </div>
       <div class="grid grid-cols-6">
-        <Form class="col-start-2 col-span-4 p-8 grid grid-cols-4 gap-3 rounded-lg form" :validation-schema="formSchema">
+        <Form @submit="submit" class="col-start-2 col-span-4 p-8 grid grid-cols-4 gap-3 rounded-lg form"
+          :validation-schema="formSchema">
           <div class="col-span-2">
             <div class="row-span-1">
               <CarouselBasic :piture-urls="[]" />
             </div>
-            <div class="row-span-1 pt-6">
-              <span class="hover:cursor-default">Upload product img</span>
-              <input ref="product-pictures" type="file" class="w-full">
+            <div class="row-span-1 pt-6 grid grid-cols-3">
+              <div class="col-span-2">
+                <span class="hover:cursor-default">Upload product img</span>
+                <input ref="product-pictures" type="file">
+              </div>
+              <div class="col-span-1"></div>
             </div>
           </div>
           <div class="col-span-2 grid grid-cols-2 gap-6">
@@ -166,12 +265,15 @@ class PageData {
                 <details>
                   <summary
                     class="text-sm border px-1 py-[0.25rem] rounded-md border-gray-400 bg-white hover:cursor-pointer">
-                    --- Choose category---</summary>
+                    --- Choose category---
+                  </summary>
                   <ul v-if="pageData?.categories.length !== 0"
                     class="absolute bg-white w-full mt-1 rounded-md shadow-[0_5px_15px_5px_rgba(0,0,0,0.35)]">
                     <li v-for="data in pageData?.categories" class="hover:bg-gray-300 py-2 px-4">
                       <label>
-                        <input type="checkbox" ref="categories" :value="data.id" />
+                        <input v-if="pageData?.categories.includes(data)" type="checkbox" ref="categories"
+                          :value="data.id" checked />
+                        <input v-else type="checkbox" ref="categories" :value="data.id" />
                         {{ data.name }}
                       </label>
                     </li>
@@ -185,8 +287,6 @@ class PageData {
                     </li>
                   </ul>
                 </details>
-                <span class="hover:cursor-default text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm"
-                  v-text="pageData?.categoryError"></span>
               </div>
             </div>
             <div class="col-span-1 flex justify-between flex-col">
@@ -200,15 +300,21 @@ class PageData {
             <div class="col-span-2">
               <span class="hover:cursor-default">Description</span>
               <textarea ref="product-description" class="w-full outline-none border border-gray-400" rows="3"
-                v-bind:value="selectedProduct.description"></textarea>
+                v-model="selectedProduct.description"></textarea>
             </div>
             <div class="col-span-2">
-              <ButtonSubmit :name="'Update product'" :textSize="'0.875rem'" :color="'white'"
-                :bgColor="'rgb(96 165 250)'" />
+              <ButtonSubmit :name="'Update product'" :textSize="'0.875rem'" :color="'white'" :bgColor="'rgb(96 165 250)'"
+                :disabled="pageData?.errorMsg.length !== 0" />
             </div>
           </div>
         </Form>
       </div>
+    </div>
+    <div v-if="pageData?.errorMsg.length !== 0" class="fixed right-0 top-20 backdrop-blur-md">
+      <AlertDanger :contents="pageData?.errorMsg" />
+    </div>
+    <div v-if="pageData?.updateSuccessMsg.length !== 0" class="fixed right-0 top-20 backdrop-blur-md">
+      <AlertSuccess :content="pageData?.updateSuccessMsg" />
     </div>
   </div>
 </template>

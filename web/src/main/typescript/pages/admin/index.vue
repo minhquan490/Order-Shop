@@ -10,9 +10,6 @@ export default {
     }
   },
   data() {
-    if (process.server) {
-      return {};
-    }
     const pageData = new PageData();
     const subscriptions: Array<Subscription> = [];
     return {
@@ -20,20 +17,17 @@ export default {
       subscriptions
     }
   },
-  created() {
-    if (process.server) {
-      return;
-    }
+  beforeMount() {
     const serverUrl = useAppConfig().serverUrl;
     const subscription = from([`${serverUrl}/admin/table/customer`, `${serverUrl}/admin/orders/new-in-date`])
       .pipe(
         map(url => this.clientProvider(url)),
         mergeMap(async service => service.get<undefined, any>()),
         map(resp => {
-          if (Object.keys(resp).length === 0) {
+          if (resp.isError || resp.getResponse === null) {
             return [];
           }
-          return resp;
+          return resp.getResponse;
         }),
         map(array => {
           const pageData = new PageData();
@@ -54,7 +48,8 @@ export default {
         }),
         map(page => {
           const storage: Storage = useAppStorage().value;
-          page.tableUserCurrentPage = storage.getItem(useAppConfig().customerDataTableCurrentPage);
+          const currentPage = storage.getItem(useAppConfig().customerDataTableCurrentPage);
+          page.tableUserCurrentPage = currentPage === null ? 1 : parseInt(currentPage);
           return page;
         }),
         map(page => {
@@ -145,7 +140,7 @@ export default {
 class PageData {
   tableUserHeaders!: TableHeaders[];
   tableUserData!: TableCustomerInfo[];
-  tableUserCurrentPage!: string | null;
+  tableUserCurrentPage!: number | null;
   tableOrderHeaders!: TableHeaders[];
   tableOrerData!: TableOrderInDate[];
 }
@@ -171,10 +166,13 @@ class TableOrderInDate {
     <Header />
     <div class="pt-24 px-8 grid grid-cols-5 gap-4">
       <div class="col-start-2 col-span-4">
-        <DataTable tableTittle="Customer basic information" tableIconName="majesticons:user-box-line" :headers="pageData?.tableUserHeaders" :datas="pageData?.tableUserData" :height="'50vh'" :currentPage="pageData?.tableUserCurrentPage" />
+        <DataTable tableTittle="Customer basic information" tableIconName="majesticons:user-box-line"
+          :headers="pageData?.tableUserHeaders" :datas="pageData?.tableUserData" :height="'50vh'"
+          :currentPage="(pageData?.tableUserCurrentPage) ? pageData.tableUserCurrentPage : 1" />
       </div>
       <div class="col-start-2 col-span-4">
-        <DataTable tableTittle="User order" tableIconName="icon-park-outline:transaction-order" :headers="pageData?.tableOrderHeaders" :datas="pageData?.tableOrerData" :height="'50vh'" />
+        <DataTable tableTittle="User order" tableIconName="icon-park-outline:transaction-order"
+          :headers="pageData?.tableOrderHeaders" :datas="pageData?.tableOrerData" :height="'50vh'" />
       </div>
     </div>
   </div>

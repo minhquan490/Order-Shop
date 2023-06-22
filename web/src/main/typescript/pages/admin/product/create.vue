@@ -41,9 +41,6 @@ export default {
     }
   },
   data() {
-    if (process.server) {
-      return {};
-    }
     const subscriptions: Array<Subscription> = [];
     const pageData: PageData = {
       categories: [],
@@ -56,19 +53,16 @@ export default {
       pageData
     }
   },
-  created() {
-    if (process.server) {
-      return;
-    }
+  beforeMount() {
     const subscription = of(this.categoriesUrl)
       .pipe(
         map(url => this.clientProvider(url)),
         map(service => service.get<undefined, Category[]>()),
         map(resp => {
-          if (!Array.isArray(resp) && Object.keys(resp).length === 0) {
+          if (resp.isError || resp.getResponse === null) {
             return [];
           }
-          return resp;
+          return resp.getResponse as Category[];
         })
       )
       .subscribe(categories => {
@@ -148,10 +142,10 @@ export default {
           }),
           map(mappedValue => {
             const res = mappedValue.service.post<ProductReq, ProductResp>(mappedValue.req);
-            if (Object.keys(res).length === 0) {
+            if (res.isError) {
               stopSignal.next(new UploadFileResult(true, ['Has problem when create product']));
             }
-            return res;
+            return res.getResponse;
           }),
           mergeMap(async res => {
             const service = this.fileUpload(this.fileUploadUrl, this.flushFileUrl);

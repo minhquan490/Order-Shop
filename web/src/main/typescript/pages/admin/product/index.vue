@@ -24,9 +24,6 @@ export default {
     }
   },
   data() {
-    if (process.server) {
-      return {};
-    }
     const pageData = new PageData()
     const subscriptions: Array<Subscription> = [];
     return {
@@ -34,19 +31,16 @@ export default {
       subscriptions
     }
   },
-  created() {
-    if (process.server) {
-      return;
-    }
+  beforeMount() {
     const subscription = of(this.listUrl)
       .pipe(
         map(url => this.clientProvider(url)),
         map(service => service.get<undefined, Product[]>()),
         map(resp => {
-          if (!Array.isArray(resp) && Object.keys(resp).length === 0) {
+          if (resp.isError || resp.getResponse === null) {
             return [];
           }
-          return resp;
+          return resp.getResponse as Product[];
         }),
         map(resp => {
           const data = new PageData();
@@ -184,11 +178,11 @@ export default {
           map(service => service.delete<{ product_id: string }, { status: number, messages: string[] }>({ product_id: this.productStore.getProduct.id }))
         )
         .subscribe(res => {
-          if (res.status >= 400) {
+          if (res.isError) {
             (this.$refs['danger-alert'] as Element).classList.toggle('hidden');
             setTimeout(() => {
-              if (this.pageData) {
-                this.pageData.deleteMsgErr = res.messages;
+              if (this.pageData && res.getResponse !== null) {
+                this.pageData.deleteMsgErr = res.getResponse.messages;
               }
             }, 100);
             setTimeout(() => {
@@ -202,8 +196,8 @@ export default {
           } else {
             (this.$refs['success-alert'] as Element).classList.toggle('hidden');
             setTimeout(() => {
-              if (this.pageData) {
-                this.pageData.deleteMsgSuccess = res.messages[0];
+              if (this.pageData && res.getResponse !== null) {
+                this.pageData.deleteMsgSuccess = res.getResponse.messages[0];
               }
             }, 100);
             setTimeout(() => {
