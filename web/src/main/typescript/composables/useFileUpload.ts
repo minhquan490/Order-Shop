@@ -1,12 +1,11 @@
-import { ChunkFileUploadService } from "~/services/chunk-file-upload.service";
-import { UploadFileResult } from "~/types/file-upload-result.type";
+import { ChunkFileUploadService, FileUploadServiceInitializer } from "~/services/chunk-file-upload.service";
 
 export const useFileUpload = () => {
-  const fileUploadService: ChunkFileUploadService = inject('fileUploadService') as ChunkFileUploadService;
+  const fileUploadService: FileUploadServiceInitializer = inject('fileUploadServiceInitializer') as FileUploadServiceInitializer;
 
-  function upload(file: File): UploadFileResult {
-    return fileUploadService.uploadFile(file);
+  function initService(uploadUrl: string, flushUrl: string): ChunkFileUploadService {
+    return fileUploadService.init(uploadUrl, flushUrl);
   }
 
-  return ref(upload);
+  return ref(initService);
 }

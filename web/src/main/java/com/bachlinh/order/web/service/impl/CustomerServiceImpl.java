@@ -39,7 +39,6 @@ import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.service.AbstractService;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.admin.TableCustomerInfo;
 import com.bachlinh.order.web.dto.form.CrudCustomerForm;
 import com.bachlinh.order.web.dto.form.LoginForm;
 import com.bachlinh.order.web.dto.form.RegisterForm;
@@ -47,6 +46,7 @@ import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
+import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
 import com.bachlinh.order.web.service.business.LoginService;
 import com.bachlinh.order.web.service.business.LogoutService;
@@ -200,10 +200,10 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
     }
 
     @Override
-    public Collection<TableCustomerInfo> getCustomerDataTable() {
+    public Collection<TableCustomerInfoResp> getCustomerDataTable() {
         return customerRepository.getAll(PageRequest.of(1, 500), Sort.unsorted())
                 .stream()
-                .map(TableCustomerInfo::new)
+                .map(TableCustomerInfoResp::new)
                 .toList();
     }
 

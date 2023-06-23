@@ -6,19 +6,19 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.admin.TableCustomerInfo;
+import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider
-public class TableCustomerInfoListHandler extends AbstractController<Collection<TableCustomerInfo>, Void> {
+public class TableCustomerInfoListHandler extends AbstractController<Collection<TableCustomerInfoResp>, Void> {
     private CustomerService customerService;
     private String url;
 
     @Override
-    protected Collection<TableCustomerInfo> internalHandler(Payload<Void> request) {
+    protected Collection<TableCustomerInfoResp> internalHandler(Payload<Void> request) {
         return customerService.getCustomerDataTable();
     }
 

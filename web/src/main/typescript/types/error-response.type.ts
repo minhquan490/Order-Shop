@@ -1,4 +1,4 @@
-export type ErrorResponse = {
-    status: number,
-    messages: Array<string>
+export class ErrorResponse {
+    status!: number;
+    messages!: Array<string>
 }

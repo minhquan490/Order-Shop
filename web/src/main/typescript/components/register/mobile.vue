@@ -1,8 +1,11 @@
 <script lang="ts">
-import { RegisterService } from '~/services/register.service';
-
 export default {
-  inject: ['registerService'],
+  setup() {
+    const service = useRegisterService();
+    return {
+      service
+    }
+  },
   data() {
     const form: RegisterForm = {
       firstName: '',
@@ -27,8 +30,7 @@ export default {
   },
   methods: {
     submit() {
-      const service = this.registerService as RegisterService;
-      const result = service.validateForm(new Map(Object.entries(this.form)));
+      const result = this.service.validateRegisterForm(new Map(Object.entries(this.form)));
       let isError = false;
       result.forEach((value, key) => {
         if (value.length !== 0) {
@@ -38,7 +40,7 @@ export default {
         }
       });
       if (!isError) {
-        service.register(new Map(Object.entries(this.form)));
+        this.service.register(new Map(Object.entries(this.form)));
       }
       setTimeout(() => {
         this.formError = {
@@ -113,7 +115,7 @@ type FormError = {
         <span v-text="formError.confirmPasswordError" class="text-red-600 text-xs hover:cursor-default"></span>
       </div>
       <div class="flex items-center justify-end h-max">
-        <button @click="submit" class="bg-green-700 text-white py-2 px-6 rounded-lg active:translate-y-1">Sign up</button>
+        <button @click="$event => submit()" class="bg-green-700 text-white py-2 px-6 rounded-lg active:translate-y-1">Sign up</button>
       </div>
     </div>
   </div>

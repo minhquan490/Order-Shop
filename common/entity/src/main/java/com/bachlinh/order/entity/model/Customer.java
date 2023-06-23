@@ -1,16 +1,11 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -25,6 +20,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -105,6 +106,10 @@ public class Customer extends AbstractEntity implements UserDetails {
     @OneToOne(optional = false, mappedBy = "customer", cascade = CascadeType.ALL)
     private RefreshToken refreshToken;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CUSTOMER_MEDIA_ID")
+    private CustomerMedia customerMedia;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
     private Set<Address> addresses = new HashSet<>();
 
@@ -155,107 +160,90 @@ public class Customer extends AbstractEntity implements UserDetails {
         return Objects.hashCode(getId(), getUsername(), getPhoneNumber(), getEmail());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getUsername() {
         return this.username;
     }
 
-    @ActiveReflection
     public String getPassword() {
         return this.password;
     }
 
-    @ActiveReflection
     public String getFirstName() {
         return this.firstName;
     }
 
-    @ActiveReflection
     public String getLastName() {
         return this.lastName;
     }
 
-    @ActiveReflection
     public String getPhoneNumber() {
         return this.phoneNumber;
     }
 
-    @ActiveReflection
     public String getEmail() {
         return this.email;
     }
 
-    @ActiveReflection
     public String getGender() {
         return this.gender;
     }
 
-    @ActiveReflection
     public String getRole() {
         return this.role;
     }
 
-    @ActiveReflection
     public Integer getOrderPoint() {
         return this.orderPoint;
     }
 
-    @ActiveReflection
     public boolean isActivated() {
         return this.activated;
     }
 
-    @ActiveReflection
     public boolean isAccountNonExpired() {
         return this.accountNonExpired;
     }
 
-    @ActiveReflection
     public boolean isAccountNonLocked() {
         return this.accountNonLocked;
     }
 
-    @ActiveReflection
     public boolean isCredentialsNonExpired() {
         return this.credentialsNonExpired;
     }
 
-    @ActiveReflection
     public boolean isEnabled() {
         return this.enabled;
     }
 
-    @ActiveReflection
     public Cart getCart() {
         return this.cart;
     }
 
-    @ActiveReflection
     public RefreshToken getRefreshToken() {
         return this.refreshToken;
     }
 
-    @ActiveReflection
+    public CustomerMedia getCustomerMedia() {
+        return customerMedia;
+    }
+
     public Set<Address> getAddresses() {
         return this.addresses;
     }
 
-    @ActiveReflection
     public Set<Order> getOrders() {
         return this.orders;
     }
 
-    @ActiveReflection
     public Set<CustomerHistory> getHistories() {
         return this.histories;
     }
-
-    @ActiveReflection
+    
     public Set<Voucher> getAssignedVouchers() {
         return this.assignedVouchers;
     }
@@ -338,6 +326,11 @@ public class Customer extends AbstractEntity implements UserDetails {
     @ActiveReflection
     public void setRefreshToken(RefreshToken refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    @ActiveReflection
+    public void setCustomerMedia(CustomerMedia customerMedia) {
+        this.customerMedia = customerMedia;
     }
 
     @ActiveReflection

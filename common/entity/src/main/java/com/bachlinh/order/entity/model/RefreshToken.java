@@ -1,7 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
 
 import java.sql.Timestamp;
 
@@ -63,27 +63,22 @@ public class RefreshToken extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public Timestamp getTimeCreated() {
         return this.timeCreated;
     }
 
-    @ActiveReflection
     public Timestamp getTimeExpired() {
         return this.timeExpired;
     }
 
-    @ActiveReflection
     public String getRefreshTokenValue() {
         return this.refreshTokenValue;
     }
 
-    @ActiveReflection
     public Customer getCustomer() {
         return this.customer;
     }

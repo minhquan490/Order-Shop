@@ -6,6 +6,8 @@ import { RequestFactory } from "~/server/core/implementer/request-factory";
 import { RequestHeaderStrategy } from "~/server/core/implementer/request-header-strategy";
 import { UrlDecorator } from "~/server/core/implementer/url-decorator";
 import { Strategy } from "~/server/core/strategy";
+import { ErrorResponse } from "~/types/error-response.type";
+import { ResponseWrapper } from "~/types/response-wrapper.type";
 import { HttpService, HttpServiceProvider } from "../http.service";
 
 export class HttpJsonOpener implements HttpServiceProvider {
@@ -55,22 +57,22 @@ class InternalHttpService implements HttpService {
     this.url = url;
   }
 
-  get<T, U>(request?: T, urlParams?: Map<string, string>): U {
+  get<T, U>(request?: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null> {
     return this.sendRequest('GET', request, urlParams);
   }
-  post<T, U>(request: T, urlParams?: Map<string, string>): U {
+  post<T, U>(request: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null> {
     return this.sendRequest('POST', request, urlParams);
   }
-  put<T, U>(request: T, urlParams?: Map<string, string>): U {
+  put<T, U>(request: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null> {
     return this.sendRequest('PUT', request, urlParams);
   }
-  delete<T, U>(request?: T, urlParams?: Map<string, string>): U {
+  delete<T, U>(request?: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null> {
     return this.sendRequest('DELETE', request, urlParams);
   }
 
-  private sendRequest<T, U>(method: string, request?: T, urlParams?: Map<string, string>): U {
+  private sendRequest<T, U>(method: string, request?: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null> {
     let req = this.requestFactory.getInstance();
-    // req.timeout = 3000;
+    req.timeout = 3000;
     const path = this.createPath(this.url, urlParams);
     req.open(method, path);
     if (!(typeof request === 'undefined')) {
@@ -80,16 +82,8 @@ class InternalHttpService implements HttpService {
     } else {
       req.send();
     }
-    const accessToken = req.getResponseHeader(this.accessTokenKey);
-    if (this.storage && accessToken) {
-      this.storage.removeItem(this.accessTokenKey);
-      this.storage.setItem(this.accessTokenKey, accessToken);
-    }
-    const contentType = req.getResponseHeader('Content-Type');
-    if (contentType !== null && contentType === 'application/json') {
-      return this.objectConverter.convert(req.response);
-    }
-    return {} as U;
+    this.resetAccessToken(req);
+    return this.createResponse(req);
   }
 
   private createPath(path: string, urlParams?: Map<string, string>): string {
@@ -97,6 +91,23 @@ class InternalHttpService implements HttpService {
       return this.urlDecorator.decorate(path, urlParams);
     } else {
       return path;
+    }
+  }
+
+  private resetAccessToken(req: XMLHttpRequest) {
+    const accessToken = req.getResponseHeader(this.accessTokenKey);
+    if (this.storage && accessToken) {
+      this.storage.removeItem(this.accessTokenKey);
+      this.storage.setItem(this.accessTokenKey, accessToken);
+    }
+  }
+
+  private createResponse<U>(req: XMLHttpRequest): ResponseWrapper<U | ErrorResponse | null> {
+    const contentType = req.getResponseHeader('Content-Type');
+    if (contentType !== null && contentType === 'application/json') {
+      return new ResponseWrapper<U>(req.status, this.objectConverter.convert(req.response));
+    } else {
+      return new ResponseWrapper(req.status, null);
     }
   }
 }

@@ -1,8 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +12,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -55,6 +55,7 @@ public class EmailFolders extends AbstractEntity {
     public void setId(Object id) {
         if (id instanceof String casted) {
             this.id = casted;
+            return;
         }
         throw new PersistenceException("Id of email folder must be string");
     }

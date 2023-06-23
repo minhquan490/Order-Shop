@@ -1,7 +1,7 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.entity.model.Category;
 import org.springframework.data.domain.Page;
+import com.bachlinh.order.entity.model.Category;
 
 public interface CategoryRepository {
 
@@ -14,6 +14,8 @@ public interface CategoryRepository {
     Category updateCategory(Category category);
 
     boolean deleteCategory(Category category);
+
+    boolean isExits(String id);
 
     Page<Category> getCategories();
 }

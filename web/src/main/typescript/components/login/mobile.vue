@@ -1,8 +1,11 @@
 <script lang="ts">
-import { LoginService } from '~/services/login.service';
-
 export default {
-  inject: ['loginService'],
+  setup() {
+    const service = useAuth();
+    return {
+      service
+    }
+  },
   data() {
     return {
       username: '',
@@ -14,19 +17,18 @@ export default {
   },
   methods: {
     submit(event: Event): void {
-      const service = this.loginService as LoginService;
       event.preventDefault();
       const form = { username: this.username, password: this.password };
-      const validateResult = service.validateLoginForm(form);
+      const validateResult = this.service.validateFormLogin(form);
       if (validateResult.isValid) {
-        const loginResult = service.login(form);
+        const loginResult = this.service.login(form);
         if (!loginResult) {
           this.loginFailureDetail.push('Has problem when try to login');
         } else {
           if ("status" in loginResult) {
             this.loginFailureDetail = loginResult.messages;
           } else {
-            service.storeAuthentication(loginResult);
+            this.service.storeAuth(loginResult);
           }
         }
         this.username = '';
@@ -79,7 +81,7 @@ export default {
             </div>
           </div>
           <div class="pt-8">
-            <button @click="submit($event)" class="w-full bg-blue-500 leading-10 rounded-xl text-white">Login</button>
+            <button @click="$event => submit($event)" class="w-full bg-blue-500 leading-10 rounded-xl text-white">Login</button>
           </div>
           <div class="flex justify-end pt-2">
             <span class="hover:cursor-default pr-2">Forgot</span>

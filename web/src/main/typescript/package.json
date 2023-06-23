@@ -22,8 +22,12 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.8.14",
+    "@pinia/nuxt": "^0.4.11",
+    "@vee-validate/nuxt": "^4.9.6",
+    "@vee-validate/yup": "^4.9.6",
     "mobile-detect": "^1.4.5",
     "node-sass": "^9.0.0",
+    "pinia": "^2.1.4",
     "protoc-gen-ts": "^0.8.6",
     "sass": "^1.62.1",
     "sass-loader": "^13.3.1"

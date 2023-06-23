@@ -1,13 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.Category;
-import com.bachlinh.order.entity.model.Category_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.CategoryRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
@@ -17,6 +9,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Category;
+import com.bachlinh.order.entity.model.Category_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.CategoryRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 @RepositoryComponent
 @ActiveReflection
@@ -67,6 +67,11 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean isExits(String id) {
+        return existsById(id);
     }
 
     @Override

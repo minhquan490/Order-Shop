@@ -1,8 +1,12 @@
 <script lang="ts">
-import { ForgotPasswordService } from '~/services/forgot-password.service';
 
 export default {
-  inject: ['forgotPasswordService'],
+  setup() {
+    const service = useForgotPasswordService();
+    return {
+      service
+    }
+  },
   data() {
     const queryParam = useRoute().query;
     const token = queryParam['token'];
@@ -25,8 +29,7 @@ export default {
       if (this.errorMsg.length !== 0) {
         return;
       }
-      const service = this.forgotPasswordService as ForgotPasswordService;
-      service.requestRequestPasswordEmail(this.email);
+      this.service.sendEmail(this.email);
       this.email = '';
       this.isSubmitted = true;
     },
@@ -43,8 +46,7 @@ export default {
       return '';
     },
     resentEmail() {
-      const service = this.forgotPasswordService as ForgotPasswordService;
-      service.requestRequestPasswordEmail(this.email);
+      this.service.sendEmail(this.email);
     },
     resetPassword() {
       this.passwordErrMsg = this.validatePassword(this.newPassword);
@@ -54,14 +56,7 @@ export default {
         this.confirmPasswordErrMsg = '';
       }, 3000);
       if (this.passwordErrMsg.length === 0 && this.confirmPasswordErrMsg.length === 0) {
-        const service = this.forgotPasswordService as ForgotPasswordService;
-        let error;
-        if (Array.isArray(this.token)) {
-          const t = this.token[0] === null ? '' : this.token[0];
-          error = service.resetPassword(t, this.newPassword); 
-        } else {
-          error = service.resetPassword(this.token === null ? '' : this.token, this.newPassword); 
-        }
+        const error = this.service.resetPassword(this.newPassword);
         if (!error) {
           window.location.href = '/login';
         } else {
@@ -113,7 +108,7 @@ export default {
                 <span v-text="confirmPasswordErrMsg" class="text-red-600 text-xs hover:cursor-default"></span>
               </div>
               <div class="pt-5">
-                <button @click="resetPassword" class="w-full border bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600 px-4">Reset my password</button>
+                <button @click="$event => resetPassword()" class="w-full border bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600 px-4">Reset my password</button>
               </div>
             </div>
           </div>
@@ -134,7 +129,7 @@ export default {
                 <span v-text="errorMsg" class="text-red-600 text-xs hover:cursor-default"></span>
               </div>
               <div class="pt-5">
-                <button @click="submit"
+                <button @click="$event => submit()"
                   class="w-full bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600">Continue</button>
               </div>
             </div>
@@ -153,7 +148,7 @@ export default {
               </div>
             </div>
             <div style="width: 20%;">
-              <button @click="resentEmail"
+              <button @click="$event => resentEmail()"
                 class="w-full bg-blue-700 text-white rounded-md leading-10 relative active:translate-y-1 hover:bg-violet-600">Resent
                 email</button>
             </div>

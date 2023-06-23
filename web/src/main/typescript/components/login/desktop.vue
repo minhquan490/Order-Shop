@@ -1,8 +1,13 @@
 <script lang="ts">
-import { LoginService } from '~/services/login.service';
+import { LoginForm } from '~/types/login-form.type';
 
 export default {
-  inject: ['loginService'],
+  setup() {
+    const service = useAuth();
+    return {
+      service
+    }
+  },
   data() {
     return {
       username: '',
@@ -14,19 +19,18 @@ export default {
   },
   methods: {
     submit(event: Event): void {
-      const service = this.loginService as LoginService;
       event.preventDefault();
-      const form = { username: this.username, password: this.password };
-      const validateResult = service.validateLoginForm(form);
+      const form: LoginForm = { username: this.username, password: this.password };
+      const validateResult = this.service.validateFormLogin(form);
       if (validateResult.isValid) {
-        const loginResult = service.login(form);
+        const loginResult = this.service.login(form);
         if (!loginResult) {
           this.loginFailureDetail.push('Has problem when try to login');
         } else {
           if ("status" in loginResult) {
             this.loginFailureDetail = loginResult.messages;
           } else {
-            service.storeAuthentication(loginResult);
+            this.service.storeAuth(loginResult);
           }
         }
         this.username = '';
@@ -74,8 +78,8 @@ export default {
               </div>
             </div>
             <div class="col-span-3">
-              <button class="w-full submit rounded-3xl hover:opacity-80 relative focus:translate-y-1"
-                @click="submit($event)">Login</button>
+              <button class="w-full submit rounded-3xl hover:opacity-80 relative active:translate-y-1"
+                @click="$event => submit($event)">Login</button>
             </div>
             <div class="col-span-3 flex justify-end text-sm">
               <span class="pr-1 hover:cursor-default opacity-70">Forgot</span>
@@ -97,16 +101,19 @@ export default {
 .login {
   background: linear-gradient(90deg, rgba(33, 105, 158, 1) 0%, rgba(123, 123, 237, 1) 100%);
   height: 100vh;
+
   & .main {
     position: relative;
     height: 90vh;
     background-color: #fff;
     top: 5%;
   }
+
   & .form {
     & .detail {
       & .input {
         position: relative;
+
         & input {
           background-color: #e6e6e6;
           border-radius: 30px;
@@ -114,6 +121,7 @@ export default {
           height: 3rem;
           padding: 0 30px 0 68px;
         }
+
         & svg {
           top: 0.82rem;
           left: 2rem;
@@ -122,6 +130,7 @@ export default {
           position: absolute;
         }
       }
+
       & .submit {
         background-color: #57b846;
         color: #fff;
@@ -130,7 +139,9 @@ export default {
       }
     }
   }
+
   & .problem {
     color: rgb(231, 35, 35);
   }
-}</style>
+}
+</style>

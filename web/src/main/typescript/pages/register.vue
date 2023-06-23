@@ -67,4 +67,7 @@ const device = useState(inject('device')).value;
       <RegisterMobile />
     </div>
   </div>
+  <footer>
+    <Footer />
+  </footer>
 </template>
