@@ -166,9 +166,12 @@ class TableOrderInDate {
     <Header />
     <div class="pt-24 px-8 grid grid-cols-5 gap-4">
       <div class="col-start-2 col-span-4">
-        <DataTable tableTittle="Customer basic information" tableIconName="majesticons:user-box-line"
-          :headers="pageData?.tableUserHeaders" :datas="pageData?.tableUserData" :height="'50vh'"
-          :currentPage="(pageData?.tableUserCurrentPage) ? pageData.tableUserCurrentPage : 1" />
+        <DataTable tableTittle="Customer basic information" 
+                   tableIconName="majesticons:user-box-line"
+                   :headers="pageData?.tableUserHeaders" 
+                   :datas="pageData?.tableUserData" 
+                   :height="'50vh'"
+                   :currentPage="(pageData?.tableUserCurrentPage) ? pageData.tableUserCurrentPage : 1" />
       </div>
       <div class="col-start-2 col-span-4">
         <DataTable tableTittle="User order" tableIconName="icon-park-outline:transaction-order"

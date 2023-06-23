@@ -210,7 +210,10 @@ class CategoryResponse {
 
 <template>
   <div class="category">
-    <div class="pt-24 px-8 grid grid-cols-4 gap-3 h-full">
+    <div class="pt-20 px-8 grid grid-cols-4 gap-3 h-full">
+      <div class="col-span-4 -m-1 px-2">
+        <Breadcrumb />
+      </div>
       <div class="col-span-3">
         <DataTable :height="'50vh'" :setter="tableAction" :headers="pageData?.tableHeaders" :datas="pageData?.tableData"
           tableTittle="Categories" tableIconName="quill:label" />
@@ -269,7 +272,6 @@ $page_bg: #f4f6f9;
 .category {
   background-color: $page_bg;
   padding-bottom: 1.5rem;
-  height: 100vh;
 
   & .update {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;

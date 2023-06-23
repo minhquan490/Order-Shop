@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.admin.customer;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider
-public class CustomerListHandler extends AbstractController<Page<CustomerResp>, Object> {
+public class CustomerListHandler extends AbstractController<Page<CustomerResp>, Void> {
     private String url;
     private String defaultPageSize;
     private CustomerService customerService;
@@ -27,7 +27,7 @@ public class CustomerListHandler extends AbstractController<Page<CustomerResp>, 
     }
 
     @Override
-    protected Page<CustomerResp> internalHandler(Payload<Object> request) {
+    protected Page<CustomerResp> internalHandler(Payload<Void> request) {
         String pageParam = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("page")).orElse("0");
         String pageSizeParam = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("size")).orElse(defaultPageSize);
         int page;

@@ -7,7 +7,7 @@ export default {
       adminUrl: '/admin',
       productUrl: '/admin/product',
       categoryUrl: '/admin/category',
-      userUrl: '/admin/user',
+      userUrl: '/admin/customer',
       orderUrl: '/admin/order',
       thridPartyUrl: '/admin/thrid-party',
       batchUrl: '/admin/batch',

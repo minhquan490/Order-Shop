@@ -14,8 +14,23 @@ export default {
     setter: TableActionCallback
   },
   data() {
+    let col: number;
+    if (this.headers) {
+      if (this.headers.length > 12) {
+        col = 12;
+      } else {
+        col = this.headers.length;
+      }
+    } else {
+      col = 1;
+    }
+    let tableHeaders: Array<TableHeaders> = [];
+    if (this.headers) {
+      tableHeaders = this.headers.slice(0, col);
+    }
     const table: Table = {
-      columns: (this.headers?.length) ? this.headers?.length : 1,
+      headers: tableHeaders,
+      columns: col,
       itemsPerPage: (this.itemPerPage) ? this.itemPerPage : 5,
       height: (this.height) ? this.height : 'auto',
       currentPage: (this.currentPage) ? this.currentPage : 1,
@@ -166,6 +181,7 @@ export default {
 }
 
 type Table = {
+  headers: Array<TableHeaders>,
   columns: number,
   data?: Array<Record<string, any>>,
   itemsPerPage: number,
@@ -210,7 +226,7 @@ type Table = {
             <caption class="hidden">Table data</caption>
             <thead class="border-b">
               <tr class="grid p-4 row" :style="`--cols: ${table.columns}`">
-                <th :id="header.dataPropertyName" v-for="header in headers" class="col-span-1 border-gray-400 w-3/4">
+                <th :id="header.dataPropertyName" v-for="header in table.headers" class="col-span-1 border-gray-400 w-3/4">
                   <button class="flex items-center w-full" @click="$event => sort(header.dataPropertyName, $event)" ref="table-head-button">
                     <span class="hover:cursor-pointer text-xs w-max" v-text="header.name"></span>
                   </button>
@@ -267,6 +283,7 @@ type Table = {
 
 <style lang="scss" scoped>
 .table {
+
   & .body {
     height: var(--height);
     overflow-y: scroll;

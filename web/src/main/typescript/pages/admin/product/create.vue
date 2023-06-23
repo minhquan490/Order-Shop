@@ -222,6 +222,9 @@ type ProductResp = {
 <template>
   <div class="product-create">
     <div class="pt-24 px-8 grid grid-cols-4">
+      <div class="absolute w-[32rem]">
+        <Breadcrumb />  
+      </div>
       <div class="flex items-center justify-center col-span-4 pb-4">
         <h1 class="text-xl font-semibold">Create new product</h1>
       </div>

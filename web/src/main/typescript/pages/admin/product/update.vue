@@ -185,6 +185,9 @@ type ProductUpdate = {
 <template>
   <div class="update">
     <div class="pt-24 px-8">
+      <div class="absolute w-[32rem]">
+        <Breadcrumb />  
+      </div>
       <div class="flex items-center justify-center col-span-4 pb-4">
         <span class="text-xl font-semibold">Update product</span>
       </div>

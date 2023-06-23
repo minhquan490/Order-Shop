@@ -1,6 +1,17 @@
 <script lang="ts" setup>
 const paths = useRoute().path.split('/').filter(path => path.length !== 0);
 const rootPath = `/${paths[0]}`;
+
+const calculatePath = (index: number) => {
+  if (index === 0) {
+    return rootPath;
+  }
+  let path = rootPath;
+  for (let i = 1; i <= index; i++) {
+    path = path.concat(`/${paths[i]}`);
+  }
+  return path;
+};
 </script>
 
 <template>
@@ -8,10 +19,10 @@ const rootPath = `/${paths[0]}`;
     <nav class="w-2/5">
       <ol class="cd-breadcrumb custom-separator custom-icons">
         <li v-for="(path, i) in paths">
-          <a v-if="i === paths.length -1" :href="`${rootPath}/${path}`" class="current">
+          <a v-if="i === paths.length -1" :href="calculatePath(i)" class="current">
             <em v-text="path"></em>
           </a>
-          <a v-else :href="i === 0 ? `/${path}` : `${rootPath}/${path}`" v-text="path"></a>
+          <a v-else :href="calculatePath(i)" v-text="path"></a>
         </li>
       </ol>
     </nav>

@@ -1,8 +1,8 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.bachlinh.order.entity.model.Customer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.bachlinh.order.entity.model.Customer;
 
 import java.util.Collection;
 
@@ -50,6 +50,9 @@ public class CustomerResp {
 
     @JsonProperty("is_enabled")
     private boolean enabled;
+
+    @JsonProperty("picture")
+    private String picture;
 
     public String getId() {
         return id;
@@ -111,6 +114,10 @@ public class CustomerResp {
         return username;
     }
 
+    public String getPicture() {
+        return picture;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -163,6 +170,10 @@ public class CustomerResp {
         this.enabled = enabled;
     }
 
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
     public static CustomerResp toDto(Customer customer) {
         CustomerResp dto = new CustomerResp();
         dto.setId(customer.getId());
@@ -178,6 +189,7 @@ public class CustomerResp {
         dto.setAccountNonLocked(customer.isAccountNonLocked());
         dto.setCredentialsNonExpired(customer.isCredentialsNonExpired());
         dto.setEnabled(customer.isEnabled());
+        dto.setPicture(customer.getCustomerMedia().getUrl());
         return dto;
     }
 }
