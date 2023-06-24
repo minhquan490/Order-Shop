@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Deprecated(forRemoval = true)
 public class ProductForm {
     @JsonAlias("product_id")
     private String id;

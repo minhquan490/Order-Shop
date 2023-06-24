@@ -1,17 +1,13 @@
-package com.bachlinh.order.validator.internal;
+package com.bachlinh.order.validate.validator.internal;
 
-import org.hibernate.validator.internal.util.DomainNameUtil;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.validator.spi.AbstractValidator;
-import com.bachlinh.order.validator.spi.Result;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.bachlinh.order.utils.ValidateUtils;
+import com.bachlinh.order.validate.validator.spi.AbstractValidator;
+import com.bachlinh.order.validate.validator.spi.Result;
 
 @ActiveReflection
 public class CustomerValidator extends AbstractValidator<Customer> {
@@ -65,7 +61,7 @@ public class CustomerValidator extends AbstractValidator<Customer> {
         if (entity.getEmail().isBlank()) {
             result.addMessageError("Email: is blank");
         }
-        if (new InternalEmailValidator().isValid(entity.getEmail())) {
+        if (ValidateUtils.isEmailValidUsingRfc2822(entity.getEmail())) {
             result.addMessageError("Email: is not valid");
         }
         if (customerRepository.emailExist(entity.getEmail())) {
@@ -75,29 +71,5 @@ public class CustomerValidator extends AbstractValidator<Customer> {
             result.addMessageError("Gender: must be a male or female");
         }
         return result;
-    }
-
-    private static class InternalEmailValidator {
-        private static final String LOCAL_PART_ATOM = "[a-z0-9!#$%&'*+/=?^_`{|}~\u0080-\uFFFF-]";
-        private static final String LOCAL_PART_INSIDE_QUOTES_ATOM = "(?:[a-z0-9!#$%&'*.(),<>\\[\\]:;  @+/=?^_`{|}~\u0080-\uFFFF-]|\\\\\\\\|\\\\\\\")";
-        private static final Pattern LOCAL_PART_PATTERN = Pattern.compile("(?:" + LOCAL_PART_ATOM + "+|\"" + LOCAL_PART_INSIDE_QUOTES_ATOM + "+\")" + "(?:\\." + "(?:" + LOCAL_PART_ATOM + "+|\"" + LOCAL_PART_INSIDE_QUOTES_ATOM + "+\")" + ")*", CASE_INSENSITIVE);
-
-        public boolean isValid(String value) {
-            int splitPosition = value.lastIndexOf('@');
-            if (splitPosition < 0) {
-                return false;
-            }
-            String localPart = value.substring(0, splitPosition);
-            String domainPart = value.substring(splitPosition + 1);
-            if (!isValidEmailLocalPart(localPart)) {
-                return false;
-            }
-            return DomainNameUtil.isValidEmailDomainAddress(domainPart);
-        }
-
-        private boolean isValidEmailLocalPart(String localPart) {
-            Matcher matcher = LOCAL_PART_PATTERN.matcher(localPart);
-            return matcher.matches();
-        }
     }
 }

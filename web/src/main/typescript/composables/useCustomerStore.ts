@@ -31,9 +31,14 @@ export const useCustomerStore = defineStore("customer-store", () => {
     selectedCustomer.value = customer;
   }
 
+  function $reset() {
+    selectedCustomer.value = initState();
+  }
+
   return {
     selectedCustomer,
     getCustomer,
     setCustomer,
+    $reset
   };
 });

@@ -7,6 +7,7 @@ import com.bachlinh.order.core.http.handler.ExceptionHandler;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ConstraintViolationException;
 import com.bachlinh.order.exception.http.InvalidTokenException;
+import com.bachlinh.order.exception.http.ValidationFailureException;
 
 @ActiveReflection
 @RouteExceptionHandler
@@ -41,7 +42,8 @@ public class BadRequestHandler extends ExceptionHandler {
         return new Class[]{
                 BadVariableException.class,
                 ConstraintViolationException.class,
-                InvalidTokenException.class
+                InvalidTokenException.class,
+                ValidationFailureException.class
         };
     }
 

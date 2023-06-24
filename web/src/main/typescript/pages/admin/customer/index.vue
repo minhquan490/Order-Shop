@@ -10,19 +10,27 @@ export default {
     const customerStore = useCustomerStore();
     const tableCallback: TableActionCallback = new TableActionCallback(customerStore, "selectedCustomer");
     const serverUrl = useAppConfig().serverUrl;
-    const customerListUrl = `${serverUrl}/admin/customer/list`;
     const clientProvider = useHttpClient().value;
+    const navigator = useNavigation();
     return {
       tableCallback,
-      customerListUrl,
-      clientProvider
+      clientProvider,
+      navigator,
+      serverUrl
     }
   },
   data() {
     const pageData: PageData = new PageData();
+    const customerListUrl = `${this.serverUrl}/admin/customer/list`;
     return {
-      pageData
+      pageData,
+      customerListUrl
     };
+  },
+  methods: {
+    navigateToCreatePage() {
+      this.navigator.navigate('/admin/customer/create');
+    }
   },
   beforeMount() {
     const subscription = of(this.customerListUrl)
@@ -103,36 +111,39 @@ export default {
               isImg: false,
               dataPropertyName: 'is_enabled'
             },
-            // {
-            //   isId: false,
-            //   name: 'Account non expired',
-            //   isImg: false,
-            //   dataPropertyName: 'is_account_non_expired'
-            // },
-            // {
-            //   isId: false,
-            //   name: 'Non locked',
-            //   isImg: false,
-            //   dataPropertyName: 'is_account_non_locked'
-            // },
-            // {
-            //   isId: false,
-            //   name: 'Credentials non expired',
-            //   isImg: false,
-            //   dataPropertyName: 'is_credentials_non_expired'
-            // }
+            {
+              isId: false,
+              name: 'Account non expired',
+              isImg: false,
+              dataPropertyName: 'is_account_non_expired'
+            },
+            {
+              isId: false,
+              name: 'Non locked',
+              isImg: false,
+              dataPropertyName: 'is_account_non_locked'
+            },
+            {
+              isId: false,
+              name: 'Credentials non expired',
+              isImg: false,
+              dataPropertyName: 'is_credentials_non_expired'
+            }
           ];
-          
           return { resp, tableHeaders }
         })
       )
       .subscribe(value => {
         if (value.resp.isError) {
           this.pageData.fetchUserError = (value.resp.getResponse as ErrorResponse).messages;
+          setTimeout(() => {
+            this.pageData.fetchUserError = [];
+          }, 3000);
         } else if (value.resp.getResponse === null) {
-          this.pageData.fetchUserError = ['No data available'];
+          this.pageData.fetchUserError = ['Check your network and try again'];
         } else {
           this.pageData.tableDatas = value.resp.getResponse as Customer[];
+          this.pageData.fetchUserError = [];
         }
         this.pageData.tableHeaders = value.tableHeaders;
       });
@@ -155,16 +166,32 @@ class PageData {
 
 <template>
   <div class="user">
-    <div class="pt-20 px-8">
-      <div class="pb-2">
+    <div class="pt-[5rem] px-8">
+      <div class="pb-4">
         <Breadcrumb />
       </div>
       <div class="grid grid-cols-12">
-        <div class="col-start-1 col-span-12">
+        <div class="col-start-1 col-span-12 relative">
           <DataTable table-icon-name="solar:user-id-linear" table-tittle="Customer information list"
             :setter="tableCallback" :datas="pageData.tableDatas" :headers="pageData.tableHeaders" />
+          <ClientOnly>
+            <div class="absolute top-[10px] right-4 z-10 flex flex-row-reverse">
+              <div>
+                <ButtonBasic :click-func="navigateToCreatePage" :name="'Create customer'" />
+              </div>
+              <div class="pr-3">
+                <ButtonBasic :bg-color="'rgb(59 130 246)'" :name="'Update customer'" />
+              </div>
+              <div class="pr-3">
+                <ButtonBasic :bg-color="'rgb(239 68 68)'" :name="'Delete customer'" />
+              </div>
+            </div>
+          </ClientOnly>
         </div>
       </div>
+    </div>
+    <div class="fixed top-20 right-0">
+      <AlertDanger v-if="pageData.fetchUserError.length !== 0" :contents="pageData.fetchUserError" />
     </div>
   </div>
 </template>

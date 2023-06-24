@@ -1,4 +1,4 @@
-package com.bachlinh.order.validator.spi;
+package com.bachlinh.order.validate.validator.spi;
 
 import com.bachlinh.order.entity.ValidateResult;
 

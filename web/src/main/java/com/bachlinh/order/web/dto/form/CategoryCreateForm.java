@@ -1,4 +1,6 @@
 package com.bachlinh.order.web.dto.form;
 
-public record CategoryCreateForm(String name) {
+import com.bachlinh.order.validate.base.ValidatedDto;
+
+public record CategoryCreateForm(String name) implements ValidatedDto {
 }

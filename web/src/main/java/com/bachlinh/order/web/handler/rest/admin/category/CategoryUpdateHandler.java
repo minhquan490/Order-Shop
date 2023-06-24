@@ -5,10 +5,10 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.exception.http.ValidationFailureException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.Form;
+import com.bachlinh.order.validate.rule.RuleManager;
 import com.bachlinh.order.web.dto.form.CategoryForm;
 import com.bachlinh.order.web.dto.form.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
@@ -18,17 +18,16 @@ import com.bachlinh.order.web.service.common.CategoryService;
 @ActiveReflection
 @NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class CategoryUpdateHandler extends AbstractController<CategoryResp, CategoryUpdateForm> {
+    private RuleManager ruleManager;
     private CategoryService categoryService;
     private String url;
 
     @Override
     protected CategoryResp internalHandler(Payload<CategoryUpdateForm> request) {
         var req = request.data();
-        if (categoryService.isExist(req.id())) {
-            throw new ResourceNotFoundException("Category with id: [" + req.id() + "]", getPath());
-        }
-        if (req.name().isBlank()) {
-            throw new BadVariableException("Name of category must be not empty");
+        var validateResult = ruleManager.validate(req);
+        if (!validateResult.shouldHandle()) {
+            throw new ValidationFailureException(validateResult.getErrorResult(), getPath());
         }
         var form = new CategoryForm();
         form.setId(req.id());
@@ -42,6 +41,9 @@ public class CategoryUpdateHandler extends AbstractController<CategoryResp, Cate
         var resolver = getContainerResolver().getDependenciesResolver();
         if (categoryService == null) {
             categoryService = resolver.resolveDependencies(CategoryService.class);
+        }
+        if (ruleManager == null) {
+            ruleManager = resolver.resolveDependencies(RuleManager.class);
         }
     }
 

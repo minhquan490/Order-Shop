@@ -18,6 +18,10 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.enums.Country;
+import com.bachlinh.order.entity.enums.Gender;
+import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
@@ -39,9 +43,11 @@ import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.service.AbstractService;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.utils.parser.AddressParser;
 import com.bachlinh.order.web.dto.form.CrudCustomerForm;
 import com.bachlinh.order.web.dto.form.LoginForm;
 import com.bachlinh.order.web.dto.form.RegisterForm;
+import com.bachlinh.order.web.dto.form.admin.CustomerCreateForm;
 import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
@@ -205,6 +211,29 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
                 .stream()
                 .map(TableCustomerInfoResp::new)
                 .toList();
+    }
+
+    @Override
+    public CustomerInformationResp saveCustomer(CustomerCreateForm customerCreateForm) {
+        inject();
+        var customer = entityFactory.getEntity(Customer.class);
+        customer.setFirstName(customerCreateForm.getFirstName());
+        customer.setLastName(customerCreateForm.getLastName());
+        customer.setPhoneNumber(customerCreateForm.getPhone());
+        customer.setEmail(customerCreateForm.getEmail());
+        customer.setGender(Gender.of(customerCreateForm.getGender()).name());
+        customer.setRole(Role.of(customerCreateForm.getRole()).name());
+        customer.setUsername(customerCreateForm.getUsername());
+        customer.setPassword(passwordEncoder.encode(customerCreateForm.getPassword()));
+        var addressForm = customerCreateForm.getAddress();
+        var address = entityFactory.getEntity(Address.class);
+        address.setCustomer(customer);
+        address.setCountry(Country.VIET_NAM.getCountry());
+        address.setCity(addressForm.getProvince());
+        address.setValue(AddressParser.parseVietNamAddress(addressForm.getHouseAddress(), addressForm.getWard(), addressForm.getDistrict(), addressForm.getProvince()));
+        customer.getAddresses().add(address);
+        customer = customerRepository.saveCustomer(customer);
+        return CustomerInformationResp.toDto(customer);
     }
 
     @Override

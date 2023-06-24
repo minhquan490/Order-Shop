@@ -1,6 +1,8 @@
 package com.bachlinh.order.web.dto.form;
 
-public record CategoryUpdateForm(String id, String name) {
+import com.bachlinh.order.validate.base.ValidatedDto;
+
+public record CategoryUpdateForm(String id, String name) implements ValidatedDto {
 
     @Override
     public String id() {

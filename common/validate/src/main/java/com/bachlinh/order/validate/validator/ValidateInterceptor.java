@@ -1,4 +1,4 @@
-package com.bachlinh.order.validator;
+package com.bachlinh.order.validate.validator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

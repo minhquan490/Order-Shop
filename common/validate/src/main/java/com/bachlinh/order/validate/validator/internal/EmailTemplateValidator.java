@@ -1,12 +1,12 @@
-package com.bachlinh.order.validator.internal;
+package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.validator.spi.AbstractValidator;
-import com.bachlinh.order.validator.spi.Result;
+import com.bachlinh.order.validate.validator.spi.AbstractValidator;
+import com.bachlinh.order.validate.validator.spi.Result;
 
 @ActiveReflection
 public class EmailTemplateValidator extends AbstractValidator<EmailTemplate> {

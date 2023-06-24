@@ -5,9 +5,10 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.exception.http.BadVariableException;
+import com.bachlinh.order.exception.http.ValidationFailureException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.Form;
+import com.bachlinh.order.validate.rule.RuleManager;
 import com.bachlinh.order.web.dto.form.CategoryCreateForm;
 import com.bachlinh.order.web.dto.form.CategoryForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
@@ -17,17 +18,19 @@ import com.bachlinh.order.web.service.common.CategoryService;
 @ActiveReflection
 @NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class CategoryCreateHandler extends AbstractController<CategoryResp, CategoryCreateForm> {
+    private RuleManager ruleManager;
     private CategoryService categoryService;
     private String url;
 
     @Override
     protected CategoryResp internalHandler(Payload<CategoryCreateForm> request) {
-        var name = request.data().name();
-        if (name == null || name.isBlank()) {
-            throw new BadVariableException("Name of category must not be empty");
+        var dto = request.data();
+        var validateResult = ruleManager.validate(dto);
+        if (!validateResult.shouldHandle()) {
+            throw new ValidationFailureException(validateResult.getErrorResult(), getPath());
         }
         var form = new CategoryForm();
-        form.setName(name);
+        form.setName(dto.name());
         var result = categoryService.save(Form.wrap(form));
         return result.get();
     }
@@ -37,6 +40,9 @@ public class CategoryCreateHandler extends AbstractController<CategoryResp, Cate
         var resolver = getContainerResolver().getDependenciesResolver();
         if (categoryService == null) {
             categoryService = resolver.resolveDependencies(CategoryService.class);
+        }
+        if (ruleManager == null) {
+            ruleManager = resolver.resolveDependencies(RuleManager.class);
         }
     }
 
