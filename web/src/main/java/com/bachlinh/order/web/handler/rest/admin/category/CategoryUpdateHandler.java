@@ -5,12 +5,10 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.Form;
 import com.bachlinh.order.web.dto.form.CategoryForm;
-import com.bachlinh.order.web.dto.form.CategoryUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
 
@@ -24,12 +22,6 @@ public class CategoryUpdateHandler extends AbstractController<CategoryResp, Cate
     @Override
     protected CategoryResp internalHandler(Payload<CategoryUpdateForm> request) {
         var req = request.data();
-        if (categoryService.isExist(req.id())) {
-            throw new ResourceNotFoundException("Category with id: [" + req.id() + "]", getPath());
-        }
-        if (req.name().isBlank()) {
-            throw new BadVariableException("Name of category must be not empty");
-        }
         var form = new CategoryForm();
         form.setId(req.id());
         form.setName(req.name());

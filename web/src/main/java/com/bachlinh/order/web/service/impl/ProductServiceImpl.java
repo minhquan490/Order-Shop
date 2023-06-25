@@ -23,6 +23,8 @@ import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.ProductForm;
 import com.bachlinh.order.web.dto.form.ProductSearchForm;
+import com.bachlinh.order.web.dto.form.admin.ProductCreateForm;
+import com.bachlinh.order.web.dto.form.admin.ProductUpdateForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
 import com.bachlinh.order.web.service.common.ProductService;
@@ -35,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ServiceComponent
 @ActiveReflection
@@ -108,6 +111,46 @@ public class ProductServiceImpl extends AbstractService<ProductResp, ProductForm
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("IDS", ids);
         return productRepository.getProductsByCondition(conditions, pageable).map(product -> ProductResp.toDto(product, resourceUrl));
+    }
+
+    @Override
+    public ProductResp updateProduct(ProductUpdateForm form) {
+        var conditions = new HashMap<String, Object>(1);
+        conditions.put(Product_.ID, form.getProductId());
+        var product = productRepository.getProductByCondition(conditions);
+        product.setName(form.getProductName());
+        product.setPrice(Integer.parseInt(form.getProductPrice()));
+        product.setSize(form.getProductSize());
+        product.setColor(form.getProductColor());
+        product.setTaobaoUrl(form.getProductTaobaoUrl());
+        product.setDescription(form.getProductDescription());
+        product.setEnabled(Boolean.parseBoolean(form.getProductEnabled()));
+        product.setOrderPoint(Integer.parseInt(form.getProductOrderPoint()));
+        var categories = new HashSet<>(product.getCategories());
+        var updatedCategories = Stream.of(form.getProductCategoriesId()).map(id -> categoryRepository.getCategoryById(id)).toList();
+        categories.addAll(updatedCategories);
+        product.setCategories(categories);
+        product = productRepository.updateProduct(product);
+        return ProductResp.toDto(product, resourceUrl);
+    }
+
+    @Override
+    public ProductResp createProduct(ProductCreateForm form) {
+        var product = entityFactory.getEntity(Product.class);
+        product.setName(form.getProductName());
+        product.setPrice(Integer.parseInt(form.getProductPrice()));
+        product.setSize(form.getProductSize());
+        product.setColor(form.getProductColor());
+        product.setTaobaoUrl(form.getProductTaobaoUrl());
+        product.setDescription(form.getProductDescription());
+        product.setEnabled(Boolean.parseBoolean(form.getProductEnabled()));
+        product.setOrderPoint(Integer.parseInt(form.getProductOrderPoint()));
+        var categories = new HashSet<>(product.getCategories());
+        var updatedCategories = Stream.of(form.getProductCategoriesId()).map(id -> categoryRepository.getCategoryById(id)).toList();
+        categories.addAll(updatedCategories);
+        product.setCategories(categories);
+        product = productRepository.saveProduct(product);
+        return ProductResp.toDto(product, resourceUrl);
     }
 
     @Override

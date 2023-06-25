@@ -1,16 +1,20 @@
 package com.bachlinh.order.web.dto.form;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonRootName;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * @deprecated will be remove in next version
+ */
 @JsonRootName("customer")
+@Deprecated(forRemoval = true, since = "1.0.0")
 public class CrudCustomerForm {
 
     @JsonIgnore

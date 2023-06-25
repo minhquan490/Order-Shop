@@ -19,9 +19,11 @@ import org.springframework.web.socket.server.RequestUpgradeStrategy;
 import org.springframework.web.socket.server.jetty.JettyRequestUpgradeStrategy;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
 import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
+import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
 import com.bachlinh.order.core.server.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.entity.EntityFactory;
@@ -31,6 +33,10 @@ import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.validate.base.ValidatedDto;
+import com.bachlinh.order.validate.rule.RuleFactory;
+import com.bachlinh.order.validate.rule.RuleManager;
+import com.bachlinh.order.validate.rule.ValidationRule;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
 import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
@@ -94,6 +100,23 @@ class WebBaseConfiguration implements WebSocketConfigurer {
     @Bean
     WebRequestInterceptor interceptor(TokenManager tokenManager) {
         return new RequestMonitor(tokenManager);
+    }
+
+    @Bean
+    <T extends ValidatedDto> RuleManager ruleManager(DependenciesResolver resolver) {
+        var ruleFactory = RuleFactory.defaultInstance();
+        var rules = new ApplicationScanner()
+                .findComponents()
+                .stream()
+                .filter(clazz -> clazz.isAnnotationPresent(DtoValidationRule.class))
+                .filter(ValidationRule.class::isAssignableFrom)
+                .map(clazz -> {
+                    @SuppressWarnings("unchecked")
+                    Class<ValidationRule<T>> type = (Class<ValidationRule<T>>) clazz;
+                    return ruleFactory.createRule(type, resolver, environment);
+                })
+                .toList();
+        return RuleManager.getBase(rules);
     }
 
     @Override

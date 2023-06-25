@@ -5,6 +5,7 @@ import com.bachlinh.order.exception.ApplicationException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Deprecated
 public class ConstraintViolationException extends ApplicationException {
     private final Collection<String> errors = new ArrayList<>();
 

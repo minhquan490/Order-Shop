@@ -1,21 +1,18 @@
 package com.bachlinh.order.web.handler.rest.admin.product;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.Form;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.ProductForm;
+import com.bachlinh.order.web.dto.form.admin.ProductCreateForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
 
 @ActiveReflection
 @RouteProvider
-public class ProductCreateHandler extends AbstractController<ResponseEntity<ProductResp>, ProductForm> {
+public class ProductCreateHandler extends AbstractController<ProductResp, ProductCreateForm> {
     private String url;
     private ProductService productService;
 
@@ -24,7 +21,7 @@ public class ProductCreateHandler extends AbstractController<ResponseEntity<Prod
     }
 
     @Override
-    protected ResponseEntity<ProductResp> internalHandler(Payload<ProductForm> request) {
+    protected ProductResp internalHandler(Payload<ProductCreateForm> request) {
         return createProduct(request.data());
     }
 
@@ -49,8 +46,7 @@ public class ProductCreateHandler extends AbstractController<ResponseEntity<Prod
         return RequestMethod.POST;
     }
 
-    private ResponseEntity<ProductResp> createProduct(ProductForm form) {
-        ProductResp resp = productService.save(Form.wrap(form)).get();
-        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+    private ProductResp createProduct(ProductCreateForm form) {
+        return productService.createProduct(form);
     }
 }
