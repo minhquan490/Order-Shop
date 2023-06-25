@@ -8,10 +8,8 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.Form;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.DeleteProductForm;
-import com.bachlinh.order.web.dto.form.ProductForm;
 import com.bachlinh.order.web.service.common.ProductService;
 
 import java.util.HashMap;
@@ -25,6 +23,7 @@ public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<
 
     @ActiveReflection
     public ProductDeleteHandler() {
+        // Default constructor
     }
 
     @Override
@@ -55,11 +54,9 @@ public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<
     }
 
     private ResponseEntity<Map<String, Object>> deleteProduct(String productId) {
-        var form = new ProductForm();
-        form.setId(productId);
-        var result = productService.delete(Form.wrap(form)).get();
+        var result = productService.deleteProduct(productId);
         Map<String, Object> resp = new HashMap<>();
-        if (!result.isSuccess()) {
+        if (!result) {
             throw new BadVariableException("Can not delete product has id [" + productId + "]");
         }
         resp.put("status", HttpStatus.ACCEPTED.value());

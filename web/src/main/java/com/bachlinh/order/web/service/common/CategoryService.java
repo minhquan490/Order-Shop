@@ -1,9 +1,20 @@
 package com.bachlinh.order.web.service.common;
 
-import com.bachlinh.order.service.BaseService;
-import com.bachlinh.order.web.dto.form.CategoryForm;
+import com.bachlinh.order.web.dto.form.CategoryDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.CategoryCreateForm;
+import com.bachlinh.order.web.dto.form.admin.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 
-public interface CategoryService extends BaseService<CategoryResp, CategoryForm> {
+import java.util.Collection;
+
+public interface CategoryService {
     boolean isExist(String id);
+
+    CategoryResp saveCategory(CategoryCreateForm form);
+
+    CategoryResp updateCategory(CategoryUpdateForm form);
+
+    boolean deleteCategory(CategoryDeleteForm form);
+
+    Collection<CategoryResp> getCategories();
 }

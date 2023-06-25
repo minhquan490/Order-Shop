@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.handler.rest;
 
-import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.RegisterForm;
@@ -20,6 +20,7 @@ public class RegisterHandler extends AbstractController<RegisterResp, RegisterFo
 
     @ActiveReflection
     public RegisterHandler() {
+        // Default constructor
     }
 
     @Override
@@ -27,9 +28,7 @@ public class RegisterHandler extends AbstractController<RegisterResp, RegisterFo
     protected RegisterResp internalHandler(Payload<RegisterForm> request) {
         RegisterResp resp = registerService.register(request.data());
         if (resp.isError()) {
-            getNativeResponse().setStatusCode(HttpStatus.BAD_REQUEST.value());
-        } else {
-            getNativeResponse().setStatusCode(HttpStatus.OK.value());
+            throw new BadVariableException(resp.message());
         }
         return resp;
     }

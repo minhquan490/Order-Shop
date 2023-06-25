@@ -6,8 +6,6 @@ import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.Form;
-import com.bachlinh.order.web.dto.form.CategoryForm;
 import com.bachlinh.order.web.dto.form.admin.CategoryCreateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
@@ -21,11 +19,7 @@ public class CategoryCreateHandler extends AbstractController<CategoryResp, Cate
 
     @Override
     protected CategoryResp internalHandler(Payload<CategoryCreateForm> request) {
-        var dto = request.data();
-        var form = new CategoryForm();
-        form.setName(dto.name());
-        var result = categoryService.save(Form.wrap(form));
-        return result.get();
+        return categoryService.saveCategory(request.data());
     }
 
     @Override
