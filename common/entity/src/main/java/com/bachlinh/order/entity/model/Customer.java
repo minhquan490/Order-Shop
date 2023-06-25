@@ -54,7 +54,7 @@ public class Customer extends AbstractEntity implements UserDetails {
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
     private String id;
 
-    @Column(name = "USER_NAME", unique = true, nullable = false, length = 24, columnDefinition = "nvarchar")
+    @Column(name = "USER_NAME", unique = true, nullable = false, length = 32, columnDefinition = "nvarchar")
     @FullTextField
     private String username;
 
@@ -243,7 +243,7 @@ public class Customer extends AbstractEntity implements UserDetails {
     public Set<CustomerHistory> getHistories() {
         return this.histories;
     }
-    
+
     public Set<Voucher> getAssignedVouchers() {
         return this.assignedVouchers;
     }

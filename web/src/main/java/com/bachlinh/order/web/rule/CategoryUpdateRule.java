@@ -9,7 +9,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.CategoryUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.CategoryUpdateForm;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +18,7 @@ import java.util.Map;
 @DtoValidationRule
 @ActiveReflection
 public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
+    private static final String CATEGORY_NAME_KEY = "name";
     private CategoryRepository categoryRepository;
 
     @ActiveReflection
@@ -35,8 +36,11 @@ public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
         }
 
         if (!StringUtils.hasText(dto.name())) {
-            var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of category must not be empty", r);
+            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, "Name of category must not be empty", r);
+        }
+
+        if (dto.name().length() < 4 || dto.name().length() > 32) {
+            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, "Name of category must be in range 4 - 32", r);
         }
 
         if (categoryRepository.isExits(dto.id())) {
@@ -45,8 +49,7 @@ public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
         }
 
         if (categoryRepository.getCategoryByName(dto.name()) != null) {
-            var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of category is existed", r);
+            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, "Name of category is existed", r);
         }
         return new ValidatedDto.ValidateResult() {
             @Override

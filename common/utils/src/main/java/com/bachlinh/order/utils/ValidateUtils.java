@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
 public final class ValidateUtils {
     private static final String PATTER = "(84|0[3|5|7|8|9])+([0-9]{8})\\b";
     private static final Pattern PATTERN = Pattern.compile(PATTER);
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+(\\.\\d+)?$");
+    private static final Pattern URL_PATTERN = Pattern.compile("((https?):\\/\\/)?(www.)?[a-z0-9]+(\\.[a-z]{2,}){1,3}(#?\\/?[a-zA-Z0-9#]+)*\\/?(\\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$");
+    private static final Pattern PRODUCT_SIZE_PATTERN = Pattern.compile("^[S|s]|[M|m]|[L|l]|([X|x]{1,}[L|l])$");
 
     public static boolean isEmailValidUsingRfc2822(String email) {
         return Rfc2822.validate(email);
@@ -20,6 +23,18 @@ public final class ValidateUtils {
 
     public static boolean isPhoneValid(String phone) {
         return PATTERN.matcher(phone).matches();
+    }
+
+    public static boolean isUrlValid(String url) {
+        return URL_PATTERN.matcher(url).matches();
+    }
+
+    public static boolean isSizeValid(String productSize) {
+        return PRODUCT_SIZE_PATTERN.matcher(productSize).matches();
+    }
+
+    public static boolean isNumber(String number) {
+        return NUMBER_PATTERN.matcher(number).matches();
     }
 
     private static class Rfc2822 {

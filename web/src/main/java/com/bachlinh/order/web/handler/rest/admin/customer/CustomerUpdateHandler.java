@@ -1,19 +1,18 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.admin.customer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.Form;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.CrudCustomerForm;
+import com.bachlinh.order.web.dto.form.admin.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 
 @RouteProvider
 @ActiveReflection
-public class CustomerUpdateHandler extends AbstractController<CustomerInformationResp, CrudCustomerForm> {
+public class CustomerUpdateHandler extends AbstractController<CustomerInformationResp, CustomerUpdateForm> {
     private String url;
     private CustomerService customerService;
 
@@ -23,8 +22,8 @@ public class CustomerUpdateHandler extends AbstractController<CustomerInformatio
 
 
     @Override
-    protected CustomerInformationResp internalHandler(Payload<CrudCustomerForm> request) {
-        return customerService.update(Form.wrap(request.data())).get();
+    protected CustomerInformationResp internalHandler(Payload<CustomerUpdateForm> request) {
+        return customerService.updateCustomer(request.data());
     }
 
     @Override

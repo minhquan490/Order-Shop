@@ -21,6 +21,7 @@ import java.util.Map;
 public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
     private static final String EMAIL_KEY = "email";
     private static final String PHONE_KEY = "phone";
+    private static final String USERNAME_KEY = "username";
 
     private CustomerRepository customerRepository;
 
@@ -33,6 +34,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
     protected ValidatedDto.ValidateResult doValidate(CustomerCreateForm dto) {
         var r = new HashMap<String, List<String>>();
         validateCommonCase(dto, r);
+        validateLength(dto, r);
         validatePattern(dto, r);
         validateExistCase(dto, r);
 
@@ -73,8 +75,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
         }
 
         if (customerRepository.usernameExist(dto.getUsername())) {
-            var key = "username";
-            RuntimeUtils.computeMultiValueMap(key, "Username is existed", result);
+            RuntimeUtils.computeMultiValueMap(USERNAME_KEY, "Username is existed", result);
         }
     }
 
@@ -119,8 +120,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
         }
 
         if (!StringUtils.hasText(dto.getUsername())) {
-            var key = "username";
-            RuntimeUtils.computeMultiValueMap(key, "Username must not be empty", result);
+            RuntimeUtils.computeMultiValueMap(USERNAME_KEY, "Username must not be empty", result);
         }
 
         if (!StringUtils.hasText(dto.getPassword())) {
@@ -148,6 +148,25 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
         if (!StringUtils.hasText(address.getProvince())) {
             var key = "address.province";
             RuntimeUtils.computeMultiValueMap(key, "Province address of customer must not be empty", result);
+        }
+    }
+
+    private void validateLength(CustomerCreateForm dto, Map<String, List<String>> result) {
+        int firstNameLength = dto.getFirstName().length();
+        if (firstNameLength < 4 || firstNameLength > 32) {
+            var key = "first_name";
+            RuntimeUtils.computeMultiValueMap(key, "First name of customer must be in range 4 - 32", result);
+        }
+
+        int lastNameLength = dto.getLastName().length();
+        if (lastNameLength < 4 || lastNameLength > 32) {
+            var key = "last_name";
+            RuntimeUtils.computeMultiValueMap(key, "Last name of customer must be in range 4 - 32", result);
+        }
+
+        int usernameLength = dto.getUsername().length();
+        if (usernameLength < 4 || usernameLength > 32) {
+            RuntimeUtils.computeMultiValueMap(USERNAME_KEY, "Username of customer must be in range 4 - 32", result);
         }
     }
 }

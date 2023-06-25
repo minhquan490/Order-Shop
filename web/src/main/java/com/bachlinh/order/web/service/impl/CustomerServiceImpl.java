@@ -48,6 +48,7 @@ import com.bachlinh.order.web.dto.form.CrudCustomerForm;
 import com.bachlinh.order.web.dto.form.LoginForm;
 import com.bachlinh.order.web.dto.form.RegisterForm;
 import com.bachlinh.order.web.dto.form.admin.CustomerCreateForm;
+import com.bachlinh.order.web.dto.form.admin.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
@@ -233,6 +234,20 @@ public class CustomerServiceImpl extends AbstractService<CustomerInformationResp
         address.setValue(AddressParser.parseVietNamAddress(addressForm.getHouseAddress(), addressForm.getWard(), addressForm.getDistrict(), addressForm.getProvince()));
         customer.getAddresses().add(address);
         customer = customerRepository.saveCustomer(customer);
+        return CustomerInformationResp.toDto(customer);
+    }
+
+    @Override
+    public CustomerInformationResp updateCustomer(CustomerUpdateForm customerUpdateForm) {
+        inject();
+        var customer = customerRepository.getCustomerById(customerUpdateForm.getId(), false);
+        customer.setFirstName(customerUpdateForm.getFirstName());
+        customer.setLastName(customerUpdateForm.getLastName());
+        customer.setPhoneNumber(customerUpdateForm.getPhone());
+        customer.setEmail(customerUpdateForm.getEmail());
+        customer.setGender(Gender.of(customerUpdateForm.getGender()).name());
+        customer.setUsername(customerUpdateForm.getUsername());
+        customer = customerRepository.updateCustomer(customer);
         return CustomerInformationResp.toDto(customer);
     }
 
