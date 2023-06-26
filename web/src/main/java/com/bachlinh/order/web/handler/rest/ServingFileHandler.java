@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.MimeType;
@@ -18,16 +19,14 @@ import com.bachlinh.order.web.service.common.ProductMediaService;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class ServingFileHandler extends AbstractController<NativeResponse<byte[]>, Object> {
     private String url;
     private String resourceTotalHeader;
     private ProductMediaService productMediaService;
 
-    @ActiveReflection
-    public ServingFileHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected NativeResponse<byte[]> internalHandler(Payload<Object> request) {
         String resourceId = getNativeRequest().getUrlQueryParam().getFirst("id");
         if (resourceId == null) {

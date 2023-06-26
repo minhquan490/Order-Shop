@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.entity.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.bachlinh.order.entity.model.Product;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,6 +16,8 @@ public interface ProductRepository {
     boolean deleteProduct(Product product);
 
     boolean productNameExist(Product product);
+
+    boolean isProductExist(String productId);
 
     long countProduct();
 

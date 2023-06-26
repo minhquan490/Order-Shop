@@ -3,11 +3,13 @@ package com.bachlinh.order.core.scanner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.lang.NonNull;
+import com.bachlinh.order.annotation.Ignore;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,10 +56,12 @@ public final class ApplicationScanner extends ClassPathScanningCandidateComponen
         @Override
         public boolean match(@NonNull MetadataReader metadataReader, @NonNull MetadataReaderFactory metadataReaderFactory) throws IOException {
             ClassMetadata classMetadata = metadataReader.getClassMetadata();
+            AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
             return matchedPackages.stream().anyMatch(s -> classMetadata.getClassName().startsWith(s)) ||
                     !classMetadata.isAbstract() ||
                     !classMetadata.isInterface() ||
-                    !classMetadata.isAnnotation();
+                    !classMetadata.isAnnotation() ||
+                    !annotationMetadata.hasAnnotation(Ignore.class.getName());
         }
     }
 }

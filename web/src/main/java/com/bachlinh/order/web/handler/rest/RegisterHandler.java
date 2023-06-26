@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -13,15 +14,11 @@ import com.bachlinh.order.web.service.business.RegisterService;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class RegisterHandler extends AbstractController<RegisterResp, RegisterForm> {
     private String url;
 
     private RegisterService registerService;
-
-    @ActiveReflection
-    public RegisterHandler() {
-        // Default constructor
-    }
 
     @Override
     @ActiveReflection

@@ -1,4 +1,4 @@
-package com.bachlinh.order.core.enums;
+package com.bachlinh.order.entity.enums;
 
 public enum OrderStatusValue {
     CONFIRMED,

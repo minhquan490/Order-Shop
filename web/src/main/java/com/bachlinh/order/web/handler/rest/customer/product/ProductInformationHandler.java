@@ -1,5 +1,6 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.customer.product;
 
+import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
@@ -13,16 +14,13 @@ import com.bachlinh.order.web.service.common.ProductService;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class ProductInformationHandler extends AbstractController<ProductResp, Void> {
     private String productInfoUrl;
     private ProductService productService;
 
-    @ActiveReflection
-    public ProductInformationHandler() {
-        // Default constructor
-    }
-
     @Override
+    @ActiveReflection
     protected ProductResp internalHandler(Payload<Void> request) {
         String productId = getNativeRequest().getUrlQueryParam().getFirst("id");
         if (!StringUtils.hasText(productId)) {

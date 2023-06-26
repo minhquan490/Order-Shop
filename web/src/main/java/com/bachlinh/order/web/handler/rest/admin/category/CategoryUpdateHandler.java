@@ -18,6 +18,7 @@ public class CategoryUpdateHandler extends AbstractController<CategoryResp, Cate
     private String url;
 
     @Override
+    @ActiveReflection
     protected CategoryResp internalHandler(Payload<CategoryUpdateForm> request) {
         return categoryService.updateCategory(request.data());
     }

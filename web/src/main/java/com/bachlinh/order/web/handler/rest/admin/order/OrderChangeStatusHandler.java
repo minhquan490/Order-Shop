@@ -1,5 +1,6 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.admin.order;
 
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -14,19 +15,17 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class OrderChangeStatusHandler extends AbstractController<Map<String, Object>, OrderChangeStatusForm> {
     private String url;
     private OrderChangeStatusService statusService;
 
-    @ActiveReflection
-    public OrderChangeStatusHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<OrderChangeStatusForm> request) {
         statusService.updateOrderStatus(request.data());
         Map<String, Object> resp = new HashMap<>(1);
-        resp.put("message", "Update success");
+        resp.put("messages", new String[]{"Update success"});
         return resp;
     }
 

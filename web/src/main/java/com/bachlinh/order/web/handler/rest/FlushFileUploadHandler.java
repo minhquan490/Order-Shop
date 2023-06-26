@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -16,15 +17,13 @@ import java.io.IOException;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class FlushFileUploadHandler extends AbstractController<ResponseEntity<?>, FlushFileForm> {
     private String url;
     private FileUploadService fileUploadService;
 
-    @ActiveReflection
-    public FlushFileUploadHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected ResponseEntity<?> internalHandler(Payload<FlushFileForm> request) {
         try {
             fileUploadService.catAndFlushFile(request.data());

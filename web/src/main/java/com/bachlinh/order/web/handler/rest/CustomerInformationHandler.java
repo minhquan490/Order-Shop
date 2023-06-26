@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
@@ -13,15 +14,13 @@ import com.bachlinh.order.web.service.common.CustomerService;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class CustomerInformationHandler extends AbstractController<CustomerInformationResp, Object> {
     private String url;
     private CustomerService customerService;
 
-    @ActiveReflection
-    public CustomerInformationHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected CustomerInformationResp internalHandler(Payload<Object> request) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return customerService.getCustomerInformation(customer.getId());

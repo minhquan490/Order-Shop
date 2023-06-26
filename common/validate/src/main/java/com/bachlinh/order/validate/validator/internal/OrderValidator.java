@@ -23,9 +23,6 @@ public class OrderValidator extends AbstractValidator<Order> {
     @Override
     protected ValidateResult doValidate(Order entity) {
         Result result = new Result();
-        if (entity.getTotalDeposit() < 0) {
-            result.addMessageError("Total deposit: must greater or equal 0");
-        }
         if (entity.getTimeOrder() == null) {
             result.addMessageError("Time order: must be specify");
         }

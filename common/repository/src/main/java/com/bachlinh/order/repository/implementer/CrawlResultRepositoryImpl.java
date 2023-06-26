@@ -3,6 +3,9 @@ package com.bachlinh.order.repository.implementer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -31,22 +34,26 @@ public class CrawlResultRepositoryImpl extends AbstractRepository<CrawlResult, I
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void saveCrawlResult(CrawlResult crawlResult) {
         save(crawlResult);
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteCrawlResult(CrawlResult crawlResult) {
         delete(crawlResult);
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteCrawlResult(int id) {
         findById(id).ifPresentOrElse(this::deleteCrawlResult, () -> {
         });
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteCrawlResults(LocalDateTime localDateTime) {
         Specification<CrawlResult> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(root.get(CrawlResult_.TIME_FINISH), localDateTime));
         delete(spec);

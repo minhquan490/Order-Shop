@@ -19,6 +19,7 @@ public class CategoryListHandler extends AbstractController<Collection<CategoryR
     private String url;
 
     @Override
+    @ActiveReflection
     protected Collection<CategoryResp> internalHandler(Payload<Void> request) {
         return categoryService.getCategories();
     }

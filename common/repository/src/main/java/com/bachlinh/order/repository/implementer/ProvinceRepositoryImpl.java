@@ -1,5 +1,10 @@
 package com.bachlinh.order.repository.implementer;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -7,11 +12,6 @@ import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -26,7 +26,7 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public boolean saveAllProvinces(Collection<Province> provinces) {
         return !saveAll(provinces).isEmpty();
     }
@@ -42,7 +42,7 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void remove(Province province) {
         deleteById(province.getId());
     }

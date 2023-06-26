@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -13,15 +14,13 @@ import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class CrawlResultHandler extends AbstractController<Collection<CrawlResultResp>, Object> {
     private CrawlerResultService crawlerResultService;
     private String path;
 
-    @ActiveReflection
-    public CrawlResultHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected Collection<CrawlResultResp> internalHandler(Payload<Object> request) {
         return crawlerResultService.getCrawlerResultInDate()
                 .stream()

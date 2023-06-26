@@ -1,12 +1,16 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.entity.EntityFactory;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.Transient;
 import org.springframework.lang.NonNull;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.context.spi.FieldUpdated;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 
 /**
  * Abstract entity, super class of all entity object available in system.
@@ -29,6 +33,9 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
     @Column(name = "MODIFIED_DATE")
     private Timestamp modifiedDate;
 
+    @Transient
+    private Collection<FieldUpdated> updatedFields;
+
     /**
      * Clone the object, because super interface {@link BaseEntity} extends {@link Cloneable} and constructor of all entities
      * is not public, this method must be call when create to another object. Internal use only in {@link EntityFactory}.
@@ -36,8 +43,12 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
      * @return A cloning of this object.
      */
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new PersistenceException(String.format("Can not clone entity [%s]", getClass().getName()));
+        }
     }
 
     @Override
@@ -50,24 +61,24 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
         }
     }
 
-    @ActiveReflection
     public String getCreatedBy() {
         return this.createdBy;
     }
 
-    @ActiveReflection
     public String getModifiedBy() {
         return this.modifiedBy;
     }
 
-    @ActiveReflection
     public Timestamp getCreatedDate() {
         return this.createdDate;
     }
 
-    @ActiveReflection
     public Timestamp getModifiedDate() {
         return this.modifiedDate;
+    }
+
+    public Collection<FieldUpdated> getUpdatedFields() {
+        return updatedFields;
     }
 
     @ActiveReflection
@@ -88,5 +99,9 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
     @ActiveReflection
     public void setModifiedDate(Timestamp modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public void setUpdatedFields(Collection<FieldUpdated> updatedFields) {
+        this.updatedFields = updatedFields;
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -93,7 +94,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = READ_COMMITTED)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     @ActiveReflection
     public boolean deleteCustomer(@NonNull Customer customer) {
         if (StringUtils.hasText((CharSequence) customer.getId())) {
@@ -106,14 +107,14 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     @ActiveReflection
     public Customer saveCustomer(@NonNull Customer customer) {
         return this.save(customer);
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = READ_COMMITTED)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Customer updateCustomer(@NonNull Customer customer) {
         return this.saveCustomer(customer);
     }
@@ -177,7 +178,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED)
     @Async
     @ActiveReflection
     public void saveAllCustomer(Collection<Customer> customers) {
@@ -185,7 +186,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED)
     @Async
     @ActiveReflection
     public void deleteAllCustomer(Collection<Customer> customers) {

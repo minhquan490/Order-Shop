@@ -18,6 +18,7 @@ public class CategoryCreateHandler extends AbstractController<CategoryResp, Cate
     private String url;
 
     @Override
+    @ActiveReflection
     protected CategoryResp internalHandler(Payload<CategoryCreateForm> request) {
         return categoryService.saveCategory(request.data());
     }

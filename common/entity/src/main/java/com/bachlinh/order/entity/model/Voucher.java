@@ -1,8 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -19,11 +21,16 @@ import java.util.Set;
 @Label("VOU-")
 @Validator(validators = "com.bachlinh.order.validator.internal.VoucherValidator")
 @ActiveReflection
+@EnableFullTextSearch
 public class Voucher extends AbstractEntity {
 
     @Id
     @Column(name = "ID", columnDefinition = "varchar(32)", nullable = false, updatable = false)
     private String id;
+
+    @Column(name = "NAME", nullable = false, updatable = false)
+    @FullTextField
+    private String name;
 
     @Column(name = "DISCOUNT_PERCENT", nullable = false)
     private Integer discountPercent;
@@ -73,44 +80,45 @@ public class Voucher extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public Integer getDiscountPercent() {
         return this.discountPercent;
     }
 
-    @ActiveReflection
     public Timestamp getTimeStart() {
         return this.timeStart;
     }
 
-    @ActiveReflection
     public Timestamp getTimeExpired() {
         return this.timeExpired;
     }
 
-    @ActiveReflection
     public String getVoucherContent() {
         return this.voucherContent;
     }
 
-    @ActiveReflection
     public Integer getVoucherCost() {
         return this.voucherCost;
     }
 
-    @ActiveReflection
     public boolean isEnable() {
         return this.isEnable;
     }
 
-    @ActiveReflection
     public Set<Customer> getCustomers() {
         return this.customers;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @ActiveReflection
+    public void setName(String name) {
+        this.name = name;
     }
 
     @ActiveReflection

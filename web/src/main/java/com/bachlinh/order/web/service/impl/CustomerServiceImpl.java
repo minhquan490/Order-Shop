@@ -8,11 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.context.spi.FieldUpdated;
 import com.bachlinh.order.entity.enums.Country;
 import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.enums.Role;
@@ -56,6 +60,7 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -130,6 +135,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerInformationResp saveCustomer(CustomerCreateForm customerCreateForm) {
         var customer = entityFactory.getEntity(Customer.class);
         customer.setFirstName(customerCreateForm.getFirstName());
@@ -152,19 +158,23 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerInformationResp updateCustomer(CustomerUpdateForm customerUpdateForm) {
         var customer = customerRepository.getCustomerById(customerUpdateForm.getId(), false);
+        var oldCustomer = customer.clone();
         customer.setFirstName(customerUpdateForm.getFirstName());
         customer.setLastName(customerUpdateForm.getLastName());
         customer.setPhoneNumber(customerUpdateForm.getPhone());
         customer.setEmail(customerUpdateForm.getEmail());
         customer.setGender(Gender.of(customerUpdateForm.getGender()).name());
         customer.setUsername(customerUpdateForm.getUsername());
+        customer.setUpdatedFields(findUpdatedFields((Customer) oldCustomer, customer));
         customer = customerRepository.updateCustomer(customer);
         return CustomerInformationResp.toDto(customer);
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerInformationResp deleteCustomer(CustomerDeleteForm customerDeleteForm) {
         var customer = customerRepository.getCustomerById(customerDeleteForm.customerId(), true);
         customerRepository.deleteCustomer(customer);
@@ -172,6 +182,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public LoginResp login(LoginForm loginForm, NativeRequest<?> request) {
         Customer customer = customerRepository.getCustomerByUsername(loginForm.username());
         if (customer == null) {
@@ -190,6 +201,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public RegisterResp register(RegisterForm registerForm) {
         Customer customer = registerForm.toCustomer(entityFactory, passwordEncoder);
         Cart cart = entityFactory.getEntity(Cart.class);
@@ -211,7 +223,8 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         return customerRepository.updateCustomer(customer) != null;
     }
 
-    private void saveHistory(Customer customer, NativeRequest<?> request) {
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public void saveHistory(Customer customer, NativeRequest<?> request) {
         executor.execute(() -> {
             LoginHistory loginHistory = entityFactory.getEntity(LoginHistory.class);
             loginHistory.setCustomer(customer);
@@ -254,6 +267,26 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         customer.setPassword(hashedPassword);
         customerRepository.updateCustomer(customer);
         tempTokenMap.remove(temporaryToken, holder);
+    }
+
+    private Collection<FieldUpdated> findUpdatedFields(Customer oldCustomer, Customer newCustomer) {
+        var fields = new ArrayList<FieldUpdated>();
+        if (!oldCustomer.getPhoneNumber().equals(newCustomer.getPhoneNumber())) {
+            fields.add(new FieldUpdated("PHONE_NUMBER", oldCustomer.getPhoneNumber()));
+        }
+        if (!oldCustomer.getEmail().equals(newCustomer.getEmail())) {
+            fields.add(new FieldUpdated("EMAIL", oldCustomer.getEmail()));
+        }
+        if (!oldCustomer.getRole().equals(newCustomer.getRole())) {
+            fields.add(new FieldUpdated("ROLE", oldCustomer.getRole()));
+        }
+        if (!oldCustomer.getOrderPoint().equals(newCustomer.getOrderPoint())) {
+            fields.add(new FieldUpdated("ORDER_POINT", oldCustomer.getOrderPoint().toString()));
+        }
+        if (oldCustomer.isActivated() != newCustomer.isActivated()) {
+            fields.add(new FieldUpdated("ENABLED", String.valueOf(oldCustomer.isActivated())));
+        }
+        return fields;
     }
 
     private record TempTokenHolder(LocalDateTime expireTime, String email) {

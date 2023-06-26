@@ -1,13 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.Product;
-import com.bachlinh.order.entity.model.Product_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
@@ -17,14 +9,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Product;
+import com.bachlinh.order.entity.model.Product_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.ProductRepository;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @RepositoryComponent
 @ActiveReflection
@@ -38,7 +38,7 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Product saveProduct(Product product) {
         return this.save(product);
     }
@@ -70,6 +70,11 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
             return criteriaBuilder.equal(root.get(Product_.NAME), product.getName());
         }));
         return get(spec) != null;
+    }
+
+    @Override
+    public boolean isProductExist(String productId) {
+        return existsById(productId);
     }
 
     @Override
@@ -126,7 +131,7 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
                     case Product_.PRICE -> criteriaBuilder.lessThanOrEqualTo(root.get(key), (int) value);
                     case Product_.NAME ->
                             criteriaBuilder.like(root.get(Product_.NAME), MessageFormat.format(LIKE_PATTERN, value));
-//                    case "IDS" -> criteriaBuilder.in(root.get(Product_.ID)).in(value);
+                    case "IDS" -> criteriaBuilder.in(root.get(Product_.ID)).in(value);
                     case Product_.CATEGORIES -> criteriaBuilder.in(root.get(Product_.CATEGORIES)).in(value);
                     default -> criteriaBuilder.equal(root.get(key), value);
                 };

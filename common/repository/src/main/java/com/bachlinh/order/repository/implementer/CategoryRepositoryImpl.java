@@ -6,9 +6,9 @@ import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -44,19 +44,19 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Category saveCategory(Category category) {
         return this.save(category);
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Category updateCategory(Category category) {
         return saveCategory(category);
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public boolean deleteCategory(Category category) {
         if (category == null) {
             return false;

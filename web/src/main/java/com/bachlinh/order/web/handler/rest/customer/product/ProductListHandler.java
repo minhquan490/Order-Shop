@@ -1,5 +1,6 @@
-package com.bachlinh.order.web.handler.rest.admin.product;
+package com.bachlinh.order.web.handler.rest.customer.product;
 
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -16,17 +17,14 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class ProductListHandler extends AbstractController<Page<ProductResp>, Object> {
 
     private ProductService productService;
     private String productListUrl;
 
-    @ActiveReflection
-    public ProductListHandler() {
-        // Default constructor
-    }
-
     @Override
+    @ActiveReflection
     protected Page<ProductResp> internalHandler(Payload<Object> request) {
         String page = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("page")).orElse("1");
         String size = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("size")).orElse("100");

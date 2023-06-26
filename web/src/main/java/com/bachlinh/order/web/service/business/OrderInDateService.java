@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.service.business;
 
-import com.bachlinh.order.web.dto.resp.OrderInDateResp;
 import org.springframework.data.domain.Page;
+import com.bachlinh.order.web.dto.resp.OrderListResp;
 
 public interface OrderInDateService {
-    Page<OrderInDateResp> getOrdersInDate();
+    Page<OrderListResp> getOrdersInDate();
 
     int numberOrderInDate();
 }

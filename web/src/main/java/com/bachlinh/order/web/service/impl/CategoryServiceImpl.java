@@ -1,5 +1,8 @@
 package com.bachlinh.order.web.service.impl;
 
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -33,6 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CategoryResp saveCategory(CategoryCreateForm form) {
         var category = entityFactory.getEntity(Category.class);
         category.setName(form.name());
@@ -41,6 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CategoryResp updateCategory(CategoryUpdateForm form) {
         var category = categoryRepository.getCategoryById(form.id());
         category.setName(form.name());
@@ -49,6 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean deleteCategory(CategoryDeleteForm form) {
         var category = categoryRepository.getCategoryById(form.id());
         if (category == null) {

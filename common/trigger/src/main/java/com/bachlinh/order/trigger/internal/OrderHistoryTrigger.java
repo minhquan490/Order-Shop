@@ -1,5 +1,8 @@
 package com.bachlinh.order.trigger.internal;
 
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
@@ -22,12 +25,14 @@ public class OrderHistoryTrigger extends AbstractTrigger<Order> {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void doExecute(Order entity) {
         EntitySavePointManager savePointManager = entityFactory.getTransactionManager().getSavePointManager();
         savePointManager.createSavePoint("savepoint");
         OrderHistory orderHistory = entityFactory.getEntity(OrderHistory.class);
         orderHistory.setOrder(entity);
         orderHistory.setOrderTime(entity.getTimeOrder());
+        orderHistory.setOrderStatus(entity.getOrderStatus().getStatus());
         try {
             orderHistoryRepository.saveOrderHistory(orderHistory);
         } catch (Exception e) {

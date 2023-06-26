@@ -1,31 +1,32 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.customer.product;
 
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.ProductSearchForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
 
+import java.util.Collection;
+
 @ActiveReflection
 @RouteProvider
-public class ProductSearchHandler extends AbstractController<ResponseEntity<Page<ProductResp>>, ProductSearchForm> {
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+public class ProductSearchHandler extends AbstractController<Collection<ProductResp>, ProductSearchForm> {
     private String productSearchUrl;
     private ProductSearchingService searchingService;
-
-    @ActiveReflection
-    public ProductSearchHandler() {
-    }
+    private Integer defaultPageSize;
 
     @Override
-    protected ResponseEntity<Page<ProductResp>> internalHandler(Payload<ProductSearchForm> request) {
+    @ActiveReflection
+    protected Collection<ProductResp> internalHandler(Payload<ProductSearchForm> request) {
         return search(request.data());
     }
 
@@ -34,6 +35,9 @@ public class ProductSearchHandler extends AbstractController<ResponseEntity<Page
         DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (searchingService == null) {
             searchingService = resolver.resolveDependencies(ProductSearchingService.class);
+        }
+        if (defaultPageSize == null) {
+            defaultPageSize = Integer.parseInt(getEnvironment().getProperty("data.default.page.size"));
         }
     }
 
@@ -50,17 +54,19 @@ public class ProductSearchHandler extends AbstractController<ResponseEntity<Page
         return RequestMethod.POST;
     }
 
-    private ResponseEntity<Page<ProductResp>> search(ProductSearchForm form) {
+    private Collection<ProductResp> search(ProductSearchForm form) {
         int page;
         int pageSize;
-
-        try {
+        if (ValidateUtils.isNumber(form.page())) {
             page = Integer.parseInt(form.page());
-            pageSize = Integer.parseInt(form.size());
-        } catch (NumberFormatException e) {
-            throw new BadVariableException("Page number and page size must be int");
+        } else {
+            page = 1;
         }
-
+        if (ValidateUtils.isNumber(form.size())) {
+            pageSize = Integer.parseInt(form.size());
+        } else {
+            pageSize = defaultPageSize;
+        }
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         Page<ProductResp> results;
         if (form.mode().equals("full")) {
@@ -68,6 +74,6 @@ public class ProductSearchHandler extends AbstractController<ResponseEntity<Page
         } else {
             results = searchingService.searchProduct(form, pageRequest);
         }
-        return ResponseEntity.ok(results);
+        return results.toList();
     }
 }

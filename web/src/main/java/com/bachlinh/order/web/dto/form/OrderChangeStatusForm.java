@@ -1,10 +1,12 @@
 package com.bachlinh.order.web.dto.form;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.bachlinh.order.validate.base.ValidatedDto;
 
 import java.util.Objects;
 
-public record OrderChangeStatusForm(@JsonAlias("id") String orderId, @JsonAlias("status") String status) {
+public record OrderChangeStatusForm(@JsonAlias("id") String orderId,
+                                    @JsonAlias("status") String status) implements ValidatedDto {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

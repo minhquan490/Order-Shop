@@ -3,6 +3,9 @@ package com.bachlinh.order.web.service.impl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -107,6 +110,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public ProductResp updateProduct(ProductUpdateForm form) {
         var conditions = new HashMap<String, Object>(1);
         conditions.put(Product_.ID, form.getProductId());
@@ -128,6 +132,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public ProductResp createProduct(ProductCreateForm form) {
         var product = entityFactory.getEntity(Product.class);
         product.setName(form.getProductName());
@@ -155,6 +160,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean deleteProduct(String productId) {
         var conditions = new HashMap<String, Object>(1);
         conditions.put(Product_.ID, productId);

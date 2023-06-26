@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest.admin.customer;
 
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -17,17 +18,14 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class CustomerListHandler extends AbstractController<Collection<CustomerResp>, Void> {
     private String url;
     private String defaultPageSize;
     private CustomerService customerService;
 
-    @ActiveReflection
-    public CustomerListHandler() {
-        // Default constructor
-    }
-
     @Override
+    @ActiveReflection
     protected Collection<CustomerResp> internalHandler(Payload<Void> request) {
         String pageParam = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("page")).orElse("0");
         String pageSizeParam = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("size")).orElse(defaultPageSize);

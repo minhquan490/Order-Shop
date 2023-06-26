@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest.admin.customer;
 
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -12,16 +13,13 @@ import com.bachlinh.order.web.service.common.CustomerService;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class CustomerDeleteHandler extends AbstractController<CustomerInformationResp, CustomerDeleteForm> {
     private String url;
     private CustomerService customerService;
 
-    @ActiveReflection
-    public CustomerDeleteHandler() {
-        // Default constructor
-    }
-
     @Override
+    @ActiveReflection
     protected CustomerInformationResp internalHandler(Payload<CustomerDeleteForm> request) {
         return customerService.deleteCustomer(request.data());
     }

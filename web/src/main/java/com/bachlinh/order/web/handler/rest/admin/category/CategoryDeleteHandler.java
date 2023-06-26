@@ -21,6 +21,7 @@ public class CategoryDeleteHandler extends AbstractController<Map<String, Object
     private String url;
 
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<CategoryDeleteForm> request) {
         var result = categoryService.deleteCategory(request.data());
         if (result) {

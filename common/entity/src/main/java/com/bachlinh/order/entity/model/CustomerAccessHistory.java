@@ -1,6 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,13 +10,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
 
 import java.sql.Date;
 
 @Entity
-@Table(name = "CUSTOMER_HISTORY", indexes = @Index(name = "idx_history_customer", columnList = "CUSTOMER_ID"))
+@Table(name = "CUSTOMER_ACCESS_HISTORY", indexes = @Index(name = "idx_access_history_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
-public class CustomerHistory extends AbstractEntity {
+public class CustomerAccessHistory extends AbstractEntity {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "int")
@@ -44,7 +44,7 @@ public class CustomerHistory extends AbstractEntity {
     private Customer customer;
 
     @ActiveReflection
-    CustomerHistory() {
+    CustomerAccessHistory() {
     }
 
     @Override
@@ -65,7 +65,7 @@ public class CustomerHistory extends AbstractEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomerHistory that = (CustomerHistory) o;
+        CustomerAccessHistory that = (CustomerAccessHistory) o;
         return Objects.equal(getId(), that.getId());
     }
 

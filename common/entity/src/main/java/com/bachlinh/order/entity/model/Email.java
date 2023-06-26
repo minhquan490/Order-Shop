@@ -1,9 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +11,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import org.springframework.http.MediaType;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 
@@ -31,6 +33,7 @@ import java.sql.Timestamp;
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger")
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailValidator")
 @ActiveReflection
+@EnableFullTextSearch
 public class Email extends AbstractEntity {
 
     @Id
@@ -38,6 +41,7 @@ public class Email extends AbstractEntity {
     private String id;
 
     @Column(name = "CONTENT", columnDefinition = "nvarchar(max)")
+    @FullTextField
     private String content;
 
     @Column(name = "RECEIVED_TIME", nullable = false, updatable = false)
@@ -47,6 +51,7 @@ public class Email extends AbstractEntity {
     private Timestamp timeSent;
 
     @Column(name = "TITLE", nullable = false, columnDefinition = "nvarchar(400)")
+    @FullTextField
     private String title;
 
     @Column(name = "WAS_READ", columnDefinition = "bit", nullable = false)

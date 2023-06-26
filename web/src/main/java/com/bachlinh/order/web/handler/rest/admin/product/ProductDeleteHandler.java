@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest.admin.product;
 
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -17,16 +18,13 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor_ = @ActiveReflection)
 public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, DeleteProductForm> {
     private String url;
     private ProductService productService;
 
-    @ActiveReflection
-    public ProductDeleteHandler() {
-        // Default constructor
-    }
-
     @Override
+    @ActiveReflection
     protected ResponseEntity<Map<String, Object>> internalHandler(Payload<DeleteProductForm> request) {
         String productId = request.data().productId();
         return deleteProduct(productId);

@@ -51,6 +51,7 @@ public class Product extends AbstractEntity {
     private int price;
 
     @Column(name = "SIZE", length = 3, nullable = false)
+    @FullTextField
     private String size;
 
     @Column(name = "COLOR", columnDefinition = "nvarchar(30)", nullable = false)
