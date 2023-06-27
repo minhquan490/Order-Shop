@@ -111,6 +111,9 @@ public class Customer extends AbstractEntity implements UserDetails {
     @JoinColumn(name = "CUSTOMER_MEDIA_ID")
     private CustomerMedia customerMedia;
 
+    @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private EmailTrash emailTrash;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
     private Set<Address> addresses = new HashSet<>();
 
@@ -233,6 +236,10 @@ public class Customer extends AbstractEntity implements UserDetails {
         return customerMedia;
     }
 
+    public EmailTrash getEmailTrash() {
+        return emailTrash;
+    }
+
     public Set<Address> getAddresses() {
         return this.addresses;
     }
@@ -352,5 +359,10 @@ public class Customer extends AbstractEntity implements UserDetails {
     @ActiveReflection
     public void setAssignedVouchers(Set<Voucher> assignedVouchers) {
         this.assignedVouchers = assignedVouchers;
+    }
+
+    @ActiveReflection
+    public void setEmailTrash(EmailTrash emailTrash) {
+        this.emailTrash = emailTrash;
     }
 }

@@ -40,6 +40,7 @@ public class CrawlResult extends AbstractEntity {
     }
 
     @Override
+    @ActiveReflection
     public void setId(Object id) {
         if (id instanceof Integer casted) {
             this.id = casted;
@@ -52,6 +53,7 @@ public class CrawlResult extends AbstractEntity {
         return sourcePath;
     }
 
+    @ActiveReflection
     public void setSourcePath(String sourcePath) {
         this.sourcePath = sourcePath;
     }
@@ -60,6 +62,7 @@ public class CrawlResult extends AbstractEntity {
         return timeFinish;
     }
 
+    @ActiveReflection
     public void setTimeFinish(Timestamp timeFinish) {
         this.timeFinish = timeFinish;
     }
@@ -68,6 +71,7 @@ public class CrawlResult extends AbstractEntity {
         return resources;
     }
 
+    @ActiveReflection
     public void setResources(String resources) {
         this.resources = resources;
     }

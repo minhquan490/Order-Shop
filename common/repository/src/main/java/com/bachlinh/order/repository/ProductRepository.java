@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import com.bachlinh.order.entity.model.Product;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface ProductRepository {
@@ -28,4 +29,6 @@ public interface ProductRepository {
     Page<Product> getProductsWithUnion(Collection<String> ids, Map<String, Object> conditions, Pageable pageable);
 
     Page<Product> getAllProducts(Pageable pageable);
+
+    <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType);
 }

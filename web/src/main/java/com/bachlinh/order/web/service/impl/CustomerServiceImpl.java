@@ -25,6 +25,7 @@ import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailTemplate;
+import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.environment.Environment;
@@ -34,6 +35,7 @@ import com.bachlinh.order.mail.model.MessageModel;
 import com.bachlinh.order.mail.service.EmailSendingService;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
+import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
@@ -81,6 +83,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     private final EmailSendingService emailSendingService;
     private final TemporaryTokenGenerator tokenGenerator;
     private final EmailTemplateRepository emailTemplateRepository;
+    private final EmailTrashRepository emailTrashRepository;
     private final Executor executor;
     private final String urlResetPassword;
 
@@ -96,7 +99,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
                                TemporaryTokenGenerator tokenGenerator,
                                EmailTemplateRepository emailTemplateRepository,
                                Executor executor,
-                               @Value("${active.profile}") String profile) {
+                               @Value("${active.profile}") String profile, EmailTrashRepository emailTrashRepository) {
         this.passwordEncoder = passwordEncoder;
         this.entityFactory = entityFactory;
         this.customerRepository = customerRepository;
@@ -107,6 +110,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         this.tokenGenerator = tokenGenerator;
         this.emailTemplateRepository = emailTemplateRepository;
         this.executor = executor;
+        this.emailTrashRepository = emailTrashRepository;
         Environment environment = Environment.getInstance(profile);
         this.urlResetPassword = MessageFormat.format("https://{0}:{1}{2}", environment.getProperty("server.address"), environment.getProperty("server.port"), environment.getProperty("shop.url.customer.reset.password"));
     }
@@ -208,7 +212,11 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         cart.setCustomer(customer);
         customer.setCart(cart);
         try {
-            customerRepository.saveCustomer(customer);
+            customer = customerRepository.saveCustomer(customer);
+            var trash = entityFactory.getEntity(EmailTrash.class);
+            trash.setCustomer(customer);
+            customer.setEmailTrash(trash);
+            emailTrashRepository.saveEmailTrash(trash);
             return new RegisterResp("Register success", false);
         } catch (Exception e) {
             return new RegisterResp("Register failure", true);

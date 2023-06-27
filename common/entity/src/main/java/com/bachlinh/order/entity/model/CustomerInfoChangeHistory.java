@@ -3,6 +3,7 @@ package com.bachlinh.order.entity.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
@@ -17,7 +18,7 @@ import com.bachlinh.order.annotation.Label;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "CUSTOMER_INFORMATION_CHANGE_HISTORY")
+@Table(name = "CUSTOMER_INFORMATION_CHANGE_HISTORY", indexes = @Index(name = "idx_customer_history_id", columnList = "CUSTOMER_ID"))
 @Getter
 @ActiveReflection
 @Label("CIH-")

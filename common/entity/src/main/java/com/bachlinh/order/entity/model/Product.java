@@ -27,7 +27,8 @@ import java.util.Set;
 @Table(
         name = "PRODUCT",
         indexes = {
-                @Index(name = "idx_product_name", columnList = "NAME", unique = true)
+                @Index(name = "idx_product_name", columnList = "NAME", unique = true),
+                @Index(name = "idx_product_created_date", columnList = "CREATED_DATE")
         }
 )
 @Label("PRD-")

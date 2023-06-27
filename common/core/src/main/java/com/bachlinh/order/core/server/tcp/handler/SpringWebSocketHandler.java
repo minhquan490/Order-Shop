@@ -47,7 +47,7 @@ public abstract class SpringWebSocketHandler implements WebSocketHandler {
     @Override
     public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) throws Exception {
         log.error("Transport message error, close connection", exception);
-        afterConnectionClosed(session, null);
+        afterConnectionClosed(session, CloseStatus.SERVER_ERROR);
     }
 
     @Override

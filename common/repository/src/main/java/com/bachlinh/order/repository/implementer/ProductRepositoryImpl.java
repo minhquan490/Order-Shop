@@ -22,6 +22,7 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -103,6 +104,13 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
     @Override
     public Page<Product> getAllProducts(Pageable pageable) {
         return findAll(pageable);
+    }
+
+    @Override
+    public <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType) {
+        var typedQuery = getEntityManager().createQuery(query, receiverType);
+        attributes.forEach(typedQuery::setParameter);
+        return typedQuery.getResultList();
     }
 
     private Specification<Product> specWithCondition(Map<String, Object> conditions) {

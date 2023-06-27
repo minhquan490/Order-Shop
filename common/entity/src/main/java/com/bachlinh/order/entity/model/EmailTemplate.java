@@ -15,6 +15,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 @Label("ETE-")
@@ -31,6 +32,7 @@ import com.bachlinh.order.annotation.Validator;
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateValidator")
 @ActiveReflection
 @EnableFullTextSearch
+@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateIndexTrigger"})
 public class EmailTemplate extends AbstractEntity {
 
     @Id

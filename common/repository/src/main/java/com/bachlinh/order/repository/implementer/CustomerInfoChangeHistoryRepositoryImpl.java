@@ -2,6 +2,7 @@ package com.bachlinh.order.repository.implementer;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,10 +10,13 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
+import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 @RepositoryComponent
@@ -35,6 +39,25 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void saveHistories(Collection<CustomerInfoChangeHistory> histories) {
         saveAll(histories);
+    }
+
+    @Override
+    public Collection<CustomerInfoChangeHistory> getHistoriesInYear() {
+        Specification<CustomerInfoChangeHistory> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(CustomerInfoChangeHistory_.timeUpdate), Timestamp.from(Instant.now())));
+        return findAll(spec);
+    }
+
+    @Override
+    public void deleteHistories(Collection<CustomerInfoChangeHistory> histories) {
+        var savePointManager = getEntityFactory().getTransactionManager().getSavePointManager();
+        savePointManager.createSavePoint("histories");
+        try {
+            deleteAllById(histories.stream().map(CustomerInfoChangeHistory::getId).toList());
+        } catch (Exception e) {
+            savePointManager.rollbackToSavePoint("histories");
+        } finally {
+            savePointManager.release();
+        }
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Trigger;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -16,6 +12,10 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Trigger;
 
 import java.util.List;
 
@@ -63,6 +63,7 @@ public class Province extends AbstractEntity {
     }
 
     @Override
+    @ActiveReflection
     public void setId(Object id) {
         if (!(id instanceof Integer)) {
             throw new PersistenceException("Id of province must be integer");

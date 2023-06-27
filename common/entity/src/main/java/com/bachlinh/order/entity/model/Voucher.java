@@ -11,6 +11,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
@@ -22,6 +23,7 @@ import java.util.Set;
 @Validator(validators = "com.bachlinh.order.validator.internal.VoucherValidator")
 @ActiveReflection
 @EnableFullTextSearch
+@Trigger(triggers = {"com.bachlinh.order.trigger.internal.VoucherIndexTrigger"})
 public class Voucher extends AbstractEntity {
 
     @Id

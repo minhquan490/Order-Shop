@@ -20,11 +20,15 @@ import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.web.dto.form.ProductSearchForm;
 import com.bachlinh.order.web.dto.form.admin.ProductCreateForm;
 import com.bachlinh.order.web.dto.form.admin.ProductUpdateForm;
+import com.bachlinh.order.web.dto.resp.AnalyzeProductPostedInMonthResp;
 import com.bachlinh.order.web.dto.resp.ProductResp;
+import com.bachlinh.order.web.service.business.ProductAnalyzeService;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
 import com.bachlinh.order.web.service.common.ProductService;
 
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +40,7 @@ import java.util.stream.Stream;
 
 @ServiceComponent
 @ActiveReflection
-public class ProductServiceImpl implements ProductService, ProductSearchingService {
+public class ProductServiceImpl implements ProductService, ProductSearchingService, ProductAnalyzeService {
     private final ProductRepository productRepository;
     private final EntityFactory entityFactory;
     private final CategoryRepository categoryRepository;
@@ -170,5 +174,39 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         } else {
             return productRepository.deleteProduct(product);
         }
+    }
+
+    @Override
+    public AnalyzeProductPostedInMonthResp analyzeProductPostedInMonth() {
+        var template = "select t.* from (select count(p.id) as first, ({0}) as second, ({1}) as third, ({2}) as fourth, ({3}) as last from Product p where p.created_date between :firstStart and :firstEnd) as t";
+        var secondStatement = "select count(p.id) from Product p where p.created_date between :secondStart and :secondEnd";
+        var thirdStatement = "select count(p.id) from Product p where p.created_date between :thirdStart and :thirdEnd";
+        var fourthStatement = "select count(p.id) from Product p where p.created_date between :fourthStart and :fourthEnd";
+        var lastStatement = "select count(p.id) from Product p where p.created_date between :lastStart and :lastEnd";
+        var query = MessageFormat.format(template, secondStatement, thirdStatement, fourthStatement, lastStatement);
+        var attributes = new HashMap<String, Object>(10);
+        var now = LocalDateTime.now();
+        var firstParam = Timestamp.valueOf(now.plusWeeks(-5));
+        var secondParam = Timestamp.valueOf(now.plusWeeks(-4));
+        var thirdParam = Timestamp.valueOf(now.plusWeeks(-3));
+        var fourthParam = Timestamp.valueOf(now.plusWeeks(-2));
+        var fifthParam = Timestamp.valueOf(now.plusWeeks(-1));
+        attributes.put("firstStart", firstParam);
+        attributes.put("firstEnd", secondParam);
+        attributes.put("secondStart", secondParam);
+        attributes.put("secondEnd", thirdParam);
+        attributes.put("thirdStart", thirdParam);
+        attributes.put("thirdEnd", fourthParam);
+        attributes.put("fourthStart", fourthParam);
+        attributes.put("fourthEnd", fifthParam);
+        attributes.put("lastStart", fifthParam);
+        attributes.put("lastEnd", Timestamp.valueOf(now));
+        var resultSet = productRepository.executeNativeQuery(query, attributes, AnalyzeProductPostedInMonthResp.ResultSet.class).get(0);
+        var resp = new AnalyzeProductPostedInMonthResp();
+        resp.setPointInFirstWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getFirst(), resultSet.getSecond()));
+        resp.setPointInSecondWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getSecond(), resultSet.getThird()));
+        resp.setPointInThirdWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getThird(), resultSet.getFourth()));
+        resp.setPointInLastWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getFourth(), resultSet.getLast()));
+        return resp;
     }
 }

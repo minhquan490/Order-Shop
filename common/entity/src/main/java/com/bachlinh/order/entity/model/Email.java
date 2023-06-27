@@ -30,7 +30,9 @@ import java.sql.Timestamp;
                 @Index(name = "idx_email_folder", columnList = "FOLDER_ID")
         }
 )
-@Trigger(triggers = "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger")
+@Trigger(triggers = {
+        "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger"
+})
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailValidator")
 @ActiveReflection
 @EnableFullTextSearch
@@ -75,6 +77,10 @@ public class Email extends AbstractEntity {
     @JoinColumn(name = "FOLDER_ID", nullable = false)
     private EmailFolders folder;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EMAIL_TRASH_ID")
+    private EmailTrash emailTrash;
+
     @ActiveReflection
     Email() {
     }
@@ -89,59 +95,52 @@ public class Email extends AbstractEntity {
         throw new PersistenceException("Id of email received must be string");
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getContent() {
         return this.content;
     }
 
-    @ActiveReflection
     public Timestamp getReceivedTime() {
         return this.receivedTime;
     }
 
-    @ActiveReflection
     public Timestamp getTimeSent() {
         return this.timeSent;
     }
 
-    @ActiveReflection
     public String getTitle() {
         return this.title;
     }
 
-    @ActiveReflection
     public boolean isRead() {
         return this.read;
     }
 
-    @ActiveReflection
     public boolean isSent() {
         return this.sent;
     }
 
-    @ActiveReflection
     public String getMediaType() {
         return this.mediaType;
     }
 
-    @ActiveReflection
     public Customer getFromCustomer() {
         return this.fromCustomer;
     }
 
-    @ActiveReflection
     public Customer getToCustomer() {
         return this.toCustomer;
     }
 
-    @ActiveReflection
     public EmailFolders getFolder() {
         return this.folder;
+    }
+
+    public EmailTrash getEmailTrash() {
+        return emailTrash;
     }
 
     @ActiveReflection
@@ -192,5 +191,10 @@ public class Email extends AbstractEntity {
     @ActiveReflection
     public void setFolder(EmailFolders folder) {
         this.folder = folder;
+    }
+
+    @ActiveReflection
+    public void setEmailTrash(EmailTrash emailTrash) {
+        this.emailTrash = emailTrash;
     }
 }

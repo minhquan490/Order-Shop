@@ -9,8 +9,6 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
-import java.util.Collections;
-
 @ActiveReflection
 public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     private EntityFactory entityFactory;
@@ -23,7 +21,7 @@ public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     @Override
     public void doExecute(Customer entity) {
         EntityContext context = entityFactory.getEntityContext(Customer.class);
-        context.analyze(Collections.singleton(entity));
+        context.analyze(entity);
     }
 
     @Override

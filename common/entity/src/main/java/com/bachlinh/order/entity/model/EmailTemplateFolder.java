@@ -16,6 +16,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.Set;
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateFolderValidator")
 @ActiveReflection
 @EnableFullTextSearch
+@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateFolderIndexTrigger"})
 public class EmailTemplateFolder extends AbstractEntity {
 
     @Id
