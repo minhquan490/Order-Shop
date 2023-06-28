@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest.admin.customer;
 
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -12,16 +13,14 @@ import com.bachlinh.order.web.service.common.CustomerService;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CustomerUpdateHandler extends AbstractController<CustomerInformationResp, CustomerUpdateForm> {
     private String url;
     private CustomerService customerService;
 
-    @ActiveReflection
-    public CustomerUpdateHandler() {
-    }
-
 
     @Override
+    @ActiveReflection
     protected CustomerInformationResp internalHandler(Payload<CustomerUpdateForm> request) {
         return customerService.updateCustomer(request.data());
     }

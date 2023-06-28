@@ -1,5 +1,13 @@
 package com.bachlinh.order.repository.implementer;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -8,15 +16,6 @@ import com.bachlinh.order.entity.model.RefreshToken_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -39,7 +38,7 @@ public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken,
     }
 
     @Override
-    @Transactional(propagation = MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public RefreshToken saveRefreshToken(RefreshToken token) {
         return this.save(token);
     }

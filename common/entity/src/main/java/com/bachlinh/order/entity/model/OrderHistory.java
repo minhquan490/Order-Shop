@@ -1,6 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +9,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
 
 import java.sql.Timestamp;
 
@@ -22,8 +22,11 @@ public class OrderHistory extends AbstractEntity {
     @Column(name = "ID", updatable = false, columnDefinition = "int")
     private Integer id;
 
-    @Column(name = "ORDER_TIME")
+    @Column(name = "ORDER_TIME", updatable = false)
     private Timestamp orderTime;
+
+    @Column(name = "ORDER_STATUS")
+    private String orderStatus;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @MapsId
@@ -43,14 +46,21 @@ public class OrderHistory extends AbstractEntity {
         throw new PersistenceException("Can not set id for order history, supported only integer");
     }
 
-    @ActiveReflection
     public Integer getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public Timestamp getOrderTime() {
         return this.orderTime;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    @ActiveReflection
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     @ActiveReflection

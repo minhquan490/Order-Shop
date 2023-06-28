@@ -1,10 +1,11 @@
 package com.bachlinh.order.web.handler.rest;
 
-import org.springframework.http.HttpStatus;
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.RegisterForm;
@@ -13,23 +14,18 @@ import com.bachlinh.order.web.service.business.RegisterService;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class RegisterHandler extends AbstractController<RegisterResp, RegisterForm> {
     private String url;
 
     private RegisterService registerService;
-
-    @ActiveReflection
-    public RegisterHandler() {
-    }
 
     @Override
     @ActiveReflection
     protected RegisterResp internalHandler(Payload<RegisterForm> request) {
         RegisterResp resp = registerService.register(request.data());
         if (resp.isError()) {
-            getNativeResponse().setStatusCode(HttpStatus.BAD_REQUEST.value());
-        } else {
-            getNativeResponse().setStatusCode(HttpStatus.OK.value());
+            throw new BadVariableException(resp.message());
         }
         return resp;
     }

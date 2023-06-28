@@ -6,27 +6,21 @@ import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.Form;
-import com.bachlinh.order.web.dto.form.CategoryForm;
 import com.bachlinh.order.web.dto.form.admin.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CategoryUpdateHandler extends AbstractController<CategoryResp, CategoryUpdateForm> {
     private CategoryService categoryService;
     private String url;
 
     @Override
+    @ActiveReflection
     protected CategoryResp internalHandler(Payload<CategoryUpdateForm> request) {
-        var req = request.data();
-        var form = new CategoryForm();
-        form.setId(req.id());
-        form.setName(req.name());
-        var result = categoryService.update(Form.wrap(form));
-        return result.get();
+        return categoryService.updateCategory(request.data());
     }
 
     @Override

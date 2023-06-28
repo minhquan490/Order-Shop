@@ -12,7 +12,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 @Label("ETE-")
@@ -28,6 +31,8 @@ import com.bachlinh.order.annotation.Validator;
 )
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateValidator")
 @ActiveReflection
+@EnableFullTextSearch
+@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateIndexTrigger"})
 public class EmailTemplate extends AbstractEntity {
 
     @Id
@@ -35,12 +40,15 @@ public class EmailTemplate extends AbstractEntity {
     private String id;
 
     @Column(name = "NAME", columnDefinition = "nvarchar(100)")
+    @FullTextField
     private String name;
 
     @Column(name = "TITLE", nullable = false, unique = true)
+    @FullTextField
     private String title;
 
     @Column(name = "CONTENT", nullable = false, columnDefinition = "nvarchar(700)")
+    @FullTextField
     private String content;
 
     @Column(name = "EXPIRY_POLICY", nullable = false)

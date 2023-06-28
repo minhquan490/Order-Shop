@@ -8,9 +8,9 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Getter
-@Setter(onMethod_ = @ActiveReflection)
+@Setter(onMethod = @__({@ActiveReflection}))
 public class CustomerCreateForm implements ValidatedDto {
 
     @JsonAlias("first_name")
@@ -41,9 +41,9 @@ public class CustomerCreateForm implements ValidatedDto {
     private AddressAttribute address;
 
     @ActiveReflection
-    @NoArgsConstructor(onConstructor_ = @ActiveReflection)
+    @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
     @Getter
-    @Setter(onMethod_ = @ActiveReflection)
+    @Setter(onMethod = @__({@ActiveReflection}))
     public static class AddressAttribute {
 
         @JsonAlias("province")

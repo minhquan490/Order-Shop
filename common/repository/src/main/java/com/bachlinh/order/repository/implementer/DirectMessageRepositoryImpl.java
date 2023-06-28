@@ -3,9 +3,9 @@ package com.bachlinh.order.repository.implementer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -31,23 +31,25 @@ public class DirectMessageRepositoryImpl extends AbstractRepository<DirectMessag
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public DirectMessage updateMessage(DirectMessage message) {
         return save(message);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     @Override
     public DirectMessage saveMessage(DirectMessage message) {
         return save(message);
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteMessage(int id) {
         deleteById(id);
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteMessage(Collection<DirectMessage> directMessages) {
         getEntityManager().flush();
         deleteAllByIdInBatch(directMessages.stream().map(DirectMessage::getId).toList());

@@ -1,8 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -19,6 +16,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
 
 import java.util.Set;
 
@@ -61,29 +61,14 @@ public class Category extends AbstractEntity {
         this.id = (String) id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Category category)) return false;
-        return Objects.equal(getId(), category.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getName() {
         return this.name;
     }
 
-    @ActiveReflection
     public Set<Product> getProducts() {
         return this.products;
     }
@@ -96,5 +81,17 @@ public class Category extends AbstractEntity {
     @ActiveReflection
     public void setProducts(Set<Product> products) {
         this.products = products;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Category category)) return false;
+        return Objects.equal(getId(), category.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 }

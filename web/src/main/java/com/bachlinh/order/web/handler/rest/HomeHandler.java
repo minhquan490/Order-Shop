@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -20,15 +21,13 @@ import java.util.stream.Collectors;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class HomeHandler extends AbstractController<Map<String, Object>, Object> {
     private String homeUrl;
     private ProductService productService;
 
-    @ActiveReflection
-    public HomeHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<Object> request) {
         return home();
     }

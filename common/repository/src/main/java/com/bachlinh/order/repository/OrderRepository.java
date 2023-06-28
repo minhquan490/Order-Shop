@@ -13,9 +13,13 @@ public interface OrderRepository {
 
     boolean deleteOrder(Order order);
 
+    boolean isOrderExist(String orderId);
+
     Order getOrder(String orderId);
 
     List<Order> getOrderOfCustomer(Customer customer);
 
     List<Order> getNewOrdersInDate();
+
+    List<Order> getAll();
 }

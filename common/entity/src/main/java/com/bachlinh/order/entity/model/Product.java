@@ -27,7 +27,8 @@ import java.util.Set;
 @Table(
         name = "PRODUCT",
         indexes = {
-                @Index(name = "idx_product_name", columnList = "NAME", unique = true)
+                @Index(name = "idx_product_name", columnList = "NAME", unique = true),
+                @Index(name = "idx_product_created_date", columnList = "CREATED_DATE")
         }
 )
 @Label("PRD-")
@@ -51,6 +52,7 @@ public class Product extends AbstractEntity {
     private int price;
 
     @Column(name = "SIZE", length = 3, nullable = false)
+    @FullTextField
     private String size;
 
     @Column(name = "COLOR", columnDefinition = "nvarchar(30)", nullable = false)

@@ -12,9 +12,11 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.enums.OrderStatusValue;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderDetail_;
+import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderRepository;
@@ -38,7 +40,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
     }
 
     @Override
-    @Transactional(propagation = MANDATORY)
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Order saveOrder(Order order) {
         return Optional.of(this.save(order)).orElse(null);
     }
@@ -61,6 +63,11 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean isOrderExist(String orderId) {
+        return existsById(orderId);
     }
 
     @Override
@@ -89,9 +96,15 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
         Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
             Predicate firstStatement = criteriaBuilder.greaterThanOrEqualTo(root.get(Order_.timeOrder), Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(0, 0, 0))));
             Predicate secondStatement = criteriaBuilder.lessThanOrEqualTo(root.get(Order_.timeOrder), Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(23, 59, 59))));
-            return criteriaBuilder.and(firstStatement, secondStatement);
+            Predicate thirdStatement = criteriaBuilder.equal(root.get(OrderStatus_.ORDER), OrderStatusValue.UN_CONFIRMED.name());
+            return criteriaBuilder.and(firstStatement, secondStatement, thirdStatement);
         });
         return findAll(spec, Sort.unsorted());
+    }
+
+    @Override
+    public List<Order> getAll() {
+        return findAll();
     }
 
     @Override

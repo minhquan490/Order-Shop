@@ -79,12 +79,7 @@ public class DefaultEntityContext implements EntityContext {
 
     @Override
     public BaseEntity getEntity() {
-        try {
-            return (BaseEntity) ((AbstractEntity) baseEntity).clone();
-        } catch (CloneNotSupportedException e) {
-            // This will never cause
-            return null;
-        }
+        return (BaseEntity) ((AbstractEntity) baseEntity).clone();
     }
 
     @Override

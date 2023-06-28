@@ -58,18 +58,6 @@ public class Cart extends AbstractEntity {
         this.id = (String) id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Cart cart)) return false;
-        return Objects.equal(getId(), cart.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
     @ActiveReflection
     public String getId() {
         return this.id;
@@ -102,5 +90,17 @@ public class Cart extends AbstractEntity {
     @ActiveReflection
     public void setProducts(Collection<Product> products) {
         this.products = products;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cart cart)) return false;
+        return Objects.equal(getId(), cart.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 }

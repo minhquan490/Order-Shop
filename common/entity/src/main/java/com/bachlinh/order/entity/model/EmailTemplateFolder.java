@@ -1,8 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +12,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 
 import java.util.Set;
 
@@ -23,6 +26,8 @@ import java.util.Set;
 @Table(name = "EMAIL_TEMPLATE_FOLDER", indexes = @Index(name = "idx_email_template_folder_owner", columnList = "OWNER_ID"))
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateFolderValidator")
 @ActiveReflection
+@EnableFullTextSearch
+@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateFolderIndexTrigger"})
 public class EmailTemplateFolder extends AbstractEntity {
 
     @Id
@@ -30,6 +35,7 @@ public class EmailTemplateFolder extends AbstractEntity {
     private String id;
 
     @Column(name = "NAME", columnDefinition = "nvarchar(300)", unique = true)
+    @FullTextField
     private String name;
 
     @Column(name = "CLEAR_EMAIL_TEMPLATE_POLICY")

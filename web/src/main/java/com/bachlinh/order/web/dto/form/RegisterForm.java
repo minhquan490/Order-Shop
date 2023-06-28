@@ -1,10 +1,11 @@
 package com.bachlinh.order.web.dto.form;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.model.Customer;
-import com.fasterxml.jackson.annotation.JsonAlias;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.bachlinh.order.validate.base.ValidatedDto;
 
 public record RegisterForm(@JsonAlias("username") String username,
                            @JsonAlias("first_name") String firstName,
@@ -12,7 +13,7 @@ public record RegisterForm(@JsonAlias("username") String username,
                            @JsonAlias("phone") String phoneNumber,
                            @JsonAlias("email") String email,
                            @JsonAlias("gender") String gender,
-                           @JsonAlias("password") String password) {
+                           @JsonAlias("password") String password) implements ValidatedDto {
     public Customer toCustomer(EntityFactory entityFactory, PasswordEncoder passwordEncoder) {
         Customer customer = entityFactory.getEntity(Customer.class);
         customer.setUsername(this.username());

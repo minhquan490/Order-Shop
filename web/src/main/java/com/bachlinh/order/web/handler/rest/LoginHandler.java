@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -16,6 +17,7 @@ import com.bachlinh.order.web.service.business.LoginService;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, LoginForm> {
     private String clientCookieKey;
     private String cookieDomain;
@@ -23,11 +25,8 @@ public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, 
     private TokenManager tokenManager;
     private LoginService loginService;
 
-    @ActiveReflection
-    public LoginHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected NativeResponse<LoginResp> internalHandler(Payload<LoginForm> request) {
         LoginResp resp = login(request.data());
         String clientSecret = tokenManager.generateClientSecret(resp.refreshToken());

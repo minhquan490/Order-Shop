@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
@@ -14,16 +15,13 @@ import java.util.Map;
 
 @RouteProvider
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, Map<String, Object>> {
     private String url;
     private ForgotPasswordService forgotPasswordService;
 
-    @ActiveReflection
-    public ResetPasswordHandler() {
-        // Do nothing
-    }
-
     @Override
+    @ActiveReflection
     protected NativeResponse<?> internalHandler(Payload<Map<String, Object>> request) {
         var token = (String) request.data().get("token");
         if (token == null || token.isEmpty()) {

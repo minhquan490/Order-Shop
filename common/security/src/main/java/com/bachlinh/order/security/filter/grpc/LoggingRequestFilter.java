@@ -10,10 +10,10 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.entity.model.CustomerHistory;
+import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.RefreshToken;
-import com.bachlinh.order.repository.CustomerHistoryRepository;
+import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
@@ -34,7 +34,7 @@ public class LoggingRequestFilter extends GrpcWebFilter {
 
     private static final int REMOVAL_POLICY_YEAR = 1;
     private final ObjectMapper objectMapper = JacksonUtils.getSingleton();
-    private CustomerHistoryRepository customerHistoryRepository;
+    private CustomerAccessHistoryRepository customerAccessHistoryRepository;
     private CustomerRepository customerRepository;
     private RefreshTokenRepository refreshTokenRepository;
     private ThreadPoolTaskExecutor executor;
@@ -65,8 +65,8 @@ public class LoggingRequestFilter extends GrpcWebFilter {
         if (executor == null) {
             executor = getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class);
         }
-        if (customerHistoryRepository == null) {
-            customerHistoryRepository = getDependenciesResolver().resolveDependencies(CustomerHistoryRepository.class);
+        if (customerAccessHistoryRepository == null) {
+            customerAccessHistoryRepository = getDependenciesResolver().resolveDependencies(CustomerAccessHistoryRepository.class);
         }
         if (tokenManager == null) {
             tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
@@ -116,19 +116,19 @@ public class LoggingRequestFilter extends GrpcWebFilter {
     }
 
     private void logCustomer(String customerId, HttpServletRequest request) throws IOException {
-        CustomerHistory customerHistory = entityFactory.getEntity(CustomerHistory.class);
+        CustomerAccessHistory customerAccessHistory = entityFactory.getEntity(CustomerAccessHistory.class);
         Customer customer = customerRepository.getCustomerById(customerId, true);
         if (customer.getRole().equalsIgnoreCase(Role.ADMIN.name())) {
             return;
         }
-        customerHistory.setCustomer(customer);
-        customerHistory.setPathRequest(request.getContextPath());
-        customerHistory.setRequestType(determineRequest(request.getContextPath()).name());
-        customerHistory.setRequestTime(Date.valueOf(LocalDate.now()));
-        customerHistory.setRemoveTime(calculateDateRemoval());
+        customerAccessHistory.setCustomer(customer);
+        customerAccessHistory.setPathRequest(request.getContextPath());
+        customerAccessHistory.setRequestType(determineRequest(request.getContextPath()).name());
+        customerAccessHistory.setRequestTime(Date.valueOf(LocalDate.now()));
+        customerAccessHistory.setRemoveTime(calculateDateRemoval());
         Map<?, ?> requestBody = objectMapper.readValue(request.getInputStream().readAllBytes(), Map.class);
-        customerHistory.setRequestContent(objectMapper.writeValueAsString(requestBody));
-        customerHistoryRepository.saveCustomerHistory(customerHistory);
+        customerAccessHistory.setRequestContent(objectMapper.writeValueAsString(requestBody));
+        customerAccessHistoryRepository.saveCustomerHistory(customerAccessHistory);
     }
 
     private RequestType determineRequest(String request) {

@@ -45,7 +45,7 @@ import java.util.Set;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "customer")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.trigger.internal.CustomerIndexTrigger")
+@Trigger(triggers = {"com.bachlinh.order.trigger.internal.CustomerIndexTrigger", "com.bachlinh.order.trigger.internal.CustomerInfoChangeHistoryTrigger"})
 @Validator(validators = "com.bachlinh.order.validator.internal.CustomerValidator")
 @ActiveReflection
 public class Customer extends AbstractEntity implements UserDetails {
@@ -74,6 +74,7 @@ public class Customer extends AbstractEntity implements UserDetails {
     private String phoneNumber;
 
     @Column(name = "EMAIL", nullable = false, unique = true, length = 32, columnDefinition = "nvarchar")
+    @FullTextField
     private String email;
 
     @Column(name = "GENDER", nullable = false, length = 8)
@@ -110,6 +111,9 @@ public class Customer extends AbstractEntity implements UserDetails {
     @JoinColumn(name = "CUSTOMER_MEDIA_ID")
     private CustomerMedia customerMedia;
 
+    @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private EmailTrash emailTrash;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
     private Set<Address> addresses = new HashSet<>();
 
@@ -117,7 +121,7 @@ public class Customer extends AbstractEntity implements UserDetails {
     private Set<Order> orders = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    private Set<CustomerHistory> histories = new HashSet<>();
+    private Set<CustomerAccessHistory> histories = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(
@@ -232,6 +236,10 @@ public class Customer extends AbstractEntity implements UserDetails {
         return customerMedia;
     }
 
+    public EmailTrash getEmailTrash() {
+        return emailTrash;
+    }
+
     public Set<Address> getAddresses() {
         return this.addresses;
     }
@@ -240,7 +248,7 @@ public class Customer extends AbstractEntity implements UserDetails {
         return this.orders;
     }
 
-    public Set<CustomerHistory> getHistories() {
+    public Set<CustomerAccessHistory> getHistories() {
         return this.histories;
     }
 
@@ -344,12 +352,17 @@ public class Customer extends AbstractEntity implements UserDetails {
     }
 
     @ActiveReflection
-    public void setHistories(Set<CustomerHistory> histories) {
+    public void setHistories(Set<CustomerAccessHistory> histories) {
         this.histories = histories;
     }
 
     @ActiveReflection
     public void setAssignedVouchers(Set<Voucher> assignedVouchers) {
         this.assignedVouchers = assignedVouchers;
+    }
+
+    @ActiveReflection
+    public void setEmailTrash(EmailTrash emailTrash) {
+        this.emailTrash = emailTrash;
     }
 }

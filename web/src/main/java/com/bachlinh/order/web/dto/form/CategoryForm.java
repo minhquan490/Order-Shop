@@ -2,11 +2,15 @@ package com.bachlinh.order.web.dto.form;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.bachlinh.order.annotation.Dto;
+import com.bachlinh.order.annotation.MappedDtoField;
 
 @JsonRootName("category")
+@Dto(forType = "com.bachlinh.order.entity.model.Category", packageName = "com.bachlinh.order.web.dto.form")
 public class CategoryForm {
 
     @JsonAlias("category_id")
+    @MappedDtoField(targetField = "id", outputJsonField = "category_id")
     private String id;
 
     @JsonAlias("category_name")

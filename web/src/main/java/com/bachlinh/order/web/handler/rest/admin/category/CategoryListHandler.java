@@ -9,17 +9,19 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
 
+import java.util.Collection;
+
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
-public class CategoryListHandler extends AbstractController<Iterable<CategoryResp>, Void> {
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+public class CategoryListHandler extends AbstractController<Collection<CategoryResp>, Void> {
     private CategoryService categoryService;
     private String url;
 
     @Override
-    protected Iterable<CategoryResp> internalHandler(Payload<Void> request) {
-        var result = categoryService.getList(() -> null);
-        return result.get();
+    @ActiveReflection
+    protected Collection<CategoryResp> internalHandler(Payload<Void> request) {
+        return categoryService.getCategories();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -21,20 +22,16 @@ import java.util.stream.Collectors;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class LogoutHandler extends AbstractController<NativeResponse<Map<String, Object>>, Object> {
     private static final String STATUS = "status";
-
     private String url;
     private LogoutService logoutService;
     private String clientCookieKey;
     private String clientCookieDomain;
 
-    @ActiveReflection
-    public LogoutHandler() {
-
-    }
-
     @Override
+    @ActiveReflection
     protected NativeResponse<Map<String, Object>> internalHandler(Payload<Object> request) {
         return logout();
     }

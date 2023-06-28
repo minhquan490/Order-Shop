@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.handler.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
@@ -15,15 +16,13 @@ import java.io.IOException;
 
 @ActiveReflection
 @RouteProvider
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class FileUploadHandler extends AbstractController<ResponseEntity<?>, ResourceUploadForm> {
     private String url;
     private FileUploadService fileUploadService;
 
-    @ActiveReflection
-    public FileUploadHandler() {
-    }
-
     @Override
+    @ActiveReflection
     protected ResponseEntity<?> internalHandler(Payload<ResourceUploadForm> request) {
         try {
             fileUploadService.handleMultipartFile(request.data());

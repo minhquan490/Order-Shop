@@ -1,9 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -20,6 +16,10 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -38,14 +38,11 @@ public class Order extends AbstractEntity {
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
     private String id;
 
-    @Column(name = "DEPOSITED", nullable = false, columnDefinition = "bit")
-    private boolean deposited;
-
-    @Column(name = "TOTAL_DEPOSIT", nullable = false)
-    private int totalDeposit;
-
     @Column(name = "ORDER_TIME", nullable = false)
     private Timestamp timeOrder;
+
+    @Column(name = "BANK_TRANSACTION_CODE")
+    private String bankTransactionCode;
 
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "ORDER_STATUS_ID", unique = true, nullable = false, updatable = false)
@@ -90,16 +87,6 @@ public class Order extends AbstractEntity {
     }
 
     @ActiveReflection
-    public boolean isDeposited() {
-        return this.deposited;
-    }
-
-    @ActiveReflection
-    public int getTotalDeposit() {
-        return this.totalDeposit;
-    }
-
-    @ActiveReflection
     public Timestamp getTimeOrder() {
         return this.timeOrder;
     }
@@ -119,14 +106,8 @@ public class Order extends AbstractEntity {
         return this.orderDetails;
     }
 
-    @ActiveReflection
-    public void setDeposited(boolean deposited) {
-        this.deposited = deposited;
-    }
-
-    @ActiveReflection
-    public void setTotalDeposit(int totalDeposit) {
-        this.totalDeposit = totalDeposit;
+    public String getBankTransactionCode() {
+        return bankTransactionCode == null ? "" : bankTransactionCode;
     }
 
     @ActiveReflection
@@ -147,5 +128,10 @@ public class Order extends AbstractEntity {
     @ActiveReflection
     public void setOrderDetails(Collection<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
+    }
+
+    @ActiveReflection
+    public void setBankTransactionCode(String bankTransactionCode) {
+        this.bankTransactionCode = bankTransactionCode;
     }
 }
