@@ -14,7 +14,7 @@ import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CrawlResultHandler extends AbstractController<Collection<CrawlResultResp>, Object> {
     private CrawlerResultService crawlerResultService;
     private String path;

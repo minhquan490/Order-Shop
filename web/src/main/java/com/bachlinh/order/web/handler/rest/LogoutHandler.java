@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class LogoutHandler extends AbstractController<NativeResponse<Map<String, Object>>, Object> {
     private static final String STATUS = "status";
     private String url;

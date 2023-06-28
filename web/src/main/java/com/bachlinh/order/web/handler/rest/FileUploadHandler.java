@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class FileUploadHandler extends AbstractController<ResponseEntity<?>, ResourceUploadForm> {
     private String url;
     private FileUploadService fileUploadService;

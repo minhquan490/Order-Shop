@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CategoryDeleteHandler extends AbstractController<Map<String, Object>, CategoryDeleteForm> {
     private CategoryService categoryService;
     private String url;

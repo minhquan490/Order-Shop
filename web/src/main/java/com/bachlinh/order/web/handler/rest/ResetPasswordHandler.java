@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, Map<String, Object>> {
     private String url;
     private ForgotPasswordService forgotPasswordService;

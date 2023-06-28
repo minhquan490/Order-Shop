@@ -54,7 +54,7 @@ class EntityProxyClassMetadataParser implements ClassMetadataParser {
     }
 
     @Override
-    public FieldMeta getEntityField() {
+    public FieldMeta getField() {
         if (cachedField == null) {
             cachedField = new FieldMeta(this.classElement.getSimpleName(), "delegate");
         }

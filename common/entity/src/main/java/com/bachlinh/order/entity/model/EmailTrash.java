@@ -22,8 +22,8 @@ import java.util.Set;
 @Entity
 @Table(name = "EMAIL_TRASH")
 @Getter
-@Setter(onMethod_ = @ActiveReflection)
-@NoArgsConstructor(access = AccessLevel.NONE, onConstructor_ = @ActiveReflection)
+@Setter(onMethod = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.NONE, onConstructor = @__({@ActiveReflection}))
 public class EmailTrash extends AbstractEntity {
 
     @Id

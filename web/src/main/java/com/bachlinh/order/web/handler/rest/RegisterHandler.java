@@ -14,7 +14,7 @@ import com.bachlinh.order.web.service.business.RegisterService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class RegisterHandler extends AbstractController<RegisterResp, RegisterForm> {
     private String url;
 

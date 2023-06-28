@@ -18,7 +18,7 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, DeleteProductForm> {
     private String url;
     private ProductService productService;

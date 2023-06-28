@@ -17,7 +17,7 @@ import com.bachlinh.order.web.service.business.LoginService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, LoginForm> {
     private String clientCookieKey;
     private String cookieDomain;

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class HomeHandler extends AbstractController<Map<String, Object>, Object> {
     private String homeUrl;
     private ProductService productService;

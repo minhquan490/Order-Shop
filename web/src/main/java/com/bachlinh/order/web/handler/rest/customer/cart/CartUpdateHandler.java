@@ -12,7 +12,7 @@ import com.bachlinh.order.web.service.common.CartService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CartUpdateHandler extends AbstractController<CartResp, CartForm> {
     private CartService cartService;
     private String url;

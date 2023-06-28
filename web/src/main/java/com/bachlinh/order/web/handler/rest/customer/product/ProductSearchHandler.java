@@ -18,7 +18,7 @@ import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ProductSearchHandler extends AbstractController<Collection<ProductResp>, ProductSearchForm> {
     private String productSearchUrl;
     private ProductSearchingService searchingService;

@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 @ActiveReflection
 @Label("CIH-")
 @NoArgsConstructor(access = AccessLevel.NONE, onConstructor_ = @ActiveReflection)
+@Setter(onMethod = @__({@ActiveReflection}))
 public class CustomerInfoChangeHistory extends AbstractEntity {
 
     @Id
@@ -30,20 +31,16 @@ public class CustomerInfoChangeHistory extends AbstractEntity {
     private String id;
 
     @Column(name = "OLD_VALUE", updatable = false, nullable = false)
-    @Setter(onMethod_ = @ActiveReflection)
     private String oldValue;
 
     @Column(name = "FIELD_NAME", updatable = false, nullable = false)
-    @Setter(onMethod_ = @ActiveReflection)
     private String fieldName;
 
     @Column(name = "TIME_UPDATE", updatable = false, nullable = false)
-    @Setter(onMethod_ = @ActiveReflection)
     private Timestamp timeUpdate;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
-    @Setter(onMethod_ = @ActiveReflection)
     private Customer customer;
 
     @Override

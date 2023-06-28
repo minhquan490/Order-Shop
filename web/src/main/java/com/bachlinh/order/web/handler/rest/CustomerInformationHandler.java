@@ -14,7 +14,7 @@ import com.bachlinh.order.web.service.common.CustomerService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CustomerInformationHandler extends AbstractController<CustomerInformationResp, Object> {
     private String url;
     private CustomerService customerService;

@@ -13,7 +13,7 @@ import com.bachlinh.order.web.service.common.CustomerService;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CustomerDeleteHandler extends AbstractController<CustomerInformationResp, CustomerDeleteForm> {
     private String url;
     private CustomerService customerService;

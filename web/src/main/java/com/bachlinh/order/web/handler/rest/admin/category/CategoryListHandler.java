@@ -13,7 +13,7 @@ import java.util.Collection;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CategoryListHandler extends AbstractController<Collection<CategoryResp>, Void> {
     private CategoryService categoryService;
     private String url;

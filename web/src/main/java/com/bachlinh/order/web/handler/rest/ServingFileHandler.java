@@ -19,7 +19,7 @@ import com.bachlinh.order.web.service.common.ProductMediaService;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ServingFileHandler extends AbstractController<NativeResponse<byte[]>, Object> {
     private String url;
     private String resourceTotalHeader;

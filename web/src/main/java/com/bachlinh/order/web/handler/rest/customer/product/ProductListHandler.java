@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ProductListHandler extends AbstractController<Page<ProductResp>, Object> {
 
     private ProductService productService;

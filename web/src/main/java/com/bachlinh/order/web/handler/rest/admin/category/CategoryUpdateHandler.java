@@ -12,7 +12,7 @@ import com.bachlinh.order.web.service.common.CategoryService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CategoryUpdateHandler extends AbstractController<CategoryResp, CategoryUpdateForm> {
     private CategoryService categoryService;
     private String url;

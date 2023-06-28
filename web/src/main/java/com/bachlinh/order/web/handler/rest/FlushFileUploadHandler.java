@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class FlushFileUploadHandler extends AbstractController<ResponseEntity<?>, FlushFileForm> {
     private String url;
     private FileUploadService fileUploadService;

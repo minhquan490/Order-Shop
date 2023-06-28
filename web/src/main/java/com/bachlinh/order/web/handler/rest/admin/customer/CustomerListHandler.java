@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class CustomerListHandler extends AbstractController<Collection<CustomerResp>, Void> {
     private String url;
     private String defaultPageSize;

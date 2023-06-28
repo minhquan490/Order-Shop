@@ -13,7 +13,7 @@ import com.bachlinh.order.web.service.common.OrderService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class OrderCreateHandler extends AbstractController<OrderResp, OrderCreateForm> {
     private String url;
     private OrderService orderService;

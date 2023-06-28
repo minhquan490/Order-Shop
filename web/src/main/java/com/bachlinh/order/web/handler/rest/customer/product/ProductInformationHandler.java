@@ -14,7 +14,7 @@ import com.bachlinh.order.web.service.common.ProductService;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ProductInformationHandler extends AbstractController<ProductResp, Void> {
     private String productInfoUrl;
     private ProductService productService;

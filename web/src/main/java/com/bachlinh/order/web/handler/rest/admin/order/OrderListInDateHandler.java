@@ -13,11 +13,11 @@ import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class OrderListInDateHandler extends AbstractController<Collection<OrderListResp>, Void> {
     private OrderInDateService orderInDateService;
     private String url;
-    
+
     @Override
     @ActiveReflection
     protected Collection<OrderListResp> internalHandler(Payload<Void> request) {

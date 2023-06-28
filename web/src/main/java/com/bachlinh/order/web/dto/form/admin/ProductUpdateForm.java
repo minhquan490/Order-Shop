@@ -8,9 +8,9 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Getter
-@Setter(onMethod_ = @ActiveReflection)
+@Setter(onMethod = @__({@ActiveReflection}))
 public class ProductUpdateForm implements ValidatedDto {
 
     @JsonAlias("product_id")

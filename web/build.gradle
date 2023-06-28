@@ -26,6 +26,7 @@ dependencies {
     implementation project(":common:trigger")
     implementation project(":common:validate")
     implementation project(":common:mail")
+    implementation project(":common:data-transfer")
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -45,6 +46,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor project(":annotation-processor")
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

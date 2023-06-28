@@ -11,7 +11,7 @@ import com.bachlinh.order.web.service.business.OrderInDateService;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(onConstructor_ = @ActiveReflection)
+@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class OrderNewInDateHandler extends AbstractController<Integer, Object> {
     private String url;
     private OrderInDateService orderInDateService;
