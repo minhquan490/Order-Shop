@@ -47,11 +47,13 @@ import com.bachlinh.order.web.dto.form.RegisterForm;
 import com.bachlinh.order.web.dto.form.admin.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
 import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;
+import com.bachlinh.order.web.service.business.CustomerAnalyzeService;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
 import com.bachlinh.order.web.service.business.LoginService;
 import com.bachlinh.order.web.service.business.LogoutService;
@@ -65,13 +67,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 @ServiceComponent
 @ActiveReflection
-public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService {
+public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService {
     private static final String BOT_EMAIL = "bachlinhshopadmin@story-community.iam.gserviceaccount.com";
     private final Map<String, TempTokenHolder> tempTokenMap = new ConcurrentHashMap<>();
 
@@ -101,7 +104,9 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
                                TemporaryTokenGenerator tokenGenerator,
                                EmailTemplateRepository emailTemplateRepository,
                                Executor executor,
-                               @Value("${active.profile}") String profile, EmailTrashRepository emailTrashRepository, DtoMapper dtoMapper) {
+                               @Value("${active.profile}") String profile,
+                               EmailTrashRepository emailTrashRepository,
+                               DtoMapper dtoMapper) {
         this.passwordEncoder = passwordEncoder;
         this.entityFactory = entityFactory;
         this.customerRepository = customerRepository;
@@ -298,6 +303,35 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
             fields.add(new FieldUpdated("ENABLED", String.valueOf(oldCustomer.isActivated())));
         }
         return fields;
+    }
+
+    @Override
+    public AnalyzeCustomerNewInMonthResp analyzeCustomerNewInMonth() {
+        var template = "select t.* from (select count(c.id) as first, ({0}) as second, ({1}) as third, ({2}) as fourth, ({3}) as last from Customer c where c.created_date between :firstStart and :firstEnd) as t";
+        var secondStatement = "select count(c.id) from Customer c where c.created_date between :secondStart and :secondEnd";
+        var thirdStatement = "select count(c.id) from Customer c where c.created_date between :thirdStart and :thirdEnd";
+        var fourthStatement = "select count(c.id) from Customer c where c.created_date between :fourthStart and :fourthEnd";
+        var lastStatement = "select count(c.id) from Customer c where c.created_date between :lastStart and :lastEnd";
+        var query = MessageFormat.format(template, secondStatement, thirdStatement, fourthStatement, lastStatement);
+        var attributes = new HashMap<String, Object>(10);
+        var now = LocalDateTime.now();
+        var firstParam = Timestamp.valueOf(now.plusWeeks(-5));
+        var secondParam = Timestamp.valueOf(now.plusWeeks(-4));
+        var thirdParam = Timestamp.valueOf(now.plusWeeks(-3));
+        var fourthParam = Timestamp.valueOf(now.plusWeeks(-2));
+        var fifthParam = Timestamp.valueOf(now.plusWeeks(-1));
+        attributes.put("firstStart", firstParam);
+        attributes.put("firstEnd", secondParam);
+        attributes.put("secondStart", secondParam);
+        attributes.put("secondEnd", thirdParam);
+        attributes.put("thirdStart", thirdParam);
+        attributes.put("thirdEnd", fourthParam);
+        attributes.put("fourthStart", fourthParam);
+        attributes.put("fourthEnd", fifthParam);
+        attributes.put("lastStart", fifthParam);
+        attributes.put("lastEnd", Timestamp.valueOf(now));
+        var result = customerRepository.executeNativeQuery(query, attributes, AnalyzeCustomerNewInMonthResp.ResultSet.class).get(0);
+        return dtoMapper.map(result, AnalyzeCustomerNewInMonthResp.class);
     }
 
     private record TempTokenHolder(LocalDateTime expireTime, String email) {

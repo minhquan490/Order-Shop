@@ -1,6 +1,7 @@
 package com.bachlinh.order.aot;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeHint;
@@ -38,8 +39,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-@Slf4j
 public class GlobalReflectiveRuntimeHint implements RuntimeHintsRegistrar {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ServiceLoader serviceLoader = new ObjectReflectiveLocator();
 

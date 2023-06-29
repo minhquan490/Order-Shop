@@ -16,7 +16,6 @@ import org.springframework.web.servlet.FrameworkServlet;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.RequestUpgradeStrategy;
-import org.springframework.web.socket.server.jetty.JettyRequestUpgradeStrategy;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.DtoValidationRule;
@@ -30,7 +29,9 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
+import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -39,10 +40,10 @@ import com.bachlinh.order.validate.rule.RuleFactory;
 import com.bachlinh.order.validate.rule.RuleManager;
 import com.bachlinh.order.validate.rule.ValidationRule;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
+import com.bachlinh.order.web.handler.websocket.ProxyRequestUpgradeStrategy;
 import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import com.bachlinh.order.web.interceptor.RequestMonitor;
-import com.bachlinh.order.web.interceptor.SocketAuthorizeInterceptor;
 import com.bachlinh.order.web.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.servlet.WebServlet;
 
@@ -125,16 +126,20 @@ class WebBaseConfiguration implements WebSocketConfigurer {
         return DtoMapper.defaultInstance(new ApplicationScanner(), resolver, Environment.getInstance(profile));
     }
 
+    @Bean
+    RequestUpgradeStrategy requestUpgradeStrategy(CustomerRepository customerRepository, TokenManager tokenManager, UnAuthorizationHandler unAuthorizationHandler) {
+        return new ProxyRequestUpgradeStrategy(customerRepository, tokenManager, unAuthorizationHandler);
+    }
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new SocketHandler(webSocketSessionManager(), resolver), environment.getProperty("shop.url.websocket"))
-                .addInterceptors(new SocketAuthorizeInterceptor(resolver))
                 .setAllowedOrigins(environment.getProperty("shop.url.client"))
                 .setHandshakeHandler(new AbstractHandshakeHandler() {
                     @Override
                     @NonNull
                     public RequestUpgradeStrategy getRequestUpgradeStrategy() {
-                        return new JettyRequestUpgradeStrategy();
+                        return resolver.resolveDependencies(RequestUpgradeStrategy.class);
                     }
                 });
     }

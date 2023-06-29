@@ -5,7 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -37,8 +38,9 @@ import java.util.Map;
  *
  * @author Hoang Minh Quan
  */
-@Slf4j
 public class LoggingRequestFilter extends AbstractWebFilter {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private static final String H3_HEADER = "Alt-Svc";
     private static final int REMOVAL_POLICY_YEAR = 1;
     private final String clientUrl;

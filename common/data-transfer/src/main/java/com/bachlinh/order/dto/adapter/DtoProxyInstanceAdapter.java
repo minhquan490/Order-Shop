@@ -2,7 +2,8 @@ package com.bachlinh.order.dto.adapter;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.DtoProxy;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.proxy.Proxy;
@@ -12,8 +13,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.NONE)
-@Slf4j
 public final class DtoProxyInstanceAdapter {
+    private static final Logger log = LoggerFactory.getLogger(DtoProxyInstanceAdapter.class);
 
     @SuppressWarnings("unchecked")
     public static Map<Class<?>, Proxy<?, ?>> instanceProxies() {

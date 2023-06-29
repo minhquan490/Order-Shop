@@ -32,6 +32,7 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RepositoryComponent
@@ -198,5 +199,12 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
+    }
+
+    @Override
+    public <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType) {
+        var typedQuery = getEntityManager().createQuery(query, receiverType);
+        attributes.forEach(typedQuery::setParameter);
+        return typedQuery.getResultList();
     }
 }

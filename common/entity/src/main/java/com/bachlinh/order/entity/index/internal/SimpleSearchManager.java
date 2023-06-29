@@ -1,9 +1,10 @@
 package com.bachlinh.order.entity.index.internal;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.entity.EntityProxyFactory;
@@ -11,7 +12,6 @@ import com.bachlinh.order.entity.index.spi.EntityIndexer;
 import com.bachlinh.order.entity.index.spi.EntitySearcher;
 import com.bachlinh.order.entity.index.spi.MetadataFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
-import com.bachlinh.order.utils.RuntimeUtils;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,8 +19,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 class SimpleSearchManager implements SearchManager {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final Map<Class<?>, EntityIndexer> indexerMap;
     private final ThreadPoolTaskExecutor executor;
     private final EntityProxyFactory entityProxyFactory;
@@ -64,12 +65,7 @@ class SimpleSearchManager implements SearchManager {
 
     private Map<Class<?>, EntityIndexer> buildIndexer(Map<Class<?>, DirectoryHolder> directoryMap, IndexWriterConfig indexWriterConfig) {
         Map<Class<?>, EntityIndexer> result = new HashMap<>();
-        MetadataFactory metadataFactory;
-        if (RuntimeUtils.getVersion() >= 18) {
-            metadataFactory = new ProxyMetadataFactory(entityProxyFactory);
-        } else {
-            metadataFactory = new DefaultMetadataFactory();
-        }
+        MetadataFactory metadataFactory = new ProxyMetadataFactory(entityProxyFactory);
         Map<String, IndexWriter> sharedIndexWriter = new HashMap<>();
         directoryMap.forEach((entity, directoryHolder) -> {
             EntityOperation entityOperation = new EntityOperation(metadataFactory, indexWriterConfig, directoryHolder, new SimpleFieldDescriptor(entity));

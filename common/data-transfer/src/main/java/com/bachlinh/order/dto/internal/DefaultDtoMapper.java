@@ -7,6 +7,9 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.dto.MappingNotFoundException;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class DefaultDtoMapper implements DtoMapper {
     private MappingContext proxyContext;
     private MappingContext strategiesContext;
@@ -23,6 +26,13 @@ public class DefaultDtoMapper implements DtoMapper {
     }
 
     @Override
+    public <T, U> Collection<T> map(Collection<U> sources, Class<T> type) throws MappingNotFoundException {
+        var results = new ArrayList<T>(sources.size());
+        sources.forEach(u -> results.add(map(u, type)));
+        return results;
+    }
+
+    @Override
     public <T, U> T mapWithProxy(U source, Class<T> type) throws MappingNotFoundException {
         if (!proxyContext.canMap(type)) {
             throw new MappingNotFoundException(String.format("Can not map type [%s]. Missing proxy", type.getName()));
@@ -31,11 +41,25 @@ public class DefaultDtoMapper implements DtoMapper {
     }
 
     @Override
+    public <T, U> Collection<T> mapWithProxy(Collection<U> sources, Class<T> type) throws MappingNotFoundException {
+        var results = new ArrayList<T>(sources.size());
+        sources.forEach(u -> results.add(mapWithProxy(u, type)));
+        return results;
+    }
+
+    @Override
     public <T, U> T mapWithStrategy(U source, Class<T> type) throws MappingNotFoundException {
         if (!strategiesContext.canMap(type)) {
             throw new MappingNotFoundException(String.format("Can not map type [%s]. Missing strategy", type.getName()));
         }
         return strategiesContext.map(source, type);
+    }
+
+    @Override
+    public <T, U> Collection<T> mapWithStrategy(Collection<U> sources, Class<T> type) throws MappingNotFoundException {
+        var results = new ArrayList<T>(sources.size());
+        sources.forEach(u -> results.add(mapWithStrategy(u, type)));
+        return results;
     }
 
     @Override
@@ -49,5 +73,9 @@ public class DefaultDtoMapper implements DtoMapper {
     public void destroy() {
         this.proxyContext = null;
         this.strategiesContext = null;
+    }
+
+    private boolean isCollection(Object source) {
+        return Collection.class.isAssignableFrom(source.getClass());
     }
 }

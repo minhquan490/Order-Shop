@@ -8,8 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AnalyzeProductPostedInMonthResp {
-
+public class AnalyzeOrderNewInMonthResp {
     @JsonProperty("first_week")
     private DataPoint pointInFirstWeek;
 

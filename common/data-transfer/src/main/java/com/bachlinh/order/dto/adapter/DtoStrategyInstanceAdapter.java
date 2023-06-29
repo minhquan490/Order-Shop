@@ -1,7 +1,8 @@
 package com.bachlinh.order.dto.adapter;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.environment.Environment;
@@ -12,8 +13,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@Slf4j
 public final class DtoStrategyInstanceAdapter {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final ApplicationScanner scanner;
     private final DependenciesResolver resolver;
     private final Environment environment;

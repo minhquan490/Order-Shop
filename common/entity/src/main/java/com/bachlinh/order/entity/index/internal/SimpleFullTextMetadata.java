@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.index.internal;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.entity.index.spi.FieldDescriptor;
 import com.bachlinh.order.entity.index.spi.FullTextSearchMetadata;
 
@@ -9,8 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 class SimpleFullTextMetadata implements FullTextSearchMetadata {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final Collection<Method> fullTextGetter;
     private final Object entityObject;
     private final FieldDescriptor fieldDescriptor;

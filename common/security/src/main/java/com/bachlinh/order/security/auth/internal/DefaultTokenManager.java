@@ -75,7 +75,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
         try {
             return getJwtDecoder().decode(token).getClaims();
         } catch (JwtException e) {
-            return new HashMap<>(1);
+            return new HashMap<>(0);
         }
     }
 
@@ -84,7 +84,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
         try {
             return getJwtDecoder().decode(token).getHeaders();
         } catch (JwtException e) {
-            return new HashMap<>(1);
+            return new HashMap<>(0);
         }
     }
 

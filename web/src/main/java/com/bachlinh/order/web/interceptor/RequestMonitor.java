@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.interceptor;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StopWatch;
@@ -12,8 +13,9 @@ import com.bachlinh.order.utils.HeaderUtils;
 
 import java.util.Map;
 
-@Slf4j
 public final class RequestMonitor implements WebRequestInterceptor {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final ThreadLocal<StopWatch> clock = new ThreadLocal<>();
     private final TokenManager tokenManager;
 

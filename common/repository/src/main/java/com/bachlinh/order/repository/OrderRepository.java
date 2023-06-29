@@ -5,7 +5,7 @@ import com.bachlinh.order.entity.model.Order;
 
 import java.util.List;
 
-public interface OrderRepository {
+public interface OrderRepository extends NativeQueryRepository {
 
     Order saveOrder(Order order);
 

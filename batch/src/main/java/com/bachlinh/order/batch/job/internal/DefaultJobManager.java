@@ -1,6 +1,7 @@
 package com.bachlinh.order.batch.job.internal;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.batch.boot.JobCenterBooster;
 import com.bachlinh.order.batch.job.Job;
@@ -12,8 +13,8 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import java.util.Collection;
 import java.util.LinkedList;
 
-@Slf4j
 class DefaultJobManager implements JobManager {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final JobCenter jobCenter;
     private final Collection<Worker> workers = new LinkedList<>();

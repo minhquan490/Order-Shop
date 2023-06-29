@@ -1,7 +1,8 @@
 package com.bachlinh.order.web.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
@@ -28,15 +29,19 @@ import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.web.dto.form.OrderChangeStatusForm;
 import com.bachlinh.order.web.dto.form.OrderProductForm;
 import com.bachlinh.order.web.dto.form.customer.OrderCreateForm;
+import com.bachlinh.order.web.dto.resp.AnalyzeOrderNewInMonthResp;
 import com.bachlinh.order.web.dto.resp.OrderInfoResp;
 import com.bachlinh.order.web.dto.resp.OrderListResp;
 import com.bachlinh.order.web.dto.resp.OrderResp;
+import com.bachlinh.order.web.service.business.OrderAnalyzeService;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
 import com.bachlinh.order.web.service.business.OrderInDateService;
 import com.bachlinh.order.web.service.common.OrderService;
 
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,9 +53,10 @@ import java.util.stream.Stream;
 
 @ServiceComponent
 @ActiveReflection
-@Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
-public class OrderServiceImpl implements OrderService, OrderChangeStatusService, OrderInDateService {
+public class OrderServiceImpl implements OrderService, OrderChangeStatusService, OrderInDateService, OrderAnalyzeService {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private static final String SAVE_POINT_NAME = "customerOrderPoint";
     private static final String ERROR_TEMPLATE = "Order with id [%s] not found";
 
@@ -241,5 +247,34 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
                     return new OrderResp(id, timeOrder, status, (OrderResp.OrderDetailResp[]) details);
                 })
                 .toList();
+    }
+
+    @Override
+    public AnalyzeOrderNewInMonthResp analyzeNewOrderInMonth() {
+        var template = "select t.* from (select count(o.id) as first, ({0}) as second, ({1}) as third, ({2}) as fourth, ({3}) as last from Order o where o.created_date between :firstStart and :firstEnd) as t";
+        var secondStatement = "select count(o.id) from Order o where o.created_date between :secondStart and :secondEnd";
+        var thirdStatement = "select count(o.id) from Order o where o.created_date between :thirdStart and :thirdEnd";
+        var fourthStatement = "select count(o.id) from Order o where o.created_date between :fourthStart and :fourthEnd";
+        var lastStatement = "select count(o.id) from Order o where o.created_date between :lastStart and :lastEnd";
+        var query = MessageFormat.format(template, secondStatement, thirdStatement, fourthStatement, lastStatement);
+        var attributes = new HashMap<String, Object>(10);
+        var now = LocalDateTime.now();
+        var firstParam = Timestamp.valueOf(now.plusWeeks(-5));
+        var secondParam = Timestamp.valueOf(now.plusWeeks(-4));
+        var thirdParam = Timestamp.valueOf(now.plusWeeks(-3));
+        var fourthParam = Timestamp.valueOf(now.plusWeeks(-2));
+        var fifthParam = Timestamp.valueOf(now.plusWeeks(-1));
+        attributes.put("firstStart", firstParam);
+        attributes.put("firstEnd", secondParam);
+        attributes.put("secondStart", secondParam);
+        attributes.put("secondEnd", thirdParam);
+        attributes.put("thirdStart", thirdParam);
+        attributes.put("thirdEnd", fourthParam);
+        attributes.put("fourthStart", fourthParam);
+        attributes.put("fourthEnd", fifthParam);
+        attributes.put("lastStart", fifthParam);
+        attributes.put("lastEnd", Timestamp.valueOf(now));
+        var result = orderRepository.executeNativeQuery(query, attributes, AnalyzeOrderNewInMonthResp.ResultSet.class).get(0);
+        return dtoMapper.map(result, AnalyzeOrderNewInMonthResp.class);
     }
 }

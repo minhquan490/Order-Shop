@@ -1,6 +1,7 @@
 package com.bachlinh.order.trigger.spi;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.AuditorAware;
@@ -17,8 +18,9 @@ import java.util.Optional;
 
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @ActiveReflection
-@Slf4j
 public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private AuditorAware<Object> entityAuditor;
     private final TriggerMode mode;
 

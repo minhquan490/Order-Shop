@@ -1,6 +1,5 @@
 package com.bachlinh.order.entity.index.internal;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
@@ -19,6 +18,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.entity.index.spi.DirectoryOperation;
 import com.bachlinh.order.entity.index.spi.EntityIndexer;
 import com.bachlinh.order.entity.index.spi.EntitySearcher;
@@ -36,8 +37,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 class EntityOperation implements EntityIndexer, DirectoryOperation, EntitySearcher {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final MetadataFactory metadataFactory;
     private final IndexWriterConfig config;
     private final DirectoryHolder directoryHolder;
