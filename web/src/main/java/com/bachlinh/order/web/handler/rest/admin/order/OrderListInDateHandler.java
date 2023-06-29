@@ -21,7 +21,7 @@ public class OrderListInDateHandler extends AbstractController<Collection<OrderL
     @Override
     @ActiveReflection
     protected Collection<OrderListResp> internalHandler(Payload<Void> request) {
-        return orderInDateService.getOrdersInDate().toList();
+        return orderInDateService.getOrdersInDate();
     }
 
     @Override

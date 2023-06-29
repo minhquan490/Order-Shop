@@ -1,4 +1,4 @@
-package com.bachlinh.order.dto.strategies;
+package com.bachlinh.order.dto.adapter;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.NONE)
 @Slf4j
-public final class DtoProxyInstanceStrategy {
+public final class DtoProxyInstanceAdapter {
 
     @SuppressWarnings("unchecked")
     public static Map<Class<?>, Proxy<?, ?>> instanceProxies() {

@@ -15,7 +15,7 @@ class DtoGetterMetadataParser implements GetterMetadataParser {
 
     @Override
     public List<GetterMetadata> parse(String pattern, Element parent) {
-        if (p == null) {
+        if (p == null || !p.pattern().equals(pattern)) {
             this.p = Pattern.compile(pattern);
         }
         return parent.getEnclosedElements()
@@ -25,13 +25,13 @@ class DtoGetterMetadataParser implements GetterMetadataParser {
                 .filter(element -> {
                     var executable = (ExecutableElement) element;
                     var methodName = executable.getSimpleName().toString();
-                    var fieldName = "".concat(String.valueOf(methodName.charAt(3)).toLowerCase()).concat(methodName.substring("get".length() + 1));
+                    var fieldName = parseFieldName(methodName);
                     return findField(fieldName, parent) != null;
                 })
                 .map(element -> {
                     var executable = (ExecutableElement) element;
                     var methodName = executable.getSimpleName().toString();
-                    var fieldName = "".concat(String.valueOf(methodName.charAt(3)).toLowerCase()).concat(methodName.substring("get".length() + 1));
+                    var fieldName = parseFieldName(methodName);
                     var field = findField(fieldName, parent);
                     MappedDtoField mappedDtoField = field.getAnnotation(MappedDtoField.class);
                     if (mappedDtoField == null) {
@@ -50,5 +50,16 @@ class DtoGetterMetadataParser implements GetterMetadataParser {
             }
         }
         return null;
+    }
+
+    private String parseFieldName(String methodName) {
+        var fieldName = "";
+        if (methodName.startsWith("get")) {
+            fieldName = fieldName.concat(String.valueOf(methodName.charAt(3)).toLowerCase()).concat(methodName.substring("get".length() + 1));
+        }
+        if (methodName.startsWith("is")) {
+            fieldName = fieldName.concat(String.valueOf(methodName.charAt(2)).toLowerCase()).concat(methodName.substring("is".length() + 1));
+        }
+        return fieldName;
     }
 }

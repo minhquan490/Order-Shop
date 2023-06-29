@@ -26,6 +26,7 @@ import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
 import com.bachlinh.order.core.server.tcp.context.WebSocketSessionManager;
+import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
@@ -117,6 +118,11 @@ class WebBaseConfiguration implements WebSocketConfigurer {
                 })
                 .toList();
         return RuleManager.getBase(rules);
+    }
+
+    @Bean
+    DtoMapper dtoMapper(DependenciesResolver resolver, @Value("${active.profile}") String profile) {
+        return DtoMapper.defaultInstance(new ApplicationScanner(), resolver, Environment.getInstance(profile));
     }
 
     @Override

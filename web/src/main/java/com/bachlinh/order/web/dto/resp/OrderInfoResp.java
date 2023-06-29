@@ -1,24 +1,26 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.bachlinh.order.annotation.Dto;
+import com.bachlinh.order.annotation.MappedDtoField;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@Dto(forType = "com.bachlinh.order.entity.model.Order")
 public class OrderInfoResp {
 
-    @JsonProperty("id")
+    @MappedDtoField(targetField = "id", outputJsonField = "id")
     private String id;
 
-    @JsonProperty("is_deposited")
-    private String deposited;
+    @MappedDtoField(targetField = "deposited", outputJsonField = "is_deposited")
+    private boolean deposited;
 
-    @JsonProperty("time_order")
+    @MappedDtoField(targetField = "timeOrder.toString", outputJsonField = "time_order")
     private String timeOrder;
 
-    @JsonProperty("status")
+    @MappedDtoField(targetField = "orderStatus.getStatus", outputJsonField = "status")
     private String orderStatus;
 }

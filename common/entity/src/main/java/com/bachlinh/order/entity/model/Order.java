@@ -110,6 +110,10 @@ public class Order extends AbstractEntity {
         return bankTransactionCode == null ? "" : bankTransactionCode;
     }
 
+    public boolean isDeposited() {
+        return getBankTransactionCode().isEmpty();
+    }
+
     @ActiveReflection
     public void setTimeOrder(Timestamp timeOrder) {
         this.timeOrder = timeOrder;

@@ -1,8 +1,7 @@
 package com.bachlinh.order.web.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.OrderStatusValue;
 import com.bachlinh.order.entity.model.Customer;
@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 @ServiceComponent
 @ActiveReflection
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 public class OrderServiceImpl implements OrderService, OrderChangeStatusService, OrderInDateService {
     private static final String SAVE_POINT_NAME = "customerOrderPoint";
     private static final String ERROR_TEMPLATE = "Order with id [%s] not found";
@@ -57,15 +58,7 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
     private final EntityFactory entityFactory;
-
-    @ActiveReflection
-    @DependenciesInitialize
-    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository, EntityFactory entityFactory) {
-        this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
-        this.customerRepository = customerRepository;
-        this.entityFactory = entityFactory;
-    }
+    private final DtoMapper dtoMapper;
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -100,24 +93,16 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     }
 
     @Override
-    public Page<OrderListResp> getOrdersInDate() {
+    public Collection<OrderListResp> getOrdersInDate() {
         List<Order> orders = orderRepository.getNewOrdersInDate();
-        List<OrderListResp> result = orders.stream()
-                .map(order -> {
-                    var resp = new OrderListResp();
-                    resp.setId(order.getId());
-                    resp.setOrderStatus(order.getOrderStatus().getStatus());
-                    resp.setCustomerName(order.getCustomer().getUsername());
-                    resp.setDeposited(String.valueOf(order.getBankTransactionCode().isEmpty()));
-                    return resp;
-                })
+        return orders.stream()
+                .map(order -> dtoMapper.map(order, OrderListResp.class))
                 .toList();
-        return new PageImpl<>(result);
     }
 
     @Override
     public int numberOrderInDate() {
-        return (int) getOrdersInDate().getTotalElements();
+        return getOrdersInDate().size();
     }
 
     @Override
@@ -223,12 +208,7 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     @Override
     public OrderInfoResp getOrderInfoById(String orderId) {
         Order order = orderRepository.getOrder(orderId);
-        var info = new OrderInfoResp();
-        info.setId(order.getId());
-        info.setTimeOrder(order.getTimeOrder().toString());
-        info.setOrderStatus(order.getOrderStatus().getStatus());
-        info.setDeposited(String.valueOf(order.getBankTransactionCode().isEmpty()));
-        return info;
+        return dtoMapper.map(order, OrderInfoResp.class);
     }
 
     @Override

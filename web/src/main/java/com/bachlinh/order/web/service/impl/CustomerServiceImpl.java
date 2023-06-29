@@ -15,6 +15,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.spi.FieldUpdated;
 import com.bachlinh.order.entity.enums.Country;
@@ -84,6 +85,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     private final TemporaryTokenGenerator tokenGenerator;
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTrashRepository emailTrashRepository;
+    private final DtoMapper dtoMapper;
     private final Executor executor;
     private final String urlResetPassword;
 
@@ -99,7 +101,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
                                TemporaryTokenGenerator tokenGenerator,
                                EmailTemplateRepository emailTemplateRepository,
                                Executor executor,
-                               @Value("${active.profile}") String profile, EmailTrashRepository emailTrashRepository) {
+                               @Value("${active.profile}") String profile, EmailTrashRepository emailTrashRepository, DtoMapper dtoMapper) {
         this.passwordEncoder = passwordEncoder;
         this.entityFactory = entityFactory;
         this.customerRepository = customerRepository;
@@ -111,6 +113,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         this.emailTemplateRepository = emailTemplateRepository;
         this.executor = executor;
         this.emailTrashRepository = emailTrashRepository;
+        this.dtoMapper = dtoMapper;
         Environment environment = Environment.getInstance(profile);
         this.urlResetPassword = MessageFormat.format("https://{0}:{1}{2}", environment.getProperty("server.address"), environment.getProperty("server.port"), environment.getProperty("shop.url.customer.reset.password"));
     }
@@ -118,7 +121,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     @Override
     public CustomerInformationResp getCustomerInformation(String customerId) {
         Customer customer = customerRepository.getCustomerById(customerId, false);
-        return CustomerInformationResp.toDto(customer);
+        return dtoMapper.map(customer, CustomerInformationResp.class);
     }
 
     @Override
@@ -126,7 +129,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         return new PageImpl<>(
                 customerRepository.getAll(pageable, Sort.by(Customer_.ID))
                         .stream()
-                        .map(CustomerResp::toDto)
+                        .map(customer -> dtoMapper.map(customer, CustomerResp.class))
                         .toList());
     }
 
@@ -158,7 +161,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         address.setValue(AddressParser.parseVietNamAddress(addressForm.getHouseAddress(), addressForm.getWard(), addressForm.getDistrict(), addressForm.getProvince()));
         customer.getAddresses().add(address);
         customer = customerRepository.saveCustomer(customer);
-        return CustomerInformationResp.toDto(customer);
+        return dtoMapper.map(customer, CustomerInformationResp.class);
     }
 
     @Override
@@ -174,7 +177,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         customer.setUsername(customerUpdateForm.getUsername());
         customer.setUpdatedFields(findUpdatedFields((Customer) oldCustomer, customer));
         customer = customerRepository.updateCustomer(customer);
-        return CustomerInformationResp.toDto(customer);
+        return dtoMapper.map(customer, CustomerInformationResp.class);
     }
 
     @Override
@@ -182,7 +185,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     public CustomerInformationResp deleteCustomer(CustomerDeleteForm customerDeleteForm) {
         var customer = customerRepository.getCustomerById(customerDeleteForm.customerId(), true);
         customerRepository.deleteCustomer(customer);
-        return CustomerInformationResp.toDto(customer);
+        return dtoMapper.map(customer, CustomerInformationResp.class);
     }
 
     @Override

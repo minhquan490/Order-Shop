@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.model.Category;
@@ -44,14 +45,16 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
     private final ProductRepository productRepository;
     private final EntityFactory entityFactory;
     private final CategoryRepository categoryRepository;
+    private final DtoMapper dtoMapper;
     private final String resourceUrl;
 
     @ActiveReflection
     @DependenciesInitialize
-    public ProductServiceImpl(ProductRepository productRepository, EntityFactory entityFactory, CategoryRepository categoryRepository, @Value("${active.profile}") String profile) {
+    public ProductServiceImpl(ProductRepository productRepository, EntityFactory entityFactory, CategoryRepository categoryRepository, @Value("${active.profile}") String profile, DtoMapper dtoMapper) {
         this.productRepository = productRepository;
         this.entityFactory = entityFactory;
         this.categoryRepository = categoryRepository;
+        this.dtoMapper = dtoMapper;
         Environment environment = Environment.getInstance(profile);
         String urlPattern = "https://{0}:{1}";
         resourceUrl = MessageFormat.format(urlPattern, environment.getProperty("server.address"), environment.getProperty("server.port"));
@@ -202,11 +205,6 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         attributes.put("lastStart", fifthParam);
         attributes.put("lastEnd", Timestamp.valueOf(now));
         var resultSet = productRepository.executeNativeQuery(query, attributes, AnalyzeProductPostedInMonthResp.ResultSet.class).get(0);
-        var resp = new AnalyzeProductPostedInMonthResp();
-        resp.setPointInFirstWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getFirst(), resultSet.getSecond()));
-        resp.setPointInSecondWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getSecond(), resultSet.getThird()));
-        resp.setPointInThirdWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getThird(), resultSet.getFourth()));
-        resp.setPointInLastWeek(new AnalyzeProductPostedInMonthResp.DataPoint(resultSet.getFourth(), resultSet.getLast()));
-        return resp;
+        return dtoMapper.map(resultSet, AnalyzeProductPostedInMonthResp.class);
     }
 }

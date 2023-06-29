@@ -1,13 +1,13 @@
 package com.bachlinh.order.dto.proxy;
 
-import com.bachlinh.order.dto.strategies.DtoProxyInstanceStrategy;
+import com.bachlinh.order.dto.adapter.DtoProxyInstanceAdapter;
 import com.bachlinh.order.exception.system.common.DtoProxyConvertException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 class DefaultDtoProxyFactory implements DtoProxyFactory {
-    private final Map<Class<?>, Object> dtoProxyMap = new HashMap<>(DtoProxyInstanceStrategy.instanceProxies());
+    private final Map<Class<?>, Object> dtoProxyMap = new HashMap<>(DtoProxyInstanceAdapter.instanceProxies());
 
     @Override
     @SuppressWarnings("unchecked")
@@ -18,5 +18,17 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
         }
         ((Proxy<T, U>) proxy).wrap(source);
         return (T) proxy;
+    }
+
+    @Override
+    public boolean canCreate(Class<?> type) {
+        return dtoProxyMap.containsKey(type);
+    }
+
+    @Override
+    public synchronized void registerProxy(Class<?> type, Proxy<?, ?> proxy) {
+        if (!canCreate(type)) {
+            dtoProxyMap.put(type, proxy);
+        }
     }
 }

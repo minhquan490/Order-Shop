@@ -49,7 +49,7 @@ public class DtoProxyProcessor extends AbstractProcessor {
         var sourceTemplate = "{0}.{1}Proxy";
         for (var element : filter(roundEnv.getRootElements())) {
             var annotation = element.getAnnotation(Dto.class);
-            var sourceName = MessageFormat.format(sourceTemplate, annotation.packageName(), element.getSimpleName());
+            var sourceName = MessageFormat.format(sourceTemplate, elements.getPackageOf(element).getQualifiedName().toString(), element.getSimpleName());
             try {
                 var writer = ClassWriter.dtoProxyWriter(filer.createSourceFile(sourceName), elements, load(annotation.forType(), elements));
                 writer.write(element);
