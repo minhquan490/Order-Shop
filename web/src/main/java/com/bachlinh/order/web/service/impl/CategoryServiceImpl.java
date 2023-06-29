@@ -1,11 +1,13 @@
 package com.bachlinh.order.web.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.repository.CategoryRepository;
@@ -19,16 +21,11 @@ import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
+@RequiredArgsConstructor(onConstructor = @__({@DependenciesInitialize, @ActiveReflection}))
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final EntityFactory entityFactory;
-
-    @DependenciesInitialize
-    @ActiveReflection
-    public CategoryServiceImpl(CategoryRepository categoryRepository, EntityFactory entityFactory) {
-        this.categoryRepository = categoryRepository;
-        this.entityFactory = entityFactory;
-    }
+    private final DtoMapper dtoMapper;
 
     @Override
     public boolean isExist(String id) {
@@ -41,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
         var category = entityFactory.getEntity(Category.class);
         category.setName(form.name());
         category = categoryRepository.saveCategory(category);
-        return new CategoryResp(category.getId(), category.getName());
+        return dtoMapper.map(category, CategoryResp.class);
     }
 
     @Override
@@ -50,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
         var category = categoryRepository.getCategoryById(form.id());
         category.setName(form.name());
         category = categoryRepository.saveCategory(category);
-        return new CategoryResp(category.getId(), category.getName());
+        return dtoMapper.map(category, CategoryResp.class);
     }
 
     @Override
@@ -68,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Collection<CategoryResp> getCategories() {
         return categoryRepository.getCategories()
                 .stream()
-                .map(category -> new CategoryResp(category.getId(), category.getName()))
+                .map(category -> dtoMapper.map(category, CategoryResp.class))
                 .toList();
     }
 }

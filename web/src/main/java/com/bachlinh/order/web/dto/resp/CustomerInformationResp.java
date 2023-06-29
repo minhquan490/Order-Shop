@@ -1,47 +1,32 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.annotation.Dto;
+import com.bachlinh.order.annotation.MappedDtoField;
 
 import java.util.Collection;
-import java.util.Collections;
 
 @Getter
 @Setter
+@Dto(forType = "com.bachlinh.order.entity.model.Customer")
 public class CustomerInformationResp {
 
-    @JsonProperty("first_name")
+    @MappedDtoField(targetField = "firstName", outputJsonField = "first_name")
     private String firstName;
 
-    @JsonProperty("last_name")
+    @MappedDtoField(targetField = "lastName", outputJsonField = "last_name")
     private String lastName;
 
-    @JsonProperty("phone")
+    @MappedDtoField(targetField = "phoneNumber", outputJsonField = "phone")
     private String phoneNumber;
 
-    @JsonProperty("email")
+    @MappedDtoField(targetField = "email", outputJsonField = "email")
     private String email;
 
-    @JsonProperty("gender")
+    @MappedDtoField(targetField = "gender", outputJsonField = "gender")
     private String gender;
 
-    @JsonProperty("addresses")
+    @MappedDtoField(targetField = "addressString", outputJsonField = "addresses")
     private Collection<String> address;
-
-    public static CustomerInformationResp toDto(Customer customer) {
-        CustomerInformationResp dto = new CustomerInformationResp();
-        dto.setFirstName(customer.getFirstName());
-        dto.setLastName(customer.getLastName());
-        if (customer.getAddresses() == null || customer.getAddresses().isEmpty()) {
-            dto.setAddress(Collections.emptyList());
-        } else {
-            dto.setAddress(customer.getAddresses().stream().map(a -> String.join(",", a.getValue(), a.getCity(), a.getCountry())).toList());
-        }
-        dto.setGender(customer.getGender().toLowerCase());
-        dto.setEmail(customer.getEmail());
-        dto.setPhoneNumber(customer.getPhoneNumber());
-        return dto;
-    }
 }

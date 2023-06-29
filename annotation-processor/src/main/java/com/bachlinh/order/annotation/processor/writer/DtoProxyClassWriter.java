@@ -4,6 +4,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
+import com.bachlinh.order.annotation.MappedDtoField;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
 import com.bachlinh.order.annotation.processor.parser.ClassMetadataParser;
 import com.bachlinh.order.annotation.processor.parser.GetterMetadataParser;
@@ -173,10 +174,10 @@ class DtoProxyClassWriter implements ClassWriter {
 
         @Override
         public void write(Element element) throws IOException {
-            var getters = parser.parse("^(get)+(([A-Z][a-z]+)|([A-Z]))+$", element);
+            var getters = parser.parse("^((get)|(is))+(([A-Z][a-z]+)|([A-Z]))+$", element);
             var jsonTemplate = "@JsonProperty(\"{0}\")";
             var methodTemplate = "public %s %s() {";
-            var returnTemplate = "return this.delegate.{0}();";
+            var returnTemplate = "return this.delegate.{0};";
             for (var getter : getters) {
                 var dtoField = getter.mappedDtoField();
                 writeTab(writer);
@@ -189,7 +190,16 @@ class DtoProxyClassWriter implements ClassWriter {
                 writer.write(String.format(methodTemplate, getter.returnType().toString(), getter.methodName()));
                 writer.write(System.lineSeparator());
                 writeTab(writer);
-                writer.write(MessageFormat.format(returnTemplate, getter.methodName()));
+                writeTab(writer);
+                if (getter.returnType().toString().equals("boolean") || getter.returnType().toString().equals(Boolean.class.getName())) {
+                    var mappedField = getter.mappedDtoField();
+                    var targetMethodName = resolveMethodName("is", mappedField);
+                    writer.write(MessageFormat.format(returnTemplate, targetMethodName));
+                } else {
+                    var mappedField = getter.mappedDtoField();
+                    var targetMethodName = resolveMethodName("get", mappedField);
+                    writer.write(MessageFormat.format(returnTemplate, targetMethodName));
+                }
                 writer.write(System.lineSeparator());
                 writeTab(writer);
                 writer.write('}');
@@ -201,6 +211,15 @@ class DtoProxyClassWriter implements ClassWriter {
         private void writeTab(Writer writer) throws IOException {
             var tab = '\t';
             writer.write(tab);
+        }
+
+        private String resolveMethodName(String prefix, MappedDtoField mappedDtoField) {
+            var targetMethodName = prefix.concat(String.valueOf(mappedDtoField.targetField().charAt(0)).toUpperCase()).concat(mappedDtoField.targetField().substring(1));
+            if (targetMethodName.contains(".")) {
+                var parts = targetMethodName.split("\\.");
+                targetMethodName = String.join("().", parts);
+            }
+            return targetMethodName.concat("()");
         }
     }
 }

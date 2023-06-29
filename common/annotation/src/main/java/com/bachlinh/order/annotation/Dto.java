@@ -9,6 +9,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Dto {
     String forType();
-
-    String packageName() default "";
 }

@@ -256,6 +256,14 @@ public class Customer extends AbstractEntity implements UserDetails {
         return this.assignedVouchers;
     }
 
+    public Collection<String> getAddressString() {
+        return this.getAddresses().stream().map(a -> String.join(",", a.getValue(), a.getCity(), a.getCountry())).toList();
+    }
+
+    public String getPicture() {
+        return this.getCustomerMedia().getUrl();
+    }
+
     @ActiveReflection
     public void setUsername(String username) {
         this.username = username;

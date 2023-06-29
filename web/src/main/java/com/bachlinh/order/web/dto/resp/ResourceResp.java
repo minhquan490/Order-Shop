@@ -1,9 +1,7 @@
 package com.bachlinh.order.web.dto.resp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JsonRootName("resource")
 public class ResourceResp {
 
     @JsonProperty("content_type")

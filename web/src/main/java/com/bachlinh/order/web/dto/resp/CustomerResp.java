@@ -1,195 +1,61 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.bachlinh.order.entity.model.Customer;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import com.bachlinh.order.annotation.Dto;
+import com.bachlinh.order.annotation.MappedDtoField;
 
 import java.util.Collection;
 
-@JsonRootName("user")
+@Dto(forType = "com.bachlinh.order.entity.model.Customer")
+@Getter
+@Setter
+@NoArgsConstructor
 public class CustomerResp {
 
-    @JsonProperty("id")
+    @MappedDtoField(targetField = "id", outputJsonField = "id")
     private String id;
 
-    @JsonProperty("first_name")
+    @MappedDtoField(targetField = "firstName", outputJsonField = "first_name")
     private String firstName;
 
-    @JsonProperty("last_name")
+    @MappedDtoField(targetField = "lastName", outputJsonField = "last_name")
     private String lastName;
 
-    @JsonProperty("phone")
+    @MappedDtoField(targetField = "phoneNumber", outputJsonField = "phone")
     private String phoneNumber;
 
-    @JsonProperty("email")
+    @MappedDtoField(targetField = "email", outputJsonField = "email")
     private String email;
 
-    @JsonProperty("gender")
+    @MappedDtoField(targetField = "gender", outputJsonField = "gender")
     private String gender;
 
-    @JsonProperty("role")
+    @MappedDtoField(targetField = "role", outputJsonField = "role")
     private String role;
 
-    @JsonProperty("username")
+    @MappedDtoField(targetField = "username", outputJsonField = "username")
     private String username;
 
-    @JsonProperty("address")
+    @MappedDtoField(targetField = "addressString", outputJsonField = "addresses")
     private Collection<String> address;
 
-    @JsonProperty("is_activated")
+    @MappedDtoField(targetField = "activated", outputJsonField = "is_activated")
     private boolean activated;
 
-    @JsonProperty("is_account_non_expired")
+    @MappedDtoField(targetField = "accountNonExpired", outputJsonField = "is_account_non_expired")
     private boolean accountNonExpired;
 
-    @JsonProperty("is_account_non_locked")
+    @MappedDtoField(targetField = "accountNonLocked", outputJsonField = "is_account_non_locked")
     private boolean accountNonLocked;
 
-    @JsonProperty("is_credentials_non_expired")
+    @MappedDtoField(targetField = "credentialsNonExpired", outputJsonField = "is_credentials_non_expired")
     private boolean credentialsNonExpired;
 
-    @JsonProperty("is_enabled")
+    @MappedDtoField(targetField = "enabled", outputJsonField = "is_enabled")
     private boolean enabled;
 
-    @JsonProperty("picture")
+    @MappedDtoField(targetField = "picture", outputJsonField = "picture")
     private String picture;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public Collection<String> getAddress() {
-        return address;
-    }
-
-    public void setAddress(Collection<String> address) {
-        this.address = address;
-    }
-
-    public boolean isActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
-
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
-
-    public void setAccountNonExpired(boolean accountNonExpired) {
-        this.accountNonExpired = accountNonExpired;
-    }
-
-    public boolean isAccountNonLocked() {
-        return accountNonLocked;
-    }
-
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        this.accountNonLocked = accountNonLocked;
-    }
-
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
-
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-        this.credentialsNonExpired = credentialsNonExpired;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
-    public static CustomerResp toDto(Customer customer) {
-        CustomerResp dto = new CustomerResp();
-        dto.setId(customer.getId());
-        dto.setFirstName(customer.getFirstName());
-        dto.setLastName(customer.getLastName());
-        dto.setPhoneNumber(customer.getPhoneNumber());
-        dto.setEmail(customer.getEmail());
-        dto.setGender(customer.getGender().toLowerCase());
-        dto.setUsername(customer.getUsername());
-        dto.setAddress(customer.getAddresses().stream().map(a -> String.join(",", a.getValue(), a.getCity(), a.getCountry())).toList());
-        dto.setActivated(customer.isActivated());
-        dto.setAccountNonExpired(customer.isAccountNonExpired());
-        dto.setAccountNonLocked(customer.isAccountNonLocked());
-        dto.setCredentialsNonExpired(customer.isCredentialsNonExpired());
-        dto.setEnabled(customer.isEnabled());
-        dto.setPicture(customer.getCustomerMedia().getUrl());
-        return dto;
-    }
 }
