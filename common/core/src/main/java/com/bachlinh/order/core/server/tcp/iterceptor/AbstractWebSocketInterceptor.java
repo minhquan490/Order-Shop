@@ -1,6 +1,7 @@
 package com.bachlinh.order.core.server.tcp.iterceptor;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.lang.NonNull;
@@ -11,8 +12,9 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.Map;
 
-@Slf4j
 public abstract class AbstractWebSocketInterceptor implements HandshakeInterceptor {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final DependenciesResolver dependenciesResolver;
 
     protected AbstractWebSocketInterceptor(DependenciesResolver dependenciesResolver) {

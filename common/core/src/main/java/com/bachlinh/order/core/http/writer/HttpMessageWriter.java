@@ -1,7 +1,8 @@
 package com.bachlinh.order.core.http.writer;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +11,9 @@ import com.bachlinh.order.utils.JacksonUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 
-@Slf4j
 class HttpMessageWriter implements MessageWriter {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private static final int DEFAULT_STATUS = 200;
     private final HttpServletResponse actualResponse;
 

@@ -1,12 +1,13 @@
 package com.bachlinh.order.validate.validator;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.Validated;
@@ -30,8 +31,9 @@ import java.util.Set;
 @Aspect
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE + 2)
-@Slf4j
 public class ValidateInterceptor<T extends BaseEntity> {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final EntityFactory entityFactory;
 
     @Pointcut("@annotation(com.bachlinh.order.annotation.Validated)")

@@ -1,6 +1,7 @@
 package com.bachlinh.order.trigger.internal;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
@@ -10,8 +11,9 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 @ActiveReflection
-@Slf4j
 public class VoucherIndexTrigger extends AbstractTrigger<Voucher> {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private EntityFactory entityFactory;
 
     @ActiveReflection

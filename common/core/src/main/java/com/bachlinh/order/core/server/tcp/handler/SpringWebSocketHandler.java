@@ -1,7 +1,8 @@
 package com.bachlinh.order.core.server.tcp.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.socket.CloseStatus;
@@ -13,8 +14,9 @@ import com.bachlinh.order.utils.JacksonUtils;
 
 import java.security.Principal;
 
-@Slf4j
 public abstract class SpringWebSocketHandler implements WebSocketHandler {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final WebSocketSessionManager socketSessionManager;
 
     protected SpringWebSocketHandler(WebSocketSessionManager socketSessionManager) {

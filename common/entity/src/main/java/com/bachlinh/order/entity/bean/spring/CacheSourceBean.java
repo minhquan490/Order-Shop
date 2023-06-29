@@ -6,8 +6,9 @@ import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,8 @@ import java.util.Optional;
 
 @Configuration
 @EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
-@Slf4j
 public class CacheSourceBean {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Bean
     public SpringCacheManager cacheManager() {

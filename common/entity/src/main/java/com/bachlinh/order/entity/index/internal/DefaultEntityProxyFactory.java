@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.index.internal;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.model.BaseEntity;
@@ -11,8 +12,9 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Slf4j
 class DefaultEntityProxyFactory implements EntityProxyFactory {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final Map<Class<? extends BaseEntity>, EntityProxy> sharedProxies = new LinkedHashMap<>();
 
     DefaultEntityProxyFactory(ApplicationScanner scanner) {

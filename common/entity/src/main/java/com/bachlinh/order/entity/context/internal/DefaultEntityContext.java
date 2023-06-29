@@ -2,9 +2,10 @@ package com.bachlinh.order.entity.context.internal;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.store.Directory;
 import org.hibernate.annotations.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
@@ -33,8 +34,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@Slf4j
 public class DefaultEntityContext implements EntityContext {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Class<?> idType;
     private final BaseEntity baseEntity;

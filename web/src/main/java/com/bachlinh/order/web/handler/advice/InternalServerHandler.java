@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.advice;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteExceptionHandler;
@@ -10,8 +11,8 @@ import com.bachlinh.order.exception.system.common.JsonConvertException;
 
 @RouteExceptionHandler
 @ActiveReflection
-@Slf4j
 public class InternalServerHandler extends ExceptionHandler {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @ActiveReflection
     public InternalServerHandler() {

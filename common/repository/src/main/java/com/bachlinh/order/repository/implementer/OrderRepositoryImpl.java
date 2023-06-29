@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RepositoryComponent
@@ -111,5 +112,12 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
+    }
+
+    @Override
+    public <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType) {
+        var typedQuery = getEntityManager().createQuery(query, receiverType);
+        attributes.forEach(typedQuery::setParameter);
+        return typedQuery.getResultList();
     }
 }

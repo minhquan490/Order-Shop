@@ -1,7 +1,8 @@
 package com.bachlinh.order.setup.execution;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -24,9 +25,10 @@ import java.util.Comparator;
 import java.util.List;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Slf4j
 @ActiveReflection
 public class VnAddressSetupExecution extends AbstractSetup {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private static final String DIVISION_TYPE = "division_type";
     private static final String CODE_NAME = "codename";
     private static final String NAME_FIELD = "name";

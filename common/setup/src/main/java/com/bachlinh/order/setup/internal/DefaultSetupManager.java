@@ -1,6 +1,7 @@
 package com.bachlinh.order.setup.internal;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.Setup;
@@ -13,8 +14,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 
-@Slf4j
 class DefaultSetupManager implements SetupManager {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private ContainerWrapper wrapper;
     private final String profile;
 

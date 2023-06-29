@@ -2,7 +2,8 @@ package com.bachlinh.order.repository.implementer;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -22,8 +23,8 @@ import java.util.Collection;
 
 @RepositoryComponent
 @ActiveReflection
-@Slf4j
 public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<CustomerAccessHistory, Integer> implements CustomerAccessHistoryRepository {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @DependenciesInitialize
     @ActiveReflection

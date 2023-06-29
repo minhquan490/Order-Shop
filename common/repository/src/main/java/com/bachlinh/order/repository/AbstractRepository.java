@@ -4,10 +4,11 @@ import jakarta.persistence.CacheRetrieveMode;
 import jakarta.persistence.CacheStoreMode;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.jpa.HibernateHints;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,8 +28,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-@Slf4j
 public abstract class AbstractRepository<T extends BaseEntity, U> extends RepositoryAdapter<T, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected AbstractRepository(Class<T> domainClass, DependenciesResolver dependenciesResolver) {
         super(domainClass, dependenciesResolver);

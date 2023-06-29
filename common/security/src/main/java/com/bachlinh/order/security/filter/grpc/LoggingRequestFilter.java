@@ -3,7 +3,8 @@ package com.bachlinh.order.security.filter.grpc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -29,8 +30,8 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 
-@Slf4j
 public class LoggingRequestFilter extends GrpcWebFilter {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final int REMOVAL_POLICY_YEAR = 1;
     private final ObjectMapper objectMapper = JacksonUtils.getSingleton();

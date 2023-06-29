@@ -14,11 +14,11 @@ import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Cache;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -73,8 +73,9 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Slf4j
 public abstract class RepositoryAdapter<T extends BaseEntity, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
+    private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
     private static final String ENTITY_NULL_MESSAGE = "Entity must not be null";
     private final Class<T> domainClass;
     private final EntityManager asyncEntityManager;

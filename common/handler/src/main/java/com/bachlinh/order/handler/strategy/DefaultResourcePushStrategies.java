@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.PushBuilder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.converter.spi.Converter;
@@ -16,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Stream;
 
-@Slf4j
 class DefaultResourcePushStrategies implements ResourcePushStrategies {
 
     private static DefaultResourcePushStrategies instance;
@@ -47,6 +47,7 @@ class DefaultResourcePushStrategies implements ResourcePushStrategies {
     }
 
     private static class ResourceUrlConverter implements Converter<Collection<String>, NativeResponse<?>> {
+        private final Logger log = LoggerFactory.getLogger(getClass());
 
         @Override
         public Collection<String> convert(NativeResponse<?> message) {
@@ -56,11 +57,11 @@ class DefaultResourcePushStrategies implements ResourcePushStrategies {
             try {
                 if (body instanceof String casted) {
                     node = mapper.readTree(casted);
-                }
-                if (body instanceof byte[] casted) {
+                } else if (body instanceof byte[] casted) {
                     node = mapper.readTree(casted);
+                } else {
+                    node = mapper.readTree(JacksonUtils.writeObjectAsBytes(body));
                 }
-                node = mapper.readTree(JacksonUtils.writeObjectAsBytes(body));
             } catch (Exception e) {
                 log.error("Can not convert response body", e);
                 return Collections.emptyList();

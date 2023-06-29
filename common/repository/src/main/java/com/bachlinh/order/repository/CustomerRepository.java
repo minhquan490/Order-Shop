@@ -1,18 +1,18 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.repository.query.Condition;
-import com.bachlinh.order.repository.query.Join;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.repository.query.Condition;
+import com.bachlinh.order.repository.query.Join;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public interface CustomerRepository {
+public interface CustomerRepository extends NativeQueryRepository {
     AtomicInteger customerCount = new AtomicInteger(0);
 
     Customer getCustomerById(String id, boolean useJoin);

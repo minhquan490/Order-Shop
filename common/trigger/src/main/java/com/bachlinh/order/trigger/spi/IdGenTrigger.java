@@ -1,6 +1,7 @@
 package com.bachlinh.order.trigger.spi;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -13,8 +14,9 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ActiveReflection
-@Slf4j
 public class IdGenTrigger extends AbstractTrigger<BaseEntity> {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private EntityFactory entityFactory;
 
     @ActiveReflection
