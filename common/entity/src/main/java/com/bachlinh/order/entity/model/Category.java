@@ -20,6 +20,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Validator;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -46,7 +47,7 @@ public class Category extends AbstractEntity {
             indexes = @Index(name = "idx_product_category", columnList = "CATEGORY_ID, PRODUCT_ID"),
             uniqueConstraints = @UniqueConstraint(name = "udx_product_category_product", columnNames = "CATEGORY_ID")
     )
-    private Set<Product> products;
+    private Set<Product> products = new HashSet<>();
 
     @ActiveReflection
     Category() {

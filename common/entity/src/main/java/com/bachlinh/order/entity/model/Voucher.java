@@ -15,6 +15,7 @@ import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -53,7 +54,7 @@ public class Voucher extends AbstractEntity {
     private boolean isEnable = false;
 
     @ManyToMany(mappedBy = "assignedVouchers")
-    private Set<Customer> customers;
+    private Set<Customer> customers = new HashSet<>();
 
     @ActiveReflection
     Voucher() {

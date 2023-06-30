@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.customer.index;
 
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -1,9 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Trigger;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -18,6 +14,10 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Trigger;
 
 @Entity
 @Table(
@@ -81,32 +81,26 @@ public class Ward extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public Integer getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getName() {
         return this.name;
     }
 
-    @ActiveReflection
     public Integer getCode() {
         return this.code;
     }
 
-    @ActiveReflection
     public String getCodeName() {
         return this.codeName;
     }
 
-    @ActiveReflection
     public String getDivisionType() {
         return this.divisionType;
     }
-
-    @ActiveReflection
+    
     public District getDistrict() {
         return this.district;
     }

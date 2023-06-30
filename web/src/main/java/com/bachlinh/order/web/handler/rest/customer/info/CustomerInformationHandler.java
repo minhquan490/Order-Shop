@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.customer.info;
 
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;

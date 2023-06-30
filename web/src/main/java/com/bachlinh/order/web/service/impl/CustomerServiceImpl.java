@@ -32,12 +32,14 @@ import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.InvalidTokenException;
 import com.bachlinh.order.exception.http.TemporaryTokenExpiredException;
+import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.mail.model.MessageModel;
 import com.bachlinh.order.mail.service.EmailSendingService;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
+import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
@@ -52,12 +54,14 @@ import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
+import com.bachlinh.order.web.dto.resp.RevokeTokenResp;
 import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;
 import com.bachlinh.order.web.service.business.CustomerAnalyzeService;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
 import com.bachlinh.order.web.service.business.LoginService;
 import com.bachlinh.order.web.service.business.LogoutService;
 import com.bachlinh.order.web.service.business.RegisterService;
+import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
 import com.bachlinh.order.web.service.common.CustomerService;
 
 import java.nio.charset.StandardCharsets;
@@ -74,7 +78,7 @@ import java.util.concurrent.Executor;
 
 @ServiceComponent
 @ActiveReflection
-public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService {
+public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService, RevokeAccessTokenService {
     private static final String BOT_EMAIL = "bachlinhshopadmin@story-community.iam.gserviceaccount.com";
     private final Map<String, TempTokenHolder> tempTokenMap = new ConcurrentHashMap<>();
 
@@ -332,6 +336,21 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         attributes.put("lastEnd", Timestamp.valueOf(now));
         var result = customerRepository.executeNativeQuery(query, attributes, AnalyzeCustomerNewInMonthResp.ResultSet.class).get(0);
         return dtoMapper.map(result, AnalyzeCustomerNewInMonthResp.class);
+    }
+
+    @Override
+    public RevokeTokenResp revokeToken(String refreshToken) {
+        RefreshTokenHolder holder = tokenManager.validateRefreshToken(refreshToken);
+        String jwt;
+        if (holder.isNonNull()) {
+            Customer customer = holder.getValue().getCustomer();
+            tokenManager.encode(Customer_.ID, customer.getId());
+            tokenManager.encode(Customer_.USERNAME, customer.getUsername());
+            jwt = tokenManager.getTokenValue();
+        } else {
+            throw new UnAuthorizationException("Token is expired", "");
+        }
+        return new RevokeTokenResp(jwt, refreshToken);
     }
 
     private record TempTokenHolder(LocalDateTime expireTime, String email) {

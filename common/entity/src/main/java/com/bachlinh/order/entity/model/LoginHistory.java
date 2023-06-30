@@ -1,6 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
 
 import java.sql.Timestamp;
 
@@ -62,27 +62,22 @@ public class LoginHistory extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public Integer getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public Timestamp getLastLoginTime() {
         return this.lastLoginTime;
     }
 
-    @ActiveReflection
     public String getLoginIp() {
         return this.loginIp;
     }
 
-    @ActiveReflection
     public Boolean getSuccess() {
         return this.success;
     }
-
-    @ActiveReflection
+    
     public Customer getCustomer() {
         return this.customer;
     }

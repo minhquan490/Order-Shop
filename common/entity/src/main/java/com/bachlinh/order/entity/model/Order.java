@@ -23,6 +23,7 @@ import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "ORDERS", indexes = @Index(name = "idx_order_customer", columnList = "CUSTOMER_ID"))
@@ -53,7 +54,7 @@ public class Order extends AbstractEntity {
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order", orphanRemoval = true)
-    private Collection<OrderDetail> orderDetails;
+    private Collection<OrderDetail> orderDetails = new HashSet<>();
 
     @ActiveReflection
     Order() {
@@ -81,27 +82,22 @@ public class Order extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public Timestamp getTimeOrder() {
         return this.timeOrder;
     }
 
-    @ActiveReflection
     public OrderStatus getOrderStatus() {
         return this.orderStatus;
     }
 
-    @ActiveReflection
     public Customer getCustomer() {
         return this.customer;
     }
 
-    @ActiveReflection
     public Collection<OrderDetail> getOrderDetails() {
         return this.orderDetails;
     }

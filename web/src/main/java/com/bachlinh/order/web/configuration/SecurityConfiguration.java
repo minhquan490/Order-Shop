@@ -139,6 +139,7 @@ class SecurityConfiguration {
             lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.sending-mail"));
             lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
             lazyExcludeUrls.add(environment.getProperty("shop.url.websocket"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.revoke-token"));
         }
         return lazyExcludeUrls;
     }

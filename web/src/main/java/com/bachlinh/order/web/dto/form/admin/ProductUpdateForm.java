@@ -3,14 +3,12 @@ package com.bachlinh.order.web.dto.form.admin;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Getter
-@Setter(onMethod = @__({@ActiveReflection}))
 public class ProductUpdateForm implements ValidatedDto {
 
     @JsonAlias("product_id")
@@ -42,4 +40,54 @@ public class ProductUpdateForm implements ValidatedDto {
 
     @JsonAlias("product_order_point")
     private String productOrderPoint;
+
+    @ActiveReflection
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    @ActiveReflection
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    @ActiveReflection
+    public void setProductPrice(String productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    @ActiveReflection
+    public void setProductSize(String productSize) {
+        this.productSize = productSize;
+    }
+
+    @ActiveReflection
+    public void setProductColor(String productColor) {
+        this.productColor = productColor;
+    }
+
+    @ActiveReflection
+    public void setProductTaobaoUrl(String productTaobaoUrl) {
+        this.productTaobaoUrl = productTaobaoUrl;
+    }
+
+    @ActiveReflection
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
+
+    @ActiveReflection
+    public void setProductEnabled(String productEnabled) {
+        this.productEnabled = productEnabled;
+    }
+
+    @ActiveReflection
+    public void setProductCategoriesId(String[] productCategoriesId) {
+        this.productCategoriesId = productCategoriesId;
+    }
+
+    @ActiveReflection
+    public void setProductOrderPoint(String productOrderPoint) {
+        this.productOrderPoint = productOrderPoint;
+    }
 }

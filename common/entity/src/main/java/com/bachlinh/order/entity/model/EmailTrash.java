@@ -13,16 +13,15 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.ActiveReflection;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @ActiveReflection
 @Entity
 @Table(name = "EMAIL_TRASH")
 @Getter
-@Setter(onMethod = @__({@ActiveReflection}))
 @NoArgsConstructor(access = AccessLevel.NONE, onConstructor = @__({@ActiveReflection}))
 public class EmailTrash extends AbstractEntity {
 
@@ -31,11 +30,21 @@ public class EmailTrash extends AbstractEntity {
     private Integer id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "trash")
-    private Set<Email> emails;
+    private Set<Email> emails = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, unique = true, updatable = false)
     private Customer customer;
+
+    @ActiveReflection
+    public void setEmails(Set<Email> emails) {
+        this.emails = emails;
+    }
+
+    @ActiveReflection
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 
     @Override
     @ActiveReflection

@@ -1,12 +1,10 @@
 package com.bachlinh.order.web.dto.form;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-@JsonRootName("search_form")
 public record ProductSearchForm(@JsonAlias("name") String productName,
                                 @JsonAlias("price") String price,
                                 @JsonAlias("size") String productSize,

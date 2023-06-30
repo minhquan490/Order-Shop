@@ -20,6 +20,7 @@ import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
 @Label("EFR-")
@@ -50,7 +51,7 @@ public class EmailFolders extends AbstractEntity {
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
-    private Set<Email> emails;
+    private Set<Email> emails = new HashSet<>();
 
     @ActiveReflection
     EmailFolders() {
@@ -79,32 +80,26 @@ public class EmailFolders extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getName() {
         return this.name;
     }
 
-    @ActiveReflection
     public Timestamp getTimeCreated() {
         return this.timeCreated;
     }
 
-    @ActiveReflection
     public Integer getEmailClearPolicy() {
         return this.emailClearPolicy;
     }
 
-    @ActiveReflection
     public Customer getOwner() {
         return this.owner;
     }
-
-    @ActiveReflection
+    
     public Set<Email> getEmails() {
         return this.emails;
     }

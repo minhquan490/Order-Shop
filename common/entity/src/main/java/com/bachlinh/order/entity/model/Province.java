@@ -17,6 +17,7 @@ import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Trigger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -56,7 +57,7 @@ public class Province extends AbstractEntity {
     private Integer phoneCode;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "province")
-    private List<District> districts;
+    private List<District> districts = new ArrayList<>();
 
     @ActiveReflection
     Province() {
@@ -84,37 +85,30 @@ public class Province extends AbstractEntity {
         return Objects.hashCode(getId(), getName(), getCode(), getDivisionType(), getCodeName(), getPhoneCode());
     }
 
-    @ActiveReflection
     public Integer getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getName() {
         return this.name;
     }
 
-    @ActiveReflection
     public Integer getCode() {
         return this.code;
     }
 
-    @ActiveReflection
     public String getDivisionType() {
         return this.divisionType;
     }
 
-    @ActiveReflection
     public String getCodeName() {
         return this.codeName;
     }
 
-    @ActiveReflection
     public Integer getPhoneCode() {
         return this.phoneCode;
     }
-
-    @ActiveReflection
+    
     public List<District> getDistricts() {
         return this.districts;
     }

@@ -1,7 +1,5 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -13,6 +11,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Validator;
 
 @Entity
 @Table(name = "ORDER_DETAIL", indexes = @Index(name = "idx_order", columnList = "ORDER_ID"))
@@ -60,22 +60,18 @@ public class OrderDetail extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public Integer getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public int getAmount() {
         return this.amount;
     }
 
-    @ActiveReflection
     public Product getProduct() {
         return this.product;
     }
-
-    @ActiveReflection
+    
     public Order getOrder() {
         return this.order;
     }

@@ -33,7 +33,7 @@ public class EmailTemplateFolderValidator extends AbstractValidator<EmailTemplat
         if (entity.getName().length() > 300) {
             result.addMessageError("Email template folder name: Name of email template folder must not be greater than 300 character");
         }
-        if (emailTemplateFolderRepository.isEmailTemplateFolderExisted(entity.getName())) {
+        if (emailTemplateFolderRepository.isEmailTemplateFolderNameExisted(entity.getName())) {
             result.addMessageError("Email template folder name: Name of email template folder is existed");
         }
         return result;

@@ -132,7 +132,7 @@ public class Customer extends AbstractEntity implements UserDetails {
                     @Index(name = "idx_user_assignment", columnList = "CUSTOMER_ID, VOUCHER_ID")
             }
     )
-    private Set<Voucher> assignedVouchers;
+    private Set<Voucher> assignedVouchers = new HashSet<>();
 
     @ActiveReflection
     Customer() {

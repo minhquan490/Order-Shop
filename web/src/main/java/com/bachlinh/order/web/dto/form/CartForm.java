@@ -1,12 +1,10 @@
 package com.bachlinh.order.web.dto.form;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonRootName;
 import com.bachlinh.order.validate.base.ValidatedDto;
 
 import java.util.Objects;
 
-@JsonRootName("cart")
 public class CartForm implements ValidatedDto {
 
     @JsonAlias("products")
@@ -20,7 +18,6 @@ public class CartForm implements ValidatedDto {
         return productForms;
     }
 
-    @JsonRootName("product")
     public record ProductForm(String id, String name, String amount) {
 
         @Override

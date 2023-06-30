@@ -1,7 +1,6 @@
 package com.bachlinh.order.web.dto.resp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -21,7 +20,6 @@ public class AnalyzeOrderNewInMonthResp {
     @JsonProperty("last_week")
     private DataPoint pointInLastWeek;
 
-    @JsonRootName("point")
     @Getter
     @RequiredArgsConstructor
     public static class DataPoint {

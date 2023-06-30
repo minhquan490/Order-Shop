@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.handler.rest;
+package com.bachlinh.order.web.handler.rest.common;
 
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -58,7 +58,7 @@ public class ServingFileHandler extends AbstractController<NativeResponse<byte[]
             productMediaService = resolver.resolveDependencies(ProductMediaService.class);
         }
         if (resourceTotalHeader == null) {
-            resourceTotalHeader = getEnvironment().getProperty("server.header.total.length");
+            resourceTotalHeader = getEnvironment().getProperty("server.header.resource.total.length");
         }
     }
 

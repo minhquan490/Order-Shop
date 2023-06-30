@@ -92,32 +92,26 @@ public class EmailTemplate extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getTitle() {
         return this.title;
     }
 
-    @ActiveReflection
     public String getContent() {
         return this.content;
     }
 
-    @ActiveReflection
     public Integer getExpiryPolicy() {
         return this.expiryPolicy;
     }
 
-    @ActiveReflection
     public Customer getOwner() {
         return this.owner;
     }
-
-    @ActiveReflection
+    
     public EmailTemplateFolder getFolder() {
         return this.folder;
     }

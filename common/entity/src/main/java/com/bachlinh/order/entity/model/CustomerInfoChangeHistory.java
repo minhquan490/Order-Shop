@@ -11,7 +11,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 
@@ -23,7 +22,6 @@ import java.sql.Timestamp;
 @ActiveReflection
 @Label("CIH-")
 @NoArgsConstructor(access = AccessLevel.NONE, onConstructor_ = @ActiveReflection)
-@Setter(onMethod = @__({@ActiveReflection}))
 public class CustomerInfoChangeHistory extends AbstractEntity {
 
     @Id
@@ -51,5 +49,25 @@ public class CustomerInfoChangeHistory extends AbstractEntity {
             return;
         }
         throw new PersistenceException("Id of CustomerInfoChange must be string");
+    }
+
+    @ActiveReflection
+    public void setOldValue(String oldValue) {
+        this.oldValue = oldValue;
+    }
+
+    @ActiveReflection
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    @ActiveReflection
+    public void setTimeUpdate(Timestamp timeUpdate) {
+        this.timeUpdate = timeUpdate;
+    }
+
+    @ActiveReflection
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
