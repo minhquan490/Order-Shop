@@ -57,6 +57,9 @@ public class EmailTemplate extends AbstractEntity {
     @Column(name = "TOTAL_ARGUMENT", nullable = false)
     private Integer totalArgument;
 
+    @Column(name = "PARAMS", nullable = false)
+    private String params;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
     private Customer owner;
@@ -111,9 +114,13 @@ public class EmailTemplate extends AbstractEntity {
     public Customer getOwner() {
         return this.owner;
     }
-    
+
     public EmailTemplateFolder getFolder() {
         return this.folder;
+    }
+
+    public String getParams() {
+        return params;
     }
 
     @ActiveReflection
@@ -157,5 +164,10 @@ public class EmailTemplate extends AbstractEntity {
     @ActiveReflection
     public void setTotalArgument(Integer totalArgument) {
         this.totalArgument = totalArgument;
+    }
+
+    @ActiveReflection
+    public void setParams(String params) {
+        this.params = params;
     }
 }

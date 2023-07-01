@@ -10,7 +10,7 @@ import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.CartForm;
+import com.bachlinh.order.web.dto.form.customer.CartForm;
 
 import java.util.HashMap;
 import java.util.List;

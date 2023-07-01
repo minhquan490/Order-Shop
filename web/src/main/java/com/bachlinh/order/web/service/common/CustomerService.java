@@ -2,9 +2,9 @@ package com.bachlinh.order.web.service.common;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.bachlinh.order.web.dto.form.admin.CustomerCreateForm;
-import com.bachlinh.order.web.dto.form.admin.CustomerDeleteForm;
-import com.bachlinh.order.web.dto.form.admin.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;

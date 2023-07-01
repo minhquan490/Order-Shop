@@ -1,12 +1,12 @@
 package com.bachlinh.order.web.service.business;
 
-import com.bachlinh.order.web.dto.form.FlushFileForm;
-import com.bachlinh.order.web.dto.form.ResourceUploadForm;
+import com.bachlinh.order.web.dto.form.FileFlushForm;
+import com.bachlinh.order.web.dto.form.FileUploadForm;
 
 import java.io.IOException;
 
 public interface FileUploadService {
-    void handleMultipartFile(ResourceUploadForm file) throws IOException;
+    void handleMultipartFile(FileUploadForm file) throws IOException;
 
-    void catAndFlushFile(FlushFileForm form) throws IOException;
+    void catAndFlushFile(FileFlushForm form) throws IOException;
 }

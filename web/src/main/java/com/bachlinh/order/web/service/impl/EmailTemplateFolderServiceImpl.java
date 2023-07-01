@@ -14,9 +14,9 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
-import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderCreateForm;
-import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderDeleteForm;
-import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderCreateForm;
+import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderUpdateForm;
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderInfoResp;
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderListResp;
 import com.bachlinh.order.web.service.common.EmailTemplateFolderService;
@@ -59,6 +59,7 @@ public class EmailTemplateFolderServiceImpl implements EmailTemplateFolderServic
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void deleteEmailTemplateFolder(EmailTemplateFolderDeleteForm form, Customer customer) {
         var folderTemplate = emailTemplateFolderRepository.getEmailTemplateFolderHasCustomer(form.id());
         if (!folderTemplate.getOwner().getId().equals(customer.getId())) {
@@ -68,8 +69,8 @@ public class EmailTemplateFolderServiceImpl implements EmailTemplateFolderServic
     }
 
     @Override
-    public EmailTemplateFolderInfoResp getEmailTemplateFolderInfo(String templateFolderId) {
-        var folder = emailTemplateFolderRepository.getEmailTemplateFolder(templateFolderId);
+    public EmailTemplateFolderInfoResp getEmailTemplateFolderInfo(String templateFolderId, Customer owner) {
+        var folder = emailTemplateFolderRepository.getEmailTemplateFolderById(templateFolderId, owner);
         if (folder == null) {
             throw new ResourceNotFoundException(String.format("Folder with id [%s] not found", templateFolderId), "");
         }

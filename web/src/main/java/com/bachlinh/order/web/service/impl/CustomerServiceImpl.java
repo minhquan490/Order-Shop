@@ -23,7 +23,6 @@ import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
-import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.LoginHistory;
@@ -32,6 +31,7 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.InvalidTokenException;
 import com.bachlinh.order.exception.http.TemporaryTokenExpiredException;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -43,11 +43,13 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
+import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.utils.ResourceUtils;
 import com.bachlinh.order.web.dto.form.LoginForm;
-import com.bachlinh.order.web.dto.form.RegisterForm;
-import com.bachlinh.order.web.dto.form.admin.CustomerCreateForm;
-import com.bachlinh.order.web.dto.form.admin.CustomerDeleteForm;
-import com.bachlinh.order.web.dto.form.admin.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
 import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
@@ -62,7 +64,9 @@ import com.bachlinh.order.web.service.business.LogoutService;
 import com.bachlinh.order.web.service.business.RegisterService;
 import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
 import com.bachlinh.order.web.service.common.CustomerService;
+import com.bachlinh.order.web.service.common.EmailFolderService;
 
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -79,7 +83,6 @@ import java.util.concurrent.Executor;
 @ActiveReflection
 @RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService, RevokeAccessTokenService {
-    private static final String BOT_EMAIL = "bachlinhshopadmin@story-community.iam.gserviceaccount.com";
     private final Map<String, TempTokenHolder> tempTokenMap = new ConcurrentHashMap<>();
 
     private final PasswordEncoder passwordEncoder;
@@ -93,9 +96,11 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTrashRepository emailTrashRepository;
     private final EmailFoldersRepository emailFoldersRepository;
+    private final EmailFolderService emailFolderService;
     private final DtoMapper dtoMapper;
     private final Executor executor;
     private String urlResetPassword;
+    private String botEmail;
 
     @Override
     public CustomerInformationResp getCustomerInformation(String customerId) {
@@ -125,6 +130,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     public CustomerInformationResp saveCustomer(CustomerCreateForm customerCreateForm) {
         var customer = dtoMapper.map(customerCreateForm, Customer.class);
         customer = customerRepository.saveCustomer(customer);
+        emailFolderService.createDefaultFolders(customer);
         return dtoMapper.map(customer, CustomerInformationResp.class);
     }
 
@@ -180,11 +186,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         customer.setCart(cart);
         try {
             customer = customerRepository.saveCustomer(customer);
-            var emailFolder = entityFactory.getEntity(EmailFolders.class);
-            emailFolder.setName("Default");
-            emailFolder.setOwner(customer);
-            emailFolder.setTimeCreated(Timestamp.from(Instant.now()));
-            emailFoldersRepository.saveEmailFolder(emailFolder);
+            emailFolderService.createDefaultFolders(customer);
             var trash = entityFactory.getEntity(EmailTrash.class);
             trash.setCustomer(customer);
             customer.setEmailTrash(trash);
@@ -196,6 +198,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean logout(Customer customer, String secret) {
         customer = customerRepository.getCustomerById(customer.getId(), false);
         clientSecretHandler.removeClientSecret(customer.getRefreshToken().getRefreshTokenValue(), secret);
@@ -220,9 +223,9 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         String tempToken = tokenGenerator.generateTempToken();
         TempTokenHolder holder = new TempTokenHolder(LocalDateTime.now(), email);
         tempTokenMap.put(tempToken, holder);
-        EmailTemplate emailTemplate = emailTemplateRepository.getEmailTemplate("Reset password");
+        EmailTemplate emailTemplate = emailTemplateRepository.getEmailTemplateByName("Reset password", null);
         if (emailTemplate != null) {
-            GmailMessage model = new GmailMessage(BOT_EMAIL);
+            GmailMessage model = new GmailMessage(botEmail);
             model.setBody(MessageFormat.format(emailTemplate.getContent(), urlResetPassword));
             model.setCharset(StandardCharsets.UTF_8);
             model.setToAddress(email);
@@ -233,6 +236,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void resetPassword(String temporaryToken, String newPassword) {
         TempTokenHolder holder = tempTokenMap.get(temporaryToken);
         if (holder == null) {
@@ -320,5 +324,14 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     public void setUrlResetPassword(@Value("${active.profile}") String profile) {
         Environment environment = Environment.getInstance(profile);
         this.urlResetPassword = MessageFormat.format("https://{0}:{1}{2}", environment.getProperty("server.address"), environment.getProperty("server.port"), environment.getProperty("shop.url.customer.reset.password"));
+        try {
+            var node = JacksonUtils.readJsonFile(ResourceUtils.getURL(environment.getProperty("google.email.credentials")));
+            this.botEmail = node.get("client_email").asText();
+            if (this.botEmail.isEmpty()) {
+                throw new CriticalException("Google credentials json not valid");
+            }
+        } catch (FileNotFoundException e) {
+            throw new CriticalException("Google credentials not found", e);
+        }
     }
 }

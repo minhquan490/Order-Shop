@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
@@ -57,10 +58,23 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
     }
 
     @Override
-    public EmailTemplateFolder getEmailTemplateFolder(String id) {
+    public EmailTemplateFolder getEmailTemplateFolderById(String id, Customer owner) {
         Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> {
             root.join(EmailTemplateFolder_.emailTemplates);
-            return criteriaBuilder.equal(root.get(EmailTemplateFolder_.id), id);
+            var firstStatement = criteriaBuilder.equal(root.get(EmailTemplateFolder_.id), id);
+            var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
+            return criteriaBuilder.and(firstStatement, secondStatement);
+        });
+        return findOne(spec).orElse(null);
+    }
+
+
+    @Override
+    public EmailTemplateFolder getEmailTemplateFolderByName(String name, Customer owner) {
+        Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var firstStatement = criteriaBuilder.equal(root.get(EmailTemplateFolder_.name), name);
+            var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
+            return criteriaBuilder.and(firstStatement, secondStatement);
         });
         return findOne(spec).orElse(null);
     }

@@ -25,7 +25,10 @@ import java.util.Set;
 
 @Label("EFR-")
 @Entity
-@Table(name = "EMAIL_FOLDER", indexes = {@Index(name = "idx_email_folder_owner", columnList = "OWNER_ID"), @Index(name = "idx_email_folder_name", columnList = "NAME")})
+@Table(name = "EMAIL_FOLDER", indexes = {
+        @Index(name = "idx_email_folder_owner", columnList = "OWNER_ID"),
+        @Index(name = "idx_email_folder_name", columnList = "NAME")
+})
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailFoldersValidator")
 @ActiveReflection
 @EnableFullTextSearch
@@ -99,7 +102,7 @@ public class EmailFolders extends AbstractEntity {
     public Customer getOwner() {
         return this.owner;
     }
-    
+
     public Set<Email> getEmails() {
         return this.emails;
     }

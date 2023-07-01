@@ -9,11 +9,15 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+
+import java.util.Collection;
 
 @RepositoryComponent
 @ActiveReflection
@@ -38,9 +42,26 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
     }
 
     @Override
+    public EmailFolders getEmailFolderByName(String name, Customer owner) {
+        Specification<EmailFolders> spec = Specification.where((root, query, criteriaBuilder) -> {
+            root.join(EmailFolders_.owner);
+            var firstStatement = criteriaBuilder.equal(root.get(EmailFolders_.name), name);
+            var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
+            return criteriaBuilder.and(firstStatement, secondStatement);
+        });
+        return findOne(spec).orElse(null);
+    }
+
+    @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public EmailFolders updateEmailFolder(EmailFolders emailFolders) {
         return save(emailFolders);
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
+    public void bulkSave(Collection<EmailFolders> folders) {
+        saveAll(folders);
     }
 
     @Override

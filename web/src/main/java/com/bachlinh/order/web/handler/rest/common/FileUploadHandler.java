@@ -9,7 +9,7 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.ResourceUploadForm;
+import com.bachlinh.order.web.dto.form.FileUploadForm;
 import com.bachlinh.order.web.service.business.FileUploadService;
 
 import java.io.IOException;
@@ -17,13 +17,13 @@ import java.io.IOException;
 @ActiveReflection
 @RouteProvider
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-public class FileUploadHandler extends AbstractController<ResponseEntity<?>, ResourceUploadForm> {
+public class FileUploadHandler extends AbstractController<ResponseEntity<?>, FileUploadForm> {
     private String url;
     private FileUploadService fileUploadService;
 
     @Override
     @ActiveReflection
-    protected ResponseEntity<?> internalHandler(Payload<ResourceUploadForm> request) {
+    protected ResponseEntity<?> internalHandler(Payload<FileUploadForm> request) {
         try {
             fileUploadService.handleMultipartFile(request.data());
         } catch (IOException e) {

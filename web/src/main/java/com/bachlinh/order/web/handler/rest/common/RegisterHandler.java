@@ -8,7 +8,7 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.RegisterForm;
+import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.service.business.RegisterService;
 

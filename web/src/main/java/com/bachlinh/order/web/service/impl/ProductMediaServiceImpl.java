@@ -22,8 +22,8 @@ import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.service.AbstractService;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.FlushFileForm;
-import com.bachlinh.order.web.dto.form.ResourceUploadForm;
+import com.bachlinh.order.web.dto.form.FileFlushForm;
+import com.bachlinh.order.web.dto.form.FileUploadForm;
 import com.bachlinh.order.web.dto.resp.ProductMediaResp;
 import com.bachlinh.order.web.dto.resp.ResourceResp;
 import com.bachlinh.order.web.service.business.FileUploadService;
@@ -48,7 +48,7 @@ import java.util.UUID;
 
 @ServiceComponent
 @ActiveReflection
-public class ProductMediaServiceImpl extends AbstractService<ResourceResp, ResourceUploadForm> implements ProductMediaService, FileUploadService, ImageCompressService {
+public class ProductMediaServiceImpl extends AbstractService<ResourceResp, FileUploadForm> implements ProductMediaService, FileUploadService, ImageCompressService {
     private static final String TEMP_FILE_EXTENSION = ".bin";
 
     private String tempFilePath;
@@ -67,27 +67,27 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
     }
 
     @Override
-    protected ResourceResp doSave(ResourceUploadForm param) {
+    protected ResourceResp doSave(FileUploadForm param) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected ResourceResp doUpdate(ResourceUploadForm param) {
+    protected ResourceResp doUpdate(FileUploadForm param) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected ResourceResp doDelete(ResourceUploadForm param) {
+    protected ResourceResp doDelete(FileUploadForm param) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected ResourceResp doGetOne(ResourceUploadForm param) {
+    protected ResourceResp doGetOne(FileUploadForm param) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected <K, X extends Iterable<K>> X doGetList(ResourceUploadForm param) {
+    protected <K, X extends Iterable<K>> X doGetList(FileUploadForm param) {
         throw new UnsupportedOperationException();
     }
 
@@ -124,7 +124,7 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
      * File name pattern {productId}-{fileId}-{part}
      */
     @Override
-    public void handleMultipartFile(ResourceUploadForm file) throws IOException {
+    public void handleMultipartFile(FileUploadForm file) throws IOException {
         byte[] data = Base64.getDecoder().decode(file.base64Data());
         if (data.length > maxFileSize) {
             throw new BadVariableException("Max request file size");
@@ -141,7 +141,7 @@ public class ProductMediaServiceImpl extends AbstractService<ResourceResp, Resou
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    public void catAndFlushFile(FlushFileForm form) throws IOException {
+    public void catAndFlushFile(FileFlushForm form) throws IOException {
         Map<String, Object> condition = new HashMap<>(1);
         condition.put(Product_.ID, form.productId());
         Product product = productRepository.getProductByCondition(condition);

@@ -2,8 +2,8 @@ package com.bachlinh.order.web.service.common;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.bachlinh.order.web.dto.form.admin.ProductCreateForm;
-import com.bachlinh.order.web.dto.form.admin.ProductUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.product.ProductCreateForm;
+import com.bachlinh.order.web.dto.form.admin.product.ProductUpdateForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 
 import java.util.Collection;
