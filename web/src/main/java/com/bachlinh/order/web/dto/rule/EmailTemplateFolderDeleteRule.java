@@ -1,14 +1,15 @@
-package com.bachlinh.order.web.rule;
+package com.bachlinh.order.web.dto.rule;
 
 import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.EmailTemplateFolderRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderDeleteForm;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,25 +17,26 @@ import java.util.Map;
 
 @ActiveReflection
 @DtoValidationRule
-public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFolderUpdateForm> {
+public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFolderDeleteForm> {
+    private EmailTemplateFolderRepository repository;
 
     @ActiveReflection
-    public EmailTemplateFolderUpdateRule(Environment environment, DependenciesResolver resolver) {
+    public EmailTemplateFolderDeleteRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }
 
     @Override
-    protected ValidatedDto.ValidateResult doValidate(EmailTemplateFolderUpdateForm dto) {
+    protected ValidatedDto.ValidateResult doValidate(EmailTemplateFolderDeleteForm dto) {
         var validateResult = new HashMap<String, List<String>>();
 
         if (!StringUtils.hasText(dto.id())) {
             var key = "id";
-            RuntimeUtils.computeMultiValueMap(key, "Can not identity template folder for update", validateResult);
+            RuntimeUtils.computeMultiValueMap(key, "Can not identity email template folder for delete", validateResult);
         }
 
-        if (!StringUtils.hasText(dto.name())) {
-            var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of template folder must not be empty", validateResult);
+        if (repository.isEmailTemplateFolderIdExisted(dto.id())) {
+            var key = "id";
+            RuntimeUtils.computeMultiValueMap(key, "Not found", validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -51,11 +53,13 @@ public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFol
 
     @Override
     protected void injectDependencies() {
-        // Do nothing
+        if (repository == null) {
+            repository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
+        }
     }
 
     @Override
-    public Class<EmailTemplateFolderUpdateForm> applyOnType() {
-        return EmailTemplateFolderUpdateForm.class;
+    public Class<EmailTemplateFolderDeleteForm> applyOnType() {
+        return EmailTemplateFolderDeleteForm.class;
     }
 }

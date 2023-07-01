@@ -2,7 +2,7 @@ package com.bachlinh.order.mail.model;
 
 import java.nio.charset.Charset;
 
-public final class MessageModel {
+public final class GmailMessage {
     private String fromAddress;
     private String toAddress;
     private Charset charset;
@@ -10,7 +10,7 @@ public final class MessageModel {
     private String contentType;
     private String body;
 
-    public MessageModel(String fromAddress) {
+    public GmailMessage(String fromAddress) {
         this.fromAddress = fromAddress;
     }
 

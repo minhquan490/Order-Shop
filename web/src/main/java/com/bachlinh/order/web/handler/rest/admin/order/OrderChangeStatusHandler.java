@@ -7,7 +7,7 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.OrderChangeStatusForm;
+import com.bachlinh.order.web.dto.form.admin.OrderChangeStatusForm;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
 
 import java.util.HashMap;

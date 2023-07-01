@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.rule;
+package com.bachlinh.order.web.dto.rule;
 
 import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -13,7 +13,7 @@ import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.admin.ProductUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.ProductCreateForm;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,26 +22,36 @@ import java.util.stream.Stream;
 
 @ActiveReflection
 @DtoValidationRule
-public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
+public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
     private static final String PRODUCT_NAME_KEY = "product_name";
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private EntityFactory entityFactory;
 
     @ActiveReflection
-    public ProductUpdateRule(Environment environment, DependenciesResolver resolver) {
+    public ProductCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }
 
     @Override
-    protected ValidatedDto.ValidateResult doValidate(ProductUpdateForm dto) {
+    protected ValidatedDto.ValidateResult doValidate(ProductCreateForm dto) {
         var validateResult = new HashMap<String, List<String>>();
         validateCommonCase(dto, validateResult);
         validateLength(dto, validateResult);
         validateNumber(dto, validateResult);
         validateRegex(dto, validateResult);
         validateExist(dto, validateResult);
-        return null;
+        return new ValidatedDto.ValidateResult() {
+            @Override
+            public Map<String, Object> getErrorResult() {
+                return new HashMap<>(validateResult);
+            }
+
+            @Override
+            public boolean shouldHandle() {
+                return validateResult.isEmpty();
+            }
+        };
     }
 
     @Override
@@ -58,16 +68,11 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
     }
 
     @Override
-    public Class<ProductUpdateForm> applyOnType() {
-        return ProductUpdateForm.class;
+    public Class<ProductCreateForm> applyOnType() {
+        return ProductCreateForm.class;
     }
 
-    private void validateCommonCase(ProductUpdateForm dto, Map<String, List<String>> result) {
-        if (!StringUtils.hasText(dto.getProductId())) {
-            var key = "product_id";
-            RuntimeUtils.computeMultiValueMap(key, "Can not identity product for update", result);
-        }
-
+    private void validateCommonCase(ProductCreateForm dto, Map<String, List<String>> result) {
         if (!StringUtils.hasText(dto.getProductName())) {
             RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, "Name of product must not be empty", result);
         }
@@ -108,14 +113,14 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
         }
     }
 
-    private void validateLength(ProductUpdateForm dto, Map<String, List<String>> result) {
+    private void validateLength(ProductCreateForm dto, Map<String, List<String>> result) {
         int productNameLength = dto.getProductName().length();
         if (productNameLength < 4 || productNameLength > 32) {
             RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, "Product name must be in range 4 - 32", result);
         }
     }
 
-    private void validateNumber(ProductUpdateForm dto, Map<String, List<String>> result) {
+    private void validateNumber(ProductCreateForm dto, Map<String, List<String>> result) {
         if (!ValidateUtils.isNumber(dto.getProductPrice())) {
             var key = "product_price";
             RuntimeUtils.computeMultiValueMap(key, "Price of product must be a number", result);
@@ -126,7 +131,7 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
         }
     }
 
-    private void validateRegex(ProductUpdateForm dto, Map<String, List<String>> result) {
+    private void validateRegex(ProductCreateForm dto, Map<String, List<String>> result) {
         if (!ValidateUtils.isSizeValid(dto.getProductSize())) {
             var key = "product_size";
             RuntimeUtils.computeMultiValueMap(key, "Size of product is invalid", result);
@@ -138,7 +143,7 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
         }
     }
 
-    private void validateExist(ProductUpdateForm dto, Map<String, List<String>> result) {
+    private void validateExist(ProductCreateForm dto, Map<String, List<String>> result) {
         var product = entityFactory.getEntity(Product.class);
         product.setName(dto.getProductName());
 

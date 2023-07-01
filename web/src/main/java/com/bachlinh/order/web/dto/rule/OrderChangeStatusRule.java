@@ -1,15 +1,15 @@
-package com.bachlinh.order.web.rule;
+package com.bachlinh.order.web.dto.rule;
 
 import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.repository.EmailTemplateFolderRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.OrderChangeStatusForm;
+import com.bachlinh.order.web.service.common.OrderService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,26 +17,24 @@ import java.util.Map;
 
 @ActiveReflection
 @DtoValidationRule
-public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFolderDeleteForm> {
-    private EmailTemplateFolderRepository repository;
+public class OrderChangeStatusRule extends AbstractRule<OrderChangeStatusForm> {
+    private OrderService orderService;
 
     @ActiveReflection
-    public EmailTemplateFolderDeleteRule(Environment environment, DependenciesResolver resolver) {
+    public OrderChangeStatusRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }
 
     @Override
-    protected ValidatedDto.ValidateResult doValidate(EmailTemplateFolderDeleteForm dto) {
+    protected ValidatedDto.ValidateResult doValidate(OrderChangeStatusForm dto) {
         var validateResult = new HashMap<String, List<String>>();
-
-        if (!StringUtils.hasText(dto.id())) {
+        if (!StringUtils.hasText(dto.orderId())) {
             var key = "id";
-            RuntimeUtils.computeMultiValueMap(key, "Can not identity email template folder for delete", validateResult);
+            RuntimeUtils.computeMultiValueMap(key, "Order id must not be empty", validateResult);
         }
-
-        if (repository.isEmailTemplateFolderIdExisted(dto.id())) {
-            var key = "id";
-            RuntimeUtils.computeMultiValueMap(key, "Not found", validateResult);
+        if (!StringUtils.hasText(dto.status())) {
+            var key = "status";
+            RuntimeUtils.computeMultiValueMap(key, "Order status must not be empty", validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -53,13 +51,13 @@ public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFol
 
     @Override
     protected void injectDependencies() {
-        if (repository == null) {
-            repository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
+        if (orderService == null) {
+            orderService = getResolver().resolveDependencies(OrderService.class);
         }
     }
 
     @Override
-    public Class<EmailTemplateFolderDeleteForm> applyOnType() {
-        return EmailTemplateFolderDeleteForm.class;
+    public Class<OrderChangeStatusForm> applyOnType() {
+        return OrderChangeStatusForm.class;
     }
 }

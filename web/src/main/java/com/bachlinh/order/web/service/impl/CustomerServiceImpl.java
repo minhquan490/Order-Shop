@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,13 +19,11 @@ import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.spi.FieldUpdated;
-import com.bachlinh.order.entity.enums.Country;
 import com.bachlinh.order.entity.enums.Gender;
-import com.bachlinh.order.entity.enums.Role;
-import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.LoginHistory;
@@ -33,9 +32,10 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.InvalidTokenException;
 import com.bachlinh.order.exception.http.TemporaryTokenExpiredException;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
-import com.bachlinh.order.mail.model.MessageModel;
-import com.bachlinh.order.mail.service.EmailSendingService;
+import com.bachlinh.order.mail.model.GmailMessage;
+import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
@@ -43,7 +43,6 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.ClientSecretHandler;
-import com.bachlinh.order.utils.parser.AddressParser;
 import com.bachlinh.order.web.dto.form.LoginForm;
 import com.bachlinh.order.web.dto.form.RegisterForm;
 import com.bachlinh.order.web.dto.form.admin.CustomerCreateForm;
@@ -78,6 +77,7 @@ import java.util.concurrent.Executor;
 
 @ServiceComponent
 @ActiveReflection
+@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService, RevokeAccessTokenService {
     private static final String BOT_EMAIL = "bachlinhshopadmin@story-community.iam.gserviceaccount.com";
     private final Map<String, TempTokenHolder> tempTokenMap = new ConcurrentHashMap<>();
@@ -88,44 +88,14 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     private final TokenManager tokenManager;
     private final LoginHistoryRepository loginHistoryRepository;
     private final ClientSecretHandler clientSecretHandler;
-    private final EmailSendingService emailSendingService;
+    private final GmailSendingService gmailSendingService;
     private final TemporaryTokenGenerator tokenGenerator;
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTrashRepository emailTrashRepository;
+    private final EmailFoldersRepository emailFoldersRepository;
     private final DtoMapper dtoMapper;
     private final Executor executor;
-    private final String urlResetPassword;
-
-    @DependenciesInitialize
-    @ActiveReflection
-    public CustomerServiceImpl(PasswordEncoder passwordEncoder,
-                               EntityFactory entityFactory,
-                               CustomerRepository customerRepository,
-                               TokenManager tokenManager,
-                               LoginHistoryRepository loginHistoryRepository,
-                               ClientSecretHandler clientSecretHandler,
-                               EmailSendingService emailSendingService,
-                               TemporaryTokenGenerator tokenGenerator,
-                               EmailTemplateRepository emailTemplateRepository,
-                               Executor executor,
-                               @Value("${active.profile}") String profile,
-                               EmailTrashRepository emailTrashRepository,
-                               DtoMapper dtoMapper) {
-        this.passwordEncoder = passwordEncoder;
-        this.entityFactory = entityFactory;
-        this.customerRepository = customerRepository;
-        this.tokenManager = tokenManager;
-        this.loginHistoryRepository = loginHistoryRepository;
-        this.clientSecretHandler = clientSecretHandler;
-        this.emailSendingService = emailSendingService;
-        this.tokenGenerator = tokenGenerator;
-        this.emailTemplateRepository = emailTemplateRepository;
-        this.executor = executor;
-        this.emailTrashRepository = emailTrashRepository;
-        this.dtoMapper = dtoMapper;
-        Environment environment = Environment.getInstance(profile);
-        this.urlResetPassword = MessageFormat.format("https://{0}:{1}{2}", environment.getProperty("server.address"), environment.getProperty("server.port"), environment.getProperty("shop.url.customer.reset.password"));
-    }
+    private String urlResetPassword;
 
     @Override
     public CustomerInformationResp getCustomerInformation(String customerId) {
@@ -153,22 +123,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerInformationResp saveCustomer(CustomerCreateForm customerCreateForm) {
-        var customer = entityFactory.getEntity(Customer.class);
-        customer.setFirstName(customerCreateForm.getFirstName());
-        customer.setLastName(customerCreateForm.getLastName());
-        customer.setPhoneNumber(customerCreateForm.getPhone());
-        customer.setEmail(customerCreateForm.getEmail());
-        customer.setGender(Gender.of(customerCreateForm.getGender()).name());
-        customer.setRole(Role.of(customerCreateForm.getRole()).name());
-        customer.setUsername(customerCreateForm.getUsername());
-        customer.setPassword(passwordEncoder.encode(customerCreateForm.getPassword()));
-        var addressForm = customerCreateForm.getAddress();
-        var address = entityFactory.getEntity(Address.class);
-        address.setCustomer(customer);
-        address.setCountry(Country.VIET_NAM.getCountry());
-        address.setCity(addressForm.getProvince());
-        address.setValue(AddressParser.parseVietNamAddress(addressForm.getHouseAddress(), addressForm.getWard(), addressForm.getDistrict(), addressForm.getProvince()));
-        customer.getAddresses().add(address);
+        var customer = dtoMapper.map(customerCreateForm, Customer.class);
         customer = customerRepository.saveCustomer(customer);
         return dtoMapper.map(customer, CustomerInformationResp.class);
     }
@@ -225,6 +180,11 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         customer.setCart(cart);
         try {
             customer = customerRepository.saveCustomer(customer);
+            var emailFolder = entityFactory.getEntity(EmailFolders.class);
+            emailFolder.setName("Default");
+            emailFolder.setOwner(customer);
+            emailFolder.setTimeCreated(Timestamp.from(Instant.now()));
+            emailFoldersRepository.saveEmailFolder(emailFolder);
             var trash = entityFactory.getEntity(EmailTrash.class);
             trash.setCustomer(customer);
             customer.setEmailTrash(trash);
@@ -262,13 +222,13 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         tempTokenMap.put(tempToken, holder);
         EmailTemplate emailTemplate = emailTemplateRepository.getEmailTemplate("Reset password");
         if (emailTemplate != null) {
-            MessageModel model = new MessageModel(BOT_EMAIL);
+            GmailMessage model = new GmailMessage(BOT_EMAIL);
             model.setBody(MessageFormat.format(emailTemplate.getContent(), urlResetPassword));
             model.setCharset(StandardCharsets.UTF_8);
             model.setToAddress(email);
             model.setSubject("Reset your password");
             model.setContentType(MediaType.TEXT_PLAIN_VALUE);
-            emailSendingService.send(model);
+            gmailSendingService.send(model);
         }
     }
 
@@ -354,5 +314,11 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     private record TempTokenHolder(LocalDateTime expireTime, String email) {
+    }
+
+    @DependenciesInitialize
+    public void setUrlResetPassword(@Value("${active.profile}") String profile) {
+        Environment environment = Environment.getInstance(profile);
+        this.urlResetPassword = MessageFormat.format("https://{0}:{1}{2}", environment.getProperty("server.address"), environment.getProperty("server.port"), environment.getProperty("shop.url.customer.reset.password"));
     }
 }

@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.rule;
+package com.bachlinh.order.web.dto.rule;
 
 import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;

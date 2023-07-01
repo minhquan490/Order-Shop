@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.handler.rest.email.template;
+package com.bachlinh.order.web.handler.rest.admin.email.template;
 
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;

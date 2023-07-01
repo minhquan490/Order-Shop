@@ -10,7 +10,7 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.DeleteProductForm;
+import com.bachlinh.order.web.dto.form.admin.DeleteProductForm;
 import com.bachlinh.order.web.service.common.ProductService;
 
 import java.util.HashMap;

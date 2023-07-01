@@ -50,7 +50,7 @@ public class EmailTemplateFolderInfoRespStrategy extends AbstractDtoStrategy<Ema
     }
 
     @Override
-    public Class<EmailTemplateFolderInfoResp> getDtoType() {
+    public Class<EmailTemplateFolderInfoResp> getTargetType() {
         return EmailTemplateFolderInfoResp.class;
     }
 }

@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.rule;
+package com.bachlinh.order.web.dto.rule;
 
 import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
@@ -8,8 +8,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.OrderChangeStatusForm;
-import com.bachlinh.order.web.service.common.OrderService;
+import com.bachlinh.order.web.dto.form.admin.EmailTemplateFolderUpdateForm;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,24 +16,25 @@ import java.util.Map;
 
 @ActiveReflection
 @DtoValidationRule
-public class OrderChangeStatusRule extends AbstractRule<OrderChangeStatusForm> {
-    private OrderService orderService;
+public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFolderUpdateForm> {
 
     @ActiveReflection
-    public OrderChangeStatusRule(Environment environment, DependenciesResolver resolver) {
+    public EmailTemplateFolderUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }
 
     @Override
-    protected ValidatedDto.ValidateResult doValidate(OrderChangeStatusForm dto) {
+    protected ValidatedDto.ValidateResult doValidate(EmailTemplateFolderUpdateForm dto) {
         var validateResult = new HashMap<String, List<String>>();
-        if (!StringUtils.hasText(dto.orderId())) {
+
+        if (!StringUtils.hasText(dto.id())) {
             var key = "id";
-            RuntimeUtils.computeMultiValueMap(key, "Order id must not be empty", validateResult);
+            RuntimeUtils.computeMultiValueMap(key, "Can not identity template folder for update", validateResult);
         }
-        if (!StringUtils.hasText(dto.status())) {
-            var key = "status";
-            RuntimeUtils.computeMultiValueMap(key, "Order status must not be empty", validateResult);
+
+        if (!StringUtils.hasText(dto.name())) {
+            var key = "name";
+            RuntimeUtils.computeMultiValueMap(key, "Name of template folder must not be empty", validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -51,13 +51,11 @@ public class OrderChangeStatusRule extends AbstractRule<OrderChangeStatusForm> {
 
     @Override
     protected void injectDependencies() {
-        if (orderService == null) {
-            orderService = getResolver().resolveDependencies(OrderService.class);
-        }
+        // Do nothing
     }
 
     @Override
-    public Class<OrderChangeStatusForm> applyOnType() {
-        return OrderChangeStatusForm.class;
+    public Class<EmailTemplateFolderUpdateForm> applyOnType() {
+        return EmailTemplateFolderUpdateForm.class;
     }
 }
