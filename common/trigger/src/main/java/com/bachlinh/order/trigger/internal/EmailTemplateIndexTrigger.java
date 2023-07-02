@@ -32,7 +32,7 @@ public class EmailTemplateIndexTrigger extends AbstractTrigger<EmailTemplate> {
     }
 
     @Override
-    public void doExecute(EmailTemplate entity) {
+    protected void doExecute(EmailTemplate entity) {
         if (log.isDebugEnabled()) {
             log.debug("BEGIN: Index EmailTemplate with name [{}]", entity.getName());
         }

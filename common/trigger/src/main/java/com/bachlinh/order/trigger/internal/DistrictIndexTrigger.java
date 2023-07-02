@@ -25,7 +25,7 @@ public class DistrictIndexTrigger extends AbstractTrigger<District> {
     }
 
     @Override
-    public void doExecute(District entity) {
+    protected void doExecute(District entity) {
         EntityContext entityContext = entityFactory.getEntityContext(District.class);
         if (log.isDebugEnabled()) {
             log.debug("Index district has name [{}]", (entity).getName());

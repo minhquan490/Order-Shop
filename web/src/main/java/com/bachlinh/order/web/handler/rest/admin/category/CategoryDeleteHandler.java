@@ -7,7 +7,7 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.web.dto.form.CategoryDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.service.common.CategoryService;
 
 import java.util.HashMap;

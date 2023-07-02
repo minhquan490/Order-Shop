@@ -20,11 +20,15 @@ import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
 @Label("EFR-")
 @Entity
-@Table(name = "EMAIL_FOLDER", indexes = {@Index(name = "idx_email_folder_owner", columnList = "OWNER_ID"), @Index(name = "idx_email_folder_name", columnList = "NAME")})
+@Table(name = "EMAIL_FOLDER", indexes = {
+        @Index(name = "idx_email_folder_owner", columnList = "OWNER_ID"),
+        @Index(name = "idx_email_folder_name", columnList = "NAME")
+})
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailFoldersValidator")
 @ActiveReflection
 @EnableFullTextSearch
@@ -35,7 +39,7 @@ public class EmailFolders extends AbstractEntity {
     @Column(name = "ID", updatable = false, unique = true, columnDefinition = "varchar(32)")
     private String id;
 
-    @Column(name = "NAME", columnDefinition = "nvarchar(300)", unique = true)
+    @Column(name = "NAME", columnDefinition = "nvarchar(300)")
     @FullTextField
     private String name;
 
@@ -50,7 +54,7 @@ public class EmailFolders extends AbstractEntity {
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
-    private Set<Email> emails;
+    private Set<Email> emails = new HashSet<>();
 
     @ActiveReflection
     EmailFolders() {
@@ -79,32 +83,26 @@ public class EmailFolders extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getName() {
         return this.name;
     }
 
-    @ActiveReflection
     public Timestamp getTimeCreated() {
         return this.timeCreated;
     }
 
-    @ActiveReflection
     public Integer getEmailClearPolicy() {
         return this.emailClearPolicy;
     }
 
-    @ActiveReflection
     public Customer getOwner() {
         return this.owner;
     }
 
-    @ActiveReflection
     public Set<Email> getEmails() {
         return this.emails;
     }

@@ -30,7 +30,7 @@ public final class DtoStrategyInstanceAdapter {
                     Class<DtoStrategy<?, ?>> strategyClass = (Class<DtoStrategy<?, ?>>) clazz;
                     return initStrategy(strategyClass);
                 })
-                .collect(Collectors.toMap(DtoStrategy::getDtoType, dtoStrategy -> dtoStrategy));
+                .collect(Collectors.toMap(DtoStrategy::getTargetType, dtoStrategy -> dtoStrategy));
     }
 
     private DtoStrategy<?, ?> initStrategy(Class<DtoStrategy<?, ?>> strategyClass) {

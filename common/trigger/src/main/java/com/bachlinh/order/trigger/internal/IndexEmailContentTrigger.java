@@ -35,7 +35,7 @@ public class IndexEmailContentTrigger extends AbstractTrigger<Email> {
     }
 
     @Override
-    public void doExecute(Email entity) {
+    protected void doExecute(Email entity) {
         entityFactory.getEntityContext(Email.class).analyze(Collections.singleton(entity));
     }
 

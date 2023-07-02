@@ -18,6 +18,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "CART", indexes = @Index(name = "idx_cart_customer", columnList = "CUSTOMER_ID"))
@@ -34,7 +35,7 @@ public class Cart extends AbstractEntity {
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "cart", orphanRemoval = true)
-    private Collection<CartDetail> cartDetails;
+    private Collection<CartDetail> cartDetails = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -43,7 +44,7 @@ public class Cart extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID"),
             indexes = @Index(name = "idx_product_cart", columnList = "CART_ID")
     )
-    private Collection<Product> products;
+    private Collection<Product> products = new HashSet<>();
 
     @ActiveReflection
     Cart() {

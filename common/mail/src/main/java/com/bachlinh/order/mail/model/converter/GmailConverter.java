@@ -10,17 +10,17 @@ import static jakarta.mail.Message.RecipientType.TO;
 import static java.text.MessageFormat.format;
 import com.bachlinh.order.core.http.converter.spi.Converter;
 import com.bachlinh.order.exception.system.mail.MailException;
-import com.bachlinh.order.mail.model.MessageModel;
+import com.bachlinh.order.mail.model.GmailMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class GmailConverter implements Converter<Message, MessageModel> {
+public class GmailConverter implements Converter<Message, GmailMessage> {
     private static final String EMAIL_TYPE_PATTERN = "{0}; charset={1}";
 
     @Override
-    public Message convert(MessageModel message) {
+    public Message convert(GmailMessage message) {
         try {
             Session session = Session.getDefaultInstance(new Properties());
             MimeMessage mimeMessage = new MimeMessage(session);

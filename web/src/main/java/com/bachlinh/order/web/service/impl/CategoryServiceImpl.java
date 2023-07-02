@@ -11,9 +11,9 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.repository.CategoryRepository;
-import com.bachlinh.order.web.dto.form.CategoryDeleteForm;
-import com.bachlinh.order.web.dto.form.admin.CategoryCreateForm;
-import com.bachlinh.order.web.dto.form.admin.CategoryUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.category.CategoryCreateForm;
+import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
 

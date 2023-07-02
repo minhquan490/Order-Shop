@@ -10,7 +10,7 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.DeleteProductForm;
+import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteForm;
 import com.bachlinh.order.web.service.common.ProductService;
 
 import java.util.HashMap;
@@ -19,13 +19,13 @@ import java.util.Map;
 @ActiveReflection
 @RouteProvider
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, DeleteProductForm> {
+public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, ProductDeleteForm> {
     private String url;
     private ProductService productService;
 
     @Override
     @ActiveReflection
-    protected ResponseEntity<Map<String, Object>> internalHandler(Payload<DeleteProductForm> request) {
+    protected ResponseEntity<Map<String, Object>> internalHandler(Payload<ProductDeleteForm> request) {
         String productId = request.data().productId();
         return deleteProduct(productId);
     }

@@ -36,7 +36,7 @@ class StrategyMappingContext implements MappingContext {
         if (canRegister) {
             sources.forEach(o -> {
                 DtoStrategy<?, ?> strategy = (DtoStrategy<?, ?>) o;
-                dtoStrategyMap.put(strategy.getDtoType(), strategy);
+                dtoStrategyMap.put(strategy.getTargetType(), strategy);
             });
         }
     }

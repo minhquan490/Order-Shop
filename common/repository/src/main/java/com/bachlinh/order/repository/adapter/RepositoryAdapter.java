@@ -752,6 +752,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
         TypedQuery<S> toReturn = type == null ? query : query.setLockMode(type);
 
         applyQueryHints(toReturn);
+        applyCacheQueryHints(query, getEntityFactory().getEntityContext(domainClass).getCacheRegion());
 
         return toReturn;
     }

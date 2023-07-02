@@ -12,6 +12,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
@@ -19,6 +22,7 @@ import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Label("ETF-")
@@ -28,6 +32,8 @@ import java.util.Set;
 @ActiveReflection
 @EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateFolderIndexTrigger"})
+@NoArgsConstructor(access = AccessLevel.NONE, onConstructor = @__(@ActiveReflection))
+@Getter
 public class EmailTemplateFolder extends AbstractEntity {
 
     @Id
@@ -46,11 +52,7 @@ public class EmailTemplateFolder extends AbstractEntity {
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
-    private Set<EmailTemplate> emailTemplates;
-
-    @ActiveReflection
-    EmailTemplateFolder() {
-    }
+    private Set<EmailTemplate> emailTemplates = new HashSet<>();
 
     @Override
     @ActiveReflection
@@ -73,31 +75,6 @@ public class EmailTemplateFolder extends AbstractEntity {
     @Override
     public int hashCode() {
         return Objects.hashCode(getId());
-    }
-
-    @ActiveReflection
-    public String getId() {
-        return this.id;
-    }
-
-    @ActiveReflection
-    public String getName() {
-        return this.name;
-    }
-
-    @ActiveReflection
-    public Integer getClearTemplatePolicy() {
-        return this.clearTemplatePolicy;
-    }
-
-    @ActiveReflection
-    public Customer getOwner() {
-        return this.owner;
-    }
-
-    @ActiveReflection
-    public Set<EmailTemplate> getEmailTemplates() {
-        return this.emailTemplates;
     }
 
     @ActiveReflection

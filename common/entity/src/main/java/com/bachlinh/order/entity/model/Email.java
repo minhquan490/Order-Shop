@@ -31,7 +31,8 @@ import java.sql.Timestamp;
         }
 )
 @Trigger(triggers = {
-        "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger"
+        "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger",
+        "com.bachlinh.order.trigger.internal.EmailSendingTrigger"
 })
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailValidator")
 @ActiveReflection

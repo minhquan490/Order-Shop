@@ -35,7 +35,7 @@ public class AnalyzeProductPostedInMonthRespStrategy extends AbstractDtoStrategy
     }
 
     @Override
-    public Class<AnalyzeProductPostedInMonthResp> getDtoType() {
+    public Class<AnalyzeProductPostedInMonthResp> getTargetType() {
         return AnalyzeProductPostedInMonthResp.class;
     }
 }

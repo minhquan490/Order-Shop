@@ -76,27 +76,22 @@ public class DirectMessage extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public Integer getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getContent() {
         return this.content;
     }
 
-    @ActiveReflection
     public Timestamp getTimeSent() {
         return this.timeSent;
     }
 
-    @ActiveReflection
     public Customer getFromCustomer() {
         return this.fromCustomer;
     }
-
-    @ActiveReflection
+    
     public Customer getToCustomer() {
         return this.toCustomer;
     }

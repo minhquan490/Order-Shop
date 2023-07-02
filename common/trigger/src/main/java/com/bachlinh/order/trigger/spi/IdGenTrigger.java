@@ -26,7 +26,7 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity> {
     }
 
     @Override
-    public void doExecute(BaseEntity entity) {
+    protected void doExecute(BaseEntity entity) {
         EntityContext entityContext = entityFactory.getEntityContext(entity.getClass());
         if (entity.getId() == null) {
             entityContext.beginTransaction();

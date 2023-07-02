@@ -1,9 +1,22 @@
 package com.bachlinh.order.repository;
 
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplate;
 
-public interface EmailTemplateRepository {
-    boolean isEmailTemplateTitleExisted(String title);
+import java.util.Collection;
 
-    EmailTemplate getEmailTemplate(String templateName);
+public interface EmailTemplateRepository {
+    EmailTemplate saveEmailTemplate(EmailTemplate emailTemplate);
+
+    EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate);
+
+    EmailTemplate getEmailTemplateByName(String templateName, Customer owner);
+
+    EmailTemplate getEmailTemplateById(String id, Customer owner);
+
+    Collection<EmailTemplate> getEmailTemplates(Customer owner);
+
+    boolean isEmailTemplateExisted(String id, Customer owner);
+
+    void deleteEmailTemplate(EmailTemplate emailTemplate);
 }

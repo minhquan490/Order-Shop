@@ -10,7 +10,9 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.AbstractEntity_;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTrash;
+import com.bachlinh.order.entity.model.EmailTrash_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -39,6 +41,15 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<EmailTrash, Int
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public EmailTrash updateTrash(EmailTrash emailTrash) {
         return save(emailTrash);
+    }
+
+    @Override
+    public EmailTrash getTrashOfCustomer(Customer customer) {
+        Specification<EmailTrash> spec = Specification.where((root, query, criteriaBuilder) -> {
+            root.join(EmailTrash_.emails);
+            return criteriaBuilder.equal(root.get(EmailTrash_.customer), customer);
+        });
+        return findOne(spec).orElse(null);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.bachlinh.order.web.service.common;
 
-import com.bachlinh.order.web.dto.form.OrderProductForm;
+import com.bachlinh.order.web.dto.form.admin.order.OrderProductForm;
 import com.bachlinh.order.web.dto.form.customer.OrderCreateForm;
 import com.bachlinh.order.web.dto.resp.OrderInfoResp;
 import com.bachlinh.order.web.dto.resp.OrderResp;

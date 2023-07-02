@@ -32,7 +32,7 @@ public class EmailFolderIndexTrigger extends AbstractTrigger<EmailFolders> {
     }
 
     @Override
-    public void doExecute(EmailFolders entity) {
+    protected void doExecute(EmailFolders entity) {
         if (log.isDebugEnabled()) {
             log.debug("BEGIN: Index EmailFolders with name [{}]", entity.getName());
         }

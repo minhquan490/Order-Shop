@@ -41,7 +41,7 @@ public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
     }
 
     @Override
-    public void doExecute(Order entity) {
+    protected void doExecute(Order entity) {
         Map<String, String> message = new HashMap<>(2);
         message.put("order_id", (entity).getId());
         message.put("time_order", entity.getTimeOrder().toString());

@@ -1,7 +1,5 @@
 package com.bachlinh.order.entity;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.context.internal.DefaultEntityContext;
@@ -24,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class DefaultEntityFactory implements EntityFactory {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Map<Class<?>, EntityContext> entityContext;
     private final DependenciesResolver dependenciesResolver;
@@ -96,8 +93,9 @@ public final class DefaultEntityFactory implements EntityFactory {
                     .stream()
                     .filter(BaseEntity.class::isAssignableFrom)
                     .toList();
+            Environment environment = Environment.getInstance(activeProfile);
             SearchManager manager = buildSearchManager(entities, containerWrapper, activeProfile);
-            entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, containerResolver.getDependenciesResolver(), manager)));
+            entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, containerResolver.getDependenciesResolver(), manager, environment)));
             return new DefaultEntityFactory(entityContext, containerResolver.getDependenciesResolver(), activeProfile);
         }
 

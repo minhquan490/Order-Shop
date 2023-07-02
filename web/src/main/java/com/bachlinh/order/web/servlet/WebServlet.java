@@ -6,19 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.FrameworkServlet;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.core.http.writer.MessageWriter;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
 
-@ActiveReflection
 public class WebServlet extends FrameworkServlet {
 
     private final transient SpringFrontRequestHandler frontRequestHandler;
-
-    @ActiveReflection
-    @DependenciesInitialize
+    
     public WebServlet(WebApplicationContext webApplicationContext) {
         super(webApplicationContext);
         new ApplicationScanner().findComponents();

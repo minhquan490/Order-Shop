@@ -43,7 +43,7 @@ public class EmailTemplate extends AbstractEntity {
     @FullTextField
     private String name;
 
-    @Column(name = "TITLE", nullable = false, unique = true)
+    @Column(name = "TITLE", nullable = false)
     @FullTextField
     private String title;
 
@@ -56,6 +56,9 @@ public class EmailTemplate extends AbstractEntity {
 
     @Column(name = "TOTAL_ARGUMENT", nullable = false)
     private Integer totalArgument;
+
+    @Column(name = "PARAMS", nullable = false)
+    private String params;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
@@ -92,34 +95,32 @@ public class EmailTemplate extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getTitle() {
         return this.title;
     }
 
-    @ActiveReflection
     public String getContent() {
         return this.content;
     }
 
-    @ActiveReflection
     public Integer getExpiryPolicy() {
         return this.expiryPolicy;
     }
 
-    @ActiveReflection
     public Customer getOwner() {
         return this.owner;
     }
 
-    @ActiveReflection
     public EmailTemplateFolder getFolder() {
         return this.folder;
+    }
+
+    public String getParams() {
+        return params;
     }
 
     @ActiveReflection
@@ -163,5 +164,10 @@ public class EmailTemplate extends AbstractEntity {
     @ActiveReflection
     public void setTotalArgument(Integer totalArgument) {
         this.totalArgument = totalArgument;
+    }
+
+    @ActiveReflection
+    public void setParams(String params) {
+        this.params = params;
     }
 }

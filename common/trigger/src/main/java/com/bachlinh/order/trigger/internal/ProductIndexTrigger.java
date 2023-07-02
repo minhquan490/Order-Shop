@@ -21,7 +21,7 @@ public class ProductIndexTrigger extends AbstractTrigger<Product> {
     }
 
     @Override
-    public void doExecute(Product entity) {
+    protected void doExecute(Product entity) {
         EntityContext entityContext = entityFactory.getEntityContext(entity.getClass());
         entityContext.analyze(Collections.singleton(entity));
     }

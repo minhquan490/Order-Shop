@@ -18,7 +18,7 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.repository.CartRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.utils.ValidateUtils;
-import com.bachlinh.order.web.dto.form.CartForm;
+import com.bachlinh.order.web.dto.form.customer.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
 

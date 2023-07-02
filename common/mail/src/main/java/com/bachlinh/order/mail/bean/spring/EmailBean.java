@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.mail.oauth2.CredentialAdapter;
-import com.bachlinh.order.mail.service.EmailSendingService;
+import com.bachlinh.order.mail.service.GmailSendingService;
+import com.bachlinh.order.mail.template.EmailTemplateProcessor;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,8 +18,13 @@ import java.io.InputStream;
 public class EmailBean {
 
     @Bean
-    EmailSendingService emailSendingService(CredentialAdapter credentialAdapter) throws IOException {
-        return EmailSendingService.defaultService(credentialAdapter);
+    GmailSendingService emailSendingService(CredentialAdapter credentialAdapter) throws IOException {
+        return GmailSendingService.defaultService(credentialAdapter);
+    }
+
+    @Bean
+    EmailTemplateProcessor processor() {
+        return EmailTemplateProcessor.defaultInstance();
     }
 
     @Bean

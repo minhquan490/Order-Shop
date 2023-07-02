@@ -101,6 +101,7 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
         this.modifiedDate = modifiedDate;
     }
 
+    @ActiveReflection
     public void setUpdatedFields(Collection<FieldUpdated> updatedFields) {
         this.updatedFields = updatedFields;
     }

@@ -14,10 +14,14 @@ public abstract non-sealed class AbstractDtoStrategy<T, U> implements DtoStrateg
 
     @Override
     public final T convert(U source, Class<T> type) {
+        inject();
         beforeConvert(source, type);
         var result = doConvert(source, type);
         afterConvert(source, type);
         return result;
+    }
+
+    protected void inject() {
     }
 
     protected abstract void beforeConvert(U source, Class<T> type);

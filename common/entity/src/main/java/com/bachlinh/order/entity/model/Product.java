@@ -21,6 +21,7 @@ import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -72,13 +73,13 @@ public class Product extends AbstractEntity {
     private boolean enabled = true;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
-    private Collection<ProductMedia> medias;
+    private Collection<ProductMedia> medias = new HashSet<>();
 
     @ManyToMany(mappedBy = "products")
-    private Collection<Category> categories;
+    private Collection<Category> categories = new HashSet<>();
 
     @ManyToMany(mappedBy = "products")
-    private Collection<Cart> carts;
+    private Collection<Cart> carts = new HashSet<>();
 
     @ActiveReflection
     Product() {
@@ -105,12 +106,10 @@ public class Product extends AbstractEntity {
         return Objects.hashCode(getId());
     }
 
-    @ActiveReflection
     public String getId() {
         return this.id;
     }
 
-    @ActiveReflection
     public String getName() {
         return this.name;
     }
@@ -120,47 +119,38 @@ public class Product extends AbstractEntity {
         return this.price;
     }
 
-    @ActiveReflection
     public String getSize() {
         return this.size;
     }
 
-    @ActiveReflection
     public String getColor() {
         return this.color;
     }
 
-    @ActiveReflection
     public String getTaobaoUrl() {
         return this.taobaoUrl;
     }
 
-    @ActiveReflection
     public String getDescription() {
         return this.description;
     }
 
-    @ActiveReflection
     public Integer getOrderPoint() {
         return this.orderPoint;
     }
 
-    @ActiveReflection
     public boolean isEnabled() {
         return this.enabled;
     }
 
-    @ActiveReflection
     public Collection<ProductMedia> getMedias() {
         return this.medias;
     }
 
-    @ActiveReflection
     public Collection<Category> getCategories() {
         return this.categories;
     }
-
-    @ActiveReflection
+    
     public Collection<Cart> getCarts() {
         return this.carts;
     }
