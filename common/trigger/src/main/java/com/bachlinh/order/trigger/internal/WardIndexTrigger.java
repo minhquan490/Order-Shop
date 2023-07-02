@@ -25,7 +25,7 @@ public class WardIndexTrigger extends AbstractTrigger<Ward> {
     }
 
     @Override
-    public void doExecute(Ward entity) {
+    protected void doExecute(Ward entity) {
         EntityContext entityContext = entityFactory.getEntityContext(Ward.class);
         if (log.isDebugEnabled()) {
             log.debug("Index ward has name [{}]", (entity).getName());

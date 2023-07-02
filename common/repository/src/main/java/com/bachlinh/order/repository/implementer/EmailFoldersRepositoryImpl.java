@@ -30,9 +30,13 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
     }
 
     @Override
-    public boolean isFolderExisted(String folderName) {
-        Specification<EmailFolders> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(EmailFolders_.name), folderName));
-        return findOne(spec).isPresent();
+    public boolean isFolderExisted(String folderName, Customer owner) {
+        Specification<EmailFolders> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var firstStatement = criteriaBuilder.equal(root.get(EmailFolders_.name), folderName);
+            var secondStatement = criteriaBuilder.equal(root.get(EmailFolders_.owner), owner);
+            return criteriaBuilder.and(firstStatement, secondStatement);
+        });
+        return exists(spec);
     }
 
     @Override
@@ -46,6 +50,17 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
         Specification<EmailFolders> spec = Specification.where((root, query, criteriaBuilder) -> {
             root.join(EmailFolders_.owner);
             var firstStatement = criteriaBuilder.equal(root.get(EmailFolders_.name), name);
+            var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
+            return criteriaBuilder.and(firstStatement, secondStatement);
+        });
+        return findOne(spec).orElse(null);
+    }
+
+    @Override
+    public EmailFolders getEmailFolderById(String id, Customer owner) {
+        Specification<EmailFolders> spec = Specification.where((root, query, criteriaBuilder) -> {
+            root.join(EmailFolders_.owner);
+            var firstStatement = criteriaBuilder.equal(root.get(EmailFolders_.id), id);
             var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
             return criteriaBuilder.and(firstStatement, secondStatement);
         });
@@ -68,6 +83,12 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void delete(String id) {
         deleteById(id);
+    }
+
+    @Override
+    public Collection<EmailFolders> getEmailFoldersOfCustomer(Customer owner) {
+        Specification<EmailFolders> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(EmailFolders_.owner), owner));
+        return findAll(spec);
     }
 
     @Override

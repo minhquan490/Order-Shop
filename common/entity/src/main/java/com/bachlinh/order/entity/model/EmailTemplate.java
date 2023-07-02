@@ -43,7 +43,7 @@ public class EmailTemplate extends AbstractEntity {
     @FullTextField
     private String name;
 
-    @Column(name = "TITLE", nullable = false, unique = true)
+    @Column(name = "TITLE", nullable = false)
     @FullTextField
     private String title;
 

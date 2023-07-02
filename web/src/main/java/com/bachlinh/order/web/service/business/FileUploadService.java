@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.service.business;
 
-import com.bachlinh.order.web.dto.form.FileFlushForm;
-import com.bachlinh.order.web.dto.form.FileUploadForm;
+import com.bachlinh.order.web.dto.form.common.FileFlushForm;
+import com.bachlinh.order.web.dto.form.common.FileUploadForm;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.bachlinh.order.web.dto.form;
+package com.bachlinh.order.web.dto.form.common;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 

@@ -11,7 +11,7 @@ import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.LoginForm;
+import com.bachlinh.order.web.dto.form.common.LoginForm;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.service.business.LoginService;
 

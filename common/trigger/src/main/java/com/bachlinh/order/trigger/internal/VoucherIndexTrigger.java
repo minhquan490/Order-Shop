@@ -32,7 +32,7 @@ public class VoucherIndexTrigger extends AbstractTrigger<Voucher> {
     }
 
     @Override
-    public void doExecute(Voucher entity) {
+    protected void doExecute(Voucher entity) {
         if (log.isDebugEnabled()) {
             log.debug("BEGIN: Index Voucher with name [{}]", entity.getName());
         }

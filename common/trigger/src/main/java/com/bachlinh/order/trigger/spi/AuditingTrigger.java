@@ -32,7 +32,7 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity> {
     }
 
     @Override
-    public void doExecute(AbstractEntity entity) {
+    protected void doExecute(AbstractEntity entity) {
         if (log.isDebugEnabled()) {
             log.debug("BEGIN Auditing trigger");
             log.debug("Execute on entity [{}]", entity.getClass().getName());

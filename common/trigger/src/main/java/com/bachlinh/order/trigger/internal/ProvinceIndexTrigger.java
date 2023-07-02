@@ -25,7 +25,7 @@ public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
     }
 
     @Override
-    public void doExecute(Province entity) {
+    protected void doExecute(Province entity) {
         EntityContext entityContext = entityFactory.getEntityContext(Province.class);
         if (log.isDebugEnabled()) {
             log.debug("Index province has name [{}]", entity.getName());

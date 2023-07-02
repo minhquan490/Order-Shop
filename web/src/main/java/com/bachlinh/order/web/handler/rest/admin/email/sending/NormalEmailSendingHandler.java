@@ -36,7 +36,7 @@ public class NormalEmailSendingHandler extends AbstractController<EmailSendingRe
     @Override
     public String getPath() {
         if (url == null) {
-            url = getEnvironment().getProperty("shop.url.admin.email.normal.sending");
+            url = getEnvironment().getProperty("shop.url.admin.email.common.sending");
         }
         return url;
     }

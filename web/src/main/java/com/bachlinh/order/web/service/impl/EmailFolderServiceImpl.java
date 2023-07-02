@@ -11,6 +11,9 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.repository.EmailFoldersRepository;
+import com.bachlinh.order.web.dto.form.common.EmailFolderCreateForm;
+import com.bachlinh.order.web.dto.form.common.EmailFolderUpdateForm;
+import com.bachlinh.order.web.dto.resp.EmailFolderInfoResp;
 import com.bachlinh.order.web.service.common.EmailFolderService;
 
 import java.sql.Timestamp;
@@ -41,5 +44,39 @@ public class EmailFolderServiceImpl implements EmailFolderService {
             emailFolders.add(folder);
         });
         emailFoldersRepository.bulkSave(emailFolders);
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public void deleteEmailFolder(String folderId) {
+        emailFoldersRepository.delete(folderId);
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public EmailFolderInfoResp createEmailFolder(EmailFolderCreateForm form, Customer owner) {
+        var folder = entityFactory.getEntity(EmailFolders.class);
+        folder.setName(folder.getName());
+        folder.setTimeCreated(Timestamp.from(Instant.now()));
+        folder = emailFoldersRepository.saveEmailFolder(folder);
+        return new EmailFolderInfoResp(folder.getId(), folder.getName(), folder.getEmailClearPolicy());
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public EmailFolderInfoResp updateEmailFolder(EmailFolderUpdateForm form, Customer owner) {
+        var folder = emailFoldersRepository.getEmailFolderById(form.getId(), owner);
+        folder.setName(form.getName());
+        folder.setEmailClearPolicy(form.getCleanPolicy());
+        folder = emailFoldersRepository.updateEmailFolder(folder);
+        return new EmailFolderInfoResp(folder.getId(), folder.getName(), folder.getEmailClearPolicy());
+    }
+
+    @Override
+    public Collection<EmailFolderInfoResp> getEmailFoldersOfCustomer(Customer owner) {
+        var folders = emailFoldersRepository.getEmailFoldersOfCustomer(owner);
+        return folders.stream()
+                .map(emailFolders -> new EmailFolderInfoResp(emailFolders.getId(), emailFolders.getName(), emailFolders.getEmailClearPolicy()))
+                .toList();
     }
 }

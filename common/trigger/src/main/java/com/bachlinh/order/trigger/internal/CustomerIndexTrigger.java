@@ -19,7 +19,7 @@ public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     }
 
     @Override
-    public void doExecute(Customer entity) {
+    protected void doExecute(Customer entity) {
         EntityContext context = entityFactory.getEntityContext(Customer.class);
         context.analyze(entity);
     }

@@ -16,6 +16,8 @@ import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
+import java.util.Collection;
+
 @RepositoryComponent
 @ActiveReflection
 public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplate, String> implements EmailTemplateRepository {
@@ -36,12 +38,6 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate) {
         return save(emailTemplate);
-    }
-
-    @Override
-    public boolean isEmailTemplateTitleExisted(String title) {
-        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(EmailTemplate_.title), title));
-        return findOne(spec).isPresent();
     }
 
     @Override
@@ -70,6 +66,27 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
             }
         });
         return findOne(spec).orElse(null);
+    }
+
+    @Override
+    public Collection<EmailTemplate> getEmailTemplates(Customer owner) {
+        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(EmailTemplate_.owner), owner));
+        return findAll(spec);
+    }
+
+    @Override
+    public boolean isEmailTemplateExisted(String id, Customer owner) {
+        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var firstStatement = criteriaBuilder.equal(root.get(EmailTemplate_.owner), owner);
+            var secondStatement = criteriaBuilder.equal(root.get(EmailTemplate_.id), id);
+            return criteriaBuilder.and(firstStatement, secondStatement);
+        });
+        return exists(spec);
+    }
+
+    @Override
+    public void deleteEmailTemplate(EmailTemplate emailTemplate) {
+        delete(emailTemplate);
     }
 
     @Override

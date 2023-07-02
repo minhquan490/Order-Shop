@@ -17,7 +17,6 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T, U> T createProxy(U source, Class<T> receiverType) {
         var proxies = dtoProxyMap.get(receiverType);
         if (proxies == null) {
@@ -27,8 +26,10 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
                 var delegateType = ((ParameterizedType) proxy.getClass().getGenericInterfaces()[0]).getActualTypeArguments()[1];
                 var delegateClass = (Class<?>) delegateType;
                 if (delegateClass.isAssignableFrom(source.getClass())) {
-                    ((Proxy<T, U>) proxy).wrap(source);
-                    return (T) proxy;
+                    @SuppressWarnings("unchecked")
+                    var castedProxy = (Proxy<T, U>) proxy;
+                    castedProxy.wrap(source);
+                    return receiverType.cast(proxy);
                 }
             }
         }

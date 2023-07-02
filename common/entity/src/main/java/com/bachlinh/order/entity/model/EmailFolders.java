@@ -39,7 +39,7 @@ public class EmailFolders extends AbstractEntity {
     @Column(name = "ID", updatable = false, unique = true, columnDefinition = "varchar(32)")
     private String id;
 
-    @Column(name = "NAME", columnDefinition = "nvarchar(300)", unique = true)
+    @Column(name = "NAME", columnDefinition = "nvarchar(300)")
     @FullTextField
     private String name;
 

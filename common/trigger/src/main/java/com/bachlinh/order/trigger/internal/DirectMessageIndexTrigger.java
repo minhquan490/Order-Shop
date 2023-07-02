@@ -32,7 +32,7 @@ public class DirectMessageIndexTrigger extends AbstractTrigger<DirectMessage> {
     }
 
     @Override
-    public void doExecute(DirectMessage entity) {
+    protected void doExecute(DirectMessage entity) {
         if (log.isDebugEnabled()) {
             log.debug("BEGIN: Index DirectMessage with content [{}]", entity.getContent());
         }

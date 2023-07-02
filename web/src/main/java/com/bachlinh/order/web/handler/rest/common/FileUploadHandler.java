@@ -9,7 +9,7 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.web.dto.form.FileUploadForm;
+import com.bachlinh.order.web.dto.form.common.FileUploadForm;
 import com.bachlinh.order.web.service.business.FileUploadService;
 
 import java.io.IOException;

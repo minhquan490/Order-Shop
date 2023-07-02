@@ -19,6 +19,7 @@ import com.bachlinh.order.entity.context.spi.EntityContext;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.NoTransactionException;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -47,7 +48,7 @@ public class DefaultEntityContext implements EntityContext {
     private volatile int previousId;
     private volatile int createIdTime = -1;
 
-    public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager) {
+    public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Init entity context for entity {}", entity.getSimpleName());
@@ -55,7 +56,7 @@ public class DefaultEntityContext implements EntityContext {
             this.idType = queryIdType(entity);
             this.baseEntity = (BaseEntity) newInstance(entity, null, null);
             this.validators = getValidators(entity, dependenciesResolver);
-            this.triggers = getTriggers(entity, dependenciesResolver);
+            this.triggers = getTriggers(entity, dependenciesResolver, environment);
             this.previousId = 0;
             Label label = entity.getAnnotation(Label.class);
             if (label != null) {
@@ -172,17 +173,17 @@ public class DefaultEntityContext implements EntityContext {
         return vs;
     }
 
-    private List<EntityTrigger<? extends BaseEntity>> getTriggers(Class<?> entity, DependenciesResolver dependenciesResolver) {
+    private List<EntityTrigger<? extends BaseEntity>> getTriggers(Class<?> entity, DependenciesResolver dependenciesResolver, Environment environment) {
         List<EntityTrigger<? extends BaseEntity>> entityTriggers = new ArrayList<>();
-        entityTriggers.add(initTrigger("com.bachlinh.order.trigger.spi.IdGenTrigger", dependenciesResolver));
-        entityTriggers.add(initTrigger("com.bachlinh.order.trigger.spi.AuditingTrigger", dependenciesResolver));
+        entityTriggers.add(initTrigger("com.bachlinh.order.trigger.spi.IdGenTrigger", dependenciesResolver, environment));
+        entityTriggers.add(initTrigger("com.bachlinh.order.trigger.spi.AuditingTrigger", dependenciesResolver, environment));
         Trigger trigger = entity.getAnnotation(Trigger.class);
         if (trigger == null) {
             return entityTriggers;
         }
         try {
             for (String triggerName : trigger.triggers()) {
-                EntityTrigger<? extends BaseEntity> triggerObject = initTrigger(triggerName, dependenciesResolver);
+                EntityTrigger<? extends BaseEntity> triggerObject = initTrigger(triggerName, dependenciesResolver, environment);
                 if (triggerObject != null) {
                     entityTriggers.add(triggerObject);
                 }
@@ -228,7 +229,7 @@ public class DefaultEntityContext implements EntityContext {
         }
     }
 
-    private EntityTrigger<? extends BaseEntity> initTrigger(String triggerName, DependenciesResolver dependenciesResolver) {
+    private EntityTrigger<? extends BaseEntity> initTrigger(String triggerName, DependenciesResolver dependenciesResolver, Environment environment) {
         try {
             Class<?> triggerClass = Class.forName(triggerName);
             if (triggerClass.isAnnotationPresent(Ignore.class)) {
@@ -238,7 +239,10 @@ public class DefaultEntityContext implements EntityContext {
             if (!Modifier.isPublic(constructor.getModifiers())) {
                 constructor.setAccessible(true);
             }
-            return (EntityTrigger<? extends BaseEntity>) constructor.newInstance(dependenciesResolver);
+            var setEnvironmentMethod = triggerClass.getMethod("setEnvironment", Environment.class);
+            var trigger = (EntityTrigger<? extends BaseEntity>) constructor.newInstance(dependenciesResolver);
+            setEnvironmentMethod.invoke(trigger, environment);
+            return trigger;
         } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException |
                  NoSuchMethodException e) {
             throw new CriticalException("Can not init trigger [" + triggerName + "]");
