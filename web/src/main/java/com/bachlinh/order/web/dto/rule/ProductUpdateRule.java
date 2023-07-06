@@ -41,7 +41,17 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
         validateNumber(dto, validateResult);
         validateRegex(dto, validateResult);
         validateExist(dto, validateResult);
-        return null;
+        return new ValidatedDto.ValidateResult() {
+            @Override
+            public Map<String, Object> getErrorResult() {
+                return new HashMap<>(validateResult);
+            }
+
+            @Override
+            public boolean shouldHandle() {
+                return validateResult.isEmpty();
+            }
+        };
     }
 
     @Override

@@ -23,6 +23,7 @@ public class TemplateMailSendingHandler extends AbstractController<Map<String, O
     private EmailTemplateSendingService emailTemplateSendingService;
 
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<TemplateMailSendingForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailTemplateSendingService.processTemplateAndSend(request.data(), customer, getEnvironment());

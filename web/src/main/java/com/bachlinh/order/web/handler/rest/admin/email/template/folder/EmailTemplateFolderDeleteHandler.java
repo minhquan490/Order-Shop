@@ -23,6 +23,7 @@ public class EmailTemplateFolderDeleteHandler extends AbstractController<Map<Str
     private EmailTemplateFolderService emailTemplateFolderService;
 
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<EmailTemplateFolderDeleteForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailTemplateFolderService.deleteEmailTemplateFolder(request.data(), customer);

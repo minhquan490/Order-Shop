@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.service.impl;
 
+import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
@@ -34,10 +34,12 @@ import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
+import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
+import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
@@ -50,13 +52,14 @@ import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.form.common.LoginForm;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
-import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
+import com.bachlinh.order.web.dto.resp.CustomerInfoResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
+import com.bachlinh.order.web.dto.resp.MyInfoResp;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.dto.resp.RevokeTokenResp;
-import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;
 import com.bachlinh.order.web.service.business.CustomerAnalyzeService;
+import com.bachlinh.order.web.service.business.CustomerSearchingService;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
 import com.bachlinh.order.web.service.business.LoginService;
 import com.bachlinh.order.web.service.business.LogoutService;
@@ -72,6 +75,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +85,15 @@ import java.util.concurrent.Executor;
 @ServiceComponent
 @ActiveReflection
 @RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
-public class CustomerServiceImpl implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService, RevokeAccessTokenService {
+// @formatter:off
+public class CustomerServiceImpl implements CustomerService,
+                                            LoginService,
+                                            RegisterService,
+                                            LogoutService,
+                                            ForgotPasswordService,
+                                            CustomerAnalyzeService,
+                                            RevokeAccessTokenService,
+                                            CustomerSearchingService { // @formatter:on
     private final Map<String, TempTokenHolder> tempTokenMap = new ConcurrentHashMap<>();
 
     private final PasswordEncoder passwordEncoder;
@@ -95,15 +107,16 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTrashRepository emailTrashRepository;
     private final EmailFolderService emailFolderService;
+    private final CustomerInfoChangerHistoryRepository customerInfoChangerHistoryRepository;
     private final DtoMapper dtoMapper;
     private final Executor executor;
     private String urlResetPassword;
     private String botEmail;
 
     @Override
-    public CustomerInformationResp getCustomerInformation(String customerId) {
+    public MyInfoResp getMyInfo(String customerId) {
         Customer customer = customerRepository.getCustomerById(customerId, false);
-        return dtoMapper.map(customer, CustomerInformationResp.class);
+        return dtoMapper.map(customer, MyInfoResp.class);
     }
 
     @Override
@@ -116,25 +129,17 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
     }
 
     @Override
-    public Collection<TableCustomerInfoResp> getCustomerDataTable() {
-        return customerRepository.getAll(PageRequest.of(1, 500), Sort.unsorted())
-                .stream()
-                .map(TableCustomerInfoResp::new)
-                .toList();
-    }
-
-    @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public CustomerInformationResp saveCustomer(CustomerCreateForm customerCreateForm) {
+    public CustomerResp saveCustomer(CustomerCreateForm customerCreateForm) {
         var customer = dtoMapper.map(customerCreateForm, Customer.class);
         customer = customerRepository.saveCustomer(customer);
         emailFolderService.createDefaultFolders(customer);
-        return dtoMapper.map(customer, CustomerInformationResp.class);
+        return dtoMapper.map(customer, CustomerResp.class);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public CustomerInformationResp updateCustomer(CustomerUpdateForm customerUpdateForm) {
+    public CustomerResp updateCustomer(CustomerUpdateForm customerUpdateForm) {
         var customer = customerRepository.getCustomerById(customerUpdateForm.getId(), false);
         var oldCustomer = customer.clone();
         customer.setFirstName(customerUpdateForm.getFirstName());
@@ -145,15 +150,51 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         customer.setUsername(customerUpdateForm.getUsername());
         customer.setUpdatedFields(findUpdatedFields((Customer) oldCustomer, customer));
         customer = customerRepository.updateCustomer(customer);
-        return dtoMapper.map(customer, CustomerInformationResp.class);
+        return dtoMapper.map(customer, CustomerResp.class);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public CustomerInformationResp deleteCustomer(CustomerDeleteForm customerDeleteForm) {
+    public CustomerResp deleteCustomer(CustomerDeleteForm customerDeleteForm) {
         var customer = customerRepository.getCustomerById(customerDeleteForm.customerId(), true);
         customerRepository.deleteCustomer(customer);
-        return dtoMapper.map(customer, CustomerInformationResp.class);
+        return dtoMapper.map(customer, CustomerResp.class);
+    }
+
+    @Override
+    public CustomerInfoResp getCustomerInfo(String customerId) {
+        var history = Join.builder().attribute(Customer_.HISTORIES).type(JoinType.INNER).build();
+        var voucher = Join.builder().attribute(Customer_.ASSIGNED_VOUCHERS).type(JoinType.INNER).build();
+        var order = Join.builder().attribute(Customer_.ORDERS).type(JoinType.INNER).build();
+        var address = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.INNER).build();
+        var media = Join.builder().attribute(Customer_.CUSTOMER_MEDIA).type(JoinType.INNER).build();
+        var customer = customerRepository.getCustomerUseJoin(customerId, Arrays.asList(history, voucher, order, address, media));
+        var histories = loginHistoryRepository.getHistories(customer);
+        var changeHistories = customerInfoChangerHistoryRepository.getHistoriesChangeOfCustomer(customer);
+        var result = dtoMapper.map(customer, CustomerInfoResp.class);
+        result.setLoginHistories(histories.stream()
+                .map(loginHistory -> {
+                    var historyResp = new CustomerInfoResp.LoginHistory();
+                    historyResp.setId(loginHistory.getId().toString());
+                    historyResp.setLastLoginTime(loginHistory.getLastLoginTime().toString());
+                    historyResp.setLoginIp(loginHistory.getLoginIp());
+                    historyResp.setSuccess(loginHistory.getSuccess());
+                    return historyResp;
+                })
+                .toList()
+                .toArray(new CustomerInfoResp.LoginHistory[0]));
+        result.setInfoChangeHistories(changeHistories.stream()
+                .map(customerInfoChangeHistory -> {
+                    var infoChangeHistory = new CustomerInfoResp.InfoChangeHistory();
+                    infoChangeHistory.setId(customerInfoChangeHistory.getId());
+                    infoChangeHistory.setFieldName(customerInfoChangeHistory.getFieldName());
+                    infoChangeHistory.setTimeUpdate(customerInfoChangeHistory.getTimeUpdate().toString());
+                    infoChangeHistory.setOldValue(customerInfoChangeHistory.getOldValue());
+                    return infoChangeHistory;
+                })
+                .toList()
+                .toArray(new CustomerInfoResp.InfoChangeHistory[0]));
+        return result;
     }
 
     @Override
@@ -221,7 +262,7 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
         String tempToken = tokenGenerator.generateTempToken();
         TempTokenHolder holder = new TempTokenHolder(LocalDateTime.now(), email);
         tempTokenMap.put(tempToken, holder);
-        EmailTemplate emailTemplate = emailTemplateRepository.getEmailTemplateByName("Reset password", null);
+        EmailTemplate emailTemplate = emailTemplateRepository.getDefaultEmailTemplate("Reset password");
         if (emailTemplate != null) {
             GmailMessage model = new GmailMessage(botEmail);
             model.setBody(MessageFormat.format(emailTemplate.getContent(), urlResetPassword));
@@ -313,6 +354,14 @@ public class CustomerServiceImpl implements CustomerService, LoginService, Regis
             throw new UnAuthorizationException("Token is expired", "");
         }
         return new RevokeTokenResp(jwt, refreshToken);
+    }
+
+    @Override
+    public Collection<CustomerResp> search(String query) {
+        var context = entityFactory.getEntityContext(Customer.class);
+        var ids = context.search(Customer.class, query);
+        var customers = customerRepository.getCustomerByIds(ids);
+        return dtoMapper.map(customers, CustomerResp.class);
     }
 
     private record TempTokenHolder(LocalDateTime expireTime, String email) {

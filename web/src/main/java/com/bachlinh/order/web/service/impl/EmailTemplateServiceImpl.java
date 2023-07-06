@@ -28,8 +28,10 @@ import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.web.dto.form.admin.email.sending.TemplateMailSendingForm;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateCreateForm;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateDeleteForm;
+import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateSearchForm;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateUpdateForm;
 import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
+import com.bachlinh.order.web.service.business.EmailTemplateSearchService;
 import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
 
@@ -40,7 +42,7 @@ import java.util.Collection;
 @ActiveReflection
 @ServiceComponent
 @RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
-public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemplateSendingService {
+public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemplateSendingService, EmailTemplateSearchService {
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTemplateFolderRepository emailTemplateFolderRepository;
     private final EntityFactory entityFactory;
@@ -134,5 +136,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemp
         sentEmail.setFolder(folder);
         sentEmail.setTimeSent(Timestamp.from(Instant.now()));
         emailRepository.saveEmail(sentEmail);
+    }
+
+    @Override
+    public Collection<EmailTemplateInfoResp> search(EmailTemplateSearchForm form, Customer owner) {
+        var context = entityFactory.getEntityContext(EmailTemplate.class);
+        var ids = context.search(form.getQuery());
+        var result = emailTemplateRepository.getEmailTemplates(ids, owner);
+        return dtoMapper.map(result, EmailTemplateInfoResp.class);
     }
 }

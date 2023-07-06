@@ -12,6 +12,7 @@ public final class ValidateUtils {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+(\\.\\d+)?$");
     private static final Pattern URL_PATTERN = Pattern.compile("((https?):\\/\\/)?(www.)?[a-z0-9]+(\\.[a-z]{2,}){1,3}(#?\\/?[a-zA-Z0-9#]+)*\\/?(\\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$");
     private static final Pattern PRODUCT_SIZE_PATTERN = Pattern.compile("^[S|s]|[M|m]|[L|l]|([X|x]{1,}[L|l])$");
+    private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{4}[-]?\\d{1,2}[-]?\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}[.]?\\d{1,6}$");
 
     public static boolean isEmailValidUsingRfc2822(String email) {
         return Rfc2822.validate(email);
@@ -31,6 +32,10 @@ public final class ValidateUtils {
 
     public static boolean isSizeValid(String productSize) {
         return PRODUCT_SIZE_PATTERN.matcher(productSize).matches();
+    }
+
+    public static boolean isValidDate(String testString) {
+        return DATE_PATTERN.matcher(testString).matches();
     }
 
     public static boolean isNumber(String number) {

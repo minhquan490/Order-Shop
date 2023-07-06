@@ -20,6 +20,7 @@ public class NormalEmailSendingHandler extends AbstractController<EmailSendingRe
     private EmailSendingService emailSendingService;
 
     @Override
+    @ActiveReflection
     protected EmailSendingResp internalHandler(Payload<NormalEmailSendingForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailSendingService.sendNormalEmail(request.data(), customer);

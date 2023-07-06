@@ -16,7 +16,7 @@ public class BatchReport extends AbstractEntity {
 
     @Id
     @Column(name = "ID", nullable = false, updatable = false, unique = true)
-    private int id;
+    private Integer id;
 
     @Column(name = "BATCH_NAME", nullable = false, length = 100, updatable = false)
     private String batchName;
@@ -35,7 +35,7 @@ public class BatchReport extends AbstractEntity {
     }
 
     @Override
-    public Object getId() {
+    public Integer getId() {
         return id;
     }
 

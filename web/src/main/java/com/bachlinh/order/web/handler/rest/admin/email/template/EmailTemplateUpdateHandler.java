@@ -20,6 +20,7 @@ public class EmailTemplateUpdateHandler extends AbstractController<EmailTemplate
     private EmailTemplateService emailTemplateService;
 
     @Override
+    @ActiveReflection
     protected EmailTemplateInfoResp internalHandler(Payload<EmailTemplateUpdateForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailTemplateService.updateEmailTemplate(request.data(), customer);

@@ -56,6 +56,7 @@ public class Customer extends AbstractEntity implements UserDetails {
 
     @Column(name = "USER_NAME", unique = true, nullable = false, length = 32, columnDefinition = "nvarchar")
     @FullTextField
+    @ActiveReflection
     private String username;
 
     @Column(name = "PASSWORD", nullable = false)
@@ -63,18 +64,22 @@ public class Customer extends AbstractEntity implements UserDetails {
 
     @Column(name = "FIRST_NAME", nullable = false, columnDefinition = "nvarchar(36)")
     @FullTextField
+    @ActiveReflection
     private String firstName;
 
     @Column(name = "LAST_NAME", nullable = false, columnDefinition = "nvarchar(36)")
     @FullTextField
+    @ActiveReflection
     private String lastName;
 
     @Column(name = "PHONE_NUMBER", nullable = false, unique = true, length = 10)
     @FullTextField
+    @ActiveReflection
     private String phoneNumber;
 
     @Column(name = "EMAIL", nullable = false, unique = true, length = 32, columnDefinition = "nvarchar")
     @FullTextField
+    @ActiveReflection
     private String email;
 
     @Column(name = "GENDER", nullable = false, length = 8)

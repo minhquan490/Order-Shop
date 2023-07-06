@@ -17,12 +17,12 @@ class ProxyMetadataFactory implements MetadataFactory {
 
     @Override
     public FullTextSearchMetadata buildFullTextMetadata(Object actualEntity, FieldDescriptor descriptor) {
-        @SuppressWarnings("unchecked")
-        var entityType = (Class<? extends BaseEntity>) actualEntity.getClass();
+        var entityType = actualEntity.getClass();
         if (!BaseEntity.class.isAssignableFrom(entityType)) {
             throw new PersistenceException("Entity must be instance of BaseEntity");
         }
-        EntityProxy proxy = entityProxyFactory.getProxyObject(entityType);
+        @SuppressWarnings("unchecked")
+        EntityProxy proxy = entityProxyFactory.getProxyObject((Class<? extends BaseEntity>) entityType);
         proxy.setTarget(actualEntity);
         return new ProxyFullTextMetadata(proxy);
     }

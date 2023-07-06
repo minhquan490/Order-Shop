@@ -14,7 +14,11 @@ public interface EmailTemplateRepository {
 
     EmailTemplate getEmailTemplateById(String id, Customer owner);
 
+    EmailTemplate getDefaultEmailTemplate(String name);
+
     Collection<EmailTemplate> getEmailTemplates(Customer owner);
+
+    Collection<EmailTemplate> getEmailTemplates(Collection<String> ids, Customer owner);
 
     boolean isEmailTemplateExisted(String id, Customer owner);
 

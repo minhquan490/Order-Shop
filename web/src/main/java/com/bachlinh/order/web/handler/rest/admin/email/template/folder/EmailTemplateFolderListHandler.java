@@ -20,6 +20,7 @@ public class EmailTemplateFolderListHandler extends AbstractController<Collectio
     private EmailTemplateFolderService emailTemplateFolderService;
 
     @Override
+    @ActiveReflection
     protected Collection<EmailTemplateFolderListResp> internalHandler(Payload<Void> request) {
         var customerId = SecurityContextHolder.getContext().getAuthentication().getName();
         return emailTemplateFolderService.getEmailTemplateFolders(customerId);

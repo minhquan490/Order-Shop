@@ -42,6 +42,11 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
     }
 
     @Override
+    public Collection<Province> getProvincesById(Collection<String> ids) {
+        return findAllById(ids.stream().map(Integer::parseInt).toList());
+    }
+
+    @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void remove(Province province) {
         deleteById(province.getId());

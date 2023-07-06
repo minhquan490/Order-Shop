@@ -21,6 +21,7 @@ public class EmailTemplateInfoHandler extends AbstractController<EmailTemplateIn
     private String url;
 
     @Override
+    @ActiveReflection
     protected EmailTemplateInfoResp internalHandler(Payload<Void> request) {
         var id = getNativeRequest().getUrlQueryParam().getFirst("id");
         if (!StringUtils.hasText(id)) {

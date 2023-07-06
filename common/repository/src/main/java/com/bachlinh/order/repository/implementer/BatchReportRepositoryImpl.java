@@ -2,6 +2,7 @@ package com.bachlinh.order.repository.implementer;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -45,5 +46,10 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
     public Collection<BatchReport> getReports(Timestamp from, Timestamp to) {
         Specification<BatchReport> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(BatchReport_.timeReport), from, to));
         return findAll(spec);
+    }
+
+    @Override
+    public Collection<BatchReport> getAllReport() {
+        return findAll(Sort.by(BatchReport_.TIME_REPORT).ascending());
     }
 }

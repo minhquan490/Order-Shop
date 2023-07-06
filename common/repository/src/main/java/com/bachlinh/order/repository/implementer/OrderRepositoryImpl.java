@@ -75,7 +75,8 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
     public Order getOrder(String orderId) {
         Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
             root.join(Order_.orderStatus, JoinType.INNER);
-            root.join(Order_.orderDetails, JoinType.INNER).join(OrderDetail_.product, JoinType.INNER);
+            root.join(Order_.orderDetails, JoinType.INNER);
+            root.join(OrderDetail_.PRODUCT, JoinType.INNER);
             return criteriaBuilder.equal(root.get(Order_.id), orderId);
         });
         return findOne(spec).orElse(null);

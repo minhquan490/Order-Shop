@@ -8,19 +8,19 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
-import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
+import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 
 @ActiveReflection
 @RouteProvider
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-public class CustomerDeleteHandler extends AbstractController<CustomerInformationResp, CustomerDeleteForm> {
+public class CustomerDeleteHandler extends AbstractController<CustomerResp, CustomerDeleteForm> {
     private String url;
     private CustomerService customerService;
 
     @Override
     @ActiveReflection
-    protected CustomerInformationResp internalHandler(Payload<CustomerDeleteForm> request) {
+    protected CustomerResp internalHandler(Payload<CustomerDeleteForm> request) {
         return customerService.deleteCustomer(request.data());
     }
 

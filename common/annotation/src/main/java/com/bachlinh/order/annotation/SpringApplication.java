@@ -16,6 +16,7 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
@@ -34,6 +35,7 @@ import java.lang.annotation.Target;
 @EnableAsync(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @EnableScheduling
 @EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
+@EnableTransactionManagement(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @ImportRuntimeHints(value = {})
 @Import(value = {})
 public @interface SpringApplication {

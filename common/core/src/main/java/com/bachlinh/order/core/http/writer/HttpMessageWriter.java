@@ -69,7 +69,12 @@ class HttpMessageWriter implements MessageWriter {
         if (messageBody == null) {
             return;
         }
-        byte[] data = JacksonUtils.writeObjectAsBytes(messageBody);
+        byte[] data;
+        if (messageBody instanceof byte[] bytes) {
+            data = bytes;
+        } else {
+            data = JacksonUtils.writeObjectAsBytes(messageBody);
+        }
         writeMessage(data);
     }
 

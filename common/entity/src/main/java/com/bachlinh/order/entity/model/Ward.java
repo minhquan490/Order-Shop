@@ -15,8 +15,6 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Trigger;
 
 @Entity
@@ -29,7 +27,6 @@ import com.bachlinh.order.annotation.Trigger;
 )
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "ward")
-@EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.WardIndexTrigger")
 @ActiveReflection
 public class Ward extends AbstractEntity {
@@ -39,14 +36,12 @@ public class Ward extends AbstractEntity {
     private Integer id;
 
     @Column(name = "NAME", columnDefinition = "nvarchar(100)")
-    @FullTextField
     private String name;
 
     @Column(name = "CODE")
     private Integer code;
 
     @Column(name = "CODE_NAME", length = 50)
-    @FullTextField
     private String codeName;
 
     @Column(name = "DIVISION_TYPE", columnDefinition = "nvarchar(100)")
@@ -100,7 +95,7 @@ public class Ward extends AbstractEntity {
     public String getDivisionType() {
         return this.divisionType;
     }
-    
+
     public District getDistrict() {
         return this.district;
     }

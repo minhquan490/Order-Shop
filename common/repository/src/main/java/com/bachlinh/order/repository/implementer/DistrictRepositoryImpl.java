@@ -42,6 +42,11 @@ public class DistrictRepositoryImpl extends AbstractRepository<District, Integer
     }
 
     @Override
+    public Collection<District> getDistricts(Collection<String> ids) {
+        return findAllById(ids.stream().map(Integer::parseInt).toList());
+    }
+
+    @Override
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);

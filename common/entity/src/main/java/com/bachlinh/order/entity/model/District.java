@@ -44,6 +44,7 @@ public class District extends AbstractEntity {
 
     @Column(name = "NAME", columnDefinition = "nvarchar(100)")
     @FullTextField
+    @ActiveReflection
     private String name;
 
     @Column(name = "CODE")
@@ -54,6 +55,7 @@ public class District extends AbstractEntity {
 
     @Column(name = "CODE_NAME", length = 100)
     @FullTextField
+    @ActiveReflection
     private String codeName;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -111,7 +113,7 @@ public class District extends AbstractEntity {
     public Province getProvince() {
         return this.province;
     }
-    
+
     public List<Ward> getWards() {
         return this.wards;
     }

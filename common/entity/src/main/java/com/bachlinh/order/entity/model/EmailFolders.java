@@ -13,8 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
@@ -31,7 +29,6 @@ import java.util.Set;
 })
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailFoldersValidator")
 @ActiveReflection
-@EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailFolderIndexTrigger"})
 public class EmailFolders extends AbstractEntity {
 
@@ -40,7 +37,6 @@ public class EmailFolders extends AbstractEntity {
     private String id;
 
     @Column(name = "NAME", columnDefinition = "nvarchar(300)")
-    @FullTextField
     private String name;
 
     @Column(name = "TIME_CREATED")

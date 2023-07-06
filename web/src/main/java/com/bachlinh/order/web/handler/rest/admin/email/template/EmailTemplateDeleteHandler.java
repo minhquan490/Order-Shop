@@ -23,6 +23,7 @@ public class EmailTemplateDeleteHandler extends AbstractController<Map<String, O
     private EmailTemplateService emailTemplateService;
 
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<EmailTemplateDeleteForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailTemplateService.deleteEmailTemplate(request.data(), customer);

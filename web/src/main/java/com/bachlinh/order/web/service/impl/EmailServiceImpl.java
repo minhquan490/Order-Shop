@@ -11,27 +11,31 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
+import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.repository.EmailRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.web.dto.form.admin.email.sending.NormalEmailSendingForm;
+import com.bachlinh.order.web.dto.resp.EmailInfoInFolderListResp;
 import com.bachlinh.order.web.dto.resp.EmailInfoResp;
 import com.bachlinh.order.web.dto.resp.EmailSendingResp;
 import com.bachlinh.order.web.dto.resp.EmailTrashResp;
-import com.bachlinh.order.web.service.business.AddEmailToTrashService;
+import com.bachlinh.order.web.service.business.EmailInTrashService;
+import com.bachlinh.order.web.service.business.EmailSearchingService;
 import com.bachlinh.order.web.service.business.EmailSendingService;
 import com.bachlinh.order.web.service.common.EmailService;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashSet;
 
 @ServiceComponent
 @ActiveReflection
 @RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
-public class EmailServiceImpl implements EmailSendingService, EmailService, AddEmailToTrashService {
+public class EmailServiceImpl implements EmailSendingService, EmailService, EmailInTrashService, EmailSearchingService {
     private final EmailRepository emailRepository;
     private final CustomerRepository customerRepository;
     private final EmailFoldersRepository emailFoldersRepository;
@@ -66,6 +70,16 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, AddE
     }
 
     @Override
+    public EmailInfoInFolderListResp getEmailsOfCustomer(String folderId, Customer owner) {
+        var emails = emailRepository.getEmailsByFolderId(folderId, owner);
+        var emailFolder = entityFactory.getEntity(EmailFolders.class);
+        emailFolder.setId(emails.get(0).getFolder().getId());
+        emailFolder.setName(emails.get(0).getFolder().getName());
+        emailFolder.setEmails(new HashSet<>(emails));
+        return dtoMapper.map(emailFolder, EmailInfoInFolderListResp.class);
+    }
+
+    @Override
     public EmailTrashResp addEmailToTrash(String emailId, Customer owner) {
         var email = emailRepository.getEmailById(emailId, owner);
         if (email == null) {
@@ -84,5 +98,37 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, AddE
         trash.getEmails().addAll(emails);
         emailTrashRepository.updateTrash(trash);
         return dtoMapper.map(trash, EmailTrashResp.class);
+    }
+
+    @Override
+    public EmailTrashResp getEmailsInTrash(Customer owner) {
+        var trash = emailTrashRepository.getTrashOfCustomer(owner);
+        return dtoMapper.map(trash, EmailTrashResp.class);
+    }
+
+    @Override
+    public EmailTrashResp restoreEmailFromTrash(Collection<String> emailIds, Customer owner) {
+        var trash = emailTrashRepository.getTrashOfCustomer(owner);
+        var emails = emailRepository.getAllEmailByIds(emailIds);
+        trash.getEmails().removeAll(emails);
+        trash = emailTrashRepository.updateTrash(trash);
+        return dtoMapper.map(trash, EmailTrashResp.class);
+    }
+
+    @Override
+    public void removeEmailsFromTrash(Collection<String> emailIds, Customer owner) {
+        var emails = emailRepository.getAllEmailByIds(emailIds);
+        var trash = emailTrashRepository.getTrashOfCustomer(owner);
+        emails.forEach(email -> trash.getEmails().remove(email));
+        emailTrashRepository.updateTrash(trash);
+        emailRepository.deleteEmails(emailIds);
+    }
+
+    @Override
+    public Collection<EmailInfoResp> searchEmail(String query) {
+        var context = entityFactory.getEntityContext(Email.class);
+        var ids = context.search(Email.class, query);
+        var result = emailRepository.getAllEmailByIds(ids);
+        return dtoMapper.map(result, EmailInfoResp.class);
     }
 }

@@ -8,19 +8,19 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
-import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
+import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 
 @ActiveReflection
 @RouteProvider
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-public class CustomerCreateHandler extends AbstractController<CustomerInformationResp, CustomerCreateForm> {
+public class CustomerCreateHandler extends AbstractController<CustomerResp, CustomerCreateForm> {
     private String url;
     private CustomerService customerService;
 
     @Override
     @ActiveReflection
-    protected CustomerInformationResp internalHandler(Payload<CustomerCreateForm> request) {
+    protected CustomerResp internalHandler(Payload<CustomerCreateForm> request) {
         var data = request.data();
         return customerService.saveCustomer(data);
     }
@@ -43,6 +43,6 @@ public class CustomerCreateHandler extends AbstractController<CustomerInformatio
 
     @Override
     public RequestMethod getRequestMethod() {
-        return null;
+        return RequestMethod.POST;
     }
 }

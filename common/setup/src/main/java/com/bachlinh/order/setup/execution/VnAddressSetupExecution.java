@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @ActiveReflection
 public class VnAddressSetupExecution extends AbstractSetup {
     private final Logger log = LoggerFactory.getLogger(getClass());

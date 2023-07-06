@@ -5,23 +5,21 @@ import org.springframework.data.domain.Pageable;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
-import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
+import com.bachlinh.order.web.dto.resp.CustomerInfoResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
-import com.bachlinh.order.web.dto.resp.TableCustomerInfoResp;
-
-import java.util.Collection;
+import com.bachlinh.order.web.dto.resp.MyInfoResp;
 
 public interface CustomerService {
 
-    CustomerInformationResp getCustomerInformation(String customerId);
+    MyInfoResp getMyInfo(String customerId);
 
     Page<CustomerResp> getFullInformationOfCustomer(Pageable pageable);
 
-    Collection<TableCustomerInfoResp> getCustomerDataTable();
+    CustomerResp saveCustomer(CustomerCreateForm customerCreateForm);
 
-    CustomerInformationResp saveCustomer(CustomerCreateForm customerCreateForm);
+    CustomerResp updateCustomer(CustomerUpdateForm customerUpdateForm);
 
-    CustomerInformationResp updateCustomer(CustomerUpdateForm customerUpdateForm);
+    CustomerResp deleteCustomer(CustomerDeleteForm customerDeleteForm);
 
-    CustomerInformationResp deleteCustomer(CustomerDeleteForm customerDeleteForm);
+    CustomerInfoResp getCustomerInfo(String customerId);
 }
