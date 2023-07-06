@@ -7,12 +7,18 @@ import org.apache.http.conn.util.PublicSuffixMatcher;
 import org.eclipse.jetty.http3.server.HTTP3ServerConnectionFactory;
 import org.eclipse.jetty.http3.server.HTTP3ServerConnector;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.compression.DeflaterPool;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.ServerCustomizeException;
 
@@ -21,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
 
 @RequiredArgsConstructor
 public class H3JettyServerCustomize implements JettyServerCustomizer {
@@ -44,6 +51,8 @@ public class H3JettyServerCustomize implements JettyServerCustomizer {
         List<Connector> connectors = Stream.of(server.getConnectors()).collect(Collectors.toList());
         connectors.add(connector);
         server.setConnectors(connectors.toArray(Connector[]::new));
+        var gzipHandler = createGzipHandler(server.getHandler());
+        server.setHandler(gzipHandler);
     }
 
     private HttpConfiguration buildConfig() {
@@ -86,5 +95,15 @@ public class H3JettyServerCustomize implements JettyServerCustomizer {
         connector.setHost(serverAddress);
         connector.setPort(serverPort);
         return connector;
+    }
+
+    private HandlerWrapper createGzipHandler(Handler handler) {
+        var gzipHandler = new GzipHandler();
+        gzipHandler.setIncludedMethods(HttpMethod.GET.name(), HttpMethod.PUT.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name(), HttpMethod.PATCH.name());
+        gzipHandler.setIncludedMimeTypes(MediaType.APPLICATION_JSON_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE, MediaType.IMAGE_JPEG_VALUE);
+        gzipHandler.setHandler(handler);
+        var deflaterPool = new DeflaterPool(2048, Deflater.BEST_SPEED, true);
+        gzipHandler.setDeflaterPool(deflaterPool);
+        return gzipHandler;
     }
 }

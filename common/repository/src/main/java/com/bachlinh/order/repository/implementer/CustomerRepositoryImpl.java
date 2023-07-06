@@ -1,10 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -12,8 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -25,12 +22,16 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.query.Condition;
-import com.bachlinh.order.repository.query.ConditionExecutor;
 import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -47,46 +48,79 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
+    public Customer getCustomer(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins) {
+        Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.join(joins.toArray(new Join[0]));
+            extractor.where(wheres.toArray(new Where[0]));
+            return extractor.extract();
+        });
+        return findOne(spec).orElse(null);
+    }
+
+    @Override
+    public Collection<Customer> getCustomers(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins, @Nullable Pageable pageable, @Nullable Sort sort) {
+        Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(wheres.toArray(new Where[0]));
+            extractor.join(joins.toArray(new Join[0]));
+            return extractor.extract();
+        });
+        if (pageable == null && sort == null) {
+            return findAll(spec);
+        }
+        if (pageable != null && sort == null) {
+            return findAll(spec, pageable).toList();
+        }
+        if (pageable == null) {
+            return findAll(spec, sort);
+        }
+        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        return findAll(spec, newPageable).toList();
+    }
+
+    @Override
+    public Collection<Customer> getCustomerByIds(Collection<String> ids) {
+        return findAllById(ids);
+    }
+
+    @Override
     public Customer getCustomerById(String id, boolean useJoin) {
-        Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> {
-            if (useJoin) {
-                root.join(Customer_.refreshToken, JoinType.INNER);
-                root.join(Customer_.addresses, JoinType.LEFT);
-            }
-            return criteriaBuilder.equal(root.get(Customer_.ID), id);
-        }));
-        return get(spec);
+        var condition = Where.builder().attribute(Customer_.ID).value(id).operator(Operator.EQ).build();
+        Collection<Join> joins;
+        if (useJoin) {
+            joins = new ArrayList<>(2);
+            joins.add(Join.builder().attribute(Customer_.REFRESH_TOKEN).type(JoinType.INNER).build());
+            joins.add(Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.LEFT).build());
+        } else {
+            joins = new ArrayList<>(0);
+        }
+        return getCustomer(Collections.singletonList(condition), joins);
     }
 
     @Override
     public Customer getCustomerByUsername(String username) {
-        Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> {
-            Predicate usernameEqual = criteriaBuilder.equal(root.get(Customer_.USERNAME), username);
-            Predicate enableEqual = criteriaBuilder.equal(root.get(Customer_.enabled), true);
-            return criteriaBuilder.and(usernameEqual, enableEqual);
-        }));
-        return get(spec);
+        var usernameCondition = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
+        var enableCondition = Where.builder().attribute(Customer_.ENABLED).value(true).operator(Operator.EQ).build();
+        return getCustomer(Arrays.asList(usernameCondition, enableCondition), Collections.emptyList());
     }
 
     @Override
     public Customer getCustomerByEmail(String email) {
-        Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Customer_.EMAIL), email)));
-        return get(spec);
+        var condition = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
+        return getCustomer(Collections.singletonList(condition), Collections.emptyList());
     }
 
     @Override
     public Customer getCustomerByPhone(String phone) {
-        Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Customer_.PHONE_NUMBER), phone)));
-        return get(spec);
+        var condition = Where.builder().attribute(Customer_.PHONE_NUMBER).value(phone).operator(Operator.EQ).build();
+        return getCustomer(Collections.singletonList(condition), Collections.emptyList());
     }
 
     @Override
     public Customer getCustomerUseJoin(Object customerId, Collection<Join> joins) {
-        Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> {
-            joins.forEach(join -> root.join(join.getAttribute(), join.getType()));
-            return criteriaBuilder.equal(root.get("id"), customerId);
-        }));
-        return get(spec);
+        var condition = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        return getCustomer(Collections.singletonList(condition), joins);
     }
 
     @Override
@@ -111,13 +145,15 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     @ActiveReflection
     public Customer saveCustomer(@NonNull Customer customer) {
-        return this.save(customer);
+        var result = this.save(customer);
+        customerCount.set(customerCount.get() - 1);
+        return result;
     }
 
     @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Customer updateCustomer(@NonNull Customer customer) {
-        return this.saveCustomer(customer);
+        return this.save(customer);
     }
 
     @Override
@@ -155,43 +191,6 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         }
         Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         return this.findAll(newPageable);
-    }
-
-    @Override
-    public Page<Customer> getCustomersUsingJoin(Collection<Join> joins, Collection<Condition> conditions, Pageable pageable, Sort sort) {
-        Specification<Customer> spec = Specification.where(((root, query, criteriaBuilder) -> {
-            joins.forEach(join -> root.join(join.getAttribute(), join.getType()));
-            return new ConditionExecutor(criteriaBuilder, conditions).execute(root);
-        }));
-        if (pageable == null && sort == null) {
-            List<Customer> results = this.findAll(spec);
-            return new PageImpl<>(results, Pageable.unpaged(), results.size());
-        }
-        if (pageable != null && sort == null) {
-            return this.findAll(spec, pageable);
-        }
-        if (pageable == null) {
-            List<Customer> results = this.findAll(spec, sort);
-            return new PageImpl<>(results, Pageable.unpaged(), results.size());
-        }
-        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-        return this.findAll(spec, newPageable);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED)
-    @Async
-    @ActiveReflection
-    public void saveAllCustomer(Collection<Customer> customers) {
-        customerCount.set(customerCount.get() + this.saveAll(customers).size());
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED)
-    @Async
-    @ActiveReflection
-    public void deleteAllCustomer(Collection<Customer> customers) {
-        this.deleteAllInBatch(customers);
     }
 
     @Override

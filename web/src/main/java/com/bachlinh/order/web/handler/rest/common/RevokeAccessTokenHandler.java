@@ -19,6 +19,7 @@ public class RevokeAccessTokenHandler extends AbstractController<RevokeTokenResp
     private RevokeAccessTokenService revokeAccessTokenService;
 
     @Override
+    @ActiveReflection
     protected RevokeTokenResp internalHandler(Payload<Void> request) {
         var refreshToken = getNativeRequest().getHeaders().getFirst(HeaderUtils.getRefreshHeader());
         if (refreshToken == null) {

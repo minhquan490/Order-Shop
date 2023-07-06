@@ -45,6 +45,7 @@ public class Email extends AbstractEntity {
 
     @Column(name = "CONTENT", columnDefinition = "nvarchar(max)")
     @FullTextField
+    @ActiveReflection
     private String content;
 
     @Column(name = "RECEIVED_TIME", nullable = false, updatable = false)
@@ -55,6 +56,7 @@ public class Email extends AbstractEntity {
 
     @Column(name = "TITLE", nullable = false, columnDefinition = "nvarchar(400)")
     @FullTextField
+    @ActiveReflection
     private String title;
 
     @Column(name = "WAS_READ", columnDefinition = "bit", nullable = false)

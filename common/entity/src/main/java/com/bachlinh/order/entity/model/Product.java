@@ -47,6 +47,7 @@ public class Product extends AbstractEntity {
 
     @Column(name = "NAME", unique = true, nullable = false, columnDefinition = "nvarchar(100)")
     @FullTextField
+    @ActiveReflection
     private String name;
 
     @Column(name = "PRICE", nullable = false)
@@ -54,10 +55,12 @@ public class Product extends AbstractEntity {
 
     @Column(name = "SIZE", length = 3, nullable = false)
     @FullTextField
+    @ActiveReflection
     private String size;
 
     @Column(name = "COLOR", columnDefinition = "nvarchar(30)", nullable = false)
     @FullTextField
+    @ActiveReflection
     private String color;
 
     @Column(name = "TAO_BAO_URL")
@@ -150,7 +153,7 @@ public class Product extends AbstractEntity {
     public Collection<Category> getCategories() {
         return this.categories;
     }
-    
+
     public Collection<Cart> getCarts() {
         return this.carts;
     }

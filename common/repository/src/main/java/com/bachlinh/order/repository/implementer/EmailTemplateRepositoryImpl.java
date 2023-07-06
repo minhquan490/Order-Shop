@@ -14,6 +14,9 @@ import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplate_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.Collection;
@@ -43,13 +46,11 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
     @Override
     public EmailTemplate getEmailTemplateByName(String templateName, Customer owner) {
         Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
-            if (owner == null) {
-                return criteriaBuilder.equal(root.get(EmailTemplate_.name), templateName);
-            } else {
-                var firstStatement = criteriaBuilder.equal(root.get(EmailTemplate_.name), templateName);
-                var secondStatement = criteriaBuilder.isNull(root.get(EmailTemplate_.owner));
-                return criteriaBuilder.and(firstStatement, secondStatement);
-            }
+            var templateWhere = Where.builder().attribute(EmailTemplate_.NAME).value(templateName).operator(Operator.EQ).build();
+            var ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner).operator(Operator.EQ).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(templateWhere, ownerWhere);
+            return extractor.extract();
         });
         return findOne(spec).orElse(null);
     }
@@ -57,29 +58,59 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
     @Override
     public EmailTemplate getEmailTemplateById(String id, Customer owner) {
         Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
-            if (owner == null) {
-                return criteriaBuilder.equal(root.get(EmailTemplate_.id), id);
-            } else {
-                var firstStatement = criteriaBuilder.equal(root.get(EmailTemplate_.id), id);
-                var secondStatement = criteriaBuilder.isNull(root.get(EmailTemplate_.owner));
-                return criteriaBuilder.and(firstStatement, secondStatement);
-            }
+            var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operator(Operator.EQ).build();
+            var ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner).operator(Operator.EQ).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(idWhere, ownerWhere);
+            return extractor.extract();
+        });
+        return findOne(spec).orElse(null);
+    }
+
+    @Override
+    public EmailTemplate getDefaultEmailTemplate(String name) {
+        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var idWhere = Where.builder().attribute(EmailTemplate_.NAME).value(name).operator(Operator.EQ).build();
+            var ownerNull = Where.builder().attribute(EmailTemplate_.OWNER).operator(Operator.NULL).build();
+            var folderNull = Where.builder().attribute(EmailTemplate_.FOLDER).operator(Operator.NULL).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(idWhere, ownerNull, folderNull);
+            return extractor.extract();
         });
         return findOne(spec).orElse(null);
     }
 
     @Override
     public Collection<EmailTemplate> getEmailTemplates(Customer owner) {
-        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(EmailTemplate_.owner), owner));
+        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(ownerWhere);
+            return extractor.extract();
+        });
+        return findAll(spec);
+    }
+
+    @Override
+    public Collection<EmailTemplate> getEmailTemplates(Collection<String> ids, Customer owner) {
+        var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(ids.toArray()).operator(Operator.IN).build();
+        var ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner).build();
+        Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(idWhere, ownerWhere);
+            return extractor.extract();
+        });
         return findAll(spec);
     }
 
     @Override
     public boolean isEmailTemplateExisted(String id, Customer owner) {
         Specification<EmailTemplate> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var firstStatement = criteriaBuilder.equal(root.get(EmailTemplate_.owner), owner);
-            var secondStatement = criteriaBuilder.equal(root.get(EmailTemplate_.id), id);
-            return criteriaBuilder.and(firstStatement, secondStatement);
+            var ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner).operator(Operator.EQ).build();
+            var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operator(Operator.EQ).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(ownerWhere, idWhere);
+            return extractor.extract();
         });
         return exists(spec);
     }

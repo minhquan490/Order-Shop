@@ -11,4 +11,6 @@ public interface BatchReportRepository {
     void deleteReport(Collection<Integer> reportIds);
 
     Collection<BatchReport> getReports(Timestamp from, Timestamp to);
+
+    Collection<BatchReport> getAllReport();
 }

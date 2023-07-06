@@ -6,8 +6,6 @@ import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
-import java.util.Collection;
-
 @Dto(forType = "com.bachlinh.order.entity.model.Customer")
 @Getter
 @Setter
@@ -38,9 +36,6 @@ public class CustomerResp {
     @MappedDtoField(targetField = "username", outputJsonField = "username")
     private String username;
 
-    @MappedDtoField(targetField = "addressString", outputJsonField = "addresses")
-    private Collection<String> address;
-
     @MappedDtoField(targetField = "activated", outputJsonField = "is_activated")
     private boolean activated;
 
@@ -55,7 +50,4 @@ public class CustomerResp {
 
     @MappedDtoField(targetField = "enabled", outputJsonField = "is_enabled")
     private boolean enabled;
-
-    @MappedDtoField(targetField = "picture", outputJsonField = "picture")
-    private String picture;
 }

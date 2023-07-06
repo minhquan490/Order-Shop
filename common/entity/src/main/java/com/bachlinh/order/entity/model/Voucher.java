@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
@@ -19,7 +20,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "VOUCHER")
+@Table(
+        name = "VOUCHER",
+        indexes = @Index(name = "idx_voucher_name", columnList = "NAME")
+)
 @Label("VOU-")
 @Validator(validators = "com.bachlinh.order.validator.internal.VoucherValidator")
 @ActiveReflection
@@ -31,8 +35,9 @@ public class Voucher extends AbstractEntity {
     @Column(name = "ID", columnDefinition = "varchar(32)", nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "NAME", nullable = false, updatable = false)
+    @Column(name = "NAME", nullable = false, unique = true)
     @FullTextField
+    @ActiveReflection
     private String name;
 
     @Column(name = "DISCOUNT_PERCENT", nullable = false)
@@ -45,13 +50,15 @@ public class Voucher extends AbstractEntity {
     private Timestamp timeExpired;
 
     @Column(name = "CONTENT", nullable = false, columnDefinition = "nvarchar(500)")
+    @FullTextField
+    @ActiveReflection
     private String voucherContent;
 
     @Column(name = "COST", nullable = false)
     private Integer voucherCost;
 
     @Column(name = "ENABLED", columnDefinition = "bit")
-    private boolean isEnable = false;
+    private boolean active = false;
 
     @ManyToMany(mappedBy = "assignedVouchers")
     private Set<Customer> customers = new HashSet<>();
@@ -107,8 +114,8 @@ public class Voucher extends AbstractEntity {
         return this.voucherCost;
     }
 
-    public boolean isEnable() {
-        return this.isEnable;
+    public boolean isActive() {
+        return this.active;
     }
 
     public Set<Customer> getCustomers() {
@@ -150,8 +157,8 @@ public class Voucher extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setEnable(boolean isEnable) {
-        this.isEnable = isEnable;
+    public void setActive(boolean isEnable) {
+        this.active = isEnable;
     }
 
     @ActiveReflection

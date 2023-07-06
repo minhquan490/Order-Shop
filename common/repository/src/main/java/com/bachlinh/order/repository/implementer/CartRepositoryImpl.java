@@ -17,6 +17,10 @@ import com.bachlinh.order.entity.model.Cart_;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CartRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.OrderBy;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.Optional;
@@ -52,9 +56,15 @@ public class CartRepositoryImpl extends AbstractRepository<Cart, String> impleme
     @Override
     public Cart getCart(Customer customer) {
         Specification<Cart> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var join = root.join(Cart_.cartDetails, JoinType.INNER).join(CartDetail_.product, JoinType.INNER);
-            query.orderBy(criteriaBuilder.asc(join.get(CartDetail_.PRODUCT)));
-            return criteriaBuilder.equal(root.get(Cart_.customer), customer);
+            var cartDetailsJoin = Join.builder().attribute(Cart_.CART_DETAILS).type(JoinType.INNER).build();
+            var productJoin = Join.builder().attribute(CartDetail_.PRODUCT).type(JoinType.INNER).build();
+            var orderBy = OrderBy.builder().column(CartDetail_.PRODUCT).type(OrderBy.Type.ASC).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var customerWhere = Where.builder().attribute(Cart_.CUSTOMER).value(customer).build();
+            extractor.join(productJoin, cartDetailsJoin);
+            extractor.orderBy(orderBy);
+            extractor.where(customerWhere);
+            return extractor.extract();
         });
         return findOne(spec).orElse(null);
     }

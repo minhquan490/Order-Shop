@@ -21,6 +21,7 @@ public class EmailTemplateListHandler extends AbstractController<Collection<Emai
     private EmailTemplateService emailTemplateService;
 
     @Override
+    @ActiveReflection
     protected Collection<EmailTemplateInfoResp> internalHandler(Payload<Void> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailTemplateService.getEmailTemplates(customer);

@@ -3,10 +3,10 @@ package com.bachlinh.order.trigger.internal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.core.server.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Order;
+import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 

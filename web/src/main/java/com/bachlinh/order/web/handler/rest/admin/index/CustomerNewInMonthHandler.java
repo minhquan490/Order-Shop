@@ -17,6 +17,7 @@ public class CustomerNewInMonthHandler extends AbstractController<AnalyzeCustome
     private String url;
 
     @Override
+    @ActiveReflection
     protected AnalyzeCustomerNewInMonthResp internalHandler(Payload<Void> request) {
         return customerAnalyzeService.analyzeCustomerNewInMonth();
     }

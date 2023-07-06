@@ -11,4 +11,6 @@ public interface DistrictRepository {
     long countDistrict();
 
     Collection<District> getAllDistrict();
+
+    Collection<District> getDistricts(Collection<String> ids);
 }

@@ -2,6 +2,7 @@ package com.bachlinh.order.repository.implementer;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -11,12 +12,14 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
+import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.entity.model.Email_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.Collection;
+import java.util.List;
 
 @RepositoryComponent
 @ActiveReflection
@@ -50,6 +53,23 @@ public class EmailRepositoryImpl extends AbstractRepository<Email, String> imple
     @Override
     public Collection<Email> getAllEmailByIds(Iterable<String> ids) {
         return findAllById(ids);
+    }
+
+    @Override
+    public List<Email> getEmailsByFolderId(String folderId, Customer owner) {
+        Specification<Email> spec = Specification.where((root, query, criteriaBuilder) -> {
+            root.join(Email_.folder);
+            root.join(Email_.fromCustomer);
+            var firstStatement = criteriaBuilder.equal(root.get(EmailFolders_.ID), folderId);
+            var secondStatement = criteriaBuilder.equal(root.get(Email_.toCustomer), owner);
+            return criteriaBuilder.and(firstStatement, secondStatement);
+        });
+        return findAll(spec, Sort.by(Email_.RECEIVED_TIME).descending());
+    }
+
+    @Override
+    public void deleteEmails(Collection<String> ids) {
+        deleteAllById(ids);
     }
 
     @Override

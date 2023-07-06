@@ -20,6 +20,7 @@ public class EmailTemplateFolderUpdateHandler extends AbstractController<EmailTe
     private String url;
 
     @Override
+    @ActiveReflection
     protected EmailTemplateFolderInfoResp internalHandler(Payload<EmailTemplateFolderUpdateForm> request) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailTemplateFolderService.updateEmailTemplateFolder(request.data(), customer);

@@ -10,7 +10,9 @@ public interface ProvinceRepository {
 
     long countProvince();
 
+    void remove(Province province);
+
     Collection<Province> getAllProvinces();
 
-    void remove(Province province);
+    Collection<Province> getProvincesById(Collection<String> ids);
 }

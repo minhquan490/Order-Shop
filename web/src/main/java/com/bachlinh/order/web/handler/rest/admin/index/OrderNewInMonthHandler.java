@@ -17,6 +17,7 @@ public class OrderNewInMonthHandler extends AbstractController<AnalyzeOrderNewIn
     private String url;
 
     @Override
+    @ActiveReflection
     protected AnalyzeOrderNewInMonthResp internalHandler(Payload<Void> request) {
         return orderAnalyzeService.analyzeNewOrderInMonth();
     }

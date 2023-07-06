@@ -21,6 +21,7 @@ public class EmailInfoHandler extends AbstractController<EmailInfoResp, Void> {
     private EmailService emailService;
 
     @Override
+    @ActiveReflection
     protected EmailInfoResp internalHandler(Payload<Void> request) {
         var id = getNativeRequest().getUrlQueryParam().getFirst("id");
         if (!StringUtils.hasText(id)) {

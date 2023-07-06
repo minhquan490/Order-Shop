@@ -20,6 +20,7 @@ public class EmailFolderCreateHandler extends AbstractController<EmailFolderInfo
     private String url;
 
     @Override
+    @ActiveReflection
     protected EmailFolderInfoResp internalHandler(Payload<EmailFolderCreateForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailFolderService.createEmailFolder(request.data(), customer);

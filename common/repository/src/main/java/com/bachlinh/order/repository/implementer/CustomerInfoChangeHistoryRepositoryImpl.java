@@ -9,10 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.sql.Timestamp;
@@ -44,6 +47,17 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
     @Override
     public Collection<CustomerInfoChangeHistory> getHistoriesInYear() {
         Specification<CustomerInfoChangeHistory> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(CustomerInfoChangeHistory_.timeUpdate), Timestamp.from(Instant.now())));
+        return findAll(spec);
+    }
+
+    @Override
+    public Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer) {
+        var customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customer).build();
+        Specification<CustomerInfoChangeHistory> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.where(customerWhere);
+            return extractor.extract();
+        });
         return findAll(spec);
     }
 

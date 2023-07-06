@@ -16,6 +16,9 @@ import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Category_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CategoryRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 @RepositoryComponent
@@ -32,7 +35,12 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
     public Category getCategoryByName(String categoryName) {
         Specification<Category> spec = Specification.where((root, query, criteriaBuilder) -> {
             root.join(Category_.PRODUCTS, JoinType.INNER);
-            return criteriaBuilder.equal(root.get(Category_.NAME), categoryName);
+            var join = Join.builder().attribute(Category_.PRODUCTS).type(JoinType.INNER).build();
+            var where = Where.builder().attribute(Category_.NAME).value(categoryName).build();
+            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            extractor.join(join);
+            extractor.where(where);
+            return extractor.extract();
         });
         return this.get(spec);
     }

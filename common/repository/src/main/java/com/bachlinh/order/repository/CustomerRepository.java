@@ -6,14 +6,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.repository.query.Condition;
 import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Where;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public interface CustomerRepository extends NativeQueryRepository {
-    AtomicInteger customerCount = new AtomicInteger(0);
+
+    Customer getCustomer(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins);
 
     Customer getCustomerById(String id, boolean useJoin);
 
@@ -27,6 +27,8 @@ public interface CustomerRepository extends NativeQueryRepository {
 
     Customer saveCustomer(@NonNull Customer customer);
 
+    Customer updateCustomer(@NonNull Customer customer);
+
     boolean deleteCustomer(@NonNull Customer customer);
 
     boolean usernameExist(String username);
@@ -37,15 +39,11 @@ public interface CustomerRepository extends NativeQueryRepository {
 
     boolean existById(Object customerId);
 
-    Customer updateCustomer(@NonNull Customer customer);
+    Collection<Customer> getCustomers(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins, @Nullable Pageable pageable, @Nullable Sort sort);
+
+    Collection<Customer> getCustomerByIds(Collection<String> ids);
 
     Page<Customer> getAll(@Nullable Pageable pageable, @Nullable Sort sort);
-
-    Page<Customer> getCustomersUsingJoin(Collection<Join> joins, Collection<Condition> conditions, @Nullable Pageable pageable, @Nullable Sort sort);
-
-    void saveAllCustomer(Collection<Customer> customers);
-
-    void deleteAllCustomer(Collection<Customer> customers);
 
     long countCustomer();
 }

@@ -8,20 +8,20 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
-import com.bachlinh.order.web.dto.resp.CustomerInformationResp;
+import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 
 @RouteProvider
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-public class CustomerUpdateHandler extends AbstractController<CustomerInformationResp, CustomerUpdateForm> {
+public class CustomerUpdateHandler extends AbstractController<CustomerResp, CustomerUpdateForm> {
     private String url;
     private CustomerService customerService;
 
 
     @Override
     @ActiveReflection
-    protected CustomerInformationResp internalHandler(Payload<CustomerUpdateForm> request) {
+    protected CustomerResp internalHandler(Payload<CustomerUpdateForm> request) {
         return customerService.updateCustomer(request.data());
     }
 

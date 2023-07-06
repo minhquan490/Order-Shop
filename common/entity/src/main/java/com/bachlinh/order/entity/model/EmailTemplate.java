@@ -41,14 +41,17 @@ public class EmailTemplate extends AbstractEntity {
 
     @Column(name = "NAME", columnDefinition = "nvarchar(100)")
     @FullTextField
+    @ActiveReflection
     private String name;
 
     @Column(name = "TITLE", nullable = false)
     @FullTextField
+    @ActiveReflection
     private String title;
 
     @Column(name = "CONTENT", nullable = false, columnDefinition = "nvarchar(700)")
     @FullTextField
+    @ActiveReflection
     private String content;
 
     @Column(name = "EXPIRY_POLICY", nullable = false)

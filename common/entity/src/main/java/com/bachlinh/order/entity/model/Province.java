@@ -41,6 +41,7 @@ public class Province extends AbstractEntity {
 
     @Column(name = "NAME", columnDefinition = "nvarchar(100)")
     @FullTextField
+    @ActiveReflection
     private String name;
 
     @Column(name = "CODE")
@@ -51,6 +52,7 @@ public class Province extends AbstractEntity {
 
     @Column(name = "CODE_NAME", length = 50)
     @FullTextField
+    @ActiveReflection
     private String codeName;
 
     @Column(name = "PHONE_CODE")
@@ -108,7 +110,7 @@ public class Province extends AbstractEntity {
     public Integer getPhoneCode() {
         return this.phoneCode;
     }
-    
+
     public List<District> getDistricts() {
         return this.districts;
     }

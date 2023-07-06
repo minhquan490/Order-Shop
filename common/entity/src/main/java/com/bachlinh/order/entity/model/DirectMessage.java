@@ -11,8 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Trigger;
 
 import java.sql.Timestamp;
@@ -26,7 +24,6 @@ import java.sql.Timestamp;
         }
 )
 @ActiveReflection
-@EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.DirectMessageIndexTrigger"})
 public class DirectMessage extends AbstractEntity {
 
@@ -35,7 +32,6 @@ public class DirectMessage extends AbstractEntity {
     private Integer id;
 
     @Column(name = "CONTENT", nullable = false, columnDefinition = "nvarchar(500)")
-    @FullTextField
     private String content;
 
     @Column(name = "SENT_TIME", nullable = false, updatable = false)
@@ -91,7 +87,7 @@ public class DirectMessage extends AbstractEntity {
     public Customer getFromCustomer() {
         return this.fromCustomer;
     }
-    
+
     public Customer getToCustomer() {
         return this.toCustomer;
     }

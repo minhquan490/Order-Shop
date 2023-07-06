@@ -21,6 +21,7 @@ public class EmailFolderDeleteHandler extends AbstractController<Map<String, Obj
     private String url;
 
     @Override
+    @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<EmailFolderDeleteForm> request) {
         emailFolderService.deleteEmailFolder(request.data().getId());
         var resp = new HashMap<String, Object>(2);

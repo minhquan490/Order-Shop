@@ -17,6 +17,7 @@ public class ProductPostedInMonthHandler extends AbstractController<AnalyzeProdu
     private String url;
 
     @Override
+    @ActiveReflection
     protected AnalyzeProductPostedInMonthResp internalHandler(Payload<Void> request) {
         return productAnalyzeService.analyzeProductPostedInMonth();
     }

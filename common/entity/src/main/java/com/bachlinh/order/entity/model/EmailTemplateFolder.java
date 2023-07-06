@@ -16,8 +16,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.annotation.Trigger;
 import com.bachlinh.order.annotation.Validator;
@@ -30,7 +28,6 @@ import java.util.Set;
 @Table(name = "EMAIL_TEMPLATE_FOLDER", indexes = @Index(name = "idx_email_template_folder_owner", columnList = "OWNER_ID"))
 @Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateFolderValidator")
 @ActiveReflection
-@EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateFolderIndexTrigger"})
 @NoArgsConstructor(access = AccessLevel.NONE, onConstructor = @__(@ActiveReflection))
 @Getter
@@ -41,7 +38,6 @@ public class EmailTemplateFolder extends AbstractEntity {
     private String id;
 
     @Column(name = "NAME", columnDefinition = "nvarchar(300)", unique = true)
-    @FullTextField
     private String name;
 
     @Column(name = "CLEAR_EMAIL_TEMPLATE_POLICY")

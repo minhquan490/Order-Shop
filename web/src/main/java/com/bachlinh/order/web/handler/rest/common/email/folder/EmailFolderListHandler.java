@@ -21,6 +21,7 @@ public class EmailFolderListHandler extends AbstractController<Collection<EmailF
     private String url;
 
     @Override
+    @ActiveReflection
     protected Collection<EmailFolderInfoResp> internalHandler(Payload<Void> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailFolderService.getEmailFoldersOfCustomer(customer);

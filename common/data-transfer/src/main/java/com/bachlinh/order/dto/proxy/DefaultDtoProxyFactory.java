@@ -19,7 +19,7 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
     @Override
     public <T, U> T createProxy(U source, Class<T> receiverType) {
         var proxies = dtoProxyMap.get(receiverType);
-        if (proxies == null) {
+        if (canCreate(receiverType) || proxies == null || proxies.isEmpty()) {
             throw new DtoProxyConvertException("Can not create dto be cause missing proxy object");
         } else {
             for (var proxy : proxies) {
@@ -33,7 +33,7 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
                 }
             }
         }
-        throw new DtoProxyConvertException("Missing proxy or strategy, so can not convert");
+        throw new DtoProxyConvertException("Missing proxy, so can not convert");
     }
 
     @Override

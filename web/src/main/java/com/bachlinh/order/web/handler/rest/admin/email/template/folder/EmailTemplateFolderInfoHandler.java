@@ -20,6 +20,7 @@ public class EmailTemplateFolderInfoHandler extends AbstractController<EmailTemp
     private String url;
 
     @Override
+    @ActiveReflection
     protected EmailTemplateFolderInfoResp internalHandler(Payload<Void> request) {
         var id = getNativeRequest().getUrlQueryParam().getFirst("folderId");
         if (id == null) {

@@ -74,8 +74,4 @@ public class DefaultDtoMapper implements DtoMapper {
         this.proxyContext = null;
         this.strategiesContext = null;
     }
-
-    private boolean isCollection(Object source) {
-        return Collection.class.isAssignableFrom(source.getClass());
-    }
 }

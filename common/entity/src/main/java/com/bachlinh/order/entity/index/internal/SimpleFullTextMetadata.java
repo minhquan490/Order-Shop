@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated(forRemoval = true)
 class SimpleFullTextMetadata implements FullTextSearchMetadata {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
