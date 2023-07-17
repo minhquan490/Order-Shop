@@ -1,10 +1,11 @@
 package com.bachlinh.order.environment;
 
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
 import com.bachlinh.order.environment.parser.ClasspathParser;
 import com.bachlinh.order.environment.strategies.PropertiesStrategy;
 import com.bachlinh.order.exception.system.environment.EnvironmentException;
+import lombok.EqualsAndHashCode;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 
 import java.util.Map;
 import java.util.Properties;
@@ -17,10 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Hoang Minh Quan
  */
+@EqualsAndHashCode
 public final class Environment {
     public static final String PREFIX = "config/application-";
     public static final String SUFFIX = ".properties";
     public static final String CLASSPATH = "classpath:";
+    public static final String INCLUDE = "include";
+    public static final String CLASSPATH_CONFIG = "classpathConfig:";
     public static final ResourceLoader SINGLETON_LOADER = new DefaultResourceLoader();
     private static final Map<String, Environment> environments = new ConcurrentHashMap<>();
     private static final PropertiesStrategy STRATEGY = new PropertiesStrategy(new ClasspathParser(SINGLETON_LOADER));

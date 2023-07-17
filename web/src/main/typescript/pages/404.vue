@@ -47,7 +47,7 @@ $white: #fff;
 html,
 body {
   background: $purple;
-  font-family: 'Ubuntu';
+  font-family: 'Ubuntu',serif;
 }
 
 * {
@@ -102,9 +102,8 @@ body {
         top: 30px;
         height: 18px;
         width: 18px;
-        border: 4px solid;
         border-radius: 50%;
-        border-color: $white;
+        border: 4px solid $white;
         opacity: .2;
         animation: shine 4s ease-in-out 1.3s infinite;
       }
@@ -165,9 +164,8 @@ body {
         top: 40px;
         height: 12px;
         width: 12px;
-        border: 3px solid;
         border-radius: 50%;
-        border-color: $white;
+        border: 3px solid $white;
         opacity: .2;
         animation: shine 1.7s ease-in-out 7s infinite;
       }

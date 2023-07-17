@@ -33,7 +33,7 @@ body {
   justify-content: center;
   align-items: center;
   color: $color;
-  text-shadow: 0px 0px $glowSize;
+  text-shadow: 0 0 $glowSize;
   font-size: 6rem;
   flex-direction: column;
 

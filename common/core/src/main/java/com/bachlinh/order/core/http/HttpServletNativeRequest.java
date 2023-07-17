@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.http;
 
+import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Setter;
@@ -13,7 +14,7 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
     private String customerIp;
 
     public HttpServletNativeRequest(HttpServletRequest request) {
-        super(request);
+        super(request, request.getRequestURI(), RequestMethod.valueOf(request.getMethod().toUpperCase()));
     }
 
     @Override

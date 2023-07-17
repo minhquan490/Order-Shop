@@ -1,17 +1,17 @@
 package com.bachlinh.order.core;
 
+import com.bachlinh.order.core.scanner.ApplicationScanner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
-import com.bachlinh.order.core.scanner.ApplicationScanner;
 
 public class Application {
     private Application() {
     }
 
-    public static void run(Class<?> primarySource, String[] args, boolean triggerEmbededServer) {
+    public static void run(Class<?> primarySource, String[] args, boolean triggerEmbeddedServer) {
         new ApplicationScanner().findComponents();
         SpringApplication application = new SpringApplication(primarySource);
-        if (!triggerEmbededServer) {
+        if (!triggerEmbeddedServer) {
             application.setWebApplicationType(WebApplicationType.NONE);
         }
         application.run(args);

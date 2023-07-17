@@ -1,5 +1,7 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,13 +13,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "ORDER_DETAIL", indexes = @Index(name = "idx_order", columnList = "ORDER_ID"))
-@Validator(validators = "com.bachlinh.order.validator.internal.OrderDetailValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.OrderDetailValidator")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class OrderDetail extends AbstractEntity {
 
     @Id
@@ -35,10 +40,6 @@ public class OrderDetail extends AbstractEntity {
     @JoinColumn(name = "ORDER_ID", nullable = false)
     private Order order;
 
-    @ActiveReflection
-    OrderDetail() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -46,34 +47,6 @@ public class OrderDetail extends AbstractEntity {
             throw new PersistenceException("Id of OrderDetail must be int");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OrderDetail that)) return false;
-        return Objects.equal(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public int getAmount() {
-        return this.amount;
-    }
-
-    public Product getProduct() {
-        return this.product;
-    }
-    
-    public Order getOrder() {
-        return this.order;
     }
 
     @ActiveReflection
@@ -89,5 +62,17 @@ public class OrderDetail extends AbstractEntity {
     @ActiveReflection
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderDetail that)) return false;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getAmount(), that.getAmount()) && Objects.equal(getProduct(), that.getProduct()) && Objects.equal(getOrder(), that.getOrder());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getAmount(), getProduct(), getOrder());
     }
 }

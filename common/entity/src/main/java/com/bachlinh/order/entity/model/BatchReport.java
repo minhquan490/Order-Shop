@@ -1,17 +1,25 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Validator;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "BATCH_REPORT")
 @ActiveReflection
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.BatchReportValidator")
+@NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
+@Getter
 public class BatchReport extends AbstractEntity {
 
     @Id
@@ -30,10 +38,6 @@ public class BatchReport extends AbstractEntity {
     @Column(name = "TIME_REPORT", nullable = false, updatable = false)
     private Timestamp timeReport;
 
-    @ActiveReflection
-    BatchReport() {
-    }
-
     @Override
     public Integer getId() {
         return id;
@@ -48,17 +52,9 @@ public class BatchReport extends AbstractEntity {
         throw new PersistenceException("Id of BatchReport must be int");
     }
 
-    public String getBatchName() {
-        return batchName;
-    }
-
     @ActiveReflection
     public void setBatchName(String batchName) {
         this.batchName = batchName;
-    }
-
-    public boolean isHasError() {
-        return hasError;
     }
 
     @ActiveReflection
@@ -66,21 +62,25 @@ public class BatchReport extends AbstractEntity {
         this.hasError = hasError;
     }
 
-    public String getErrorDetail() {
-        return errorDetail;
-    }
-
     @ActiveReflection
     public void setErrorDetail(String errorDetail) {
         this.errorDetail = errorDetail;
     }
 
-    public Timestamp getTimeReport() {
-        return timeReport;
-    }
-
     @ActiveReflection
     public void setTimeReport(Timestamp timeReport) {
         this.timeReport = timeReport;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BatchReport that)) return false;
+        return isHasError() == that.isHasError() && Objects.equal(getId(), that.getId()) && Objects.equal(getBatchName(), that.getBatchName()) && Objects.equal(getErrorDetail(), that.getErrorDetail()) && Objects.equal(getTimeReport(), that.getTimeReport());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getBatchName(), isHasError(), getErrorDetail(), getTimeReport());
     }
 }

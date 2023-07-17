@@ -1,9 +1,5 @@
 package com.bachlinh.order.handler.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeRequest;
@@ -14,6 +10,10 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.interceptor.spi.ObjectInterceptor;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
@@ -71,6 +71,11 @@ public abstract non-sealed class AbstractControllerManager implements Controller
     @Override
     public <T, U> void removeController(Controller<T, U> controller) {
         controllerContext.removeController(controller);
+    }
+
+    @Override
+    public ControllerContext getContext() {
+        return controllerContext;
     }
 
     public Collection<Controller<?, ?>> getAllController() {

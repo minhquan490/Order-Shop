@@ -3,6 +3,5 @@ export const useAppStorage = () => {
     // Use mongo in the future
     return ref();
   }
-  const storage = localStorage;
-  return ref(storage);
+  return ref(localStorage);
 }

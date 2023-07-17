@@ -1,5 +1,7 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,13 +13,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "LOGIN_HISTORY", indexes = @Index(name = "idx_login_history_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.LoginHistoryValidator")
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class LoginHistory extends AbstractEntity {
 
     @Id
@@ -27,7 +34,7 @@ public class LoginHistory extends AbstractEntity {
     @Column(name = "LAST_LOGIN_TIME", nullable = false)
     private Timestamp lastLoginTime;
 
-    @Column(name = "LOGIN_IP", nullable = false)
+    @Column(name = "LOGIN_IP", nullable = false, length = 30)
     private String loginIp;
 
     @Column(name = "SUCCESS", columnDefinition = "bit", nullable = false)
@@ -37,10 +44,6 @@ public class LoginHistory extends AbstractEntity {
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     private Customer customer;
 
-    @ActiveReflection
-    LoginHistory() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -48,38 +51,6 @@ public class LoginHistory extends AbstractEntity {
             throw new PersistenceException("Id of login history must be int");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LoginHistory that)) return false;
-        return Objects.equal(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public Timestamp getLastLoginTime() {
-        return this.lastLoginTime;
-    }
-
-    public String getLoginIp() {
-        return this.loginIp;
-    }
-
-    public Boolean getSuccess() {
-        return this.success;
-    }
-    
-    public Customer getCustomer() {
-        return this.customer;
     }
 
     @ActiveReflection
@@ -100,5 +71,17 @@ public class LoginHistory extends AbstractEntity {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LoginHistory that)) return false;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getLastLoginTime(), that.getLastLoginTime()) && Objects.equal(getLoginIp(), that.getLoginIp()) && Objects.equal(getSuccess(), that.getSuccess()) && Objects.equal(getCustomer(), that.getCustomer());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getLastLoginTime(), getLoginIp(), getSuccess(), getCustomer());
     }
 }

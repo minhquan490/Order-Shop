@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Subscription, map, of } from 'rxjs';
+import { map, of, Subscription } from 'rxjs';
 import { Customer } from '~/types/customer.type';
 import { ErrorResponse } from '~/types/error-response.type';
 import { TableHeaders } from '~/types/table-header.type';
@@ -34,130 +34,130 @@ export default {
   },
   beforeMount() {
     const subscription = of(this.customerListUrl)
-      .pipe(
-        map(url => this.clientProvider(url)),
-        map(service => service.get<undefined, Customer[]>()),
-        map(resp => {
-          const tableHeaders: Array<TableHeaders> = [
-            {
-              isId: true,
-              name: 'Id',
-              isImg: false,
-              dataPropertyName: 'id'
-            },
-            {
-              isId: false,
-              name: 'Picture',
-              isImg: true,
-              dataPropertyName: 'picture'
-            },
-            {
-              isId: false,
-              name: 'First name',
-              isImg: false,
-              dataPropertyName: 'first_name'
-            },
-            {
-              isId: false,
-              name: 'Last name',
-              isImg: false,
-              dataPropertyName: 'last_name'
-            },
-            {
-              isId: false,
-              name: 'Phone',
-              isImg: false,
-              dataPropertyName: 'phone'
-            },
-            {
-              isId: false,
-              name: 'Email',
-              isImg: false,
-              dataPropertyName: 'email'
-            },
-            {
-              isId: false,
-              name: 'Gender',
-              isImg: false,
-              dataPropertyName: 'gender'
-            },
-            {
-              isId: false,
-              name: 'Role',
-              isImg: false,
-              dataPropertyName: 'role'
-            },
-            {
-              isId: false,
-              name: 'Username',
-              isImg: false,
-              dataPropertyName: 'username'
-            },
-            {
-              isId: false,
-              name: 'Addresses',
-              isImg: false,
-              dataPropertyName: 'address'
-            },
-            {
-              isId: false,
-              name: 'Activated',
-              isImg: false,
-              dataPropertyName: 'is_activated'
-            },
-            {
-              isId: false,
-              name: 'Enabled',
-              isImg: false,
-              dataPropertyName: 'is_enabled'
-            },
-            {
-              isId: false,
-              name: 'Account non expired',
-              isImg: false,
-              dataPropertyName: 'is_account_non_expired'
-            },
-            {
-              isId: false,
-              name: 'Non locked',
-              isImg: false,
-              dataPropertyName: 'is_account_non_locked'
-            },
-            {
-              isId: false,
-              name: 'Credentials non expired',
-              isImg: false,
-              dataPropertyName: 'is_credentials_non_expired'
-            }
-          ];
-          return { resp, tableHeaders }
-        })
-      )
-      .subscribe(value => {
-        if (value.resp.isError) {
-          this.pageData.fetchUserError = (value.resp.getResponse as ErrorResponse).messages;
-          setTimeout(() => {
+        .pipe(
+            map(url => this.clientProvider(url)),
+            map(service => service.get<undefined, Customer[]>()),
+            map(resp => {
+              const tableHeaders: Array<TableHeaders> = [
+                {
+                  isId: true,
+                  name: 'Id',
+                  isImg: false,
+                  dataPropertyName: 'id'
+                },
+                {
+                  isId: false,
+                  name: 'Picture',
+                  isImg: true,
+                  dataPropertyName: 'picture'
+                },
+                {
+                  isId: false,
+                  name: 'First name',
+                  isImg: false,
+                  dataPropertyName: 'first_name'
+                },
+                {
+                  isId: false,
+                  name: 'Last name',
+                  isImg: false,
+                  dataPropertyName: 'last_name'
+                },
+                {
+                  isId: false,
+                  name: 'Phone',
+                  isImg: false,
+                  dataPropertyName: 'phone'
+                },
+                {
+                  isId: false,
+                  name: 'Email',
+                  isImg: false,
+                  dataPropertyName: 'email'
+                },
+                {
+                  isId: false,
+                  name: 'Gender',
+                  isImg: false,
+                  dataPropertyName: 'gender'
+                },
+                {
+                  isId: false,
+                  name: 'Role',
+                  isImg: false,
+                  dataPropertyName: 'role'
+                },
+                {
+                  isId: false,
+                  name: 'Username',
+                  isImg: false,
+                  dataPropertyName: 'username'
+                },
+                {
+                  isId: false,
+                  name: 'Addresses',
+                  isImg: false,
+                  dataPropertyName: 'address'
+                },
+                {
+                  isId: false,
+                  name: 'Activated',
+                  isImg: false,
+                  dataPropertyName: 'is_activated'
+                },
+                {
+                  isId: false,
+                  name: 'Enabled',
+                  isImg: false,
+                  dataPropertyName: 'is_enabled'
+                },
+                {
+                  isId: false,
+                  name: 'Account non expired',
+                  isImg: false,
+                  dataPropertyName: 'is_account_non_expired'
+                },
+                {
+                  isId: false,
+                  name: 'Non locked',
+                  isImg: false,
+                  dataPropertyName: 'is_account_non_locked'
+                },
+                {
+                  isId: false,
+                  name: 'Credentials non expired',
+                  isImg: false,
+                  dataPropertyName: 'is_credentials_non_expired'
+                }
+              ];
+              return {resp, tableHeaders}
+            })
+        )
+        .subscribe(value => {
+          if (value.resp.isError) {
+            this.pageData.fetchUserError = (value.resp.getResponse as ErrorResponse).messages;
+            setTimeout(() => {
+              this.pageData.fetchUserError = [];
+            }, 3000);
+          } else if (value.resp.getResponse === null) {
+            this.pageData.fetchUserError = ['Check your network and try again'];
+          } else {
+            this.pageData.tableData = value.resp.getResponse as Customer[];
             this.pageData.fetchUserError = [];
-          }, 3000);
-        } else if (value.resp.getResponse === null) {
-          this.pageData.fetchUserError = ['Check your network and try again'];
-        } else {
-          this.pageData.tableDatas = value.resp.getResponse as Customer[];
-          this.pageData.fetchUserError = [];
-        }
-        this.pageData.tableHeaders = value.tableHeaders;
-      });
+          }
+          this.pageData.tableHeaders = value.tableHeaders;
+        });
     this.pageData.subscriptions.push(subscription);
   },
   unmounted() {
-    this.pageData.tableDatas = [];
+    this.pageData.tableData = [];
     this.pageData.fetchUserError = [];
     this.pageData.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 
 class PageData {
-  tableDatas: Array<Customer> = [];
+  tableData: Array<Customer> = [];
   subscriptions: Array<Subscription> = [];
   fetchUserError: Array<string> = [];
   tableHeaders: Array<TableHeaders> = [];
@@ -168,22 +168,25 @@ class PageData {
   <div class="user">
     <div class="pt-[5rem] px-8">
       <div class="pb-4">
-        <Breadcrumb />
+        <Breadcrumb/>
       </div>
       <div class="grid grid-cols-12">
         <div class="col-start-1 col-span-12 relative">
-          <DataTable table-icon-name="solar:user-id-linear" table-tittle="Customer information list"
-            :setter="tableCallback" :datas="pageData.tableDatas" :headers="pageData.tableHeaders" />
+          <DataTable table-icon-name="solar:user-id-linear" 
+                     table-tittle="Customer information list"
+                     :setter="tableCallback" 
+                     :datas="pageData.tableData" 
+                     :headers="pageData.tableHeaders"/>
           <ClientOnly>
             <div class="absolute top-[10px] right-4 z-10 flex flex-row-reverse">
               <div>
-                <ButtonBasic :click-func="navigateToCreatePage" :name="'Create customer'" />
+                <ButtonBasic :click-func="navigateToCreatePage" :name="'Create customer'"/>
               </div>
               <div class="pr-3">
-                <ButtonBasic :bg-color="'rgb(59 130 246)'" :name="'Update customer'" />
+                <ButtonBasic :bg-color="'rgb(59 130 246)'" :name="'Update customer'"/>
               </div>
               <div class="pr-3">
-                <ButtonBasic :bg-color="'rgb(239 68 68)'" :name="'Delete customer'" />
+                <ButtonBasic :bg-color="'rgb(239 68 68)'" :name="'Delete customer'"/>
               </div>
             </div>
           </ClientOnly>
@@ -191,7 +194,7 @@ class PageData {
       </div>
     </div>
     <div class="fixed top-20 right-0">
-      <AlertDanger v-if="pageData.fetchUserError.length !== 0" :contents="pageData.fetchUserError" />
+      <AlertDanger v-if="pageData.fetchUserError.length !== 0" :contents="pageData.fetchUserError"/>
     </div>
   </div>
 </template>

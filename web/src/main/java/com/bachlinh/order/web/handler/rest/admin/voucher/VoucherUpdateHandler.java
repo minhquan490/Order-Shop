@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.handler.rest.admin.voucher;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -9,6 +8,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherUpdateForm;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.common.VoucherService;
+import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider
@@ -41,6 +41,6 @@ public class VoucherUpdateHandler extends AbstractController<VoucherResp, Vouche
 
     @Override
     public RequestMethod getRequestMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.PATCH;
     }
 }

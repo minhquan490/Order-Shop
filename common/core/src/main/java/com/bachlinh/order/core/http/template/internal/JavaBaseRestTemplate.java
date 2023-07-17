@@ -1,14 +1,14 @@
 package com.bachlinh.order.core.http.template.internal;
 
+import com.bachlinh.order.core.enums.RequestMethod;
+import com.bachlinh.order.core.http.converter.spi.JavaBaseResponseConverter;
+import com.bachlinh.order.core.http.template.spi.RestTemplate;
+import com.bachlinh.order.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.core.http.converter.spi.JavaBaseResponseConverter;
-import com.bachlinh.order.core.http.template.spi.RestTemplate;
-import com.bachlinh.order.utils.JacksonUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,7 +35,7 @@ class JavaBaseRestTemplate implements RestTemplate {
 
     @Override
     public JsonNode put(String url, Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
-        return request(url, RequestMethod.PUT, body, headers, uriVariables);
+        return request(url, RequestMethod.PATCH, body, headers, uriVariables);
     }
 
     @Override
@@ -55,7 +55,7 @@ class JavaBaseRestTemplate implements RestTemplate {
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(URI.create(buildRequestUrl(url, uriVariables)));
         switch (method) {
             case GET -> requestBuilder.GET();
-            case PUT ->
+            case PATCH ->
                     requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(JacksonUtils.writeObjectAsString(body), StandardCharsets.UTF_8));
             case POST ->
                     requestBuilder.POST(HttpRequest.BodyPublishers.ofString(JacksonUtils.writeObjectAsString(body), StandardCharsets.UTF_8));

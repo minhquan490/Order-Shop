@@ -1,5 +1,7 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,8 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
@@ -19,6 +22,8 @@ import java.sql.Timestamp;
 @Table(name = "REFRESH_TOKEN", indexes = @Index(name = "idx_token_value", columnList = "VALUE"))
 @Label("RFT-")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class RefreshToken extends AbstractEntity {
 
     @Id
@@ -39,48 +44,12 @@ public class RefreshToken extends AbstractEntity {
     private Customer customer;
 
     @ActiveReflection
-    RefreshToken() {
-    }
-
-    @ActiveReflection
     @Override
     public void setId(Object id) {
         if (!(id instanceof String)) {
             throw new PersistenceException("Id of refresh token is only string");
         }
         this.id = (String) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RefreshToken that)) return false;
-        return Objects.equal(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public Timestamp getTimeCreated() {
-        return this.timeCreated;
-    }
-
-    public Timestamp getTimeExpired() {
-        return this.timeExpired;
-    }
-
-    public String getRefreshTokenValue() {
-        return this.refreshTokenValue;
-    }
-
-    public Customer getCustomer() {
-        return this.customer;
     }
 
     @ActiveReflection
@@ -101,5 +70,17 @@ public class RefreshToken extends AbstractEntity {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RefreshToken that)) return false;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getTimeCreated(), that.getTimeCreated()) && Objects.equal(getTimeExpired(), that.getTimeExpired()) && Objects.equal(getRefreshTokenValue(), that.getRefreshTokenValue()) && Objects.equal(getCustomer(), that.getCustomer());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getTimeCreated(), getTimeExpired(), getRefreshTokenValue(), getCustomer());
     }
 }

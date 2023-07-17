@@ -1,5 +1,11 @@
 package com.bachlinh.order.repository;
 
+import com.bachlinh.order.annotation.Validated;
+import com.bachlinh.order.entity.EntityManagerHolder;
+import com.bachlinh.order.entity.HintDecorator;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.repository.adapter.RepositoryAdapter;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.CacheRetrieveMode;
 import jakarta.persistence.CacheStoreMode;
 import jakarta.persistence.NoResultException;
@@ -16,12 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.lang.NonNull;
-import com.bachlinh.order.annotation.Validated;
-import com.bachlinh.order.entity.EntityManagerHolder;
-import com.bachlinh.order.entity.HintDecorator;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.repository.adapter.RepositoryAdapter;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,21 +72,40 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
     public <S extends T> S save(@NonNull S entity) {
         S result = super.save(entity);
         if (entity.getId() != null && getSessionFactory().getCache().containsEntity(entity.getClass(), entity.getId())) {
-            getSessionFactory().getCache().evict(entity.getClass(), entity.getId());
+            evictCache(entity);
         }
         return result;
     }
 
     @Override
     public void delete(@NonNull T entity) {
-        getSessionFactory().getCache().evict(getDomainClass(), entity.getId());
         super.delete(entity);
+        evictCache(entity);
     }
 
     @Override
     public long delete(@NonNull Specification<T> spec) {
+        long result = super.delete(spec);
+        evictCache(null);
+        return result;
+    }
+
+    @Override
+    public void deleteAllInBatch() {
+        super.deleteAll();
         getSessionFactory().getCache().evict(getDomainClass());
-        return super.delete(spec);
+    }
+
+    @Override
+    public void deleteAllInBatch(Iterable<T> entities) {
+        super.deleteAll(entities);
+        entities.forEach(this::evictCache);
+    }
+
+    @Override
+    public void deleteAllByIdInBatch(Iterable<U> ids) {
+        super.deleteAllById(ids);
+        getSessionFactory().getCache().evict(getDomainClass());
     }
 
     @NonNull
@@ -114,5 +133,14 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
         jakarta.persistence.Query query = getEntityManager().createQuery(finalQuery, getDomainClass());
         List<T> result = new ArrayList<>(query.getResultList());
         return new PageImpl<>(result);
+    }
+
+    private void evictCache(T entity) {
+        var cache = getSessionFactory().getCache();
+        if (entity == null) {
+            cache.evict(getDomainClass());
+        } else {
+            cache.evict(getDomainClass(), entity.getId());
+        }
     }
 }

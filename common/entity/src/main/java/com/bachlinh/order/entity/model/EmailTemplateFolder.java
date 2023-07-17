@@ -1,5 +1,9 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,10 +19,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,10 +26,10 @@ import java.util.Set;
 @Label("ETF-")
 @Entity
 @Table(name = "EMAIL_TEMPLATE_FOLDER", indexes = @Index(name = "idx_email_template_folder_owner", columnList = "OWNER_ID"))
-@Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateFolderValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailTemplateFolderValidator")
 @ActiveReflection
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateFolderIndexTrigger"})
-@NoArgsConstructor(access = AccessLevel.NONE, onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
 @Getter
 public class EmailTemplateFolder extends AbstractEntity {
 
@@ -60,19 +60,6 @@ public class EmailTemplateFolder extends AbstractEntity {
         throw new PersistenceException("Id of email template folder must be string");
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EmailTemplateFolder that = (EmailTemplateFolder) o;
-        return Objects.equal(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
     @ActiveReflection
     public void setName(String name) {
         this.name = name;
@@ -91,5 +78,17 @@ public class EmailTemplateFolder extends AbstractEntity {
     @ActiveReflection
     public void setEmailTemplates(Set<EmailTemplate> emailTemplates) {
         this.emailTemplates = emailTemplates;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EmailTemplateFolder that)) return false;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getName(), that.getName()) && Objects.equal(getClearTemplatePolicy(), that.getClearTemplatePolicy()) && Objects.equal(getOwner(), that.getOwner()) && Objects.equal(getEmailTemplates(), that.getEmailTemplates());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getClearTemplatePolicy(), getOwner(), getEmailTemplates());
     }
 }

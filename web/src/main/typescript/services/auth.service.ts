@@ -1,4 +1,4 @@
-import { Auth } from "../types/auth.type";
+import { Auth } from "~/types/auth.type";
 
 export abstract class AuthService {
     abstract getAuth(): Auth;

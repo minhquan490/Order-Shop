@@ -1,14 +1,14 @@
 package com.bachlinh.order.trigger.spi;
 
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractTrigger<T extends BaseEntity> implements EntityTrigger<T> {
     private final DependenciesResolver dependenciesResolver;
@@ -51,7 +51,7 @@ public abstract class AbstractTrigger<T extends BaseEntity> implements EntityTri
         inject();
         if (!runSync) {
             Runnable runnable = () -> doExecute(entity);
-            getExecutor().execute(runnable);
+            getExecutor().submit(runnable);
         } else {
             doExecute(entity);
         }

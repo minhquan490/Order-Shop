@@ -1,14 +1,16 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateSearchForm;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class EmailTemplateSearchRule extends AbstractRule<EmailTemplateSearchForm> {
+    private static final String SEARCH_KEYWORD_EMPTY_MESSAGE_ID = "MSG-000026";
+
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public EmailTemplateSearchRule(Environment environment, DependenciesResolver resolver) {
@@ -29,7 +34,8 @@ public class EmailTemplateSearchRule extends AbstractRule<EmailTemplateSearchFor
 
         if (!StringUtils.hasText(dto.getQuery())) {
             var key = "query";
-            RuntimeUtils.computeMultiValueMap(key, "Can not perform search for empty keyword", validationResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(SEARCH_KEYWORD_EMPTY_MESSAGE_ID);
+            RuntimeUtils.computeMultiValueMap(key, messageSetting.getValue(), validationResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -46,7 +52,9 @@ public class EmailTemplateSearchRule extends AbstractRule<EmailTemplateSearchFor
 
     @Override
     protected void injectDependencies() {
-        // Do nothing
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override

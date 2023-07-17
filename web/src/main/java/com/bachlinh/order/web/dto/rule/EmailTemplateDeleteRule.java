@@ -1,18 +1,21 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailTemplateRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateDeleteForm;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +23,11 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class EmailTemplateDeleteRule extends AbstractRule<EmailTemplateDeleteForm> {
+    private static final String NOT_FOUND_MESSAGE_ID = "MSG-000008";
+    private static final String CAN_NOT_IDENTITY_MESSAGE_ID = "MSG-000011";
+
     private EmailTemplateRepository emailTemplateRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public EmailTemplateDeleteRule(Environment environment, DependenciesResolver resolver) {
@@ -33,13 +40,17 @@ public class EmailTemplateDeleteRule extends AbstractRule<EmailTemplateDeleteFor
 
         if (!StringUtils.hasText(dto.id())) {
             var key = "template_id";
-            RuntimeUtils.computeMultiValueMap(key, "Can not identity template for delete", validateResult);
-        }
-
-        var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (emailTemplateRepository.isEmailTemplateExisted(dto.id(), customer)) {
-            var key = "template_id";
-            RuntimeUtils.computeMultiValueMap(key, "Not found", validateResult);
+            MessageSetting canNotIdentityMessage = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(canNotIdentityMessage.getValue(), "template", "", "update");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (emailTemplateRepository.isEmailTemplateExisted(dto.id(), customer)) {
+                var key = "template_id";
+                MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
+                String errorContent = MessageFormat.format(messageSetting.getValue(), "Template");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -58,6 +69,9 @@ public class EmailTemplateDeleteRule extends AbstractRule<EmailTemplateDeleteFor
     protected void injectDependencies() {
         if (emailTemplateRepository == null) {
             emailTemplateRepository = getResolver().resolveDependencies(EmailTemplateRepository.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
         }
     }
 

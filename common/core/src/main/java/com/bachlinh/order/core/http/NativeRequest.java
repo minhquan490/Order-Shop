@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.http;
 
+import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.converter.internal.HttpServletRequestConverter;
 import com.bachlinh.order.core.http.converter.spi.RequestConverter;
 import com.bachlinh.order.utils.map.MultiValueMap;
@@ -16,6 +17,8 @@ public abstract class NativeRequest<T> {
     private static final Map<Class<?>, RequestConverter<?>> converterMap = new ConcurrentHashMap<>();
 
     private final T request;
+    private final String url;
+    private final RequestMethod requestMethod;
 
     public abstract MultiValueMap<String, String> getUrlQueryParam();
 

@@ -1,9 +1,11 @@
 package com.bachlinh.order.handler.strategy;
 
-import jakarta.servlet.http.HttpServletResponse;
 import com.bachlinh.order.core.http.NativeResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
-public interface ServletResponseStrategy {
+public interface ServletResponseStrategy extends ResponseStrategy<HttpServletResponse> {
+
+    @Override
     void apply(NativeResponse<?> nativeResponse, HttpServletResponse servletResponse);
 
     static ServletResponseStrategy defaultStrategy() {

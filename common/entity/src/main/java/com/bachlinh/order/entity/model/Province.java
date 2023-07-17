@@ -1,5 +1,9 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Trigger;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -10,12 +14,11 @@ import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Trigger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,8 @@ import java.util.List;
 @EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.ProvinceIndexTrigger")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Province extends AbstractEntity {
 
     @Id
@@ -61,10 +66,6 @@ public class Province extends AbstractEntity {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "province")
     private List<District> districts = new ArrayList<>();
 
-    @ActiveReflection
-    Province() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -72,47 +73,6 @@ public class Province extends AbstractEntity {
             throw new PersistenceException("Id of province must be integer");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Province province = (Province) o;
-        return Objects.equal(getId(), province.getId()) && Objects.equal(getName(), province.getName()) && Objects.equal(getCode(), province.getCode()) && Objects.equal(getDivisionType(), province.getDivisionType()) && Objects.equal(getCodeName(), province.getCodeName()) && Objects.equal(getPhoneCode(), province.getPhoneCode());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getCode(), getDivisionType(), getCodeName(), getPhoneCode());
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Integer getCode() {
-        return this.code;
-    }
-
-    public String getDivisionType() {
-        return this.divisionType;
-    }
-
-    public String getCodeName() {
-        return this.codeName;
-    }
-
-    public Integer getPhoneCode() {
-        return this.phoneCode;
-    }
-
-    public List<District> getDistricts() {
-        return this.districts;
     }
 
     @ActiveReflection
@@ -143,5 +103,17 @@ public class Province extends AbstractEntity {
     @ActiveReflection
     public void setDistricts(List<District> districts) {
         this.districts = districts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Province province)) return false;
+        return Objects.equal(getId(), province.getId()) && Objects.equal(getName(), province.getName()) && Objects.equal(getCode(), province.getCode()) && Objects.equal(getDivisionType(), province.getDivisionType()) && Objects.equal(getCodeName(), province.getCodeName()) && Objects.equal(getPhoneCode(), province.getPhoneCode()) && Objects.equal(getDistricts(), province.getDistricts());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getCode(), getDivisionType(), getCodeName(), getPhoneCode(), getDistricts());
     }
 }

@@ -1,24 +1,12 @@
 package com.bachlinh.order.web.service.impl;
 
-import jakarta.persistence.criteria.JoinType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.context.spi.FieldUpdated;
+import com.bachlinh.order.entity.context.FieldUpdated;
 import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
@@ -67,6 +55,19 @@ import com.bachlinh.order.web.service.business.RegisterService;
 import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
 import com.bachlinh.order.web.service.common.CustomerService;
 import com.bachlinh.order.web.service.common.EmailFolderService;
+import jakarta.persistence.criteria.JoinType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +81,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 
 @ServiceComponent
 @ActiveReflection
@@ -109,7 +109,7 @@ public class CustomerServiceImpl implements CustomerService,
     private final EmailFolderService emailFolderService;
     private final CustomerInfoChangerHistoryRepository customerInfoChangerHistoryRepository;
     private final DtoMapper dtoMapper;
-    private final Executor executor;
+    private final ThreadPoolTaskExecutor executor;
     private String urlResetPassword;
     private String botEmail;
 

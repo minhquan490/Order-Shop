@@ -1,19 +1,22 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.sending.TemplateMailSendingForm;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +24,12 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class TemplateMailSendingRule extends AbstractRule<TemplateMailSendingForm> {
+    private static final String NOT_FOUND_MESSAGE_ID = "MSG-000008";
+    private static final String MUST_BE_SPECIFIC_MESSAGE_ID = "MSG-000014";
+    private static final String TEMPLATE_MAIL_NOT_FOUND_MESSAGE_ID = "MSG-000030";
     private EmailTemplateRepository emailTemplateRepository;
     private CustomerRepository customerRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public TemplateMailSendingRule(Environment environment, DependenciesResolver resolver) {
@@ -36,22 +43,29 @@ public class TemplateMailSendingRule extends AbstractRule<TemplateMailSendingFor
 
         if (!StringUtils.hasText(dto.getTemplateId())) {
             var key = "template_id";
-            RuntimeUtils.computeMultiValueMap(key, "Can not find email template for sending", validateResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(TEMPLATE_MAIL_NOT_FOUND_MESSAGE_ID);
+            RuntimeUtils.computeMultiValueMap(key, messageSetting.getValue(), validateResult);
         }
 
         if (!StringUtils.hasText(dto.getToCustomer())) {
             var key = "to";
-            RuntimeUtils.computeMultiValueMap(key, "Receiver must specify", validateResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(MUST_BE_SPECIFIC_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Receiver");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
+
+        MessageSetting notFoundMessage = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
 
         if (emailTemplateRepository.isEmailTemplateExisted(dto.getTemplateId(), customer)) {
             var key = "template_id";
-            RuntimeUtils.computeMultiValueMap(key, "Email template not found", validateResult);
+            String errorContent = MessageFormat.format(notFoundMessage.getValue(), "Email template");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
 
         if (customerRepository.existById(dto.getToCustomer())) {
             var key = "to";
-            RuntimeUtils.computeMultiValueMap(key, "Receiver not found", validateResult);
+            String errorContent = MessageFormat.format(notFoundMessage.getValue(), "Receiver");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -73,6 +87,9 @@ public class TemplateMailSendingRule extends AbstractRule<TemplateMailSendingFor
         }
         if (customerRepository == null) {
             customerRepository = getResolver().resolveDependencies(CustomerRepository.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
         }
     }
 

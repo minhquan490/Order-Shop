@@ -107,9 +107,10 @@
     <logger name="com.bachlinh.order" level="DEBUG" additivity="false">
         <appender-ref ref="APPLICATION-LOG"/>
         <appender-ref ref="ERROR-LOG"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="org.eclipse.jetty" level="DEBUG" additivity="false">
+    <logger name="io.netty" level="DEBUG" additivity="false">
         <appender-ref ref="WEB-SERVER-LOG"/>
         <appender-ref ref="ERROR-LOG"/>
     </logger>

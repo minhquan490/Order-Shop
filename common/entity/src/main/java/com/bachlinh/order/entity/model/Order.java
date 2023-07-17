@@ -1,5 +1,9 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -14,12 +18,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -30,9 +33,11 @@ import java.util.HashSet;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "order")
 @Label("ODR-")
-@Validator(validators = "com.bachlinh.order.validator.internal.OrderValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.OrderValidator")
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.OrderHistoryTrigger", "com.bachlinh.order.trigger.internal.NewOrderPushingTrigger"})
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Order extends AbstractEntity {
 
     @Id
@@ -56,10 +61,6 @@ public class Order extends AbstractEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order", orphanRemoval = true)
     private Collection<OrderDetail> orderDetails = new HashSet<>();
 
-    @ActiveReflection
-    Order() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -67,43 +68,6 @@ public class Order extends AbstractEntity {
             throw new PersistenceException("Id of order must be string");
         }
         this.id = (String) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equal(getId(), order.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public Timestamp getTimeOrder() {
-        return this.timeOrder;
-    }
-
-    public OrderStatus getOrderStatus() {
-        return this.orderStatus;
-    }
-
-    public Customer getCustomer() {
-        return this.customer;
-    }
-
-    public Collection<OrderDetail> getOrderDetails() {
-        return this.orderDetails;
-    }
-
-    public String getBankTransactionCode() {
-        return bankTransactionCode == null ? "" : bankTransactionCode;
     }
 
     public boolean isDeposited() {
@@ -133,5 +97,17 @@ public class Order extends AbstractEntity {
     @ActiveReflection
     public void setBankTransactionCode(String bankTransactionCode) {
         this.bankTransactionCode = bankTransactionCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Order order)) return false;
+        return Objects.equal(getId(), order.getId()) && Objects.equal(getTimeOrder(), order.getTimeOrder()) && Objects.equal(getBankTransactionCode(), order.getBankTransactionCode()) && Objects.equal(getOrderStatus(), order.getOrderStatus()) && Objects.equal(getCustomer(), order.getCustomer()) && Objects.equal(getOrderDetails(), order.getOrderDetails());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getTimeOrder(), getBankTransactionCode(), getOrderStatus(), getCustomer(), getOrderDetails());
     }
 }

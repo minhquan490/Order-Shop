@@ -1,7 +1,3 @@
-<script lang="ts" setup>
-
-</script>
-
 <template>
   <div>
     Page: foo
@@ -10,5 +6,3 @@
     <Footer />
   </footer>
 </template>
-
-<style scoped></style>

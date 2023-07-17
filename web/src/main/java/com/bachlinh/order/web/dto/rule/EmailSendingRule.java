@@ -1,15 +1,18 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.sending.NormalEmailSendingForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,10 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class EmailSendingRule extends AbstractRule<NormalEmailSendingForm> {
+    private static final String EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String SPECIFY_MESSAGE_ID = "MSG-000014";
+
+    private MessageSettingRepository messageSettingRepository;
 
     public EmailSendingRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
@@ -25,21 +32,32 @@ public class EmailSendingRule extends AbstractRule<NormalEmailSendingForm> {
     @Override
     protected ValidatedDto.ValidateResult doValidate(NormalEmailSendingForm dto) {
         var validateResult = new HashMap<String, List<String>>();
+
+        MessageSetting emptyMessage = messageSettingRepository.getMessageById(EMPTY_MESSAGE_ID);
+
         if (!StringUtils.hasText(dto.getContent())) {
             var key = "content";
-            RuntimeUtils.computeMultiValueMap(key, "Email content must not be empty", validateResult);
+            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Email content");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
+
         if (!StringUtils.hasText(dto.getTitle())) {
             var key = "title";
-            RuntimeUtils.computeMultiValueMap(key, "Email title must not be empty", validateResult);
+            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Email title");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
+
         if (!StringUtils.hasText(dto.getToCustomer())) {
             var key = "to";
-            RuntimeUtils.computeMultiValueMap(key, "Receiver must be specify", validateResult);
+            MessageSetting specifyMessage = messageSettingRepository.getMessageById(SPECIFY_MESSAGE_ID);
+            String errorMessage = MessageFormat.format(specifyMessage.getValue(), "Receiver");
+            RuntimeUtils.computeMultiValueMap(key, errorMessage, validateResult);
         }
+
         if (!StringUtils.hasText(dto.getContentType())) {
             var key = "content_type";
-            RuntimeUtils.computeMultiValueMap(key, "Content type of email must not be empty", validateResult);
+            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Content type of email");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -56,7 +74,9 @@ public class EmailSendingRule extends AbstractRule<NormalEmailSendingForm> {
 
     @Override
     protected void injectDependencies() {
-        // Do nothing
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override

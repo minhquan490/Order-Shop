@@ -1,9 +1,9 @@
 <script lang="ts">
-import { Subscription, map, of } from 'rxjs';
-import { Category } from '~/types/category.type';
-import { ErrorResponse } from '~/types/error-response.type';
-import { TableHeaders } from '~/types/table-header.type';
-import { TableActionCallback } from '~/types/table-store.type';
+import {map, of, Subscription} from 'rxjs';
+import {Category} from '~/types/category.type';
+import {ErrorResponse} from '~/types/error-response.type';
+import {TableHeaders} from '~/types/table-header.type';
+import {TableActionCallback} from '~/types/table-store.type';
 
 export default {
   setup() {
@@ -52,7 +52,7 @@ export default {
           return pageData;
         }),
         map(data => {
-          const tableHeaders: TableHeaders[] = [
+          data.tableHeaders = [
             {
               isId: true,
               isImg: false,
@@ -66,7 +66,6 @@ export default {
               dataPropertyName: 'name'
             }
           ];
-          data.tableHeaders = tableHeaders;
           return data;
         })
       )
@@ -274,7 +273,7 @@ $page_bg: #f4f6f9;
   padding-bottom: 1.5rem;
 
   & .update {
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0 3px 6px, rgba(0, 0, 0, 0.23) 0 3px 6px;
   }
 }
 </style>

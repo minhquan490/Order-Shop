@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.handler.rest.admin.customer;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -10,6 +9,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
+import lombok.NoArgsConstructor;
 
 @RouteProvider
 @ActiveReflection
@@ -43,6 +43,6 @@ public class CustomerUpdateHandler extends AbstractController<CustomerResp, Cust
 
     @Override
     public RequestMethod getRequestMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.PATCH;
     }
 }

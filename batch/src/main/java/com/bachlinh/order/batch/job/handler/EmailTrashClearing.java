@@ -45,6 +45,8 @@ public class EmailTrashClearing extends AbstractJob {
             trash.setEmails(new HashSet<>(0));
         }
         emailTrashRepository.updateTrashes(trashes);
+        emailRepository.deleteEmails(emails.stream().map(Email::getId).toList());
+        previousTimeExecution = LocalDateTime.now();
     }
 
     @Override

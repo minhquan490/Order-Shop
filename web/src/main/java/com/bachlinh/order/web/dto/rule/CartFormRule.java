@@ -1,9 +1,10 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
@@ -11,7 +12,9 @@ import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.customer.CartForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,13 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class CartFormRule extends AbstractRule<CartForm> {
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String NOT_FOUND_MESSAGE_ID = "MSG-000008";
+    private static final String NON_IDENTITY_MESSAGE_ID = "MSG-000011";
+    private static final String NON_NUMBER_MESSAGE_ID = "MSG-000018";
+
     private ProductRepository productRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public CartFormRule(Environment environment, DependenciesResolver resolver) {
@@ -29,31 +38,51 @@ public class CartFormRule extends AbstractRule<CartForm> {
     @Override
     protected ValidatedDto.ValidateResult doValidate(CartForm dto) {
         var validateResult = new HashMap<String, List<String>>(3);
-        for (var productDto : dto.getProductForms()) {
-            validateCommonCase(productDto, validateResult);
+        MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
 
-            if (!ValidateUtils.isNumber(productDto.amount())) {
-                var key = "product.amount";
-                RuntimeUtils.computeMultiValueMap(key, "Amount of product must be a number", validateResult);
+        if (dto.getProductForms().length == 0) {
+            RuntimeUtils.computeMultiValueMap("products", MessageFormat.format(nonEmptyMessage.getValue(), "Product to add to cart"), validateResult);
+            return createResult(validateResult);
+        }
+
+        MessageSetting nonNumberMessage = messageSettingRepository.getMessageById(NON_NUMBER_MESSAGE_ID);
+
+        for (var productDto : dto.getProductForms()) {
+            if (!StringUtils.hasText(productDto.id())) {
+                MessageSetting nonIdentityMessage = messageSettingRepository.getMessageById(NON_IDENTITY_MESSAGE_ID);
+                RuntimeUtils.computeMultiValueMap("product.id", MessageFormat.format(nonIdentityMessage.getValue(), "product", productDto.id(), "add to cart"), validateResult);
+                return createResult(validateResult);
+            } else {
+                if (productRepository.isProductExist(productDto.id())) {
+                    MessageSetting notFoundMessage = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
+                    RuntimeUtils.computeMultiValueMap("product.id", MessageFormat.format(notFoundMessage.getValue(), "Product"), validateResult);
+                }
+            }
+
+            if (!StringUtils.hasText(productDto.name())) {
+                var key = "product.name";
+                RuntimeUtils.computeMultiValueMap(key, MessageFormat.format(nonEmptyMessage.getValue(), "Name of product"), validateResult);
+            }
+
+            var key = "product.amount";
+            if (!StringUtils.hasText(productDto.amount())) {
+                RuntimeUtils.computeMultiValueMap(key, MessageFormat.format(nonEmptyMessage.getValue(), "Amount of product"), validateResult);
+            } else {
+                if (!ValidateUtils.isNumber(productDto.amount())) {
+                    RuntimeUtils.computeMultiValueMap(key, MessageFormat.format(nonNumberMessage.getValue(), "Amount of product"), validateResult);
+                }
             }
         }
-        return new ValidatedDto.ValidateResult() {
-            @Override
-            public Map<String, Object> getErrorResult() {
-                return new HashMap<>(validateResult);
-            }
-
-            @Override
-            public boolean shouldHandle() {
-                return validateResult.isEmpty();
-            }
-        };
+        return createResult(validateResult);
     }
 
     @Override
     protected void injectDependencies() {
         if (productRepository == null) {
             productRepository = getResolver().resolveDependencies(ProductRepository.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
         }
     }
 
@@ -62,18 +91,17 @@ public class CartFormRule extends AbstractRule<CartForm> {
         return CartForm.class;
     }
 
-    private void validateCommonCase(CartForm.ProductForm dto, Map<String, List<String>> result) {
-        if (!StringUtils.hasText(dto.id())) {
-            var key = "product.id";
-            RuntimeUtils.computeMultiValueMap(key, String.format("Can not identity product [%s]", dto.id()), result);
-        }
-        if (!StringUtils.hasText(dto.name())) {
-            var key = "product.name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of product must not be empty", result);
-        }
-        if (!StringUtils.hasText(dto.amount())) {
-            var key = "product.amount";
-            RuntimeUtils.computeMultiValueMap(key, "Amount of product must not be empty", result);
-        }
+    private ValidatedDto.ValidateResult createResult(Map<String, List<String>> result) {
+        return new ValidatedDto.ValidateResult() {
+            @Override
+            public Map<String, Object> getErrorResult() {
+                return new HashMap<>(result);
+            }
+
+            @Override
+            public boolean shouldHandle() {
+                return result.isEmpty();
+            }
+        };
     }
 }

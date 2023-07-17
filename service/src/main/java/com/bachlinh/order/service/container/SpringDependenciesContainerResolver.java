@@ -1,7 +1,8 @@
 package com.bachlinh.order.service.container;
 
-import org.springframework.context.ApplicationContext;
 import com.bachlinh.order.exception.system.common.CriticalException;
+import lombok.EqualsAndHashCode;
+import org.springframework.context.ApplicationContext;
 
 class SpringDependenciesContainerResolver implements DependenciesContainerResolver {
     private static SpringDependenciesContainerResolver singleton;
@@ -40,6 +41,7 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
         return singleton;
     }
 
+    @EqualsAndHashCode
     private static class SpringDependenciesResolver implements DependenciesResolver {
         private final ApplicationContext context;
 

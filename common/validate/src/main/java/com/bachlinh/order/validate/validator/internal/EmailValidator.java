@@ -3,12 +3,21 @@ package com.bachlinh.order.validate.validator.internal;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Email;
+import com.bachlinh.order.entity.model.MessageSetting;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
+import org.springframework.util.StringUtils;
+
+import java.text.MessageFormat;
 
 @ActiveReflection
 public class EmailValidator extends AbstractValidator<Email> {
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String LENGTH_INVALID_MESSAGE_ID = "MSG-000002";
+
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public EmailValidator(DependenciesResolver resolver) {
@@ -17,20 +26,28 @@ public class EmailValidator extends AbstractValidator<Email> {
 
     @Override
     protected void inject() {
-        //Do nothing
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override
     protected ValidateResult doValidate(Email entity) {
         Result result = new Result();
-        if (entity.getContent() == null || entity.getContent().isBlank()) {
-            result.addMessageError("Email content: Content must not be empty");
+
+        MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+        MessageSetting lengthInvalidMessage = messageSettingRepository.getMessageById(LENGTH_INVALID_MESSAGE_ID);
+
+        if (!StringUtils.hasText(entity.getContent())) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Content"));
         }
-        if (entity.getTitle() == null || entity.getTitle().isBlank()) {
-            result.addMessageError("Email title: Title of email must not be empty");
-        }
-        if (entity.getTitle().length() > 400) {
-            result.addMessageError("Email title: Length title must greater than 400 character");
+
+        if (!StringUtils.hasText(entity.getTitle())) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Title of email"));
+        } else {
+            if (entity.getTitle().length() > 400) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "Length title", "400"));
+            }
         }
         return result;
     }

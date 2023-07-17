@@ -1,18 +1,20 @@
 package com.bachlinh.order.validate.rule;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.validate.RuleInstanceFailureException;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 class DefaultRuleFactory implements RuleFactory {
 
     @Override
@@ -37,11 +39,14 @@ class DefaultRuleFactory implements RuleFactory {
         @SuppressWarnings("unchecked")
         Constructor<ValidationRule<T>>[] constructors = (Constructor<ValidationRule<T>>[]) type.getDeclaredConstructors();
         for (Constructor<ValidationRule<T>> con : constructors) {
-            var validateResult = Arrays.deepEquals(con.getParameters(), paramTypes);
+            var validateResult = Arrays.deepEquals(con.getParameterTypes(), paramTypes);
             if (validateResult) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Init rule [{}] complete", type.getName());
+                }
                 return con;
             }
         }
-        throw new RuleInstanceFailureException("Instance constructor not found");
+        throw new RuleInstanceFailureException(String.format("Instance constructor of class [%s] not found", type.getName()));
     }
 }

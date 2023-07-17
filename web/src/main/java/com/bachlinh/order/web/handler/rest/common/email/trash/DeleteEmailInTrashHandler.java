@@ -1,8 +1,5 @@
 package com.bachlinh.order.web.handler.rest.common.email.trash;
 
-import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -11,6 +8,9 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.DeleteEmailInTrashForm;
 import com.bachlinh.order.web.service.business.EmailInTrashService;
+import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,6 +52,6 @@ public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Ob
 
     @Override
     public RequestMethod getRequestMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.PATCH;
     }
 }

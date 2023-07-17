@@ -1,6 +1,6 @@
 package com.bachlinh.order.web;
 
-import com.bachlinh.order.annotation.SpringApplication;
+import com.bachlinh.order.annotation.ServletApplication;
 import com.bachlinh.order.aot.EntityManagerRuntimeHints;
 import com.bachlinh.order.aot.GlobalReflectiveRuntimeHint;
 import com.bachlinh.order.aot.HibernateRuntimeHints;
@@ -12,24 +12,37 @@ import com.bachlinh.order.core.bean.spring.SpringContainerBean;
 import com.bachlinh.order.entity.bean.spring.CacheSourceBean;
 import com.bachlinh.order.entity.bean.spring.DataSourceBean;
 import com.bachlinh.order.mail.bean.spring.EmailBean;
+import com.bachlinh.order.web.configuration.AspectConfiguration;
+import com.bachlinh.order.web.configuration.HttpClientConfiguration;
+import com.bachlinh.order.web.configuration.SecurityConfiguration;
+import com.bachlinh.order.web.configuration.ThreadPoolConfiguration;
+import com.bachlinh.order.web.configuration.WebBaseConfiguration;
 
-@SpringApplication(
+@ServletApplication(
         runtimeHints = {
                 GlobalReflectiveRuntimeHint.class,
                 JacksonRuntimeHints.class,
                 HibernateRuntimeHints.class,
                 EntityManagerRuntimeHints.class,
-                WebsocketRuntimeHints.class},
+                WebsocketRuntimeHints.class
+        },
         beanClasses = {
                 SpringContainerBean.class,
                 DataSourceBean.class,
                 CacheSourceBean.class,
                 BatchBean.class,
-                EmailBean.class},
+                EmailBean.class,
+                SecurityConfiguration.class,
+                AspectConfiguration.class,
+                HttpClientConfiguration.class,
+                ThreadPoolConfiguration.class,
+                WebBaseConfiguration.class
+        },
         scanBasePackages = {
                 "com.bachlinh.order.repository",
                 "com.bachlinh.order.service",
-                "com.bachlinh.order.web"}
+                "com.bachlinh.order.web"
+        }
 )
 public class OrderShopApplication {
 

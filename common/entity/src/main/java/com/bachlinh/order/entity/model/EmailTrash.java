@@ -1,5 +1,8 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Validator;
+import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +16,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.bachlinh.order.annotation.ActiveReflection;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,14 +24,15 @@ import java.util.Set;
 @Entity
 @Table(name = "EMAIL_TRASH")
 @Getter
-@NoArgsConstructor(access = AccessLevel.NONE, onConstructor = @__({@ActiveReflection}))
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailTrashValidator")
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 public class EmailTrash extends AbstractEntity {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, unique = true)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "trash")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "emailTrash")
     private Set<Email> emails = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -54,5 +57,17 @@ public class EmailTrash extends AbstractEntity {
         } else {
             throw new PersistenceException("Id of EmailTrash must be int");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EmailTrash that)) return false;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getEmails(), that.getEmails()) && Objects.equal(getCustomer(), that.getCustomer());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getEmails(), getCustomer());
     }
 }

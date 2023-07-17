@@ -7,7 +7,7 @@ public enum Operator {
     LE, //less equal
     EQ, //equal
     NEQ, //not equal
-    NULL,
-    NON_NULL,
-    IN
+    NULL, // null
+    NON_NULL, // not null
+    IN // in
 }

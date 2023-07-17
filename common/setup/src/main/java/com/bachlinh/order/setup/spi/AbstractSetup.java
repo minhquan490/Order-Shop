@@ -1,12 +1,14 @@
 package com.bachlinh.order.setup.spi;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base setup of all setup object. Extends this object for define setup object.
@@ -14,6 +16,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
  * @author Hoang Minh Quan
  */
 public abstract class AbstractSetup implements Setup {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final DependenciesContainerResolver containerResolver;
     private final Environment environment;
 
@@ -47,7 +50,11 @@ public abstract class AbstractSetup implements Setup {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public final void execute() {
-        doExecute();
+        try {
+            doExecute();
+        } catch (Exception e) {
+            logger.error("Problem when process setup [{}]", this.getClass(), e);
+        }
     }
 
     @Override

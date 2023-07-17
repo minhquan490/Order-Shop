@@ -30,7 +30,7 @@ export default {
 .alert-simple.alert-info {
   border: 1px solid rgba(6, 44, 241, 0.46);
   background-color: rgba(7, 73, 149, 0.12156862745098039);
-  box-shadow: 0px 0px 2px #0396ff;
+  box-shadow: 0 0 2px #0396ff;
   color: #0396ff;
   text-shadow: 2px 1px #00040a;
   transition: 0.5s;
@@ -61,12 +61,6 @@ export default {
   top: 50%;
   transform: translate(0, -50%);
   height: 20px;
-}
-
-.faa-shake.animated,
-.faa-shake.animated-hover:hover {
-  -webkit-animation: wrench 2.5s ease infinite;
-  animation: wrench 2.5s ease infinite;
 }
 
 @-webkit-keyframes wrench {

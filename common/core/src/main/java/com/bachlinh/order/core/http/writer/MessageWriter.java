@@ -4,8 +4,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.bachlinh.order.core.http.parser.spi.NettyHttpConvention;
 
-public interface MessageWriter {
+public interface MessageWriter extends NettyHttpConvention {
     void writeHttpStatus(String status);
 
     void writeHttpStatus(int status);

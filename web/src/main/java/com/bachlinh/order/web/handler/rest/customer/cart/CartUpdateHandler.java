@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.handler.rest.customer.cart;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -9,6 +8,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.customer.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
+import lombok.NoArgsConstructor;
 
 @RouteProvider
 @ActiveReflection
@@ -41,6 +41,6 @@ public class CartUpdateHandler extends AbstractController<CartResp, CartForm> {
 
     @Override
     public RequestMethod getRequestMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.PATCH;
     }
 }

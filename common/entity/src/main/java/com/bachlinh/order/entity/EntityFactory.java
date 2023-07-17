@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity;
 
-import com.bachlinh.order.entity.context.spi.EntityContext;
+import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesResolver;
