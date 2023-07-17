@@ -1,13 +1,12 @@
 package com.bachlinh.order.web.handler.advice;
 
-import org.springframework.http.HttpStatus;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
 import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ConstraintViolationException;
 import com.bachlinh.order.exception.http.InvalidTokenException;
 import com.bachlinh.order.exception.http.ValidationFailureException;
+import org.springframework.http.HttpStatus;
 
 @ActiveReflection
 @RouteExceptionHandler
@@ -25,9 +24,6 @@ public class BadRequestHandler extends ExceptionHandler {
 
     @Override
     protected String[] message(Exception exception) {
-        if (exception instanceof ConstraintViolationException casted) {
-            return casted.getErrors().toArray(new String[0]);
-        }
         return new String[]{exception.getMessage()};
     }
 
@@ -41,7 +37,6 @@ public class BadRequestHandler extends ExceptionHandler {
     public Class<Exception>[] activeOnTypes() {
         return new Class[]{
                 BadVariableException.class,
-                ConstraintViolationException.class,
                 InvalidTokenException.class,
                 ValidationFailureException.class
         };

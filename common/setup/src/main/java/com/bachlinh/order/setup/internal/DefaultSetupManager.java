@@ -1,12 +1,13 @@
 package com.bachlinh.order.setup.internal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.Order;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.SetupManager;
 import com.bachlinh.order.service.container.ContainerWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -31,13 +32,18 @@ class DefaultSetupManager implements SetupManager {
     }
 
     @Override
-    public Collection<Setup> loadSetup() throws ClassNotFoundException {
+    public Collection<Setup> loadSetup() {
         return scan().stream()
                 .filter(Setup.class::isAssignableFrom)
-                .filter(clazz -> clazz.isAnnotationPresent(Order.class))
                 .map(clazz -> (Setup) newInstance(clazz, new Class[]{ContainerWrapper.class, String.class}, new Object[]{wrapper, profile}))
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(value -> value.getClass().getAnnotation(Order.class).value()))
+                .sorted(Comparator.comparing(value -> {
+                    if (value.getClass().isAnnotationPresent(Order.class)) {
+                        return value.getClass().getAnnotation(Order.class).value();
+                    } else {
+                        return Ordered.LOWEST_PRECEDENCE;
+                    }
+                }))
                 .toList();
     }
 

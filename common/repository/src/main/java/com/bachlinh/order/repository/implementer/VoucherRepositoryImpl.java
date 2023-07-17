@@ -1,16 +1,6 @@
 package com.bachlinh.order.repository.implementer;
 
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.NonNull;
-import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -24,9 +14,20 @@ import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Collections;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -83,6 +84,16 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteVoucher(Voucher voucher) {
         delete(voucher);
+    }
+
+    @Override
+    public void updateVouchers(Collection<Voucher> vouchers) {
+        saveAll(vouchers);
+    }
+
+    @Override
+    public void deleteVouchers(Collection<Voucher> vouchers) {
+        vouchers.forEach(this::delete);
     }
 
     @Override

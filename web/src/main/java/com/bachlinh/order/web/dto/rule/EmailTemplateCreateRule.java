@@ -1,15 +1,18 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateCreateForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +20,10 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class EmailTemplateCreateRule extends AbstractRule<EmailTemplateCreateForm> {
+    private static final String EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String SPECIFY_MESSAGE_ID = "MSG-000014";
 
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public EmailTemplateCreateRule(Environment environment, DependenciesResolver resolver) {
@@ -28,24 +34,31 @@ public class EmailTemplateCreateRule extends AbstractRule<EmailTemplateCreateFor
     protected ValidatedDto.ValidateResult doValidate(EmailTemplateCreateForm dto) {
         var validateResult = new HashMap<String, List<String>>();
 
+        MessageSetting emptyMessage = messageSettingRepository.getMessageById(EMPTY_MESSAGE_ID);
+
         if (!StringUtils.hasText(dto.getName())) {
             var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of template must not be empty", validateResult);
+            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Name of template");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
 
         if (!StringUtils.hasText(dto.getTitle())) {
             var key = "title";
-            RuntimeUtils.computeMultiValueMap(key, "Title of template must not be empty", validateResult);
+            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Title of template");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
 
         if (!StringUtils.hasText(dto.getContent())) {
             var key = "content";
-            RuntimeUtils.computeMultiValueMap(key, "Content of template must not be empty", validateResult);
+            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Content of template");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
 
         if (dto.getParams() == null || dto.getParams().length == 0) {
             var key = "params";
-            RuntimeUtils.computeMultiValueMap(key, "Params for template must not be specify", validateResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(SPECIFY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Params for template");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -62,7 +75,9 @@ public class EmailTemplateCreateRule extends AbstractRule<EmailTemplateCreateFor
 
     @Override
     protected void injectDependencies() {
-        // Do nothing
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override

@@ -22,6 +22,7 @@ dependencies {
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework:spring-tx'
+    implementation 'org.springframework.security:spring-security-core'
     implementation 'org.seleniumhq.selenium:selenium-java'
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
@@ -29,6 +30,8 @@ dependencies {
     runtimeOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
 
 test {

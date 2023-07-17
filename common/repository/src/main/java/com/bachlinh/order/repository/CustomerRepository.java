@@ -1,13 +1,13 @@
 package com.bachlinh.order.repository;
 
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Where;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Where;
 
 import java.util.Collection;
 
@@ -28,6 +28,8 @@ public interface CustomerRepository extends NativeQueryRepository {
     Customer saveCustomer(@NonNull Customer customer);
 
     Customer updateCustomer(@NonNull Customer customer);
+
+    void updateCustomers(Collection<Customer> customers);
 
     boolean deleteCustomer(@NonNull Customer customer);
 

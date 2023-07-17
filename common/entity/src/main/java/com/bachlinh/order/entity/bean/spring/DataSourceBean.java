@@ -1,15 +1,20 @@
 package com.bachlinh.order.entity.bean.spring;
 
+import com.bachlinh.order.entity.EntityProxyFactory;
+import com.bachlinh.order.entity.cache.HibernateL2CachingRegionFactory;
+import com.bachlinh.order.entity.index.internal.InternalProvider;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManager;
-import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.SQLServerDialect;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -17,17 +22,8 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityProxyFactory;
-import com.bachlinh.order.entity.cache.HibernateL2CachingRegionFactory;
-import com.bachlinh.order.entity.index.internal.InternalProvider;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
-import java.io.IOException;
+import javax.sql.DataSource;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.Properties;
@@ -57,14 +53,6 @@ public class DataSourceBean {
     @Bean(name = "transactionManager")
     HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
         return new HibernateTransactionManager(sessionFactory);
-    }
-
-    @Bean
-    EntityFactory entityFactory(ApplicationContext applicationContext, @Value("${active.profile}") String profile) throws IOException {
-        return InternalProvider.useDefaultEntityFactoryBuilder()
-                .container(ContainerWrapper.wrap(applicationContext))
-                .profile(profile)
-                .build();
     }
 
     @Bean

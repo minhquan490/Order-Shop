@@ -1,11 +1,17 @@
 package com.bachlinh.order.core.http.writer;
 
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2HeadersFrame;
+import io.netty.incubator.codec.http3.Http3DataFrame;
+import io.netty.incubator.codec.http3.Http3HeadersFrame;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletResponseAdapter;
 import com.bachlinh.order.utils.JacksonUtils;
 
 import java.io.IOException;
@@ -19,6 +25,15 @@ class HttpMessageWriter implements MessageWriter {
 
     HttpMessageWriter(HttpServletResponse actualResponse) {
         this.actualResponse = actualResponse;
+    }
+
+    @Override
+    public void writeHttpStatus(HttpStatus status) {
+        if (status == null) {
+            writeHttpStatus(DEFAULT_STATUS);
+        } else {
+            writeHttpStatus(status.value());
+        }
     }
 
     @Override
@@ -37,15 +52,6 @@ class HttpMessageWriter implements MessageWriter {
             this.actualResponse.setStatus(DEFAULT_STATUS);
         } else {
             this.actualResponse.setStatus(status);
-        }
-    }
-
-    @Override
-    public void writeHttpStatus(HttpStatus status) {
-        if (status == null) {
-            writeHttpStatus(DEFAULT_STATUS);
-        } else {
-            writeHttpStatus(status.value());
         }
     }
 
@@ -98,5 +104,50 @@ class HttpMessageWriter implements MessageWriter {
     private void writeDefaultHeader(int contentTypeLength) {
         this.actualResponse.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentTypeLength));
         this.actualResponse.setHeader(HttpHeaders.TRANSFER_ENCODING, "chucked");
+    }
+
+    @Override
+    public Http3DataFrame toH3DataFrame() {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH3DataFrame();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Http3HeadersFrame toH3HeaderFrame() {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH3HeaderFrame();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Http2DataFrame toH2DataFrame() {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH2DataFrame();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Http2HeadersFrame toH2HeaderFrame() {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH2HeaderFrame();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public FullHttpResponse toFullHttpResponse() {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toFullHttpResponse();
+        } else {
+            return null;
+        }
     }
 }

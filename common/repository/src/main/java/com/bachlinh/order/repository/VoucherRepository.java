@@ -1,12 +1,12 @@
 package com.bachlinh.order.repository;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.lang.NonNull;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.Where;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 
@@ -24,6 +24,10 @@ public interface VoucherRepository {
     boolean isVoucherIdExist(String voucherId);
 
     void deleteVoucher(Voucher voucher);
+
+    void updateVouchers(Collection<Voucher> vouchers);
+
+    void deleteVouchers(Collection<Voucher> vouchers);
 
     Collection<Voucher> getListVoucher(Pageable pageable, Sort sort);
 

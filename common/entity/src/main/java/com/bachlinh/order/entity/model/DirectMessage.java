@@ -1,5 +1,7 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Trigger;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,8 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Trigger;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
@@ -25,6 +28,8 @@ import java.sql.Timestamp;
 )
 @ActiveReflection
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.DirectMessageIndexTrigger"})
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class DirectMessage extends AbstractEntity {
 
     @Id
@@ -45,10 +50,6 @@ public class DirectMessage extends AbstractEntity {
     @JoinColumn(name = "TO_CUSTOMER_ID", nullable = false, updatable = false)
     private Customer toCustomer;
 
-    @ActiveReflection
-    DirectMessage() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -57,39 +58,6 @@ public class DirectMessage extends AbstractEntity {
             return;
         }
         throw new PersistenceException("Id of direct message must be integer");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DirectMessage that = (DirectMessage) o;
-        return Objects.equal(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getContent() {
-        return this.content;
-    }
-
-    public Timestamp getTimeSent() {
-        return this.timeSent;
-    }
-
-    public Customer getFromCustomer() {
-        return this.fromCustomer;
-    }
-
-    public Customer getToCustomer() {
-        return this.toCustomer;
     }
 
     @ActiveReflection
@@ -110,5 +78,17 @@ public class DirectMessage extends AbstractEntity {
     @ActiveReflection
     public void setToCustomer(Customer toCustomer) {
         this.toCustomer = toCustomer;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DirectMessage message)) return false;
+        return Objects.equal(getId(), message.getId()) && Objects.equal(getContent(), message.getContent()) && Objects.equal(getTimeSent(), message.getTimeSent()) && Objects.equal(getFromCustomer(), message.getFromCustomer()) && Objects.equal(getToCustomer(), message.getToCustomer());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getContent(), getTimeSent(), getFromCustomer(), getToCustomer());
     }
 }

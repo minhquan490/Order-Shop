@@ -1,5 +1,11 @@
 package com.bachlinh.order.validate.validator;
 
+import com.bachlinh.order.annotation.Validated;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityValidator;
+import com.bachlinh.order.entity.ValidateResult;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.exception.http.ValidationFailureException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -10,12 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import com.bachlinh.order.annotation.Validated;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityValidator;
-import com.bachlinh.order.entity.ValidateResult;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.exception.http.ConstraintViolationException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class ValidateInterceptor<T extends BaseEntity> {
         Set<String> errors = new HashSet<>();
         validators.forEach(entityValidator -> entityValidatorCallback(entityValidator, errors, entity));
         if (!errors.isEmpty()) {
-            throw new ConstraintViolationException(errors);
+            throw new ValidationFailureException(errors, String.format("Fail when validate entity [%s]", entity.getClass()));
         }
     }
 

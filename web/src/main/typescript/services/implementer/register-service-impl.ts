@@ -1,5 +1,6 @@
 import { HttpServiceProvider } from "../http.service";
 import { RegisterService } from "../register.service";
+import {ErrorResponse} from "~/types/error-response.type";
 
 export class RegisterServiceImpl extends RegisterService {
     private readonly emailPattern: RegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -8,10 +9,10 @@ export class RegisterServiceImpl extends RegisterService {
         super();
     }
 
-    register(registerForm: Map<string, string>): { message: string; } {
+    register(registerForm: Map<string, string>): { message: string } | ErrorResponse | null {
         const httpService = this.httpServiceProvider.open(`${useAppConfig().serverUrl}/register`);
         registerForm.delete('confirmPassword');
-        return httpService.post<Map<string, string>, { message: string }>(registerForm);
+        return httpService.post<Map<string, string>, { message: string }>(registerForm).getResponse;
     }
 
     validateForm(registerForm: Map<string, string>): Map<string, string> {

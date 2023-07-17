@@ -1,16 +1,19 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderDeleteForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +21,11 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFolderDeleteForm> {
+    private static final String NOT_FOUND_MESSAGE_ID = "MSG-000008";
+    private static final String CAN_NOT_IDENTITY_MESSAGE_ID = "MSG-000011";
+
     private EmailTemplateFolderRepository repository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public EmailTemplateFolderDeleteRule(Environment environment, DependenciesResolver resolver) {
@@ -31,13 +38,18 @@ public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFol
 
         if (!StringUtils.hasText(dto.id())) {
             var key = "id";
-            RuntimeUtils.computeMultiValueMap(key, "Can not identity email template folder for delete", validateResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "email template folder", "", "delete");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (repository.isEmailTemplateFolderIdExisted(dto.id())) {
+                var key = "id";
+                MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
+                String errorContent = MessageFormat.format(messageSetting.getValue(), String.format("Email template with id [%s]", dto.id()));
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
         }
 
-        if (repository.isEmailTemplateFolderIdExisted(dto.id())) {
-            var key = "id";
-            RuntimeUtils.computeMultiValueMap(key, "Not found", validateResult);
-        }
         return new ValidatedDto.ValidateResult() {
             @Override
             public Map<String, Object> getErrorResult() {
@@ -55,6 +67,9 @@ public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFol
     protected void injectDependencies() {
         if (repository == null) {
             repository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
         }
     }
 

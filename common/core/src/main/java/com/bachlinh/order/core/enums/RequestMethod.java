@@ -2,7 +2,7 @@ package com.bachlinh.order.core.enums;
 
 public enum RequestMethod {
     GET,
-    PUT,
+    PATCH,
     POST,
     DELETE;
 
@@ -10,7 +10,7 @@ public enum RequestMethod {
         if (method.equalsIgnoreCase("get")) {
             return true;
         }
-        if (method.equalsIgnoreCase("put")) {
+        if (method.equalsIgnoreCase("patch")) {
             return true;
         }
         if (method.equalsIgnoreCase("post")) {

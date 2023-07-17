@@ -1,5 +1,11 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -15,17 +21,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -46,8 +49,10 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "customer")
 @EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.CustomerIndexTrigger", "com.bachlinh.order.trigger.internal.CustomerInfoChangeHistoryTrigger"})
-@Validator(validators = "com.bachlinh.order.validator.internal.CustomerValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.CustomerValidator")
 @ActiveReflection
+@NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
+@Getter
 public class Customer extends AbstractEntity implements UserDetails {
 
     @Id
@@ -139,8 +144,8 @@ public class Customer extends AbstractEntity implements UserDetails {
     )
     private Set<Voucher> assignedVouchers = new HashSet<>();
 
-    @ActiveReflection
-    Customer() {
+    public String getPicture() {
+        return customerMedia.getUrl();
     }
 
     @ActiveReflection
@@ -156,117 +161,8 @@ public class Customer extends AbstractEntity implements UserDetails {
         return Collections.singleton(new SimpleGrantedAuthority(this.role));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Customer customer = (Customer) o;
-        return Objects.equal(getId(), customer.getId()) && Objects.equal(getUsername(), customer.getUsername()) && Objects.equal(getPhoneNumber(), customer.getPhoneNumber()) && Objects.equal(getEmail(), customer.getEmail());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getUsername(), getPhoneNumber(), getEmail());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getUsername() {
-        return this.username;
-    }
-
-    public String getPassword() {
-        return this.password;
-    }
-
-    public String getFirstName() {
-        return this.firstName;
-    }
-
-    public String getLastName() {
-        return this.lastName;
-    }
-
-    public String getPhoneNumber() {
-        return this.phoneNumber;
-    }
-
-    public String getEmail() {
-        return this.email;
-    }
-
-    public String getGender() {
-        return this.gender;
-    }
-
-    public String getRole() {
-        return this.role;
-    }
-
-    public Integer getOrderPoint() {
-        return this.orderPoint;
-    }
-
-    public boolean isActivated() {
-        return this.activated;
-    }
-
-    public boolean isAccountNonExpired() {
-        return this.accountNonExpired;
-    }
-
-    public boolean isAccountNonLocked() {
-        return this.accountNonLocked;
-    }
-
-    public boolean isCredentialsNonExpired() {
-        return this.credentialsNonExpired;
-    }
-
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public Cart getCart() {
-        return this.cart;
-    }
-
-    public RefreshToken getRefreshToken() {
-        return this.refreshToken;
-    }
-
-    public CustomerMedia getCustomerMedia() {
-        return customerMedia;
-    }
-
-    public EmailTrash getEmailTrash() {
-        return emailTrash;
-    }
-
-    public Set<Address> getAddresses() {
-        return this.addresses;
-    }
-
-    public Set<Order> getOrders() {
-        return this.orders;
-    }
-
-    public Set<CustomerAccessHistory> getHistories() {
-        return this.histories;
-    }
-
-    public Set<Voucher> getAssignedVouchers() {
-        return this.assignedVouchers;
-    }
-
     public Collection<String> getAddressString() {
         return this.getAddresses().stream().map(a -> String.join(",", a.getValue(), a.getCity(), a.getCountry())).toList();
-    }
-
-    public String getPicture() {
-        return this.getCustomerMedia().getUrl();
     }
 
     @ActiveReflection
@@ -377,5 +273,17 @@ public class Customer extends AbstractEntity implements UserDetails {
     @ActiveReflection
     public void setEmailTrash(EmailTrash emailTrash) {
         this.emailTrash = emailTrash;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Customer customer)) return false;
+        return isActivated() == customer.isActivated() && isAccountNonExpired() == customer.isAccountNonExpired() && isAccountNonLocked() == customer.isAccountNonLocked() && isCredentialsNonExpired() == customer.isCredentialsNonExpired() && isEnabled() == customer.isEnabled() && Objects.equal(getId(), customer.getId()) && Objects.equal(getUsername(), customer.getUsername()) && Objects.equal(getPassword(), customer.getPassword()) && Objects.equal(getFirstName(), customer.getFirstName()) && Objects.equal(getLastName(), customer.getLastName()) && Objects.equal(getPhoneNumber(), customer.getPhoneNumber()) && Objects.equal(getEmail(), customer.getEmail()) && Objects.equal(getGender(), customer.getGender()) && Objects.equal(getRole(), customer.getRole()) && Objects.equal(getOrderPoint(), customer.getOrderPoint()) && Objects.equal(getCart(), customer.getCart()) && Objects.equal(getRefreshToken(), customer.getRefreshToken()) && Objects.equal(getCustomerMedia(), customer.getCustomerMedia()) && Objects.equal(getEmailTrash(), customer.getEmailTrash()) && Objects.equal(getAddresses(), customer.getAddresses()) && Objects.equal(getOrders(), customer.getOrders()) && Objects.equal(getHistories(), customer.getHistories()) && Objects.equal(getAssignedVouchers(), customer.getAssignedVouchers());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getUsername(), getPassword(), getFirstName(), getLastName(), getPhoneNumber(), getEmail(), getGender(), getRole(), getOrderPoint(), isActivated(), isAccountNonExpired(), isAccountNonLocked(), isCredentialsNonExpired(), isEnabled(), getCart(), getRefreshToken(), getCustomerMedia(), getEmailTrash(), getAddresses(), getOrders(), getHistories(), getAssignedVouchers());
     }
 }

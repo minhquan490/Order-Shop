@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.handler.rest.admin.category;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -9,6 +8,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
+import lombok.NoArgsConstructor;
 
 @RouteProvider
 @ActiveReflection
@@ -41,6 +41,6 @@ public class CategoryUpdateHandler extends AbstractController<CategoryResp, Cate
 
     @Override
     public RequestMethod getRequestMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.PATCH;
     }
 }

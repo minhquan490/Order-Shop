@@ -1,15 +1,5 @@
 package com.bachlinh.order.security.filter.servlet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
@@ -26,6 +16,16 @@ import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -74,6 +74,9 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!isClientFetch(request)) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
+        if (response.isCommitted()) {
             return;
         }
         addH3Header(response);

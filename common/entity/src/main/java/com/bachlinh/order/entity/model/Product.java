@@ -1,5 +1,11 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -11,14 +17,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,12 +36,14 @@ import java.util.Set;
         }
 )
 @Label("PRD-")
-@Validator(validators = "com.bachlinh.order.validator.internal.ProductValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.ProductValidator")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "product")
 @EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.ProductIndexTrigger")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Product extends AbstractEntity {
 
     @Id
@@ -84,10 +89,6 @@ public class Product extends AbstractEntity {
     @ManyToMany(mappedBy = "products")
     private Collection<Cart> carts = new HashSet<>();
 
-    @ActiveReflection
-    Product() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -95,67 +96,6 @@ public class Product extends AbstractEntity {
             throw new PersistenceException("Id of product must be string");
         }
         this.id = (String) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Product product)) return false;
-        return Objects.equal(getId(), product.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    @ActiveReflection
-    public int getPrice() {
-        return this.price;
-    }
-
-    public String getSize() {
-        return this.size;
-    }
-
-    public String getColor() {
-        return this.color;
-    }
-
-    public String getTaobaoUrl() {
-        return this.taobaoUrl;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public Integer getOrderPoint() {
-        return this.orderPoint;
-    }
-
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public Collection<ProductMedia> getMedias() {
-        return this.medias;
-    }
-
-    public Collection<Category> getCategories() {
-        return this.categories;
-    }
-
-    public Collection<Cart> getCarts() {
-        return this.carts;
     }
 
     @ActiveReflection
@@ -211,5 +151,17 @@ public class Product extends AbstractEntity {
     @ActiveReflection
     public void setCarts(Set<Cart> carts) {
         this.carts = carts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product product)) return false;
+        return getPrice() == product.getPrice() && isEnabled() == product.isEnabled() && Objects.equal(getId(), product.getId()) && Objects.equal(getName(), product.getName()) && Objects.equal(getSize(), product.getSize()) && Objects.equal(getColor(), product.getColor()) && Objects.equal(getTaobaoUrl(), product.getTaobaoUrl()) && Objects.equal(getDescription(), product.getDescription()) && Objects.equal(getOrderPoint(), product.getOrderPoint()) && Objects.equal(getMedias(), product.getMedias()) && Objects.equal(getCategories(), product.getCategories()) && Objects.equal(getCarts(), product.getCarts());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getPrice(), getSize(), getColor(), getTaobaoUrl(), getDescription(), getOrderPoint(), isEnabled(), getMedias(), getCategories(), getCarts());
     }
 }

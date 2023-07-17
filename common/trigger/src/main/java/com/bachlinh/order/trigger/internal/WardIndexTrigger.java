@@ -1,15 +1,15 @@
 package com.bachlinh.order.trigger.internal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.context.spi.EntityContext;
+import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 

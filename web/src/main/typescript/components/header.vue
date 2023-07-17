@@ -9,12 +9,13 @@ export default {
       categoryUrl: '/admin/category',
       userUrl: '/admin/customer',
       orderUrl: '/admin/order',
-      thridPartyUrl: '/admin/thrid-party',
+      thirdPartyUrl: '/admin/thrid-party',
       batchUrl: '/admin/batch',
       countryAddressUrl: '/admin/country-address',
       emailTemplateUrl: '/admin/email-template',
       triggerSettingUrl: '/admin/trigger',
-      voucherListUrl: '/admin/voucher'
+      voucherListUrl: '/admin/voucher',
+      messageSettingUrl: '/admin/message-setting'
     };
     return {
       nav,
@@ -29,12 +30,13 @@ type NavBar = {
   categoryUrl: string,
   userUrl: string,
   orderUrl: string,
-  thridPartyUrl: string,
+  thirdPartyUrl: string,
   batchUrl: string,
   countryAddressUrl: string,
   emailTemplateUrl: string,
   triggerSettingUrl: string,
-  voucherListUrl: string
+  voucherListUrl: string,
+  messageSettingUrl: string
 };
 </script>
 
@@ -76,8 +78,8 @@ type NavBar = {
         <span class="hover:cursor-pointer text-white pl-1">Order list</span>
       </a>
     </div>
-    <div :class="nav.thridPartyUrl === path ? 'border-l line' : 'border-l'">
-      <a class="p-4 flex items-center justify-center hover:opacity-70" :href="nav.thridPartyUrl">
+    <div :class="nav.thirdPartyUrl === path ? 'border-l line' : 'border-l'">
+      <a class="p-4 flex items-center justify-center hover:opacity-70" :href="nav.thirdPartyUrl">
         <Icon class="text-white" name="mdi:web" width="22" height="22" />
         <span class="hover:cursor-pointer text-white pl-1">Order web</span>
       </a>
@@ -112,6 +114,12 @@ type NavBar = {
       <a :href="nav.voucherListUrl" :class="nav.voucherListUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
         <Icon class="text-white" name="mdi:voucher-outline" width="24" height="24" />
         <span class="hover:cursor-pointer text-white pl-2">Voucher List</span>
+      </a>
+    </div>
+    <div class="p-4">
+      <a :href="nav.messageSettingUrl" :class="nav.messageSettingUrl === path ? 'line flex items-center leading-10 pl-2' : 'flex items-center leading-10 pl-2 btn'">
+        <Icon class="text-white" name="carbon:message-queue" width="24" height="24" />
+        <span class="hover:cursor-pointer text-white pl-2">Message setting</span>
       </a>
     </div>
   </div>

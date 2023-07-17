@@ -3,7 +3,7 @@ import { ForgotPasswordService } from "../forgot-password.service";
 import { HttpServiceProvider } from "../http.service";
 
 export class ForgotPasswordServiceImpl extends ForgotPasswordService {
-    private serverUrl: string;
+    private readonly serverUrl: string;
     
     constructor(private httpServiceProvider: HttpServiceProvider) {
         super();
@@ -18,13 +18,13 @@ export class ForgotPasswordServiceImpl extends ForgotPasswordService {
         service.post<RequestResetPassword, void>(req);
     }
 
-    resetPassword(secretToken: string, newPassword: string): ErrorResponse | undefined {
+    resetPassword(secretToken: string, newPassword: string): ErrorResponse | undefined | null {
         const service = this.httpServiceProvider.open(`${this.serverUrl}/reset-password`);
         const req: ResetPassword = {
             password: newPassword,
             token: secretToken
         };
-        return service.post<ResetPassword, undefined | ErrorResponse>(req);
+        return service.post<ResetPassword, undefined | ErrorResponse>(req).getResponse;
     }
 }
 

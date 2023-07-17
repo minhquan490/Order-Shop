@@ -134,7 +134,7 @@ export default {
 <template>
   <div class="relative">
     <span class="hover:cursor-default pb-1 pl-1" v-text="inputName"></span>
-    <input @blur="$event => bindValue($event)" :id="id" :minlength="inputMinLength" :maxlength="inputMaxLength"
+    <input @blur="bindValue($event)" :id="id" :minlength="inputMinLength" :maxlength="inputMaxLength"
       :type="inputType" :class="inputClasses" :ref="'input-value'" />
     <small v-text="errorMsg" class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max"></small>
   </div>

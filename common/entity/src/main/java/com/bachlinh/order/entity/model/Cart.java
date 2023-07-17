@@ -1,5 +1,8 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,8 +17,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,6 +28,9 @@ import java.util.HashSet;
 @Table(name = "CART", indexes = @Index(name = "idx_cart_customer", columnList = "CUSTOMER_ID"))
 @Label("CRT-")
 @ActiveReflection
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.CartValidator")
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Cart extends AbstractEntity {
 
     @Id
@@ -46,10 +53,6 @@ public class Cart extends AbstractEntity {
     )
     private Collection<Product> products = new HashSet<>();
 
-    @ActiveReflection
-    Cart() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -57,21 +60,6 @@ public class Cart extends AbstractEntity {
             throw new PersistenceException("Id of cart must be string");
         }
         this.id = (String) id;
-    }
-
-    @ActiveReflection
-    public String getId() {
-        return this.id;
-    }
-
-    @ActiveReflection
-    public Customer getCustomer() {
-        return this.customer;
-    }
-
-    @ActiveReflection
-    public Collection<CartDetail> getCartDetails() {
-        return cartDetails;
     }
 
     @ActiveReflection
@@ -84,10 +72,6 @@ public class Cart extends AbstractEntity {
         this.cartDetails = cartDetails;
     }
 
-    public Collection<Product> getProducts() {
-        return products;
-    }
-
     @ActiveReflection
     public void setProducts(Collection<Product> products) {
         this.products = products;
@@ -97,11 +81,11 @@ public class Cart extends AbstractEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Cart cart)) return false;
-        return Objects.equal(getId(), cart.getId());
+        return Objects.equal(getId(), cart.getId()) && Objects.equal(getCustomer(), cart.getCustomer()) && Objects.equal(getCartDetails(), cart.getCartDetails()) && Objects.equal(getProducts(), cart.getProducts());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getId(), getCustomer(), getCartDetails(), getProducts());
     }
 }

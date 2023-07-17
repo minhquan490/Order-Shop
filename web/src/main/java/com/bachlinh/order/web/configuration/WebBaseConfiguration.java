@@ -1,5 +1,36 @@
 package com.bachlinh.order.web.configuration;
 
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
+import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
+import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
+import com.bachlinh.order.dto.DtoMapper;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.handler.controller.ControllerManager;
+import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
+import com.bachlinh.order.handler.router.ServletRouter;
+import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
+import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.security.handler.UnAuthorizationHandler;
+import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.validate.base.ValidatedDto;
+import com.bachlinh.order.validate.rule.RuleFactory;
+import com.bachlinh.order.validate.rule.RuleManager;
+import com.bachlinh.order.validate.rule.ValidationRule;
+import com.bachlinh.order.web.common.entity.DefaultEntityFactory;
+import com.bachlinh.order.web.common.interceptor.WebInterceptorConfigurer;
+import com.bachlinh.order.web.common.listener.WebApplicationEventListener;
+import com.bachlinh.order.web.common.servlet.WebServlet;
+import com.bachlinh.order.web.handler.websocket.ProxyRequestUpgradeStrategy;
+import com.bachlinh.order.web.handler.websocket.SocketHandler;
+import com.bachlinh.order.web.handler.websocket.WebSocketManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
@@ -17,40 +48,12 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.RequestUpgradeStrategy;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.DtoValidationRule;
-import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
-import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
-import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
-import com.bachlinh.order.dto.DtoMapper;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.handler.controller.ControllerManager;
-import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
-import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.handler.UnAuthorizationHandler;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.validate.base.ValidatedDto;
-import com.bachlinh.order.validate.rule.RuleFactory;
-import com.bachlinh.order.validate.rule.RuleManager;
-import com.bachlinh.order.validate.rule.ValidationRule;
-import com.bachlinh.order.web.common.interceptor.WebInterceptorConfigurer;
-import com.bachlinh.order.web.common.listener.WebApplicationEventListener;
-import com.bachlinh.order.web.common.servlet.WebServlet;
-import com.bachlinh.order.web.handler.SpringFrontRequestHandler;
-import com.bachlinh.order.web.handler.websocket.ProxyRequestUpgradeStrategy;
-import com.bachlinh.order.web.handler.websocket.SocketHandler;
-import com.bachlinh.order.web.handler.websocket.WebSocketManager;
+
+import java.io.IOException;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
-class WebBaseConfiguration extends WebInterceptorConfigurer implements WebSocketConfigurer {
+public class WebBaseConfiguration extends WebInterceptorConfigurer implements WebSocketConfigurer {
     private DependenciesResolver resolver;
     private Environment environment;
 
@@ -68,15 +71,36 @@ class WebBaseConfiguration extends WebInterceptorConfigurer implements WebSocket
     JettyServerCustomizer jettyServerCustomizer(@Value("${active.profile}") String profile) {
         return new H3JettyServerCustomize(Integer.parseInt(environment.getProperty("server.port")), environment.getProperty("server.address"), profile);
     }
+//
+//    @Bean
+//    NettyServer nettyServer() throws SSLException, InterruptedException {
+//        return new NettyServer(
+//                environment.getProperty("server.ssl.certificate"),
+//                environment.getProperty("server.ssl.certificate-private-key"),
+//                Integer.parseInt(environment.getProperty("server.port")),
+//                environment.getProperty("server.address"),
+//                resolver
+//        ).start();
+//    }
 
     @Bean(name = "dispatcherServlet")
     FrameworkServlet servlet(WebApplicationContext webApplicationContext) {
         return new WebServlet(webApplicationContext);
     }
 
+//    @Bean
+//    SpringFrontRequestHandler frontRequestHandler(ControllerManager controllerManager, EntityFactory entityFactory, ExceptionTranslator<NativeResponse<String>> exceptionTranslator) {
+//        return new SpringFrontRequestHandler(controllerManager, entityFactory, exceptionTranslator);
+//    }
+
     @Bean
-    SpringFrontRequestHandler frontRequestHandler(ControllerManager controllerManager, EntityFactory entityFactory, ExceptionTranslator<NativeResponse<String>> exceptionTranslator) {
-        return new SpringFrontRequestHandler(controllerManager, entityFactory, exceptionTranslator);
+    ServletRouter servletRouter() {
+        return new ServletRouter(resolver);
+    }
+
+    @Bean
+    JsonStringExceptionTranslator jsonStringExceptionTranslator() {
+        return new JsonStringExceptionTranslator();
     }
 
     @Bean
@@ -135,6 +159,14 @@ class WebBaseConfiguration extends WebInterceptorConfigurer implements WebSocket
     @Bean
     public WebInterceptorChain configInterceptorChain(DependenciesResolver resolver, @Autowired(required = false) Environment environment) {
         return super.configInterceptorChain(resolver, environment == null ? this.environment : environment);
+    }
+
+    @Bean
+    EntityFactory entityFactory(ApplicationContext applicationContext, @Value("${active.profile}") String profile) throws IOException {
+        return new DefaultEntityFactory.DefaultEntityFactoryBuilder()
+                .container(ContainerWrapper.wrap(applicationContext))
+                .profile(profile)
+                .build();
     }
 
     @Override

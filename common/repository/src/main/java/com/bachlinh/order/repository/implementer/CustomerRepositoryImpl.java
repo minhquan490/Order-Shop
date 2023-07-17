@@ -1,5 +1,17 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
@@ -13,20 +25,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.entity.model.Customer_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.QueryExtractor;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +33,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -154,6 +155,11 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public Customer updateCustomer(@NonNull Customer customer) {
         return this.save(customer);
+    }
+
+    @Override
+    public void updateCustomers(Collection<Customer> customers) {
+        saveAll(customers);
     }
 
     @Override

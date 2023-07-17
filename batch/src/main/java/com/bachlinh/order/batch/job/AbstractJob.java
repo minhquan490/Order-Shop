@@ -1,10 +1,10 @@
 package com.bachlinh.order.batch.job;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +13,7 @@ public abstract non-sealed class AbstractJob implements Job {
     private Report report;
     private final Environment environment;
     private final DependenciesResolver dependenciesResolver;
-    private boolean excuted = false;
+    private boolean executed = false;
 
     protected AbstractJob(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         this.name = name;
@@ -36,7 +36,7 @@ public abstract non-sealed class AbstractJob implements Job {
         } catch (Exception e) {
             addException(e);
         } finally {
-            this.excuted = true;
+            this.executed = true;
         }
     }
 
@@ -51,7 +51,7 @@ public abstract non-sealed class AbstractJob implements Job {
 
     @Override
     public final LocalDateTime getNextExecutionTime() {
-        if (!excuted) {
+        if (!executed) {
             return doGetNextExecutionTime();
         }
         return getPreviousExecutionTime();

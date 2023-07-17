@@ -34,7 +34,7 @@ export default {
 .alert-simple.alert-success {
   border: 1px solid rgba(36, 241, 6, 0.46);
   background-color: rgba(7, 149, 66, 0.12156862745098039);
-  box-shadow: 0px 0px 2px #259c08;
+  box-shadow: 0 0 2px #259c08;
   color: rgba(36, 241, 6, 0.46);
   text-shadow: 2px 1px #00040a;
   transition: 0.5s;
@@ -44,16 +44,6 @@ export default {
 .alert-success:hover {
   background-color: rgba(7, 149, 66, 0.35);
   transition: 0.5s;
-}
-
-.alert-simple.alert-info {
-  border: 1px solid rgba(6, 44, 241, 0.46);
-  background-color: rgba(7, 73, 149, 0.12156862745098039);
-  box-shadow: 0px 0px 2px #0396ff;
-  color: #0396ff;
-  text-shadow: 2px 1px #00040a;
-  transition: 0.5s;
-  cursor: pointer;
 }
 
 .alert:before {
@@ -69,12 +59,6 @@ export default {
   top: 50%;
   transform: translate(0, -50%);
   height: 20px;
-}
-
-.faa-tada.animated,
-.faa-tada.animated-hover:hover {
-  -webkit-animation: tada 2s linear infinite;
-  animation: tada 2s linear infinite;
 }
 
 

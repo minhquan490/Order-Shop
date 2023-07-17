@@ -1,5 +1,8 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -14,11 +17,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,10 +29,12 @@ import java.util.Set;
 @Entity
 @Table(name = "CATEGORY", indexes = @Index(name = "idx_category_name", columnList = "NAME", unique = true))
 @Label("CTR-")
-@Validator(validators = "com.bachlinh.order.validator.internal.CategoryValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.CategoryValidator")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "category")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Category extends AbstractEntity {
 
     @Id
@@ -49,10 +54,6 @@ public class Category extends AbstractEntity {
     )
     private Set<Product> products = new HashSet<>();
 
-    @ActiveReflection
-    Category() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -60,18 +61,6 @@ public class Category extends AbstractEntity {
             throw new PersistenceException("Id of category must be string");
         }
         this.id = (String) id;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Set<Product> getProducts() {
-        return this.products;
     }
 
     @ActiveReflection
@@ -88,11 +77,11 @@ public class Category extends AbstractEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Category category)) return false;
-        return Objects.equal(getId(), category.getId());
+        return Objects.equal(getId(), category.getId()) && Objects.equal(getName(), category.getName()) && Objects.equal(getProducts(), category.getProducts());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getId(), getName(), getProducts());
     }
 }

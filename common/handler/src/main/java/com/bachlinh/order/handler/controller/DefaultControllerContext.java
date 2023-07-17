@@ -1,11 +1,11 @@
 package com.bachlinh.order.handler.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.system.common.CriticalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -54,6 +54,7 @@ class DefaultControllerContext implements ControllerContext {
 
     @Override
     public boolean contains(String controllerName) {
-        return queryAll().stream().anyMatch(controller -> controller.getClass().getName().equals(controllerName));
+        return queryAll().stream()
+                .anyMatch(controller -> controller.getName().equals(controllerName));
     }
 }

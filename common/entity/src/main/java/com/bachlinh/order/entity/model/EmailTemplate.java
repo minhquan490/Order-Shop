@@ -1,5 +1,11 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,12 +17,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Label("ETE-")
 @Entity
@@ -29,10 +32,12 @@ import com.bachlinh.order.annotation.Validator;
                 @Index(name = "idx_email_template_name", columnList = "NAME")
         }
 )
-@Validator(validators = "com.bachlinh.order.validator.internal.EmailTemplateValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailTemplateValidator")
 @ActiveReflection
 @EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateIndexTrigger"})
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class EmailTemplate extends AbstractEntity {
 
     @Id
@@ -72,10 +77,6 @@ public class EmailTemplate extends AbstractEntity {
     private EmailTemplateFolder folder;
 
     @ActiveReflection
-    EmailTemplate() {
-    }
-
-    @ActiveReflection
     @Override
     public void setId(Object id) {
         if (id instanceof String casted) {
@@ -84,48 +85,7 @@ public class EmailTemplate extends AbstractEntity {
         }
         throw new PersistenceException("Id of email template must be string");
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EmailTemplate that = (EmailTemplate) o;
-        return Objects.equal(getId(), that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getTitle() {
-        return this.title;
-    }
-
-    public String getContent() {
-        return this.content;
-    }
-
-    public Integer getExpiryPolicy() {
-        return this.expiryPolicy;
-    }
-
-    public Customer getOwner() {
-        return this.owner;
-    }
-
-    public EmailTemplateFolder getFolder() {
-        return this.folder;
-    }
-
-    public String getParams() {
-        return params;
-    }
-
+    
     @ActiveReflection
     public void setTitle(String title) {
         this.title = title;
@@ -172,5 +132,17 @@ public class EmailTemplate extends AbstractEntity {
     @ActiveReflection
     public void setParams(String params) {
         this.params = params;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EmailTemplate that)) return false;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getName(), that.getName()) && Objects.equal(getTitle(), that.getTitle()) && Objects.equal(getContent(), that.getContent()) && Objects.equal(getExpiryPolicy(), that.getExpiryPolicy()) && Objects.equal(getTotalArgument(), that.getTotalArgument()) && Objects.equal(getParams(), that.getParams()) && Objects.equal(getOwner(), that.getOwner()) && Objects.equal(getFolder(), that.getFolder());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getTitle(), getContent(), getExpiryPolicy(), getTotalArgument(), getParams(), getOwner(), getFolder());
     }
 }

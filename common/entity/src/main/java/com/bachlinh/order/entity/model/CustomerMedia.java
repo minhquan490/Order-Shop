@@ -1,5 +1,9 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Validator;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -7,13 +11,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Label("CMA-")
 @Table(name = "CUSTOMER_MEDIA")
 @Entity
 @ActiveReflection
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.CustomerMediaValidator")
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class CustomerMedia extends AbstractEntity {
 
     @Id
@@ -27,35 +35,10 @@ public class CustomerMedia extends AbstractEntity {
     private String contentType;
 
     @Column(name = "CONTENT_LENGTH", nullable = false)
-    private long contentLength;
+    private Long contentLength;
 
     @OneToOne(optional = false, mappedBy = "customerMedia", fetch = FetchType.LAZY)
     private Customer customer;
-
-    @ActiveReflection
-    CustomerMedia() {
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public long getContentLength() {
-        return contentLength;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
@@ -85,5 +68,17 @@ public class CustomerMedia extends AbstractEntity {
             return;
         }
         throw new PersistenceException("Id of CustomerMedia must be string");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CustomerMedia that)) return false;
+        return getContentLength() == that.getContentLength() && Objects.equal(getId(), that.getId()) && Objects.equal(getUrl(), that.getUrl()) && Objects.equal(getContentType(), that.getContentType()) && Objects.equal(getCustomer(), that.getCustomer());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getUrl(), getContentType(), getContentLength(), getCustomer());
     }
 }

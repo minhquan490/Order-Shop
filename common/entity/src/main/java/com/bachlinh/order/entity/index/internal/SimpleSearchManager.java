@@ -1,17 +1,16 @@
 package com.bachlinh.order.entity.index.internal;
 
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.spi.EntityIndexer;
 import com.bachlinh.order.entity.index.spi.EntitySearcher;
 import com.bachlinh.order.entity.index.spi.MetadataFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -23,11 +22,9 @@ class SimpleSearchManager implements SearchManager {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Map<Class<?>, EntityIndexer> indexerMap;
-    private final ThreadPoolTaskExecutor executor;
     private final EntityProxyFactory entityProxyFactory;
 
-    SimpleSearchManager(Map<Class<?>, DirectoryHolder> directoryMap, IndexWriterConfig indexWriterConfig, ThreadPoolTaskExecutor executor, EntityProxyFactory entityProxyFactory) {
-        this.executor = executor;
+    SimpleSearchManager(Map<Class<?>, DirectoryHolder> directoryMap, IndexWriterConfig indexWriterConfig, EntityProxyFactory entityProxyFactory) {
         this.entityProxyFactory = entityProxyFactory;
         indexerMap = buildIndexer(directoryMap, indexWriterConfig);
     }
@@ -52,7 +49,7 @@ class SimpleSearchManager implements SearchManager {
 
     @Override
     public void analyze(Collection<Object> entities) {
-        executor.execute(() -> entities.forEach(this::analyze));
+        entities.forEach(this::analyze);
     }
 
     @Override

@@ -81,7 +81,7 @@ export default {
             </div>
           </div>
           <div class="pt-8">
-            <button @click="$event => submit($event)" class="w-full bg-blue-500 leading-10 rounded-xl text-white">Login</button>
+            <button @click="submit($event)" class="w-full bg-blue-500 leading-10 rounded-xl text-white">Login</button>
           </div>
           <div class="flex justify-end pt-2">
             <span class="hover:cursor-default pr-2">Forgot</span>

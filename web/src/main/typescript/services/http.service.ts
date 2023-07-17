@@ -8,6 +8,6 @@ export interface HttpServiceProvider {
 export interface HttpService {
   get<T, U>(request?: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null>;
   post<T, U>(request: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null>;
-  put<T, U>(request: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null>;
+  patch<T, U>(request: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null>;
   delete<T, U>(request?: T, urlParams?: Map<string, string>): ResponseWrapper<U | ErrorResponse | null>;
 }

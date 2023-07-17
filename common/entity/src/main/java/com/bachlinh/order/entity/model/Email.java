@@ -1,5 +1,12 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
+import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,13 +17,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.MediaType;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
 
 import java.sql.Timestamp;
 
@@ -34,9 +38,11 @@ import java.sql.Timestamp;
         "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger",
         "com.bachlinh.order.trigger.internal.EmailSendingTrigger"
 })
-@Validator(validators = "com.bachlinh.order.validator.internal.EmailValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailValidator")
 @ActiveReflection
 @EnableFullTextSearch
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Email extends AbstractEntity {
 
     @Id
@@ -84,10 +90,6 @@ public class Email extends AbstractEntity {
     @JoinColumn(name = "EMAIL_TRASH_ID")
     private EmailTrash emailTrash;
 
-    @ActiveReflection
-    Email() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -96,54 +98,6 @@ public class Email extends AbstractEntity {
             return;
         }
         throw new PersistenceException("Id of email received must be string");
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getContent() {
-        return this.content;
-    }
-
-    public Timestamp getReceivedTime() {
-        return this.receivedTime;
-    }
-
-    public Timestamp getTimeSent() {
-        return this.timeSent;
-    }
-
-    public String getTitle() {
-        return this.title;
-    }
-
-    public boolean isRead() {
-        return this.read;
-    }
-
-    public boolean isSent() {
-        return this.sent;
-    }
-
-    public String getMediaType() {
-        return this.mediaType;
-    }
-
-    public Customer getFromCustomer() {
-        return this.fromCustomer;
-    }
-
-    public Customer getToCustomer() {
-        return this.toCustomer;
-    }
-
-    public EmailFolders getFolder() {
-        return this.folder;
-    }
-
-    public EmailTrash getEmailTrash() {
-        return emailTrash;
     }
 
     @ActiveReflection
@@ -199,5 +153,17 @@ public class Email extends AbstractEntity {
     @ActiveReflection
     public void setEmailTrash(EmailTrash emailTrash) {
         this.emailTrash = emailTrash;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Email email)) return false;
+        return isRead() == email.isRead() && isSent() == email.isSent() && Objects.equal(getId(), email.getId()) && Objects.equal(getContent(), email.getContent()) && Objects.equal(getReceivedTime(), email.getReceivedTime()) && Objects.equal(getTimeSent(), email.getTimeSent()) && Objects.equal(getTitle(), email.getTitle()) && Objects.equal(getMediaType(), email.getMediaType()) && Objects.equal(getFromCustomer(), email.getFromCustomer()) && Objects.equal(getToCustomer(), email.getToCustomer()) && Objects.equal(getFolder(), email.getFolder()) && Objects.equal(getEmailTrash(), email.getEmailTrash());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getContent(), getReceivedTime(), getTimeSent(), getTitle(), isRead(), isSent(), getMediaType(), getFromCustomer(), getToCustomer(), getFolder(), getEmailTrash());
     }
 }

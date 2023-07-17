@@ -20,7 +20,7 @@ export default {
 .alert-simple.alert-danger {
   border: 1px solid rgba(241, 6, 6, 0.81);
   background-color: rgba(220, 17, 1, 0.16);
-  box-shadow: 0px 0px 2px #ff0303;
+  box-shadow: 0 0 2px #ff0303;
   color: #ff0303;
   text-shadow: 2px 1px #00040a;
   transition: 0.5s;
@@ -51,12 +51,6 @@ export default {
   top: 50%;
   transform: translate(0, -50%);
   height: 20px;
-}
-
-.faa-pulse.animated,
-.faa-pulse.animated-hover:hover {
-  -webkit-animation: pulse 2s linear infinite;
-  animation: pulse 2s linear infinite;
 }
 
 @-webkit-keyframes pulse {

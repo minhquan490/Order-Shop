@@ -1,13 +1,13 @@
 <script lang="ts">
 export default {
   props: {
-    pitureUrls: Array<string>
+    pictureUrls: Array<string>
   },
   computed: {
     cssVars() {
-      if (this.pitureUrls && this.pitureUrls.length !== 0) {
+      if (this.pictureUrls && this.pictureUrls.length !== 0) {
         return {
-          '--bg-urls': this.pitureUrls.toLocaleString()
+          '--bg-urls': this.pictureUrls.toLocaleString()
         }
       } else {
         return {}
@@ -19,10 +19,10 @@ export default {
 
 <template>
   <div class="container">
-    <div v-if="pitureUrls && pitureUrls.length !== 0" class="slideshow">
-      <div v-for="(pic, i) in pitureUrls" :id="`slide-${i}`" class="slide">
-        <a :href="i === 0 ? `#slide-${pitureUrls.length - 1}` : `#slide-${i - 1}`"></a>
-        <a :href="i === pitureUrls.length ? '#slide-1' : `#slide-${i + 1}`"></a>
+    <div v-if="pictureUrls && pictureUrls.length !== 0" class="slideshow">
+      <div v-for="(pic, i) in pictureUrls" :id="`slide-${i}`" class="slide">
+        <a :href="i === 0 ? `#slide-${pictureUrls.length - 1}` : `#slide-${i - 1}`"></a>
+        <a :href="i === pictureUrls.length ? '#slide-1' : `#slide-${i + 1}`"></a>
         <img :src="pic" alt="">
       </div>
     </div>

@@ -1,5 +1,11 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.annotation.Trigger;
+import com.bachlinh.order.annotation.Validator;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,12 +14,9 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -25,10 +28,12 @@ import java.util.Set;
         indexes = @Index(name = "idx_voucher_name", columnList = "NAME")
 )
 @Label("VOU-")
-@Validator(validators = "com.bachlinh.order.validator.internal.VoucherValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.VoucherValidator")
 @ActiveReflection
 @EnableFullTextSearch
 @Trigger(triggers = {"com.bachlinh.order.trigger.internal.VoucherIndexTrigger"})
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Voucher extends AbstractEntity {
 
     @Id
@@ -63,10 +68,6 @@ public class Voucher extends AbstractEntity {
     @ManyToMany(mappedBy = "assignedVouchers")
     private Set<Customer> customers = new HashSet<>();
 
-    @ActiveReflection
-    Voucher() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -75,55 +76,6 @@ public class Voucher extends AbstractEntity {
             return;
         }
         throw new PersistenceException("Id of voucher must be string");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Voucher voucher = (Voucher) o;
-        return Objects.equal(getId(), voucher.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public Integer getDiscountPercent() {
-        return this.discountPercent;
-    }
-
-    public Timestamp getTimeStart() {
-        return this.timeStart;
-    }
-
-    public Timestamp getTimeExpired() {
-        return this.timeExpired;
-    }
-
-    public String getVoucherContent() {
-        return this.voucherContent;
-    }
-
-    public Integer getVoucherCost() {
-        return this.voucherCost;
-    }
-
-    public boolean isActive() {
-        return this.active;
-    }
-
-    public Set<Customer> getCustomers() {
-        return this.customers;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @ActiveReflection
@@ -164,5 +116,17 @@ public class Voucher extends AbstractEntity {
     @ActiveReflection
     public void setCustomers(Set<Customer> customers) {
         this.customers = customers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Voucher voucher)) return false;
+        return isActive() == voucher.isActive() && Objects.equal(getId(), voucher.getId()) && Objects.equal(getName(), voucher.getName()) && Objects.equal(getDiscountPercent(), voucher.getDiscountPercent()) && Objects.equal(getTimeStart(), voucher.getTimeStart()) && Objects.equal(getTimeExpired(), voucher.getTimeExpired()) && Objects.equal(getVoucherContent(), voucher.getVoucherContent()) && Objects.equal(getVoucherCost(), voucher.getVoucherCost()) && Objects.equal(getCustomers(), voucher.getCustomers());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getDiscountPercent(), getTimeStart(), getTimeExpired(), getVoucherContent(), getVoucherCost(), isActive(), getCustomers());
     }
 }

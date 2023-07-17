@@ -1,5 +1,9 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Trigger;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -13,12 +17,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Trigger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,8 @@ import java.util.List;
 @EnableFullTextSearch
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.DistrictIndexTrigger")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class District extends AbstractEntity {
 
     @Id
@@ -65,10 +70,6 @@ public class District extends AbstractEntity {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
     private List<Ward> wards = new ArrayList<>();
 
-    @ActiveReflection
-    District() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -76,46 +77,6 @@ public class District extends AbstractEntity {
             throw new PersistenceException("Id of district must be int");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof District district)) return false;
-        return Objects.equal(getId(), district.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Integer getCode() {
-        return this.code;
-    }
-
-    public String getDivisionType() {
-        return this.divisionType;
-    }
-
-    public String getCodeName() {
-        return this.codeName;
-    }
-
-    public Province getProvince() {
-        return this.province;
-    }
-
-    public List<Ward> getWards() {
-        return this.wards;
     }
 
     @ActiveReflection
@@ -146,5 +107,17 @@ public class District extends AbstractEntity {
     @ActiveReflection
     public void setWards(List<Ward> wards) {
         this.wards = wards;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof District district)) return false;
+        return Objects.equal(getId(), district.getId()) && Objects.equal(getName(), district.getName()) && Objects.equal(getCode(), district.getCode()) && Objects.equal(getDivisionType(), district.getDivisionType()) && Objects.equal(getCodeName(), district.getCodeName()) && Objects.equal(getProvince(), district.getProvince()) && Objects.equal(getWards(), district.getWards());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getCode(), getDivisionType(), getCodeName(), getProvince(), getWards());
     }
 }

@@ -2,13 +2,16 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.common.DeleteEmailInTrashForm;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +19,9 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class DeleteEmailInTrashRule extends AbstractRule<DeleteEmailInTrashForm> {
+    private static final String AT_LEAST_MESSAGE_ID = "MSG-000015";
+
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public DeleteEmailInTrashRule(Environment environment, DependenciesResolver resolver) {
@@ -27,7 +33,9 @@ public class DeleteEmailInTrashRule extends AbstractRule<DeleteEmailInTrashForm>
         var validationResult = new HashMap<String, List<String>>(1);
         if (dto.getEmailId().length == 0) {
             var key = "email_ids";
-            RuntimeUtils.computeMultiValueMap(key, "Need at least 1 email for delete", validationResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(AT_LEAST_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Email ids");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -44,7 +52,9 @@ public class DeleteEmailInTrashRule extends AbstractRule<DeleteEmailInTrashForm>
 
     @Override
     protected void injectDependencies() {
-        // Do nothing
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override

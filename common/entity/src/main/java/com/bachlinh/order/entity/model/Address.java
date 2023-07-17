@@ -12,12 +12,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Label("ADR-")
 @Entity
 @Table(name = "ADDRESS")
-@Validator(validators = "com.bachlinh.order.validator.internal.AddressValidator")
+@Validator(validators = "com.bachlinh.order.validate.validator.internal.AddressValidator")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
 public class Address extends AbstractEntity {
 
     @Id
@@ -37,16 +42,6 @@ public class Address extends AbstractEntity {
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)
     private Customer customer;
 
-    @ActiveReflection
-    Address() {
-    }
-
-    @Override
-    @ActiveReflection
-    public Object getId() {
-        return id;
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -54,38 +49,6 @@ public class Address extends AbstractEntity {
             throw new PersistenceException("Address entity must be string");
         }
         this.id = (String) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Address address)) return false;
-        return Objects.equal(getId(), address.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    @ActiveReflection
-    public String getValue() {
-        return this.value;
-    }
-
-    @ActiveReflection
-    public String getCity() {
-        return this.city;
-    }
-
-    @ActiveReflection
-    public String getCountry() {
-        return this.country;
-    }
-
-    @ActiveReflection
-    public Customer getCustomer() {
-        return this.customer;
     }
 
     @ActiveReflection
@@ -106,5 +69,17 @@ public class Address extends AbstractEntity {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Address address)) return false;
+        return Objects.equal(getId(), address.getId()) && Objects.equal(getValue(), address.getValue()) && Objects.equal(getCity(), address.getCity()) && Objects.equal(getCountry(), address.getCountry()) && Objects.equal(getCustomer(), address.getCustomer());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getValue(), getCity(), getCountry(), getCustomer());
     }
 }

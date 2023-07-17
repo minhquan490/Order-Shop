@@ -9,6 +9,7 @@ import com.bachlinh.order.core.http.converter.spi.NativeCookieConverter;
 import com.bachlinh.order.core.http.converter.spi.RequestConverter;
 import com.bachlinh.order.core.http.parser.internal.ServletRequestBodyParser;
 import com.bachlinh.order.core.http.parser.spi.RequestBodyParser;
+import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.ServletRequest;
@@ -36,9 +37,11 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
         nativeRequest.setHeaders(parseToHeaders(request));
         nativeRequest.setCookies(parseToCookies(request));
         NativeMethodHandleRequestMetadataReader requestMetadataReader = NativeMethodHandleRequestMetadataReader.getInstance();
-        Class<?> requestType = requestMetadataReader
-                .getNativeMethodMetadata(request.getRequestURI())
-                .parameterType();
+        var reader = requestMetadataReader.getNativeMethodMetadata(request.getRequestURI());
+        if (reader == null) {
+            throw new ResourceNotFoundException("Not found", request.getRequestURI());
+        }
+        Class<?> requestType = reader.parameterType();
         nativeRequest.setPayload(new Payload<>(parser.parseRequest(request, requestType)));
         nativeRequest.setCustomerIp(request.getRemoteAddr());
         return nativeRequest;

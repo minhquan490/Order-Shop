@@ -1,18 +1,17 @@
 package com.bachlinh.order.mail.bean.spring;
 
-import com.google.api.services.gmail.GmailScopes;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.mail.oauth2.CredentialAdapter;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.mail.template.EmailTemplateProcessor;
+import com.google.api.services.gmail.GmailScopes;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 @Configuration
 public class EmailBean {
@@ -32,8 +31,8 @@ public class EmailBean {
         Environment environment = Environment.getInstance(profile);
         return new CredentialAdapter() {
             @Override
-            public InputStream getCredentialResources() throws FileNotFoundException {
-                return new FileInputStream(environment.getProperty("google.email.credentials"));
+            public InputStream getCredentialResources() throws IOException {
+                return new URL(environment.getProperty("google.email.credentials")).openStream();
             }
 
             @Override

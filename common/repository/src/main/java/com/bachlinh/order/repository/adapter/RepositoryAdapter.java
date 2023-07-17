@@ -1,6 +1,15 @@
 package com.bachlinh.order.repository.adapter;
 
 
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityManagerHolder;
+import com.bachlinh.order.entity.EntityTrigger;
+import com.bachlinh.order.entity.HintDecorator;
+import com.bachlinh.order.entity.enums.TriggerExecution;
+import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
@@ -18,7 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Cache;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -45,20 +53,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
-import static org.springframework.data.jpa.repository.query.QueryUtils.COUNT_QUERY_STRING;
-import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_BY_ID_STRING;
-import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_STRING;
-import static org.springframework.data.jpa.repository.query.QueryUtils.applyAndBind;
-import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
-import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityManagerHolder;
-import com.bachlinh.order.entity.EntityTrigger;
-import com.bachlinh.order.entity.HintDecorator;
-import com.bachlinh.order.entity.enums.TriggerExecution;
-import com.bachlinh.order.entity.enums.TriggerMode;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,8 +67,14 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static org.springframework.data.jpa.repository.query.QueryUtils.COUNT_QUERY_STRING;
+import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_BY_ID_STRING;
+import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_ALL_QUERY_STRING;
+import static org.springframework.data.jpa.repository.query.QueryUtils.applyAndBind;
+import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
+import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
+
 public abstract class RepositoryAdapter<T extends BaseEntity, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
-    private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String ENTITY_NULL_MESSAGE = "Entity must not be null";
     private final Class<T> domainClass;
@@ -172,7 +172,8 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
 
             // if the entity to be deleted doesn't exist, delete is a NOOP
             if (existing == null) {
-                return null;
+                // throw exception for trigger transaction rollback and stop trigger process
+                throw new ResourceNotFoundException(String.format("Entity with id [%s] not existed", entity.getId()), "");
             }
             boolean springActualTransactionActive = entityFactory.getTransactionManager().isActualTransactionActive();
             if (!springActualTransactionActive) {
@@ -223,7 +224,6 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
             }
 
             applyQueryHints(query);
-
             query.executeUpdate();
         }
     }

@@ -18,4 +18,6 @@ public interface Controller<T, U> {
     void setNativeRequest(NativeRequest<U> request);
 
     void setNativeResponse(NativeResponse<T> response);
+
+    String getName();
 }

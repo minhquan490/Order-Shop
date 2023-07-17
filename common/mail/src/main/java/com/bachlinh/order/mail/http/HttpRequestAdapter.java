@@ -1,10 +1,10 @@
 package com.bachlinh.order.mail.http;
 
+import com.bachlinh.order.core.enums.RequestMethod;
+import com.bachlinh.order.exception.system.mail.MailException;
 import com.google.api.client.http.LowLevelHttpRequest;
 import com.google.api.client.http.LowLevelHttpResponse;
 import com.google.common.net.HttpHeaders;
-import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.exception.system.mail.MailException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class HttpRequestAdapter extends LowLevelHttpRequest {
                         requestBuilder.POST(HttpRequest.BodyPublishers.noBody());
                     }
                 }
-                case PUT -> {
+                case PATCH -> {
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     if (getStreamingContent() != null) {
                         getStreamingContent().writeTo(byteArrayOutputStream);

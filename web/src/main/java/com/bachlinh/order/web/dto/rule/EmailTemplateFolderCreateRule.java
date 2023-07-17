@@ -1,16 +1,19 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderCreateForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +21,11 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class EmailTemplateFolderCreateRule extends AbstractRule<EmailTemplateFolderCreateForm> {
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String EXISTED_MESSAGE_ID = "MSG-000007";
+
     private EmailTemplateFolderRepository emailTemplateFolderRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public EmailTemplateFolderCreateRule(Environment environment, DependenciesResolver resolver) {
@@ -31,13 +38,17 @@ public class EmailTemplateFolderCreateRule extends AbstractRule<EmailTemplateFol
 
         if (!StringUtils.hasText(dto.name())) {
             var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of template folder must not be empty", validateResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Name of template folder");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
 
         var isExisted = emailTemplateFolderRepository.isEmailTemplateFolderNameExisted(dto.name());
         if (isExisted) {
             var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of template folder is existed", validateResult);
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Name of template folder");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -56,6 +67,9 @@ public class EmailTemplateFolderCreateRule extends AbstractRule<EmailTemplateFol
     protected void injectDependencies() {
         if (emailTemplateFolderRepository == null) {
             emailTemplateFolderRepository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
         }
     }
 

@@ -31,7 +31,7 @@ export default {
 
 <template>
   <div>
-    <button :style="`--bgColor: ${buttonBgColor};--textColor: ${buttonTextColor};--textSize: ${buttonTextSize}`" @click="$event => handleClick($event)" class="button p-2 rounded-md hover:opacity-70 active:translate-y-1 relative">
+    <button :style="`--bgColor: ${buttonBgColor};--textColor: ${buttonTextColor};--textSize: ${buttonTextSize}`" @click="handleClick($event)" class="button p-2 rounded-md hover:opacity-70 active:translate-y-1 relative">
       <span class="hover:cursor-pointer" v-text="buttonTextContent"></span>
     </button>
   </div>

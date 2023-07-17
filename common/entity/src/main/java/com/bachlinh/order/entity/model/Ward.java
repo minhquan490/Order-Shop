@@ -1,5 +1,9 @@
 package com.bachlinh.order.entity.model;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.annotation.Trigger;
 import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
@@ -12,10 +16,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Trigger;
 
 @Entity
 @Table(
@@ -29,6 +34,9 @@ import com.bachlinh.order.annotation.Trigger;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "ward")
 @Trigger(triggers = "com.bachlinh.order.trigger.internal.WardIndexTrigger")
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
+@Getter
+@EnableFullTextSearch
 public class Ward extends AbstractEntity {
 
     @Id
@@ -36,12 +44,14 @@ public class Ward extends AbstractEntity {
     private Integer id;
 
     @Column(name = "NAME", columnDefinition = "nvarchar(100)")
+    @FullTextField
     private String name;
 
     @Column(name = "CODE")
     private Integer code;
 
     @Column(name = "CODE_NAME", length = 50)
+    @FullTextField
     private String codeName;
 
     @Column(name = "DIVISION_TYPE", columnDefinition = "nvarchar(100)")
@@ -51,10 +61,6 @@ public class Ward extends AbstractEntity {
     @JoinColumn(name = "DISTRICT_ID", nullable = false)
     private District district;
 
-    @ActiveReflection
-    Ward() {
-    }
-
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -62,42 +68,6 @@ public class Ward extends AbstractEntity {
             throw new PersistenceException("Id of ward must be int");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Ward ward)) return false;
-        return Objects.equal(getId(), ward.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Integer getCode() {
-        return this.code;
-    }
-
-    public String getCodeName() {
-        return this.codeName;
-    }
-
-    public String getDivisionType() {
-        return this.divisionType;
-    }
-
-    public District getDistrict() {
-        return this.district;
     }
 
     @ActiveReflection
@@ -123,5 +93,17 @@ public class Ward extends AbstractEntity {
     @ActiveReflection
     public void setDistrict(District district) {
         this.district = district;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ward ward)) return false;
+        return Objects.equal(getId(), ward.getId()) && Objects.equal(getName(), ward.getName()) && Objects.equal(getCode(), ward.getCode()) && Objects.equal(getCodeName(), ward.getCodeName()) && Objects.equal(getDivisionType(), ward.getDivisionType()) && Objects.equal(getDistrict(), ward.getDistrict());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getName(), getCode(), getCodeName(), getDivisionType(), getDistrict());
     }
 }

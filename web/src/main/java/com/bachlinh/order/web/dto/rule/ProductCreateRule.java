@@ -1,12 +1,13 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CategoryRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
@@ -14,7 +15,9 @@ import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.product.ProductCreateForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +26,18 @@ import java.util.stream.Stream;
 @ActiveReflection
 @DtoValidationRule
 public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String EXISTED_MESSAGE_ID = "MSG-000007";
+    private static final String INVALID_MESSAGE_ID = "MSG-000009";
+    private static final String RANGE_INVALID_MESSAGE_ID = "MSG-000010";
+    private static final String NON_NUMBER_MESSAGE_ID = "MSG-000018";
+    private static final String ENABLE_DISABLE_INVALID_MESSAGE_ID = "MSG-000020";
+    private static final String PRODUCT_MUST_HAVE_CATEGORY_MESSAGE_ID = "MSG-000028";
     private static final String PRODUCT_NAME_KEY = "product_name";
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private EntityFactory entityFactory;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public ProductCreateRule(Environment environment, DependenciesResolver resolver) {
@@ -36,11 +47,105 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
     @Override
     protected ValidatedDto.ValidateResult doValidate(ProductCreateForm dto) {
         var validateResult = new HashMap<String, List<String>>();
-        validateCommonCase(dto, validateResult);
-        validateLength(dto, validateResult);
-        validateNumber(dto, validateResult);
-        validateRegex(dto, validateResult);
-        validateExist(dto, validateResult);
+
+        MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+        MessageSetting nonNumberMessage = messageSettingRepository.getMessageById(NON_NUMBER_MESSAGE_ID);
+        MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
+
+        if (!StringUtils.hasText(dto.getProductName())) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Name of product");
+            RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, errorContent, validateResult);
+        } else {
+            int productNameLength = dto.getProductName().length();
+            if (productNameLength < 4 || productNameLength > 32) {
+                MessageSetting messageSetting = messageSettingRepository.getMessageById(RANGE_INVALID_MESSAGE_ID);
+                String errorContent = MessageFormat.format(messageSetting.getValue(), "Product name", "4", "32");
+                RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, errorContent, validateResult);
+            }
+
+            var product = entityFactory.getEntity(Product.class);
+            product.setName(dto.getProductName());
+            if (productRepository.productNameExist(product)) {
+                MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+                String errorContent = MessageFormat.format(existedMessage.getValue(), "Product name");
+                RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, errorContent, validateResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getProductPrice())) {
+            var key = "product_price";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Price of product");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (!ValidateUtils.isNumber(dto.getProductPrice())) {
+                var key = "product_price";
+                String errorContent = MessageFormat.format(nonNumberMessage.getValue(), "Price of product");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getProductSize())) {
+            var key = "product_size";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Size of product");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (!ValidateUtils.isSizeValid(dto.getProductSize())) {
+                var key = "product_size";
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Size of product");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getProductColor())) {
+            var key = "product_color";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Color of product");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        }
+
+        if (!StringUtils.hasText(dto.getProductTaobaoUrl())) {
+            var key = "product_taobao_url";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Tabao url of product");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (!ValidateUtils.isUrlValid(dto.getProductTaobaoUrl())) {
+                var key = "product_taobao_url";
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Tabao url");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getProductEnabled())) {
+            var key = "product_enabled";
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(ENABLE_DISABLE_INVALID_MESSAGE_ID);
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Product must");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        }
+
+        if (dto.getProductCategoriesId().length == 0 || Stream.of(dto.getProductCategoriesId()).anyMatch(category -> !StringUtils.hasText(category))) {
+            var key = "product_categories";
+            MessageSetting messageSetting = messageSettingRepository.getMessageById(PRODUCT_MUST_HAVE_CATEGORY_MESSAGE_ID);
+            RuntimeUtils.computeMultiValueMap(key, messageSetting.getValue(), validateResult);
+        } else {
+            boolean categoryValidateResult = Stream.of(dto.getProductCategoriesId()).anyMatch(id -> !categoryRepository.isExits(id));
+            if (categoryValidateResult) {
+                var key = "product_categories";
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "One of category");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getProductOrderPoint())) {
+            var key = "product_order_point";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Point of product");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (!ValidateUtils.isNumber(dto.getProductOrderPoint())) {
+                var key = "product_order_point";
+                String errorContent = MessageFormat.format(nonNumberMessage.getValue(), "Order point of product");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+
         return new ValidatedDto.ValidateResult() {
             @Override
             public Map<String, Object> getErrorResult() {
@@ -65,96 +170,13 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
         if (entityFactory == null) {
             entityFactory = getResolver().resolveDependencies(EntityFactory.class);
         }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override
     public Class<ProductCreateForm> applyOnType() {
         return ProductCreateForm.class;
-    }
-
-    private void validateCommonCase(ProductCreateForm dto, Map<String, List<String>> result) {
-        if (!StringUtils.hasText(dto.getProductName())) {
-            RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, "Name of product must not be empty", result);
-        }
-
-        if (!StringUtils.hasText(dto.getProductPrice())) {
-            var key = "product_price";
-            RuntimeUtils.computeMultiValueMap(key, "Price of product must not be empty", result);
-        }
-
-        if (!StringUtils.hasText(dto.getProductSize())) {
-            var key = "product_size";
-            RuntimeUtils.computeMultiValueMap(key, "Size of product must not be empty", result);
-        }
-
-        if (!StringUtils.hasText(dto.getProductColor())) {
-            var key = "product_color";
-            RuntimeUtils.computeMultiValueMap(key, "Color of product must not be empty", result);
-        }
-
-        if (!StringUtils.hasText(dto.getProductTaobaoUrl())) {
-            var key = "product_taobao_url";
-            RuntimeUtils.computeMultiValueMap(key, "Taobao url of product must not be empty", result);
-        }
-
-        if (!StringUtils.hasText(dto.getProductEnabled())) {
-            var key = "product_enabled";
-            RuntimeUtils.computeMultiValueMap(key, "Product must be enable of disable", result);
-        }
-
-        if (dto.getProductCategoriesId().length == 0 || Stream.of(dto.getProductCategoriesId()).anyMatch(category -> !StringUtils.hasText(category))) {
-            var key = "product_categories";
-            RuntimeUtils.computeMultiValueMap(key, "Product must have category", result);
-        }
-
-        if (!StringUtils.hasText(dto.getProductOrderPoint())) {
-            var key = "product_order_point";
-            RuntimeUtils.computeMultiValueMap(key, "Point of product must not be empty", result);
-        }
-    }
-
-    private void validateLength(ProductCreateForm dto, Map<String, List<String>> result) {
-        int productNameLength = dto.getProductName().length();
-        if (productNameLength < 4 || productNameLength > 32) {
-            RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, "Product name must be in range 4 - 32", result);
-        }
-    }
-
-    private void validateNumber(ProductCreateForm dto, Map<String, List<String>> result) {
-        if (!ValidateUtils.isNumber(dto.getProductPrice())) {
-            var key = "product_price";
-            RuntimeUtils.computeMultiValueMap(key, "Price of product must be a number", result);
-        }
-        if (!ValidateUtils.isNumber(dto.getProductOrderPoint())) {
-            var key = "product_order_point";
-            RuntimeUtils.computeMultiValueMap(key, "Order point of product must be number", result);
-        }
-    }
-
-    private void validateRegex(ProductCreateForm dto, Map<String, List<String>> result) {
-        if (!ValidateUtils.isSizeValid(dto.getProductSize())) {
-            var key = "product_size";
-            RuntimeUtils.computeMultiValueMap(key, "Size of product is invalid", result);
-        }
-
-        if (!ValidateUtils.isUrlValid(dto.getProductTaobaoUrl())) {
-            var key = "product_taobao_url";
-            RuntimeUtils.computeMultiValueMap(key, "Taobao url is invalid", result);
-        }
-    }
-
-    private void validateExist(ProductCreateForm dto, Map<String, List<String>> result) {
-        var product = entityFactory.getEntity(Product.class);
-        product.setName(dto.getProductName());
-
-        if (productRepository.productNameExist(product)) {
-            RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, "Product name is existed", result);
-        }
-
-        boolean categoryValidateResult = Stream.of(dto.getProductCategoriesId()).anyMatch(id -> !categoryRepository.isExits(id));
-        if (categoryValidateResult) {
-            var key = "product_categories";
-            RuntimeUtils.computeMultiValueMap(key, "One of category is invalid", result);
-        }
     }
 }

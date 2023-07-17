@@ -3,14 +3,24 @@ package com.bachlinh.order.validate.validator.internal;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
+import org.springframework.util.StringUtils;
+
+import java.text.MessageFormat;
 
 @ActiveReflection
 public class EmailTemplateFolderValidator extends AbstractValidator<EmailTemplateFolder> {
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String LENGTH_INVALID_MESSAGE_ID = "MSG-000002";
+    private static final String EXISTED_MESSAGE_ID = "MSG-000007";
+
     private EmailTemplateFolderRepository emailTemplateFolderRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     protected EmailTemplateFolderValidator(DependenciesResolver resolver) {
@@ -22,19 +32,29 @@ public class EmailTemplateFolderValidator extends AbstractValidator<EmailTemplat
         if (emailTemplateFolderRepository == null) {
             emailTemplateFolderRepository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
         }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override
     protected ValidateResult doValidate(EmailTemplateFolder entity) {
         Result result = new Result();
-        if (entity.getName() == null || entity.getName().isBlank()) {
-            result.addMessageError("Email template folder name: Name of email template folder must not be empty");
-        }
-        if (entity.getName().length() > 300) {
-            result.addMessageError("Email template folder name: Name of email template folder must not be greater than 300 character");
-        }
-        if (emailTemplateFolderRepository.isEmailTemplateFolderNameExisted(entity.getName())) {
-            result.addMessageError("Email template folder name: Name of email template folder is existed");
+
+        MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+        MessageSetting lengthInvalidMessage = messageSettingRepository.getMessageById(LENGTH_INVALID_MESSAGE_ID);
+        MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+
+        String emailTemplateFolderName = "Name of email template folder";
+        if (!StringUtils.hasText(entity.getName())) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), emailTemplateFolderName));
+        } else {
+            if (entity.getName().length() > 300) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), emailTemplateFolderName, "300"));
+            }
+            if (emailTemplateFolderRepository.isEmailTemplateFolderNameExisted(entity.getName())) {
+                result.addMessageError(MessageFormat.format(existedMessage.getValue(), emailTemplateFolderName));
+            }
         }
         return result;
     }

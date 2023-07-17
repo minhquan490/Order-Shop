@@ -1,16 +1,19 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CategoryRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryCreateForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +22,12 @@ import java.util.Map;
 @DtoValidationRule
 public class CategoryCreateRule extends AbstractRule<CategoryCreateForm> {
     private static final String CATEGORY_NAME_KEY = "name";
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String EXISTED_MESSAGE_ID = "MSG-000007";
+    private static final String RANGE_INVALID_MESSAGE_ID = "MSG-000010";
 
     private CategoryRepository categoryRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public CategoryCreateRule(Environment environment, DependenciesResolver resolver) {
@@ -30,14 +37,20 @@ public class CategoryCreateRule extends AbstractRule<CategoryCreateForm> {
     @Override
     protected ValidatedDto.ValidateResult doValidate(CategoryCreateForm dto) {
         var r = new HashMap<String, List<String>>();
+
         if (!StringUtils.hasText(dto.name())) {
-            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, "Name of category must not be empty", r);
-        }
-        if (dto.name().length() < 4 || dto.name().length() > 32) {
-            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, "Name of category must be in range 4 - 32", r);
-        }
-        if (categoryRepository.getCategoryByName(dto.name()) != null) {
-            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, "Category is existed", r);
+            MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(nonEmptyMessage.getValue(), "Name of category"), r);
+        } else {
+            if (dto.name().length() < 4 || dto.name().length() > 32) {
+                MessageSetting rangeInvalidMessage = messageSettingRepository.getMessageById(RANGE_INVALID_MESSAGE_ID);
+                RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(rangeInvalidMessage.getValue(), "Name of category", "4", "32"), r);
+            }
+
+            if (categoryRepository.getCategoryByName(dto.name()) != null) {
+                MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+                RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(existedMessage.getValue(), "Category"), r);
+            }
         }
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -56,6 +69,9 @@ public class CategoryCreateRule extends AbstractRule<CategoryCreateForm> {
     protected void injectDependencies() {
         if (categoryRepository == null) {
             categoryRepository = getResolver().resolveDependencies(CategoryRepository.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
         }
     }
 

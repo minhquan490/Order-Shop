@@ -1,6 +1,5 @@
 package com.bachlinh.order.handler.controller;
 
-import org.springframework.http.ResponseEntity;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.NativeMethodHandleRequestMetadataReader;
 import com.bachlinh.order.core.http.NativeRequest;
@@ -13,6 +12,8 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.RuleManager;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
@@ -23,6 +24,7 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
     private DependenciesContainerResolver containerResolver;
     private Environment environment;
     private RuleManager ruleManager;
+    private String name;
 
     public boolean isController() {
         return this.getClass().isAnnotationPresent(RouteProvider.class);
@@ -75,6 +77,21 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
             return merge((NativeResponse<T>) returnValue);
         }
         return merge(metadata.returnTypes(), returnValue);
+    }
+
+    @Override
+    public String getName() {
+        if (name == null) {
+            var provider = this.getClass().getAnnotation(RouteProvider.class);
+            if (provider == null) {
+                name = getClass().getSimpleName();
+            } else if (!StringUtils.hasText(provider.name())) {
+                name = getClass().getSimpleName();
+            } else {
+                name = provider.name();
+            }
+        }
+        return name;
     }
 
     protected abstract T internalHandler(Payload<U> request);

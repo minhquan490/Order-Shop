@@ -1,9 +1,10 @@
 package com.bachlinh.order.web.dto.rule;
 
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.VoucherRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
@@ -11,7 +12,9 @@ import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherCreateForm;
+import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,13 @@ import java.util.Map;
 @ActiveReflection
 @DtoValidationRule
 public class VoucherCreateRule extends AbstractRule<VoucherCreateForm> {
+    private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
+    private static final String EXISTED_MESSAGE_ID = "MSG-000007";
+    private static final String INVALID_MESSAGE_ID = "MSG-000009";
+    private static final String POSITIVE_MESSAGE_ID = "MSG-000012";
+
     private VoucherRepository voucherRepository;
+    private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
     public VoucherCreateRule(Environment environment, DependenciesResolver resolver) {
@@ -30,9 +39,64 @@ public class VoucherCreateRule extends AbstractRule<VoucherCreateForm> {
     protected ValidatedDto.ValidateResult doValidate(VoucherCreateForm dto) {
         var validationResult = new HashMap<String, List<String>>();
 
-        validateCommonCase(dto, validationResult);
-        validateTimeCase(dto, validationResult);
-        validateExistCase(dto, validationResult);
+        MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+        MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
+        MessageSetting positiveMessage = messageSettingRepository.getMessageById(POSITIVE_MESSAGE_ID);
+
+        if (!StringUtils.hasText(dto.getName())) {
+            var key = "name";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Name of voucher");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        } else {
+            if (voucherRepository.isVoucherNameExist(dto.getName())) {
+                var key = "name";
+                MessageSetting messageSetting = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+                String errorContent = MessageFormat.format(messageSetting.getValue(), "Name of voucher");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+            }
+        }
+
+        if (dto.getDiscounterPercent() < 0) {
+            var key = "discount_percent";
+            String errorContent = MessageFormat.format(positiveMessage.getValue(), "Discount percent");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        }
+
+        if (!StringUtils.hasText(dto.getTimeStart())) {
+            var key = "time_start";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Time voucher begin");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        } else {
+            if (!ValidateUtils.isValidDate(dto.getTimeStart())) {
+                var key = "time_start";
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Time start of voucher");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getTimeEnd())) {
+            var key = "time_end";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Time voucher end");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        } else {
+            if (!ValidateUtils.isValidDate(dto.getTimeEnd())) {
+                var key = "time_end";
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Time end of voucher");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+            }
+        }
+
+        if (!StringUtils.hasText(dto.getContent())) {
+            var key = "content";
+            String errorMessage = MessageFormat.format(nonEmptyMessage.getValue(), "Content of voucher");
+            RuntimeUtils.computeMultiValueMap(key, errorMessage, validationResult);
+        }
+
+        if (dto.getCost() < 0) {
+            var key = "cost";
+            String errorContent = MessageFormat.format(positiveMessage.getValue(), "Cost of voucher");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        }
 
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -52,55 +116,13 @@ public class VoucherCreateRule extends AbstractRule<VoucherCreateForm> {
         if (voucherRepository == null) {
             voucherRepository = getResolver().resolveDependencies(VoucherRepository.class);
         }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
     }
 
     @Override
     public Class<VoucherCreateForm> applyOnType() {
         return VoucherCreateForm.class;
-    }
-
-    private void validateCommonCase(VoucherCreateForm dto, Map<String, List<String>> validationResult) {
-        if (!StringUtils.hasText(dto.getName())) {
-            var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of voucher must not be empty", validationResult);
-        }
-        if (dto.getDiscounterPercent() < 0) {
-            var key = "discount_percent";
-            RuntimeUtils.computeMultiValueMap(key, "Discount percent must be positive", validationResult);
-        }
-        if (!StringUtils.hasText(dto.getTimeStart())) {
-            var key = "time_start";
-            RuntimeUtils.computeMultiValueMap(key, "Time voucher begin must not be empty", validationResult);
-        }
-        if (!StringUtils.hasText(dto.getTimeEnd())) {
-            var key = "time_end";
-            RuntimeUtils.computeMultiValueMap(key, "Time voucher end must not be empty", validationResult);
-        }
-        if (!StringUtils.hasText(dto.getContent())) {
-            var key = "content";
-            RuntimeUtils.computeMultiValueMap(key, "Content of voucher must not be empty", validationResult);
-        }
-        if (dto.getCost() < 0) {
-            var key = "cost";
-            RuntimeUtils.computeMultiValueMap(key, "Cost of voucher must be positive", validationResult);
-        }
-    }
-
-    private void validateTimeCase(VoucherCreateForm dto, Map<String, List<String>> validationResult) {
-        if (!ValidateUtils.isValidDate(dto.getTimeStart())) {
-            var key = "time_start";
-            RuntimeUtils.computeMultiValueMap(key, "Time start of voucher is invalid", validationResult);
-        }
-        if (!ValidateUtils.isValidDate(dto.getTimeEnd())) {
-            var key = "time_end";
-            RuntimeUtils.computeMultiValueMap(key, "Time end of voucher is invalid", validationResult);
-        }
-    }
-
-    private void validateExistCase(VoucherCreateForm dto, Map<String, List<String>> validationResult) {
-        if (voucherRepository.isVoucherNameExist(dto.getName())) {
-            var key = "name";
-            RuntimeUtils.computeMultiValueMap(key, "Name of voucher is existed", validationResult);
-        }
     }
 }

@@ -1,0 +1,129 @@
+package com.bachlinh.order.handler.router;
+
+import com.bachlinh.order.core.enums.RequestMethod;
+import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
+import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
+import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.handler.controller.Controller;
+import com.bachlinh.order.handler.controller.ControllerManager;
+import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+class DefaultNode extends AbstractNode implements NodeRegister {
+    private final List<Node> nodes = new LinkedList<>();
+    private final List<String> nodeNames = new LinkedList<>();
+    private final Comparator<Node> nodeComparator = Comparator.comparing(Node::getName);
+    private boolean isControllerNotfound = false;
+
+    private Controller<Object, Object> controller;
+
+    public DefaultNode(ControllerManager controllerManager, JsonStringExceptionTranslator exceptionTranslator, String name, Node parent) {
+        super(controllerManager, exceptionTranslator, name, parent);
+    }
+
+    @Override
+    public <T, U> NativeResponse<T> handleRequest(NativeRequest<U> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException {
+        String[] p = controllerPath.split("/");
+        Queue<String> paths = new ArrayDeque<>(p.length);
+        paths.addAll(Arrays.asList(p));
+        return handleRequest(new UrlHolder(paths, controllerPath), method, request);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T, U> NativeResponse<T> handleRequest(UrlHolder urlHolder, RequestMethod method, NativeRequest<U> request) {
+        if (isControllerNotfound) {
+            throw new ResourceNotFoundException("Not found", "");
+        }
+        String path = urlHolder.paths().poll();
+
+        // Case tail node
+        if (urlHolder.paths().isEmpty()) {
+            if (controller == null) {
+                controller = getController(new ArrayList<>(), method);
+                if (controller == null) {
+                    isControllerNotfound = true;
+                    throw new ResourceNotFoundException("Not found", "");
+                }
+            }
+            if (!controller.getRequestMethod().equals(method)) {
+                throw new HttpRequestMethodNotSupportedException(String.format("Method [%s] not allowed", method.name()), urlHolder.actualUrl());
+            } else {
+                controller.setNativeRequest(getControllerManager().getNativeRequest());
+                controller.setNativeResponse(getControllerManager().getNativeResponse());
+                NativeRequest<Object> casted = (NativeRequest<Object>) request;
+                return (NativeResponse<T>) controller.handle(casted);
+            }
+        }
+
+        // Case root node
+        if (!StringUtils.hasText(path)) {
+            path = urlHolder.paths().poll();
+        }
+
+        int position = Collections.binarySearch(nodeNames, path);
+        return nodes.get(position).handleRequest(urlHolder, method, request);
+    }
+
+    @Nullable
+    @Override
+    public Node[] getChildren() {
+        return nodes.toArray(new Node[0]);
+    }
+
+    @Nullable
+    @Override
+    public Node getChild(String name) {
+        int position = Collections.binarySearch(nodeNames, name);
+        if (position < 0) {
+            return null;
+        } else {
+            return nodes.get(position);
+        }
+    }
+
+    @Override
+    public void registerNode(Node node) {
+        nodes.add(node);
+        nodes.sort(nodeComparator);
+        nodeNames.clear();
+        nodeNames.addAll(nodes.stream().map(Node::getName).toList());
+    }
+
+
+    @Override
+    public NativeResponse<String> translateException(Exception exception) {
+        return exceptionTranslator().translateException(exception);
+    }
+
+    @Override
+    public NativeResponse<String> translateError(Error error) {
+        return exceptionTranslator().translateError(error);
+    }
+
+    Controller<Object, Object> getController(Collection<String> paths, RequestMethod method) {
+        if (paths == null) {
+            paths = new ArrayList<>();
+        }
+        paths.add(getName());
+        if (getParent() != null) {
+            return ((DefaultNode) getParent()).getController(paths, method);
+        } else {
+            Collections.reverse((List<?>) paths);
+            String actualPath = String.join("/", paths.toArray(new String[0]));
+            return getContext().getController(actualPath, method);
+        }
+    }
+}

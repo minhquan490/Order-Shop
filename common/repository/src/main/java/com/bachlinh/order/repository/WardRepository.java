@@ -11,4 +11,6 @@ public interface WardRepository {
     long countAllWards();
 
     Collection<Ward> getAllWards();
+
+    Collection<Ward> getWards(Collection<Integer> ids);
 }
