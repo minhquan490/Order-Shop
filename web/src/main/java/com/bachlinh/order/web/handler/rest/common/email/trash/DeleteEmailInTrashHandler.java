@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "deleteEmailInTrashHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Object>, DeleteEmailInTrashForm> {
     private String url;

@@ -7,7 +7,7 @@ import java.util.Map;
  *
  * @author Hoang Minh Quan.
  */
-public interface TokenManager extends JwtDecoder, JwtEncoder, ClientSecretManager {
+public interface TokenManager extends JwtDecoder, JwtEncoder {
 
     /**
      * Check jwt token is expired.

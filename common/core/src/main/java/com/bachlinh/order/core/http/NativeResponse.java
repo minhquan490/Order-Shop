@@ -1,15 +1,16 @@
 package com.bachlinh.order.core.http;
 
+import com.bachlinh.order.utils.map.LinkedMultiValueMap;
+import com.bachlinh.order.utils.map.MultiValueMap;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
-import com.bachlinh.order.utils.map.LinkedMultiValueMap;
-import com.bachlinh.order.utils.map.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @Builder
@@ -49,11 +50,13 @@ public class NativeResponse<T> {
         if (headers == null) {
             return;
         }
-        if (headers.get(name) == null) {
-            headers.put(name, Collections.singletonList(value));
-            return;
-        }
-        headers.set(name, value);
+        headers.compute(name, (s, strings) -> {
+            if (strings == null) {
+                strings = new LinkedList<>();
+            }
+            strings.add(value);
+            return strings;
+        });
     }
 
 }

@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -15,6 +16,7 @@ import org.springframework.util.StringUtils;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = Customer.class)
 public class CustomerValidator extends AbstractValidator<Customer> {
     private static final String NONE_EMPTY_MESSAGE_ID = "MSG-000001";
     private static final String LENGTH_INVALID_MESSAGE_ID = "MSG-000002";
@@ -61,6 +63,30 @@ public class CustomerValidator extends AbstractValidator<Customer> {
             }
         }
 
+        String messageFormatArg = "Email";
+
+        if (!StringUtils.hasText(entity.getEmail())) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), messageFormatArg));
+        } else {
+            if (entity.getEmail().length() > 32) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "email", "32"));
+            }
+            if (!ValidateUtils.isEmailValidUsingRfc2822(entity.getEmail())) {
+                result.addMessageError(MessageFormat.format(invalidMessage.getValue(), messageFormatArg));
+            }
+            if (customerRepository.emailExist(entity.getEmail())) {
+                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Email"));
+            }
+        }
+
+        if (entity.isNew()) {
+            return result;
+        }
+
+        if (entity.getGender().isEmpty()) {
+            result.addMessageError(genderInvalid.getValue());
+        }
+
         if (!StringUtils.hasText(entity.getFirstName())) {
             result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "First name"));
         } else {
@@ -87,25 +113,6 @@ public class CustomerValidator extends AbstractValidator<Customer> {
             if (customerRepository.phoneNumberExist(entity.getPhoneNumber())) {
                 result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Phone number"));
             }
-        }
-
-        String messageFormatArg = "Email";
-
-        if (!StringUtils.hasText(entity.getEmail())) {
-            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), messageFormatArg));
-        } else {
-            if (entity.getEmail().length() > 32) {
-                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "email", "32"));
-            }
-            if (ValidateUtils.isEmailValidUsingRfc2822(entity.getEmail())) {
-                result.addMessageError(MessageFormat.format(invalidMessage.getValue(), messageFormatArg));
-            }
-            if (customerRepository.emailExist(entity.getEmail())) {
-                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Email"));
-            }
-        }
-        if (entity.getGender().isEmpty()) {
-            result.addMessageError(genderInvalid.getValue());
         }
         return result;
     }

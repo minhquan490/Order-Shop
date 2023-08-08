@@ -24,7 +24,7 @@ public interface RestTemplate {
      * @return Response from server with {@code JsonNode} format.
      * @throws IOException If problem occur when communicate with remote server.
      */
-    JsonNode get(String url, @Nullable Object body, @Nullable MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException;
+    JsonNode get(String url, @Nullable MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException;
 
     /**
      * Execute http put method.
@@ -36,7 +36,7 @@ public interface RestTemplate {
      * @return Response from server with {@code JsonNode} format.
      * @throws IOException If problem occur when communicate with remote server.
      */
-    JsonNode put(String url, Object body, @Nullable MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException;
+    JsonNode patch(String url, Object body, @Nullable MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException;
 
     /**
      * Execute http post method.

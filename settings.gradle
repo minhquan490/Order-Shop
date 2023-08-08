@@ -1,16 +1,16 @@
 pluginManagement {
     plugins {
-        id 'org.springframework.boot' version '3.1.0'
-        id 'io.spring.dependency-management' version '1.1.0'
-        id 'org.graalvm.buildtools.native' version '0.9.22'
-        id 'com.google.protobuf' version '0.9.3'
+        id 'org.springframework.boot' version '3.1.2'
+        id 'io.spring.dependency-management' version '1.1.2'
+        id 'org.graalvm.buildtools.native' version '0.9.23'
+        id 'com.google.protobuf' version '0.9.4'
     }
 }
 
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('lunceneVersion', '9.6.0')
+            version('lunceneVersion', '9.7.0')
             version('gmailApi', 'v1-rev20230515-2.0.0')
             version('guavaVersion', '31.1-jre')
             version('googleLib', '2.2.0')
@@ -21,16 +21,16 @@ dependencyResolutionManagement {
             version('ehcacheVersion', '3.10.8')
             version('findbugs', '3.0.2')
             version('disruptor', '3.4.4')
-            version('selenium', '4.9.1')
+            version('selenium', '4.11.0')
             version('grpc', '1.55.1')
             version('protoc', '4.0.0-rc-2')
             version('bouncycastle', '1.70')
             version('opencensus', '0.31.1')
-            version('opentelemetry', '1.26.0')
-            version('logback', '1.4.7')
+            version('opentelemetry', '1.28.0')
+            version('logback', '1.4.8')
             version('slf4j', '2.0.7')
             version('googleAutoService', '1.1.0')
-            version('netty', '4.1.94.Final')
+            version('netty', '4.1.96.Final')
             version('nettyQuic', '0.0.19.Final')
         }
     }

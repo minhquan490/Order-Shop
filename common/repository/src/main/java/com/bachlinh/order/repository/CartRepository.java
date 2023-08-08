@@ -3,7 +3,7 @@ package com.bachlinh.order.repository;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 
-public interface CartRepository {
+public interface CartRepository extends NativeQueryRepository {
 
     Cart saveCart(Cart cart);
 

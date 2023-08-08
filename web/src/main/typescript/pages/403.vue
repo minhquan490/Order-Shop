@@ -1,68 +1,99 @@
+<script lang="ts" setup>
+const messageContent: string = 'Contact to admin to grant access permission';
+</script>
+
 <template>
-  <div>
-    <div id="app">
-      <div>403</div>
-      <div class="txt">Forbidden<span class="blink">_</span></div>
+  <div class="page-403">
+    <div class="text-wrapper">
+      <div class="title" data-content="404">
+        403 - ACCESS DENIED
+      </div>
+
+      <div class="subtitle">
+        Oops, You don't have permission to access this page.
+      </div>
+      <div class="isi" v-text="messageContent"></div>
+
+      <div class="buttons">
+        <a class="button" href="/">Go to homepage</a>
+      </div>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css?family=Press+Start+2P");
+<style lang="css" scoped>
+@import url(https://fonts.googleapis.com/css?family=Raleway:700);
 
-$color: #54fe55;
-$color2: #1a4f1a;
-$glowSize: 10px;
-
-html,
-body {
-  width: 100%;
-  margin: 0;
-}
-
-* {
-  font-family: "Press Start 2P", cursive;
+*, *:before, *:after {
   box-sizing: border-box;
 }
 
-#app {
-  padding: 1rem;
-  background: black;
-  display: flex;
+html {
+  height: 100%;
+}
+
+.page-403 {
+  font-family: 'Raleway', sans-serif;
+  background-color: #342643;
   height: 100vh;
-  justify-content: center;
-  align-items: center;
-  color: $color;
-  text-shadow: 0 0 $glowSize;
-  font-size: 6rem;
+  width: 100vw;
+  padding: 10px;
+}
+
+a {
+  color: #EE4B5E !important;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #FFFFFF !important;
+  text-decoration: none;
+}
+
+.text-wrapper {
+  height: 100%;
+  display: flex;
   flex-direction: column;
-
-  .txt {
-    font-size: 1.8rem;
-  }
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes blink {
-  0% {
-    opacity: 0;
-  }
-
-  49% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 1;
-  }
+.title {
+  font-size: 5em;
+  font-weight: 700;
+  color: #EE4B5E;
 }
 
-.blink {
-  animation-name: blink;
-  animation-duration: 1s;
-  animation-iteration-count: infinite;
+.subtitle {
+  font-size: 40px;
+  font-weight: 700;
+  color: #1FA9D6;
+}
+
+.isi {
+  font-size: 18px;
+  text-align: center;
+  margin: 30px;
+  padding: 20px;
+  color: white;
+}
+
+.buttons {
+  margin: 30px;
+  font-weight: 700;
+  border: 2px solid #EE4B5E;
+  text-decoration: none;
+  padding: 15px;
+  text-transform: uppercase;
+  color: #EE4B5E;
+  border-radius: 26px;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+
+  .buttons:hover {
+    background-color: #EE4B5E;
+    color: white;
+    transition: all 0.2s ease-in-out;
+  }
 }
 </style>

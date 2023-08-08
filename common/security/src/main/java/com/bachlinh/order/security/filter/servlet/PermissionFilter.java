@@ -1,12 +1,5 @@
 package com.bachlinh.order.security.filter.servlet;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.lang.NonNull;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.PathMatcher;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.environment.Environment;
@@ -14,11 +7,20 @@ import com.bachlinh.order.exception.http.AccessDeniedException;
 import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.PathMatcher;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 public class PermissionFilter extends AbstractWebFilter {
+    private static final Collection<Role> rolesAllowAccess = getRolesAllowAccess();
     private final PathMatcher pathMatcher;
     private final Collection<String> excludePaths;
     private final String adminPath;
@@ -40,15 +42,16 @@ public class PermissionFilter extends AbstractWebFilter {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (customer.getRole().equalsIgnoreCase(Role.ADMIN.name()) && pathMatcher.match(adminPath, request.getRequestURI())) {
+        if (pathMatcher.match(adminPath, request.getRequestURI())) {
+            boolean canAccessAdmin = rolesAllowAccess.contains(Role.of(customer.getRole()));
+            if (canAccessAdmin) {
+                filterChain.doFilter(request, response);
+            } else {
+                accessDeniedHandler.handle(response, new AccessDeniedException("Contact to admin for access to this url"));
+            }
+        } else {
             filterChain.doFilter(request, response);
-            return;
         }
-        if (!customer.getRole().equalsIgnoreCase(Role.ADMIN.name()) && pathMatcher.match(adminPath, request.getRequestURI())) {
-            accessDeniedHandler.handle(response, new AccessDeniedException("Contact to admin for access to this url"));
-            return;
-        }
-        filterChain.doFilter(request, response);
     }
 
     @Override
@@ -56,5 +59,9 @@ public class PermissionFilter extends AbstractWebFilter {
         if (accessDeniedHandler == null) {
             accessDeniedHandler = getDependenciesResolver().resolveDependencies(AccessDeniedHandler.class);
         }
+    }
+
+    private static Collection<Role> getRolesAllowAccess() {
+        return List.of(Role.ADMIN, Role.SEO, Role.MARKETING);
     }
 }

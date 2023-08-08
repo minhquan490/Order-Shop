@@ -1,14 +1,15 @@
 package com.bachlinh.order.annotation.processor.parser;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoProxy;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,8 @@ class DtoProxyClassMetadataParser implements ClassMetadataParser {
     @Override
     public Collection<String> getImports() {
         var importCollection = new ArrayList<String>();
+        importCollection.add(JsonInclude.Include.class.getName().replace("$", "."));
+        importCollection.add(JsonInclude.class.getName());
         importCollection.add(JsonIgnore.class.getName());
         importCollection.add(JsonProperty.class.getName());
         importCollection.add(ActiveReflection.class.getName());

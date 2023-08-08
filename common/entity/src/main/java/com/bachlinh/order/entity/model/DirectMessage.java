@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Trigger;
-import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,8 +11,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
 
@@ -27,10 +28,11 @@ import java.sql.Timestamp;
         }
 )
 @ActiveReflection
-@Trigger(triggers = {"com.bachlinh.order.trigger.internal.DirectMessageIndexTrigger"})
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class DirectMessage extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class DirectMessage extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -61,34 +63,34 @@ public class DirectMessage extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setContent(String content) {
+    public void setContent(@NonNull String content) {
+        if (this.content != null && !this.content.equals(content)) {
+            trackUpdatedField("CONTENT", this.content);
+        }
         this.content = content;
     }
 
     @ActiveReflection
-    public void setTimeSent(Timestamp timeSent) {
+    public void setTimeSent(@NonNull Timestamp timeSent) {
+        if (this.timeSent != null && !this.timeSent.equals(timeSent)) {
+            trackUpdatedField("SENT_TIME", this.timeSent.toString());
+        }
         this.timeSent = timeSent;
     }
 
     @ActiveReflection
-    public void setFromCustomer(Customer fromCustomer) {
+    public void setFromCustomer(@NonNull Customer fromCustomer) {
+        if (this.fromCustomer != null && !this.fromCustomer.getId().equals(fromCustomer.getId())) {
+            trackUpdatedField("FROM_CUSTOMER_ID", this.fromCustomer.getId());
+        }
         this.fromCustomer = fromCustomer;
     }
 
     @ActiveReflection
-    public void setToCustomer(Customer toCustomer) {
+    public void setToCustomer(@NonNull Customer toCustomer) {
+        if (this.toCustomer != null && !this.toCustomer.getId().equals(toCustomer.getId())) {
+            trackUpdatedField("TO_CUSTOMER", this.toCustomer.getId());
+        }
         this.toCustomer = toCustomer;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DirectMessage message)) return false;
-        return Objects.equal(getId(), message.getId()) && Objects.equal(getContent(), message.getContent()) && Objects.equal(getTimeSent(), message.getTimeSent()) && Objects.equal(getFromCustomer(), message.getFromCustomer()) && Objects.equal(getToCustomer(), message.getToCustomer());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getContent(), getTimeSent(), getFromCustomer(), getToCustomer());
     }
 }

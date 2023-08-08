@@ -1,15 +1,17 @@
 package com.bachlinh.order.web.common.listener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.BootWrapper;
 import com.bachlinh.order.core.excecute.Executor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
+import com.bachlinh.order.security.helper.RequestAccessHistoriesHolder;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
@@ -22,6 +24,7 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
     private static final String STARTED_EVENT = "org.springframework.context.event.ContextStartedEvent";
     private static final String READY_EVENT = "org.springframework.boot.context.event.ApplicationReadyEvent";
     private static final String REFRESH_EVENT = "org.springframework.context.event.ContextRefreshedEvent";
+    private static final String CLOSE_EVENT = "org.springframework.context.event.ContextClosedEvent";
 
     private final Collection<Executor<?>> eventExecutors = new LinkedList<>();
     private final DependenciesResolver resolver;
@@ -62,6 +65,10 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
                         .filter(executor -> executor.runOn().equals(ExecuteEvent.ON_REFRESH))
                         .toList();
                 onApplicationRefresh(applicationRefreshExecutors);
+            }
+            case CLOSE_EVENT -> {
+                var repository = resolver.resolveDependencies(CustomerAccessHistoryRepository.class);
+                RequestAccessHistoriesHolder.flushAllHistories(repository);
             }
             default -> {
                 // Do nothing

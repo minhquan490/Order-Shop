@@ -14,12 +14,13 @@ import java.util.Collection;
 
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "provinceSearchHandler")
 public class ProvinceSearchHandler extends AbstractController<Collection<ProvinceResp>, ProvinceSearchForm> {
     private ProvinceSearchService provinceSearchService;
     private String url;
 
     @Override
+    @ActiveReflection
     protected Collection<ProvinceResp> internalHandler(Payload<ProvinceSearchForm> request) {
         return provinceSearchService.search(request.data());
     }

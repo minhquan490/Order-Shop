@@ -4,6 +4,8 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingCreateForm;
 import com.bachlinh.order.web.dto.resp.MessageSettingResp;
@@ -11,8 +13,9 @@ import com.bachlinh.order.web.service.common.MessageSettingService;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "messageSettingCreateHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@Permit(roles = Role.ADMIN)
 public class MessageSettingCreateHandler extends AbstractController<MessageSettingResp, MessageSettingCreateForm> {
     private String url;
     private MessageSettingService messageSettingService;

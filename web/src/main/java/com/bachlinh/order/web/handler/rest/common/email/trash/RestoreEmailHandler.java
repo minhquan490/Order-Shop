@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Arrays;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "restoreEmailHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class RestoreEmailHandler extends AbstractController<EmailTrashResp, RestoreEmailForm> {
     private String url;

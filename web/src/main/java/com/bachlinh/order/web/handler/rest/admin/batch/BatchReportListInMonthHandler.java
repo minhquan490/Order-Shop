@@ -1,19 +1,22 @@
 package com.bachlinh.order.web.handler.rest.admin.batch;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.BatchReportResp;
 import com.bachlinh.order.web.service.common.BatchReportService;
+import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "batchReportListInMonthHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@Permit(roles = Role.ADMIN)
 public class BatchReportListInMonthHandler extends AbstractController<Collection<BatchReportResp>, Void> {
     private String url;
     private BatchReportService batchReportService;

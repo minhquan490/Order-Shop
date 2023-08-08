@@ -6,7 +6,7 @@ import com.bachlinh.order.entity.model.EmailFolders;
 
 import java.util.Collection;
 
-public interface EmailFoldersRepository {
+public interface EmailFoldersRepository extends NativeQueryRepository {
     boolean isFolderExisted(String folderName, Customer owner);
 
     EmailFolders saveEmailFolder(EmailFolders emailFolders);

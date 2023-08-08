@@ -19,6 +19,7 @@ public abstract class NativeRequest<T> {
     private final T request;
     private final String url;
     private final RequestMethod requestMethod;
+    private final boolean isMultipart;
 
     public abstract MultiValueMap<String, String> getUrlQueryParam();
 
@@ -29,6 +30,8 @@ public abstract class NativeRequest<T> {
     public abstract <U> Payload<U> getBody();
 
     public abstract String getCustomerIp();
+
+    public abstract void cleanUp();
 
     @SuppressWarnings("unchecked")
     public static NativeRequest<?> buildNativeFromServletRequest(HttpServletRequest servletRequest) {

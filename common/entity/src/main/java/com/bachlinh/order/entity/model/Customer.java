@@ -4,9 +4,6 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,10 +19,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,25 +41,26 @@ import java.util.Set;
         name = "CUSTOMER",
         indexes = {
                 @Index(name = "idx_customer_username", columnList = "USER_NAME", unique = true),
-                @Index(name = "idx_customer_phone", columnList = "PHONE_NUMBER", unique = true),
+                @Index(name = "idx_customer_phone", columnList = "PHONE_NUMBER"),
                 @Index(name = "idx_customer_email", columnList = "EMAIL", unique = true)
         }
 )
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "customer")
 @EnableFullTextSearch
-@Trigger(triggers = {"com.bachlinh.order.trigger.internal.CustomerIndexTrigger", "com.bachlinh.order.trigger.internal.CustomerInfoChangeHistoryTrigger"})
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.CustomerValidator")
 @ActiveReflection
 @NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
 @Getter
-public class Customer extends AbstractEntity implements UserDetails {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Customer extends AbstractEntity<String> implements UserDetails {
 
     @Id
-    @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
+    @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)", unique = true)
+    @NonNull
     private String id;
 
-    @Column(name = "USER_NAME", unique = true, nullable = false, length = 32, columnDefinition = "nvarchar")
+    @Column(name = "USER_NAME", unique = true, nullable = false, columnDefinition = "nvarchar(32)")
     @FullTextField
     @ActiveReflection
     private String username;
@@ -67,27 +68,27 @@ public class Customer extends AbstractEntity implements UserDetails {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @Column(name = "FIRST_NAME", nullable = false, columnDefinition = "nvarchar(36)")
+    @Column(name = "FIRST_NAME", columnDefinition = "nvarchar(36)")
     @FullTextField
     @ActiveReflection
     private String firstName;
 
-    @Column(name = "LAST_NAME", nullable = false, columnDefinition = "nvarchar(36)")
+    @Column(name = "LAST_NAME", columnDefinition = "nvarchar(36)")
     @FullTextField
     @ActiveReflection
     private String lastName;
 
-    @Column(name = "PHONE_NUMBER", nullable = false, unique = true, length = 10)
+    @Column(name = "PHONE_NUMBER", length = 10)
     @FullTextField
     @ActiveReflection
     private String phoneNumber;
 
-    @Column(name = "EMAIL", nullable = false, unique = true, length = 32, columnDefinition = "nvarchar")
+    @Column(name = "EMAIL", unique = true, columnDefinition = "nvarchar(32)")
     @FullTextField
     @ActiveReflection
     private String email;
 
-    @Column(name = "GENDER", nullable = false, length = 8)
+    @Column(name = "GENDER", length = 8)
     private String gender;
 
     @Column(name = "ROLE", nullable = false, length = 10)
@@ -123,6 +124,10 @@ public class Customer extends AbstractEntity implements UserDetails {
 
     @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private EmailTrash emailTrash;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "TEMPORARY_TOKEN_ID", updatable = false)
+    private TemporaryToken temporaryToken;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
     private Set<Address> addresses = new HashSet<>();
@@ -167,71 +172,113 @@ public class Customer extends AbstractEntity implements UserDetails {
 
     @ActiveReflection
     public void setUsername(String username) {
+        if (this.username != null && !this.username.equals(username)) {
+            trackUpdatedField("USER_NAME", this.username);
+        }
         this.username = username;
     }
 
     @ActiveReflection
     public void setPassword(String password) {
+        if (this.password != null && !this.password.equals(password)) {
+            trackUpdatedField("PASSWORD", this.password);
+        }
         this.password = password;
     }
 
     @ActiveReflection
     public void setFirstName(String firstName) {
+        if (this.firstName != null && !this.firstName.equals(firstName)) {
+            trackUpdatedField("FIRST_NAME", this.firstName);
+        }
         this.firstName = firstName;
     }
 
     @ActiveReflection
     public void setLastName(String lastName) {
+        if (this.lastName != null && !this.lastName.equals(lastName)) {
+            trackUpdatedField("LAST_NAME", this.lastName);
+        }
         this.lastName = lastName;
     }
 
     @ActiveReflection
     public void setPhoneNumber(String phoneNumber) {
+        if (this.phoneNumber != null && !this.phoneNumber.equals(phoneNumber)) {
+            trackUpdatedField("PHONE_NAME", this.phoneNumber);
+        }
         this.phoneNumber = phoneNumber;
     }
 
     @ActiveReflection
     public void setEmail(String email) {
+        if (this.email != null && !this.email.equals(email)) {
+            trackUpdatedField("EMAIL", this.email);
+        }
         this.email = email;
     }
 
     @ActiveReflection
     public void setGender(String gender) {
+        if (this.gender != null && !this.gender.equals(gender)) {
+            trackUpdatedField("GENDER", this.gender);
+        }
         this.gender = gender;
     }
 
     @ActiveReflection
     public void setRole(String role) {
+        if (this.role != null && !this.role.equals(role)) {
+            trackUpdatedField("ROLE", this.role);
+        }
         this.role = role;
     }
 
     @ActiveReflection
     public void setOrderPoint(Integer orderPoint) {
+        if (this.orderPoint != null && !this.orderPoint.equals(orderPoint)) {
+            trackUpdatedField("ORDER_POINT", this.orderPoint.toString());
+        }
         this.orderPoint = orderPoint;
     }
 
     @ActiveReflection
     public void setActivated(boolean activated) {
+        if (activated != this.activated) {
+            trackUpdatedField("ACTIVATED", String.valueOf(this.activated));
+        }
         this.activated = activated;
     }
 
     @ActiveReflection
     public void setAccountNonExpired(boolean accountNonExpired) {
+        if (accountNonExpired != this.accountNonExpired) {
+            trackUpdatedField("ACCOUNT_NON_EXPIRED", String.valueOf(this.accountNonExpired));
+        }
         this.accountNonExpired = accountNonExpired;
     }
 
     @ActiveReflection
     public void setAccountNonLocked(boolean accountNonLocked) {
+        if (accountNonLocked != this.accountNonLocked) {
+            trackUpdatedField("ACCOUNT_NON_LOCKED", String.valueOf(this.accountNonLocked));
+        }
         this.accountNonLocked = accountNonLocked;
     }
 
     @ActiveReflection
     public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        if (credentialsNonExpired != this.credentialsNonExpired) {
+            trackUpdatedField("CREDENTIALS_NON_EXPIRED", String.valueOf(this.credentialsNonExpired));
+        }
         this.credentialsNonExpired = credentialsNonExpired;
     }
 
     @ActiveReflection
     public void setEnabled(boolean enabled) {
+        if (enabled != this.enabled) {
+            trackUpdatedField("ENABLED", String.valueOf(this.enabled));
+        }
         this.enabled = enabled;
     }
 
@@ -275,15 +322,8 @@ public class Customer extends AbstractEntity implements UserDetails {
         this.emailTrash = emailTrash;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Customer customer)) return false;
-        return isActivated() == customer.isActivated() && isAccountNonExpired() == customer.isAccountNonExpired() && isAccountNonLocked() == customer.isAccountNonLocked() && isCredentialsNonExpired() == customer.isCredentialsNonExpired() && isEnabled() == customer.isEnabled() && Objects.equal(getId(), customer.getId()) && Objects.equal(getUsername(), customer.getUsername()) && Objects.equal(getPassword(), customer.getPassword()) && Objects.equal(getFirstName(), customer.getFirstName()) && Objects.equal(getLastName(), customer.getLastName()) && Objects.equal(getPhoneNumber(), customer.getPhoneNumber()) && Objects.equal(getEmail(), customer.getEmail()) && Objects.equal(getGender(), customer.getGender()) && Objects.equal(getRole(), customer.getRole()) && Objects.equal(getOrderPoint(), customer.getOrderPoint()) && Objects.equal(getCart(), customer.getCart()) && Objects.equal(getRefreshToken(), customer.getRefreshToken()) && Objects.equal(getCustomerMedia(), customer.getCustomerMedia()) && Objects.equal(getEmailTrash(), customer.getEmailTrash()) && Objects.equal(getAddresses(), customer.getAddresses()) && Objects.equal(getOrders(), customer.getOrders()) && Objects.equal(getHistories(), customer.getHistories()) && Objects.equal(getAssignedVouchers(), customer.getAssignedVouchers());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getUsername(), getPassword(), getFirstName(), getLastName(), getPhoneNumber(), getEmail(), getGender(), getRole(), getOrderPoint(), isActivated(), isAccountNonExpired(), isAccountNonLocked(), isCredentialsNonExpired(), isEnabled(), getCart(), getRefreshToken(), getCustomerMedia(), getEmailTrash(), getAddresses(), getOrders(), getHistories(), getAssignedVouchers());
+    @ActiveReflection
+    public void setTemporaryToken(TemporaryToken temporaryToken) {
+        this.temporaryToken = temporaryToken;
     }
 }

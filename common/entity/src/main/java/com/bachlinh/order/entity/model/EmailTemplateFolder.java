@@ -2,9 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,8 +14,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,12 +25,12 @@ import java.util.Set;
 @Label("ETF-")
 @Entity
 @Table(name = "EMAIL_TEMPLATE_FOLDER", indexes = @Index(name = "idx_email_template_folder_owner", columnList = "OWNER_ID"))
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailTemplateFolderValidator")
 @ActiveReflection
-@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateFolderIndexTrigger"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
 @Getter
-public class EmailTemplateFolder extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class EmailTemplateFolder extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", nullable = false, updatable = false, unique = true, columnDefinition = "varchar(32)")
@@ -62,33 +61,30 @@ public class EmailTemplateFolder extends AbstractEntity {
 
     @ActiveReflection
     public void setName(String name) {
+        if (this.name != null && !this.name.equals(name)) {
+            trackUpdatedField("NAME", this.name);
+        }
         this.name = name;
     }
 
     @ActiveReflection
     public void setClearTemplatePolicy(Integer clearTemplatePolicy) {
+        if (this.clearTemplatePolicy != null && !this.clearTemplatePolicy.equals(clearTemplatePolicy)) {
+            trackUpdatedField("CLEAR_EMAIL_TEMPLATE_POLICY", this.clearTemplatePolicy.toString());
+        }
         this.clearTemplatePolicy = clearTemplatePolicy;
     }
 
     @ActiveReflection
     public void setOwner(Customer owner) {
+        if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
+            trackUpdatedField("OWNER_ID", this.owner.getId());
+        }
         this.owner = owner;
     }
 
     @ActiveReflection
     public void setEmailTemplates(Set<EmailTemplate> emailTemplates) {
         this.emailTemplates = emailTemplates;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EmailTemplateFolder that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getName(), that.getName()) && Objects.equal(getClearTemplatePolicy(), that.getClearTemplatePolicy()) && Objects.equal(getOwner(), that.getOwner()) && Objects.equal(getEmailTemplates(), that.getEmailTemplates());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getClearTemplatePolicy(), getOwner(), getEmailTemplates());
     }
 }

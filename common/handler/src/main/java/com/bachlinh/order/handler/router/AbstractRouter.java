@@ -28,27 +28,35 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
 
     @Override
     public final void handleRequest(T request, U response) {
+        NativeRequest<?> nativeReq = null;
+        NativeResponse<?> nativeResp = null;
         try {
-            var nativeReq = registerReq(request);
+            nativeReq = registerReq(request);
             var defaultResp = createDefault();
+            configResponse(defaultResp, response);
             rootNode.setNativeRequest(nativeReq);
             rootNode.setNativeResponse(defaultResp);
-            NativeResponse<?> resp;
             if (webInterceptorChain.shouldHandle(nativeReq, defaultResp)) {
-                resp = internalHandle(nativeReq);
+                nativeResp = internalHandle(nativeReq);
             } else {
-                resp = defaultResp;
+                nativeResp = defaultResp;
             }
-            webInterceptorChain.afterHandle(nativeReq, resp);
-            getStrategy().apply(resp, response);
-            writeResponse(resp, response);
+            webInterceptorChain.afterHandle(nativeReq, nativeResp);
+            getStrategy().apply(nativeResp, response);
+            writeResponse(nativeResp, response);
+        } catch (Throwable throwable) {
+            onErrorBeforeHandle(throwable, response);
+        } finally {
             EntityTransactionManager transactionManager = getEntityFactory().getTransactionManager();
             if (transactionManager.hasSavePoint()) {
                 transactionManager.getSavePointManager().release();
             }
-            webInterceptorChain.onCompletion(nativeReq, resp);
-        } catch (Throwable throwable) {
-            onErrorBeforeHandle(throwable, response);
+            if (nativeReq != null && nativeResp != null) {
+                webInterceptorChain.onCompletion(nativeReq, nativeResp);
+            }
+            if (nativeReq != null && nativeReq.isMultipart()) {
+                nativeReq.cleanUp();
+            }
         }
     }
 
@@ -63,6 +71,8 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
     protected abstract void writeResponse(NativeResponse<?> nativeResponse, U response);
 
     protected abstract void onErrorBeforeHandle(Throwable throwable, U response);
+
+    protected abstract void configResponse(NativeResponse<?> nativeResponse, U actualResponse);
 
     private Node configRootNode() {
         var factory = new NodeFactory(resolver);

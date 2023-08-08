@@ -77,7 +77,7 @@ class DefaultSearchManagerFactory implements SearchManagerFactory {
 
     private String findIndexName(Class<?> entity) {
         for (String indexName : indexNames) {
-            if (indexName.equalsIgnoreCase(entity.getName())) {
+            if (indexName.equalsIgnoreCase(entity.getSimpleName())) {
                 return indexName;
             }
         }

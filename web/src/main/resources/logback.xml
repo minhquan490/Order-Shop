@@ -12,7 +12,7 @@
 
     <variable name="PATTERN" value="[%d{HH:mm:ss.SSS}] [%t] [%-5level] [%logger{36}] - %msg%n"/>
     <variable name="LOG_FOLDER" value="./logs"/>
-    <variable name="ZIP_PATTERN" value="app.%d{yyyy-MM-dd}.%i.log.gz"/>
+    <variable name="ZIP_PATTERN" value="app.%d{yyyy-MM-dd}.%i.log"/>
 
     <appender name="STDOUT" class="ConsoleAppender">
         <encoder class="PatternLayoutEncoder">
@@ -29,7 +29,7 @@
             <pattern>${PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FOLDER}/application.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_FOLDER}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>5MB</maxFileSize>
             <totalSizeCap>20GB</totalSizeCap>
             <maxHistory>60</maxHistory>
@@ -47,7 +47,7 @@
             <pattern>${PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FOLDER}/query.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_FOLDER}/query.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>5MB</maxFileSize>
             <totalSizeCap>20GB</totalSizeCap>
             <maxHistory>60</maxHistory>
@@ -63,7 +63,7 @@
             <pattern>${PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FOLDER}/server.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_FOLDER}/server.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>5MB</maxFileSize>
             <totalSizeCap>20GB</totalSizeCap>
             <maxHistory>60</maxHistory>
@@ -81,7 +81,7 @@
             <pattern>${PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FOLDER}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_FOLDER}/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>5MB</maxFileSize>
             <totalSizeCap>20GB</totalSizeCap>
             <maxHistory>60</maxHistory>
@@ -115,12 +115,17 @@
         <appender-ref ref="ERROR-LOG"/>
     </logger>
 
+    <logger name="org.eclipse.jetty" level="DEBUG" additivity="false">
+        <appender-ref ref="WEB-SERVER-LOG"/>
+        <appender-ref ref="ERROR-LOG"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
         <appender-ref ref="QUERY-LOG"/>
     </logger>
 
     <logger name="org.springframework" level="DEBUG" additivity="false">
         <appender-ref ref="ERROR-LOG"/>
-        <appender-ref ref="STDOUT"/>
     </logger>
 </configuration>

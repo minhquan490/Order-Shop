@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,21 +11,26 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 
 import java.sql.Date;
 
 @Entity
 @Table(name = "CUSTOMER_ACCESS_HISTORY", indexes = @Index(name = "idx_access_history_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.CustomerAccessHistoryValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class CustomerAccessHistory extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class CustomerAccessHistory extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "int")
+    @NonNull
     private Integer id;
 
     @Column(name = "PATH_REQUEST", length = 50, nullable = false, updatable = false)
@@ -40,8 +43,11 @@ public class CustomerAccessHistory extends AbstractEntity {
     @Column(name = "REQUEST_TIME", nullable = false, updatable = false)
     private Date requestTime;
 
-    @Column(name = "REQUEST_CONTENT", columnDefinition = "nvarchar")
+    @Column(name = "REQUEST_CONTENT", columnDefinition = "nvarchar(400)")
     private String requestContent;
+
+    @Column(name = "CUSTOMER_IP", length = 100)
+    private String customerIp;
 
     @Column(name = "REMOVED_TIME", nullable = false)
     private Date removeTime;
@@ -61,21 +67,33 @@ public class CustomerAccessHistory extends AbstractEntity {
 
     @ActiveReflection
     public void setPathRequest(String pathRequest) {
+        if (this.pathRequest != null && !this.pathRequest.equals(pathRequest)) {
+            trackUpdatedField("PATH_REQUEST", this.pathRequest);
+        }
         this.pathRequest = pathRequest;
     }
 
     @ActiveReflection
     public void setRequestTime(Date requestTime) {
+        if (this.requestTime != null && !this.requestTime.equals(requestTime)) {
+            trackUpdatedField("REQUEST_TIME", this.requestTime.toString());
+        }
         this.requestTime = requestTime;
     }
 
     @ActiveReflection
     public void setRequestContent(String requestContent) {
+        if (this.requestContent != null && !this.requestContent.equals(requestContent)) {
+            trackUpdatedField("REQUEST_CONTENT", this.requestContent);
+        }
         this.requestContent = requestContent;
     }
 
     @ActiveReflection
     public void setRemoveTime(Date removeTime) {
+        if (this.removeTime != null && !this.removeTime.equals(removeTime)) {
+            trackUpdatedField("REMOVED_TIME", this.removeTime.toString());
+        }
         this.removeTime = removeTime;
     }
 
@@ -86,18 +104,17 @@ public class CustomerAccessHistory extends AbstractEntity {
 
     @ActiveReflection
     public void setRequestType(String requestType) {
+        if (this.requestType != null && !this.requestType.equals(requestType)) {
+            trackUpdatedField("REQUEST_TYPE", this.requestType);
+        }
         this.requestType = requestType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CustomerAccessHistory that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getPathRequest(), that.getPathRequest()) && Objects.equal(getRequestType(), that.getRequestType()) && Objects.equal(getRequestTime(), that.getRequestTime()) && Objects.equal(getRequestContent(), that.getRequestContent()) && Objects.equal(getRemoveTime(), that.getRemoveTime()) && Objects.equal(getCustomer(), that.getCustomer());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getPathRequest(), getRequestType(), getRequestTime(), getRequestContent(), getRemoveTime(), getCustomer());
+    @ActiveReflection
+    public void setCustomerIp(String customerIp) {
+        if (this.customerIp != null && !this.customerIp.equals(customerIp)) {
+            trackUpdatedField("CUSTOMER_IP", this.customerIp);
+        }
+        this.customerIp = customerIp;
     }
 }

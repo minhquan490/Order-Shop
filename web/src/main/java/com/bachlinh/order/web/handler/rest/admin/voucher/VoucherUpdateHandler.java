@@ -4,6 +4,8 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherUpdateForm;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
@@ -11,8 +13,9 @@ import com.bachlinh.order.web.service.common.VoucherService;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "voucherUpdateHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@Permit(roles = Role.ADMIN)
 public class VoucherUpdateHandler extends AbstractController<VoucherResp, VoucherUpdateForm> {
     private String url;
     private VoucherService voucherService;

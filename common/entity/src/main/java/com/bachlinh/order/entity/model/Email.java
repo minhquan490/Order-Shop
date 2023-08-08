@@ -4,9 +4,6 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +15,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.http.MediaType;
 
 import java.sql.Timestamp;
@@ -34,16 +33,13 @@ import java.sql.Timestamp;
                 @Index(name = "idx_email_folder", columnList = "FOLDER_ID")
         }
 )
-@Trigger(triggers = {
-        "com.bachlinh.order.trigger.internal.IndexEmailContentTrigger",
-        "com.bachlinh.order.trigger.internal.EmailSendingTrigger"
-})
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailValidator")
 @ActiveReflection
 @EnableFullTextSearch
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class Email extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Email extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
@@ -66,16 +62,16 @@ public class Email extends AbstractEntity {
     private String title;
 
     @Column(name = "WAS_READ", columnDefinition = "bit", nullable = false)
-    private boolean read;
+    private boolean read = false;
 
     @Column(name = "WAS_SENT", columnDefinition = "bit", nullable = false)
-    private boolean sent;
+    private boolean sent = false;
 
     @Column(name = "MEDIA_TYPE", nullable = false, length = 50)
     private String mediaType = MediaType.TEXT_PLAIN_VALUE;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "FROM_CUSTOMER_ID", nullable = false, updatable = false)
+    @JoinColumn(name = "FROM_CUSTOMER_ID", updatable = false)
     private Customer fromCustomer;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -102,21 +98,33 @@ public class Email extends AbstractEntity {
 
     @ActiveReflection
     public void setContent(String content) {
+        if (this.content != null && !this.content.equals(content)) {
+            trackUpdatedField("CONTENT", this.content);
+        }
         this.content = content;
     }
 
     @ActiveReflection
     public void setReceivedTime(Timestamp receivedTime) {
+        if (this.receivedTime != null && !this.receivedTime.equals(receivedTime)) {
+            trackUpdatedField("RECEIVED_TIME", this.receivedTime.toString());
+        }
         this.receivedTime = receivedTime;
     }
 
     @ActiveReflection
     public void setTimeSent(Timestamp timeSent) {
+        if (this.timeSent != null && !this.timeSent.equals(timeSent)) {
+            trackUpdatedField("SENT_TIME", this.timeSent.toString());
+        }
         this.timeSent = timeSent;
     }
 
     @ActiveReflection
     public void setTitle(String title) {
+        if (this.title != null && !this.title.equals(title)) {
+            trackUpdatedField("TITLE", this.title);
+        }
         this.title = title;
     }
 
@@ -127,43 +135,49 @@ public class Email extends AbstractEntity {
 
     @ActiveReflection
     public void setSent(boolean sent) {
+        if (this.sent != sent) {
+            trackUpdatedField("SENT", String.valueOf(this.sent));
+        }
         this.sent = sent;
     }
 
     @ActiveReflection
     public void setMediaType(String mediaType) {
+        if (this.mediaType != null && !this.mediaType.equals(mediaType)) {
+            trackUpdatedField("MEDIA_TYPE", this.mediaType);
+        }
         this.mediaType = mediaType;
     }
 
     @ActiveReflection
     public void setFromCustomer(Customer fromCustomer) {
+        if (this.fromCustomer != null && !this.fromCustomer.getId().equals(fromCustomer.getId())) {
+            trackUpdatedField("FROM_CUSTOMER_ID", this.fromCustomer.getId());
+        }
         this.fromCustomer = fromCustomer;
     }
 
     @ActiveReflection
     public void setToCustomer(Customer toCustomer) {
+        if (this.toCustomer != null && !this.toCustomer.getId().equals(toCustomer.getId())) {
+            trackUpdatedField("TO_CUSTOMER", this.toCustomer.getId());
+        }
         this.toCustomer = toCustomer;
     }
 
     @ActiveReflection
     public void setFolder(EmailFolders folder) {
+        if (this.folder != null && this.folder.getId().equals(folder.getId())) {
+            trackUpdatedField("FOLDER_ID", this.folder.getId());
+        }
         this.folder = folder;
     }
 
     @ActiveReflection
     public void setEmailTrash(EmailTrash emailTrash) {
+        if (this.emailTrash != null && !this.emailTrash.getId().equals(emailTrash.getId())) {
+            trackUpdatedField("EMAIL_TRASH_ID", this.emailTrash.getId().toString());
+        }
         this.emailTrash = emailTrash;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Email email)) return false;
-        return isRead() == email.isRead() && isSent() == email.isSent() && Objects.equal(getId(), email.getId()) && Objects.equal(getContent(), email.getContent()) && Objects.equal(getReceivedTime(), email.getReceivedTime()) && Objects.equal(getTimeSent(), email.getTimeSent()) && Objects.equal(getTitle(), email.getTitle()) && Objects.equal(getMediaType(), email.getMediaType()) && Objects.equal(getFromCustomer(), email.getFromCustomer()) && Objects.equal(getToCustomer(), email.getToCustomer()) && Objects.equal(getFolder(), email.getFolder()) && Objects.equal(getEmailTrash(), email.getEmailTrash());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getContent(), getReceivedTime(), getTimeSent(), getTitle(), isRead(), isSent(), getMediaType(), getFromCustomer(), getToCustomer(), getFolder(), getEmailTrash());
     }
 }

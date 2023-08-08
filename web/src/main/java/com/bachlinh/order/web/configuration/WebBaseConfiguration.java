@@ -3,7 +3,7 @@ package com.bachlinh.order.web.configuration;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
+import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
@@ -31,9 +31,11 @@ import com.bachlinh.order.web.common.servlet.WebServlet;
 import com.bachlinh.order.web.handler.websocket.ProxyRequestUpgradeStrategy;
 import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -88,19 +90,14 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
         return new WebServlet(webApplicationContext);
     }
 
-//    @Bean
-//    SpringFrontRequestHandler frontRequestHandler(ControllerManager controllerManager, EntityFactory entityFactory, ExceptionTranslator<NativeResponse<String>> exceptionTranslator) {
-//        return new SpringFrontRequestHandler(controllerManager, entityFactory, exceptionTranslator);
-//    }
-
     @Bean
     ServletRouter servletRouter() {
         return new ServletRouter(resolver);
     }
 
     @Bean
-    JsonStringExceptionTranslator jsonStringExceptionTranslator() {
-        return new JsonStringExceptionTranslator();
+    JsonExceptionTranslator jsonStringExceptionTranslator() {
+        return new JsonExceptionTranslator();
     }
 
     @Bean
@@ -109,8 +106,8 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
     }
 
     @Bean
-    ExceptionTranslator<NativeResponse<String>> exceptionTranslator() {
-        return new JsonStringExceptionTranslator();
+    ExceptionTranslator<NativeResponse<byte[]>> exceptionTranslator() {
+        return new JsonExceptionTranslator();
     }
 
     @Bean
@@ -167,6 +164,13 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
                 .container(ContainerWrapper.wrap(applicationContext))
                 .profile(profile)
                 .build();
+    }
+
+    @Bean
+    JettyServletWebServerFactory jettyServletWebServerFactory(ObjectProvider<JettyServerCustomizer> serverCustomizers, @Value("${server.port}") int port) {
+        JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
+        factory.getServerCustomizers().addAll(serverCustomizers.orderedStream().toList());
+        return factory;
     }
 
     @Override

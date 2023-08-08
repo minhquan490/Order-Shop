@@ -6,7 +6,7 @@ import com.bachlinh.order.entity.model.OrderHistory;
 
 import java.util.Collection;
 
-public interface OrderHistoryRepository {
+public interface OrderHistoryRepository extends NativeQueryRepository {
     void saveOrderHistory(OrderHistory orderHistory);
 
     void updateOrderHistory(OrderHistory orderHistory);

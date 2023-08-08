@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,18 +12,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "LOGIN_HISTORY", indexes = @Index(name = "idx_login_history_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.LoginHistoryValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class LoginHistory extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class LoginHistory extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", nullable = false, updatable = false, columnDefinition = "int")
@@ -71,17 +72,5 @@ public class LoginHistory extends AbstractEntity {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         this.customer = customer;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LoginHistory that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getLastLoginTime(), that.getLastLoginTime()) && Objects.equal(getLoginIp(), that.getLoginIp()) && Objects.equal(getSuccess(), that.getSuccess()) && Objects.equal(getCustomer(), that.getCustomer());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getLastLoginTime(), getLoginIp(), getSuccess(), getCustomer());
     }
 }

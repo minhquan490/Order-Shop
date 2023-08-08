@@ -1,14 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -21,14 +12,23 @@ import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -113,12 +113,5 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
-    }
-
-    @Override
-    public <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType) {
-        var typedQuery = getEntityManager().createQuery(query, receiverType);
-        attributes.forEach(typedQuery::setParameter);
-        return typedQuery.getResultList();
     }
 }

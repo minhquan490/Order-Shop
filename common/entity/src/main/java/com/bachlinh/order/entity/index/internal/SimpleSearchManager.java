@@ -49,7 +49,11 @@ class SimpleSearchManager implements SearchManager {
 
     @Override
     public void analyze(Collection<Object> entities) {
-        entities.forEach(this::analyze);
+        Object entity = entities.stream().findFirst().orElse(null);
+        if (entity == null) {
+            return;
+        }
+        indexerMap.get(entity.getClass()).indexMany(entities);
     }
 
     @Override

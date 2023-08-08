@@ -10,11 +10,13 @@ import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.web.dto.form.admin.product.ProductCreateForm;
 import com.bachlinh.order.web.dto.form.admin.product.ProductUpdateForm;
 import com.bachlinh.order.web.dto.form.common.ProductSearchForm;
+import com.bachlinh.order.web.dto.resp.AdminProductResp;
 import com.bachlinh.order.web.dto.resp.AnalyzeProductPostedInMonthResp;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductAnalyzeService;
@@ -22,10 +24,12 @@ import com.bachlinh.order.web.service.business.ProductSearchingService;
 import com.bachlinh.order.web.service.common.ProductService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -114,6 +118,22 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("IDS", ids);
         return productRepository.getProductsByCondition(conditions, pageable).map(product -> ProductResp.toDto(product, resourceUrl));
+    }
+
+    @Override
+    public Collection<AdminProductResp> getProducts(String page) {
+        int productPerPage = 500;
+        Pageable pageable;
+        if (!StringUtils.hasText(page)) {
+            pageable = PageRequest.of(1, 500);
+        } else {
+            try {
+                pageable = PageRequest.of(Integer.parseInt(page), productPerPage);
+            } catch (NumberFormatException e) {
+                throw new BadVariableException("Page must be a number");
+            }
+        }
+        return dtoMapper.map(productRepository.getProducts(pageable), AdminProductResp.class);
     }
 
     @Override

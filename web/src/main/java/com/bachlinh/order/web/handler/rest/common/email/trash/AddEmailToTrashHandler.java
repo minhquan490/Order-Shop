@@ -1,7 +1,5 @@
 package com.bachlinh.order.web.handler.rest.common.email.trash;
 
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -11,10 +9,12 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.AddEmailToTrashForm;
 import com.bachlinh.order.web.dto.resp.EmailTrashResp;
 import com.bachlinh.order.web.service.business.EmailInTrashService;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
-@RouteProvider
+@RouteProvider(name = "addEmailToTrashHanler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class AddEmailToTrashHandler extends AbstractController<EmailTrashResp, AddEmailToTrashForm> {

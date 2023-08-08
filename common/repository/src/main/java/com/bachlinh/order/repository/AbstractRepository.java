@@ -1,6 +1,5 @@
 package com.bachlinh.order.repository;
 
-import com.bachlinh.order.annotation.Validated;
 import com.bachlinh.order.entity.EntityManagerHolder;
 import com.bachlinh.order.entity.HintDecorator;
 import com.bachlinh.order.entity.model.BaseEntity;
@@ -27,12 +26,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
-public abstract class AbstractRepository<T extends BaseEntity, U> extends RepositoryAdapter<T, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
+public abstract class AbstractRepository<T extends BaseEntity<U>, U> extends RepositoryAdapter<T, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U>, NativeQueryRepository {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected AbstractRepository(Class<T> domainClass, DependenciesResolver dependenciesResolver) {
         super(domainClass, dependenciesResolver);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <K> List<K> executeNativeQuery(String query, Map<String, Object> attributes, Class<K> receiverType) {
+        var typedQuery = getEntityManager().createNativeQuery(query, receiverType);
+        attributes.forEach(typedQuery::setParameter);
+        return typedQuery.getResultList();
     }
 
     @Override
@@ -67,7 +75,6 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
     }
 
     @Override
-    @Validated(targetIndex = 0)
     @NonNull
     public <S extends T> S save(@NonNull S entity) {
         S result = super.save(entity);
@@ -97,13 +104,13 @@ public abstract class AbstractRepository<T extends BaseEntity, U> extends Reposi
     }
 
     @Override
-    public void deleteAllInBatch(Iterable<T> entities) {
+    public void deleteAllInBatch(@NonNull Iterable<T> entities) {
         super.deleteAll(entities);
         entities.forEach(this::evictCache);
     }
 
     @Override
-    public void deleteAllByIdInBatch(Iterable<U> ids) {
+    public void deleteAllByIdInBatch(@NonNull Iterable<U> ids) {
         super.deleteAllById(ids);
         getSessionFactory().getCache().evict(getDomainClass());
     }

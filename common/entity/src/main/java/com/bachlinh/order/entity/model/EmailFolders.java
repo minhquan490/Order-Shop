@@ -2,9 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,8 +14,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -30,12 +29,12 @@ import java.util.Set;
         @Index(name = "idx_email_folder_owner", columnList = "OWNER_ID"),
         @Index(name = "idx_email_folder_name", columnList = "NAME")
 })
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailFoldersValidator")
 @ActiveReflection
-@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailFolderIndexTrigger"})
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class EmailFolders extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class EmailFolders extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", updatable = false, unique = true, columnDefinition = "varchar(32)")
@@ -69,38 +68,38 @@ public class EmailFolders extends AbstractEntity {
 
     @ActiveReflection
     public void setName(String name) {
+        if (this.name != null && !this.name.equals(name)) {
+            trackUpdatedField("NAME", this.name);
+        }
         this.name = name;
     }
 
     @ActiveReflection
     public void setTimeCreated(Timestamp timeCreated) {
+        if (this.timeCreated != null && !this.timeCreated.equals(timeCreated)) {
+            trackUpdatedField("TIME_CREATED", this.timeCreated.toString());
+        }
         this.timeCreated = timeCreated;
     }
 
     @ActiveReflection
     public void setEmailClearPolicy(Integer emailClearPolicy) {
+        if (this.emailClearPolicy != null && !this.emailClearPolicy.equals(emailClearPolicy)) {
+            trackUpdatedField("EMAIL_CLEAR_POLICY", this.emailClearPolicy.toString());
+        }
         this.emailClearPolicy = emailClearPolicy;
     }
 
     @ActiveReflection
     public void setOwner(Customer owner) {
+        if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
+            trackUpdatedField("OWNER_ID", this.owner.getId());
+        }
         this.owner = owner;
     }
 
     @ActiveReflection
     public void setEmails(Set<Email> emails) {
         this.emails = emails;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EmailFolders that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getName(), that.getName()) && Objects.equal(getTimeCreated(), that.getTimeCreated()) && Objects.equal(getEmailClearPolicy(), that.getEmailClearPolicy()) && Objects.equal(getOwner(), that.getOwner()) && Objects.equal(getEmails(), that.getEmails());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getTimeCreated(), getEmailClearPolicy(), getOwner(), getEmails());
     }
 }

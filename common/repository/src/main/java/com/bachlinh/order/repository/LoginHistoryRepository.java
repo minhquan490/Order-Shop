@@ -5,7 +5,7 @@ import com.bachlinh.order.entity.model.LoginHistory;
 
 import java.util.Collection;
 
-public interface LoginHistoryRepository {
+public interface LoginHistoryRepository extends NativeQueryRepository {
     LoginHistory saveHistory(LoginHistory loginHistory);
 
     Collection<LoginHistory> getHistories(Customer owner);

@@ -2,7 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,10 +10,12 @@ import jakarta.persistence.Index;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Table(name = "MESSAGE_SETTING", indexes = @Index(name = "idx_message_setting_value", columnList = "VALUE"))
 @Entity
@@ -24,8 +25,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Label("MSG-")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "messageSetting")
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.MessageSettingValidator")
-public class MessageSetting extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class MessageSetting extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", unique = true, updatable = false, nullable = false, columnDefinition = "varchar(32)")
@@ -46,6 +48,9 @@ public class MessageSetting extends AbstractEntity {
 
     @ActiveReflection
     public void setValue(String value) {
+        if (this.value != null && !this.value.equals(value)) {
+            trackUpdatedField("VALUE", this.value);
+        }
         this.value = value;
     }
 }

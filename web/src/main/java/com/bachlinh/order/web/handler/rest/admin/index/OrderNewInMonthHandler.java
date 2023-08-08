@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.handler.rest.admin.index;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -8,9 +7,10 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.AnalyzeOrderNewInMonthResp;
 import com.bachlinh.order.web.service.business.OrderAnalyzeService;
+import lombok.NoArgsConstructor;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "orderNewInMonthHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class OrderNewInMonthHandler extends AbstractController<AnalyzeOrderNewInMonthResp, Void> {
     private OrderAnalyzeService orderAnalyzeService;

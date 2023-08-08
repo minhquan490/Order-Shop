@@ -4,6 +4,8 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Setter;
+import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 
 @Setter
 public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> {
@@ -14,7 +16,7 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
     private String customerIp;
 
     public HttpServletNativeRequest(HttpServletRequest request) {
-        super(request, request.getRequestURI(), RequestMethod.valueOf(request.getMethod().toUpperCase()));
+        super(request, request.getRequestURI(), RequestMethod.valueOf(request.getMethod().toUpperCase()), isMultipartFile(request));
     }
 
     @Override
@@ -41,5 +43,14 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
     @Override
     public String getCustomerIp() {
         return customerIp;
+    }
+
+    @Override
+    public void cleanUp() {
+        payload = null;
+    }
+
+    private static boolean isMultipartFile(HttpServletRequest request) {
+        return StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.MULTIPART_FORM_DATA_VALUE);
     }
 }

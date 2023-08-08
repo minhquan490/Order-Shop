@@ -31,6 +31,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.data:spring-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'jakarta.persistence:jakarta.persistence-api'
     implementation 'javax.cache:cache-api'
@@ -58,12 +59,10 @@ dependencies {
     runtimeOnly "io.opencensus:opencensus-impl:${libs.versions.opencensus.get()}"
     runtimeOnly "io.opentelemetry:opentelemetry-opentracing-shim:${libs.versions.opentelemetry.get()}"
     runtimeOnly "ch.qos.logback:logback-access:${libs.versions.logback.get()}"
+}
 
-    modules {
-        module("org.springframework.boot:spring-boot-starter-tomcat") {
-            replacedBy("org.springframework.boot:spring-boot-starter-jetty", "Use Jetty instead of Tomcat")
-        }
-    }
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
 }
 
 test {

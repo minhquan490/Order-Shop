@@ -1,13 +1,10 @@
 package com.bachlinh.order.security.auth.internal;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.util.Assert;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.JwtDecoder;
 import com.bachlinh.order.security.auth.spi.JwtEncoder;
@@ -15,8 +12,10 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenGenerator;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.util.Assert;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +35,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
     private final JwtEncoder encoder;
     private final EntityFactory entityFactory;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final ClientSecretHandler clientSecretHandler;
+    private final CustomerRepository customerRepository;
 
     DefaultTokenManager(String algorithm, String secretKey, DependenciesResolver resolver) {
         this.decoder = JwtFactoryBuilderProvider.provideJwtDecoderFactoryBuilder()
@@ -51,7 +50,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
                 .buildEncoder();
         this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
         this.refreshTokenRepository = resolver.resolveDependencies(RefreshTokenRepository.class);
-        this.clientSecretHandler = resolver.resolveDependencies(ClientSecretHandler.class);
+        this.customerRepository = resolver.resolveDependencies(CustomerRepository.class);
     }
 
     JwtDecoder getJwtDecoder() {
@@ -127,32 +126,14 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
 
     @Override
     public RefreshToken generateToken(Object customerId, String username) {
-        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Customer customer = customerRepository.getCustomerById((String) customerId, false);
         RefreshToken refreshToken = entityFactory.getEntity(RefreshToken.class);
         refreshToken.setCustomer(customer);
-        refreshToken.setId(entityFactory.getEntityContext(RefreshToken.class).getNextId());
         Instant timeCreated = Instant.now();
         refreshToken.setTimeCreated(Timestamp.from(timeCreated));
         refreshToken.setTimeExpired(Timestamp.from(Instant.ofEpochSecond(timeCreated.getEpochSecond() + 86400 * 365)));
         refreshToken.setRefreshTokenValue(UUID.randomUUID().toString());
         return refreshToken;
-    }
-
-    @Override
-    public String generateClientSecret(String refreshToken) {
-        String clientSecret = UUID.randomUUID().toString();
-        clientSecretHandler.setClientSecret(clientSecret, refreshToken);
-        return clientSecret;
-    }
-
-    @Override
-    public boolean isWrapped(String clientSecret) {
-        return clientSecretHandler.getClientSecret(clientSecret) != null;
-    }
-
-    @Override
-    public void removeClientSecret(String clientSecret, String refreshToken) {
-        clientSecretHandler.removeClientSecret(refreshToken, clientSecret);
     }
 
     @Override

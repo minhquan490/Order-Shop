@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,16 +12,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Table(name = "ORDER_DETAIL", indexes = @Index(name = "idx_order", columnList = "ORDER_ID"))
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.OrderDetailValidator")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class OrderDetail extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class OrderDetail extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", updatable = false, unique = true, columnDefinition = "int")
@@ -50,29 +51,26 @@ public class OrderDetail extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setAmount(int amount) {
+    public void setAmount(Integer amount) {
+        if (this.amount != null && !this.amount.equals(amount)) {
+            trackUpdatedField("AMOUNT", this.amount.toString());
+        }
         this.amount = amount;
     }
 
     @ActiveReflection
     public void setProduct(Product product) {
+        if (this.product != null && !this.product.getId().equals(product.getId())) {
+            trackUpdatedField("PRODUCT_ID", product.getId());
+        }
         this.product = product;
     }
 
     @ActiveReflection
     public void setOrder(Order order) {
+        if (this.order != null && !this.order.getId().equals(order.getId())) {
+            trackUpdatedField("ORDER_ID", this.order.getId());
+        }
         this.order = order;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OrderDetail that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getAmount(), that.getAmount()) && Objects.equal(getProduct(), that.getProduct()) && Objects.equal(getOrder(), that.getOrder());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getAmount(), getProduct(), getOrder());
     }
 }

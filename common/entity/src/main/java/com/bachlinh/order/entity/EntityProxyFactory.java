@@ -4,5 +4,5 @@ import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.proxy.EntityProxy;
 
 public interface EntityProxyFactory {
-    EntityProxy getProxyObject(Class<? extends BaseEntity> entityClass);
+    EntityProxy getProxyObject(Class<? extends BaseEntity<?>> entityClass);
 }

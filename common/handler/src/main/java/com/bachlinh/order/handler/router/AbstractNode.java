@@ -3,7 +3,7 @@ package com.bachlinh.order.handler.router;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.converter.spi.ResponseConverter;
-import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
+import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.handler.controller.ControllerContext;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +16,7 @@ import org.springframework.lang.Nullable;
 public abstract class AbstractNode implements Node, NodeHolder {
     private final ResponseConverter<HttpServletResponse> responseConverter = ResponseConverter.servletResponseConverter();
     private final ControllerManager controllerManager;
-    private final JsonStringExceptionTranslator exceptionTranslator;
+    private final JsonExceptionTranslator exceptionTranslator;
     private final String name;
     private final Node parent;
 
@@ -63,7 +63,7 @@ public abstract class AbstractNode implements Node, NodeHolder {
         controllerManager.setNativeResponse(response);
     }
 
-    protected JsonStringExceptionTranslator exceptionTranslator() {
+    protected JsonExceptionTranslator exceptionTranslator() {
         return exceptionTranslator;
     }
 

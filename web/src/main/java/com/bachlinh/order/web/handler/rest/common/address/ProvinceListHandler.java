@@ -12,13 +12,14 @@ import lombok.NoArgsConstructor;
 import java.util.Collection;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "provinceListHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class ProvinceListHandler extends AbstractController<Collection<ProvinceResp>, Void> {
     private String url;
     private ProvinceService provinceService;
 
     @Override
+    @ActiveReflection
     protected Collection<ProvinceResp> internalHandler(Payload<Void> request) {
         return provinceService.getAllProvince();
     }

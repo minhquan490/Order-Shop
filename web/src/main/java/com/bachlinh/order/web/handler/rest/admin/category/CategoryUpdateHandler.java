@@ -4,15 +4,18 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
 import lombok.NoArgsConstructor;
 
-@RouteProvider
+@RouteProvider(name = "categoryUpdateHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@Permit(roles = Role.ADMIN)
 public class CategoryUpdateHandler extends AbstractController<CategoryResp, CategoryUpdateForm> {
     private CategoryService categoryService;
     private String url;

@@ -1,8 +1,5 @@
 package com.bachlinh.order.web.handler.rest.customer.index;
 
-import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -11,6 +8,9 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
+import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RouteProvider
+@RouteProvider(name = "homeHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class HomeHandler extends AbstractController<Map<String, Object>, Object> {

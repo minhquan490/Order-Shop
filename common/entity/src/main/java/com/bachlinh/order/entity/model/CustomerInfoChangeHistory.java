@@ -2,7 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -12,8 +11,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 
@@ -23,7 +24,9 @@ import java.sql.Timestamp;
 @ActiveReflection
 @Label("CIH-")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-public class CustomerInfoChangeHistory extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class CustomerInfoChangeHistory extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", updatable = false, unique = true, nullable = false)
@@ -70,17 +73,5 @@ public class CustomerInfoChangeHistory extends AbstractEntity {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         this.customer = customer;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CustomerInfoChangeHistory that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getOldValue(), that.getOldValue()) && Objects.equal(getFieldName(), that.getFieldName()) && Objects.equal(getTimeUpdate(), that.getTimeUpdate()) && Objects.equal(getCustomer(), that.getCustomer());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getOldValue(), getFieldName(), getTimeUpdate(), getCustomer());
     }
 }

@@ -4,9 +4,6 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,10 +15,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,15 +35,15 @@ import java.util.Set;
         }
 )
 @Label("PRD-")
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.ProductValidator")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "product")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.trigger.internal.ProductIndexTrigger")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class Product extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Product extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", nullable = false, updatable = false, columnDefinition = "varchar(32)")
@@ -56,7 +55,7 @@ public class Product extends AbstractEntity {
     private String name;
 
     @Column(name = "PRICE", nullable = false)
-    private int price;
+    private Integer price;
 
     @Column(name = "SIZE", length = 3, nullable = false)
     @FullTextField
@@ -100,41 +99,65 @@ public class Product extends AbstractEntity {
 
     @ActiveReflection
     public void setName(String name) {
+        if (this.name != null && !this.name.equals(name)) {
+            trackUpdatedField("NAME", this.name);
+        }
         this.name = name;
     }
 
     @ActiveReflection
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
+        if (this.price != null && !this.price.equals(price)) {
+            trackUpdatedField("PRICE", this.price.toString());
+        }
         this.price = price;
     }
 
     @ActiveReflection
     public void setSize(String size) {
+        if (this.size != null && !this.size.equals(size)) {
+            trackUpdatedField("SIZE", this.size);
+        }
         this.size = size;
     }
 
     @ActiveReflection
     public void setColor(String color) {
+        if (this.color != null && !this.color.equals(color)) {
+            trackUpdatedField("COLOR", this.color);
+        }
         this.color = color;
     }
 
     @ActiveReflection
     public void setTaobaoUrl(String taobaoUrl) {
+        if (this.taobaoUrl != null && !this.taobaoUrl.equals(taobaoUrl)) {
+            trackUpdatedField("TAO_BAO_URL", this.taobaoUrl);
+        }
         this.taobaoUrl = taobaoUrl;
     }
 
     @ActiveReflection
     public void setDescription(String description) {
+        if (this.description != null && !this.description.equals(description)) {
+            trackUpdatedField("DESCRIPTION", this.description);
+        }
         this.description = description;
     }
 
     @ActiveReflection
     public void setOrderPoint(Integer orderPoint) {
+        if (this.orderPoint != null && !this.orderPoint.equals(orderPoint)) {
+            trackUpdatedField("ORDER_POINT", this.orderPoint.toString());
+        }
         this.orderPoint = orderPoint;
     }
 
     @ActiveReflection
     public void setEnabled(boolean enabled) {
+        if (this.enabled != enabled) {
+            trackUpdatedField("ENABLED", String.valueOf(enabled));
+        }
         this.enabled = enabled;
     }
 
@@ -151,17 +174,5 @@ public class Product extends AbstractEntity {
     @ActiveReflection
     public void setCarts(Set<Cart> carts) {
         this.carts = carts;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Product product)) return false;
-        return getPrice() == product.getPrice() && isEnabled() == product.isEnabled() && Objects.equal(getId(), product.getId()) && Objects.equal(getName(), product.getName()) && Objects.equal(getSize(), product.getSize()) && Objects.equal(getColor(), product.getColor()) && Objects.equal(getTaobaoUrl(), product.getTaobaoUrl()) && Objects.equal(getDescription(), product.getDescription()) && Objects.equal(getOrderPoint(), product.getOrderPoint()) && Objects.equal(getMedias(), product.getMedias()) && Objects.equal(getCategories(), product.getCategories()) && Objects.equal(getCarts(), product.getCarts());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getPrice(), getSize(), getColor(), getTaobaoUrl(), getDescription(), getOrderPoint(), isEnabled(), getMedias(), getCategories(), getCarts());
     }
 }

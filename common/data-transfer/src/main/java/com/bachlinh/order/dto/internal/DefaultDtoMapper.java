@@ -28,7 +28,10 @@ public class DefaultDtoMapper implements DtoMapper {
     @Override
     public <T, U> Collection<T> map(Collection<U> sources, Class<T> type) throws MappingNotFoundException {
         var results = new ArrayList<T>(sources.size());
-        sources.forEach(u -> results.add(map(u, type)));
+        for (var source : sources) {
+            var mapped = map(source, type);
+            results.add(mapped);
+        }
         return results;
     }
 

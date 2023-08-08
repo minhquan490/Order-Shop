@@ -1,9 +1,5 @@
 package com.bachlinh.order.web.handler.rest.common;
 
-import lombok.NoArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.util.MimeType;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -16,9 +12,13 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.web.dto.resp.ProductMediaResp;
 import com.bachlinh.order.web.service.common.ProductMediaService;
+import lombok.NoArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.MimeType;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "servingFileHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ServingFileHandler extends AbstractController<NativeResponse<byte[]>, Object> {
     private String url;

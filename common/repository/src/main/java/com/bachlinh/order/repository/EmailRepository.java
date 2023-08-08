@@ -6,7 +6,7 @@ import com.bachlinh.order.entity.model.Email;
 import java.util.Collection;
 import java.util.List;
 
-public interface EmailRepository {
+public interface EmailRepository extends NativeQueryRepository {
     Email saveEmail(Email email);
 
     Email getEmailById(String id, Customer owner);

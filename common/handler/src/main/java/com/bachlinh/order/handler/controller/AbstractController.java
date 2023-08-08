@@ -83,9 +83,7 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
     public String getName() {
         if (name == null) {
             var provider = this.getClass().getAnnotation(RouteProvider.class);
-            if (provider == null) {
-                name = getClass().getSimpleName();
-            } else if (!StringUtils.hasText(provider.name())) {
+            if (!StringUtils.hasText(provider.name())) {
                 name = getClass().getSimpleName();
             } else {
                 name = provider.name();

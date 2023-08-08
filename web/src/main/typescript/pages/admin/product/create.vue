@@ -1,200 +1,130 @@
 <script lang="ts">
-import { Subject, Subscription, filter, map, mergeMap, of, takeUntil } from 'rxjs';
-import { ErrorMessage, Field, Form } from 'vee-validate';
-import { number, object, string } from 'yup';
-import { Category } from '~/types/category.type';
-import { UploadFileResult } from '~/types/file-upload-result.type';
-import { Product } from '~/types/product.type';
+import {Category, NavBarsSource} from "~/types";
+import {
+  navigationSources,
+  removeCategory,
+  selectCategory,
+  setProductEnabled,
+  submitRequest,
+  validateBeforeSubmit,
+  validateProductColor,
+  validateProductName,
+  validateProductOrderPoint,
+  validateProductPrice,
+  validateProductSize,
+  validateTaobaoUrl
+} from "~/logic/pages/admin/product/create.logic";
 
 export default {
-  components: {
-    Form,
-    Field,
-    ErrorMessage
-  },
   setup() {
-    const clientProvider = useHttpClient().value;
-    const fileUpload = useFileUpload().value;
-    const serverUrl = useAppConfig().serverUrl;
-    const categoriesUrl = `${serverUrl}/admin/category/list`;
-    const productCreateUrl = `${serverUrl}/admin/product/create`;
-    const fileUploadUrl = `${serverUrl}/admin/files/upload`;
-    const flushFileUrl = `${serverUrl}/admin/files/flush`;
-    
-    const formSchema = object({
-      name: string().required('Name is required').min(4, 'Name must be greater than 4').max(32, 'Name must be less than 32'),
-      price: number().required('Price must be specific').min(0, 'Price must be positive').typeError('Price must be a number').required('Price is required'),
-      size: string().min(1, 'Size must be greater than 1 char').max(10, 'Size must be less than 10 char').required("Size is required").matches(RegexUtils.getProductSizeRegex(), 'Size is invalid'),
-      color: string().required('Color is required').min(2, 'Name must be greater than 2 char').max(10, 'Name must be less than 10 char'),
-      taobao_url: string().matches(RegexUtils.getHttpRegex(), 'Enter correct url!').required('Please enter website'),
-      orderPoint: number().min(0, 'Order point must greater than 0').typeError('Order point must be a number').required('Order point is required')
-    });
-
+    const navigation: NavBarsSource[] = navigationSources();
     return {
-      clientProvider,
-      categoriesUrl,
-      productCreateUrl,
-      fileUploadUrl,
-      flushFileUrl,
-      formSchema,
-      fileUpload
+      navigation
     }
   },
   data() {
-    const subscriptions: Array<Subscription> = [];
-    const pageData: PageData = {
-      categories: [],
-      categoryError: '',
-      createProductSuccessMsg: '',
-      createProductErrorMsg: []
-    };
+    const categories: Category[] = [
+      {id: '1', name: 'a'},
+    ];
+    const request: ProductCreateReq = this.initRequest();
+    const validationError: ValidationError = this.initValidateError();
+    const selectedCategories: Category[] = [];
+    const callServerError: Array<string> = [];
+    const isLoading: boolean = false;
+    const categoryListHide = true;
+    const hideAlert = true;
+    const isSubmitted = false;
     return {
-      subscriptions,
-      pageData
-    }
-  },
-  beforeMount() {
-    const subscription = of(this.categoriesUrl)
-      .pipe(
-        map(url => this.clientProvider(url)),
-        map(service => service.get<undefined, Category[]>()),
-        map(resp => {
-          if (resp.isError || resp.getResponse === null) {
-            return [];
-          }
-          return resp.getResponse as Category[];
-        })
-      )
-      .subscribe(categories => {
-        categories.forEach(category => this.pageData?.categories.push(category))
-      });
-    this.subscriptions?.push(subscription);
-  },
-  beforeUnmount() {
-    if (this.subscriptions) {
-      this.subscriptions.forEach(sub => sub.unsubscribe());
+      selectedCategories,
+      categories,
+      request,
+      validationError,
+      callServerError,
+      isLoading,
+      categoryListHide,
+      hideAlert,
+      isSubmitted
     }
   },
   methods: {
-    submit(value: Record<string, string>) {
-      const elements = this.$refs['categories'] as HTMLInputElement[];
-      let checkedElements: HTMLInputElement[];
-      if (elements) {
-        checkedElements = elements.filter(ele => ele.checked);
-      } else {
-        checkedElements = [];
-      }
-      if (checkedElements.length === 0 && this.pageData) {
-        this.pageData.categoryError = 'Categories is required';
+    removeCategory(category: Category) {
+      removeCategory(category, this);
+    },
+    selectCategory(category: Category) {
+      selectCategory(category, this);
+    },
+    initRequest(): ProductCreateReq {
+      return {
+        product_categories: [],
+        product_color: '',
+        product_description: '',
+        product_enabled: 'true',
+        product_name: '',
+        product_order_point: '',
+        product_price: '',
+        product_size: '',
+        product_taobao_url: ''
+      };
+    },
+    initValidateError(): ValidationError {
+      return {
+        productCategoriesError: '',
+        productColorError: '',
+        productDescriptionError: '',
+        productNameError: '',
+        productOrderPointError: '',
+        productPriceError: '',
+        productSizeError: '',
+        productTaobaoUrlError: ''
+      };
+    },
+    toggleEnableProduct(event: Event) {
+      setProductEnabled(event, this);
+    },
+    submit(event: Event) {
+      event.preventDefault();
+      if (this.isSubmitted) {
         return;
       }
-      const productActive = (this.$refs['product-active'] as HTMLInputElement).checked;
-      const textDescription = (this.$refs['product-description'] as HTMLTextAreaElement).value;
-      const files = (this.$refs['product-pictures'] as HTMLInputElement).files;
-      const stopSignal = new Subject<UploadFileResult | null>();
-
-      stopSignal.subscribe(value => {
-        if (this.pageData && value?.isError) {
-          (this.$refs['danger-alert'] as Element).classList.toggle('hidden');
-          setTimeout(() => {
-            if (this.pageData) {
-              this.pageData.createProductErrorMsg = value.getMessages;
-            }
-          }, 100);
-          setTimeout(() => {
-            setTimeout(() => {
-              (this.$refs['danger-alert'] as Element).classList.toggle('hidden');
-            }, 1000);
-            if (this.pageData) {
-              this.pageData.createProductErrorMsg = [];
-            }
-          }, 3000);
-        }
-      });
-
-      of(this.productCreateUrl)
-        .pipe(
-          map(url => {
-            const service = this.clientProvider(url);
-            const product: Product = JSON.parse(JSON.stringify(value));
-            return { service, product };
-          }),
-          map(mappedValue => {
-            mappedValue.product.categories = checkedElements.map(ele => ele.value);
-            mappedValue.product.isActive = productActive;
-            mappedValue.product.description = textDescription;
-            return mappedValue;
-          }),
-          map(mappedValue => {
-            const req: ProductReq = {
-              product_name: mappedValue.product.name,
-              product_price: mappedValue.product.price,
-              product_size: mappedValue.product.size,
-              product_taobao_url: mappedValue.product.taobao_url,
-              product_description: mappedValue.product.description,
-              product_enabled: mappedValue.product.isActive.toString(),
-              product_categories: mappedValue.product.categories,
-              product_order_point: mappedValue.product.orderPoint,
-              product_color: mappedValue.product.color
-            }
-            const service = mappedValue.service;
-            return { req, service };
-          }),
-          map(mappedValue => {
-            const res = mappedValue.service.post<ProductReq, ProductResp>(mappedValue.req);
-            if (res.isError) {
-              stopSignal.next(new UploadFileResult(true, ['Has problem when create product']));
-            }
-            return res.getResponse;
-          }),
-          mergeMap(async res => {
-            const service = this.fileUpload(this.fileUploadUrl, this.flushFileUrl);
-
-            if (files !== null) {
-              for (const file of files) {
-                const result = service.uploadFile(file);
-                stopSignal.next(result);
-              }
-            } else {
-              stopSignal.next(null);
-            }
-
-            return res;
-          }),
-          takeUntil(stopSignal.pipe(filter(signal => signal === null || signal.isError)))
-        )
-        .subscribe(value => {
-          if (this.pageData) {
-            (this.$refs['success-alert'] as Element).classList.toggle('hidden');
-            setTimeout(() => {
-              if (this.pageData) {
-                this.pageData.createProductSuccessMsg = 'Create product successfully';
-              }
-            }, 100);
-            setTimeout(() => {
-              setTimeout(() => {
-                (this.$refs['success-alert'] as Element).classList.toggle('hidden');
-              }, 1000);
-              if (this.pageData) {
-                this.pageData.createProductSuccessMsg = '';
-              }
-            }, 3000);
-          }
-          //TODO handle create failure
-        });
+      this.isSubmitted = true;
+      this.isLoading = true;
+      this.request.product_categories = this.selectedCategories.map(value => value.id);
+      const result = validateBeforeSubmit(this.request, this);
+      if (!result) {
+        this.isSubmitted = false;
+        return;
+      }
+      submitRequest(this.request, this);
       return;
+    },
+    validateName() {
+      validateProductName(this.request, this);
+    },
+    validatePrice() {
+      validateProductPrice(this.request, this);
+    },
+    validateSize() {
+      validateProductSize(this.request, this);
+    },
+    validateColor() {
+      validateProductColor(this.request, this);
+    },
+    validateOrderPoint() {
+      validateProductOrderPoint(this.request, this);
+    },
+    validateTaobaoUrl() {
+      validateTaobaoUrl(this.request, this);
+    },
+    toggleCategoryList() {
+      this.categoryListHide = !this.categoryListHide;
+    },
+    alertHiddenListener() {
+      this.hideAlert = !this.hideAlert;
     }
   }
 }
 
-type PageData = {
-  categories: Array<Category>,
-  categoryError: string,
-  createProductSuccessMsg: string,
-  createProductErrorMsg: Array<string>
-}
-
-type ProductReq = {
+type ProductCreateReq = {
   product_name: string,
   product_price: string,
   product_size: string,
@@ -202,149 +132,220 @@ type ProductReq = {
   product_taobao_url: string,
   product_description: string,
   product_enabled: string,
-  product_categories: Array<string>,
+  product_categories: string[],
   product_order_point: string
 }
 
-type ProductResp = {
-  id: string,
-  name: string,
-  price: string,
-  size: string,
-  color: string,
-  taobao_url: string,
-  description: string,
-  pictures: Array<string>,
-  categories: Array<string>
+type ValidationError = {
+  productNameError: string,
+  productPriceError: string,
+  productSizeError: string,
+  productColorError: string,
+  productTaobaoUrlError: string,
+  productDescriptionError: string,
+  productCategoriesError: string,
+  productOrderPointError: string,
 }
 </script>
 
 <template>
-  <div class="product-create">
-    <div class="pt-24 px-8 grid grid-cols-4">
-      <div class="absolute w-[32rem]">
-        <Breadcrumb />  
-      </div>
-      <div class="flex items-center justify-center col-span-4 pb-4">
-        <h1 class="text-xl font-semibold">Create new product</h1>
-      </div>
-      <Form @submit="(value) => submit(value)" :validation-schema="formSchema"
-        class="col-start-2 col-span-2 p-8 grid grid-cols-2 gap-6 rounded-lg form">
-        <div class="col-span-1">
-          <div class="relative">
-            <span class="hover:cursor-default pb-1 pl-1">Name</span>
-            <Field name="name" type="text" class="outline-none px-3 border border-gray-400 rounded-lg leading-7 w-full" />
-            <ErrorMessage name="name" class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm visible" />
-          </div>
-        </div>
-        <div class="col-span-1">
-          <div class="relative">
-            <span class="hover:cursor-default pb-1 pl-1">Price</span>
-            <Field name="price" type="number"
-              class="outline-none px-3 border border-gray-400 rounded-lg leading-7 w-full" />
-            <ErrorMessage name="price" class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm visible" />
-          </div>
-        </div>
-        <div class="col-span-1">
-          <div class="relative">
-            <span class="hover:cursor-default pb-1 pl-1">Size</span>
-            <Field name="size" type="text" class="outline-none px-3 border border-gray-400 rounded-lg leading-7 w-full" />
-            <ErrorMessage name="size" class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm visible" />
-          </div>
-        </div>
-        <div class="col-span-1">
-          <div class="relative">
-            <span class="hover:cursor-default pb-1 pl-1">Color</span>
-            <Field name="color" type="text"
-              class="outline-none px-3 border border-gray-400 rounded-lg leading-7 w-full" />
-            <ErrorMessage name="color" class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm visible" />
-          </div>
-        </div>
-        <div class="col-span-1">
-          <div class="relative">
-            <span class="hover:cursor-default pb-1 pl-1">Taobao url</span>
-            <Field name="taobao_url" type="text"
-              class="outline-none px-3 border border-gray-400 rounded-lg leading-7 w-full" />
-            <ErrorMessage name="taobao_url"
-              class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm visible" />
-          </div>
-        </div>
-        <div class="col-span-1">
-          <div class="relative">
-            <span class="hover:cursor-default pb-1 pl-1">Order point</span>
-            <Field name="orderPoint" type="number"
-              class="outline-none px-3 border border-gray-400 rounded-lg leading-7 w-full" />
-            <ErrorMessage name="orderPoint" class="text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm" />
-          </div>
-        </div>
-        <div class="col-span-1 grid grid-cols-2 gap-4">
-          <div class="col-span-1 relative">
-            <span class="hover:cursor-default">Category</span>
-            <details>
-              <summary class="text-sm border px-1 py-[0.25rem] rounded-md border-gray-400 bg-white hover:cursor-pointer">
-                --- Choose ---</summary>
-              <ul v-if="pageData?.categories.length !== 0" class="absolute bg-white w-full mt-1 rounded-md shadow-[0_5px_15px_5px_rgba(0,0,0,0.35)]">
-                <li v-for="data in pageData?.categories" class="hover:bg-gray-300 py-2 px-4">
-                  <label>
-                    <input type="checkbox" ref="categories" :value="data.id" />
-                    {{ data.name }}
-                  </label>
-                </li>
-              </ul>
-              <ul v-else-if="pageData?.categories.length === 0" class="absolute bg-white w-full mt-1 rounded-md shadow-[0_5px_15px_5px_rgba(0,0,0,0.35)]">
-                <li class="hover:bg-gray-300 py-2 px-1">
-                  <label class="text-sm">
-                    No data available  
-                  </label>
-                </li>
-              </ul>
-            </details>
-            <span class="hover:cursor-default text-red-600 absolute -bottom-[1.3rem] right-0 w-max text-sm"
-              v-text="pageData?.categoryError"></span>
-          </div>
-          <div class="col-span-1 grid grid-rows-2">
-            <div class="row-span-1"></div>
-            <div class="row-span-1 flex items-center justify-center flex-row-reverse">
-              <span class="hover:cursor-default pl-4">Is enable</span>
-              <input type="checkbox" class="w-max" ref="product-active">
+  <LoadingBlockUI :loading="isLoading">
+    <div class="relative">
+      <NavBarsAdmin :sources="navigation"/>
+      <PageHeader title="Product create" :bread-crumbs-enable="true"/>
+      <AdminContentArea>
+        <div class="mx-auto w-1/2">
+          <form class="bg-white rounded-md grid grid-cols-2 gap-x-8 gap-y-4 p-8">
+            <h3 class="col-span-2 font-bold text-center pb-3 text-xl">Create new product</h3>
+            <div class="relative z-0 w-full mb-6 group col-span-1">
+              <input type="text"
+                     name="productName"
+                     id="productName"
+                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                     placeholder=" "
+                     v-model="request.product_name"
+                     @blur="validateName"/>
+              <label for="productName"
+                     class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Name
+              </label>
+              <p v-if="validationError.productNameError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productNameError"></span>
+              </p>
             </div>
-          </div>
+            <div class="relative z-0 w-full mb-6 group col-span-1">
+              <input type="text"
+                     name="productPrice"
+                     id="productPrice"
+                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                     placeholder=" "
+                     v-model="request.product_price"
+                     @blur="validatePrice"/>
+              <label for="productPrice"
+                     class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Price
+              </label>
+              <p v-if="validationError.productPriceError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productPriceError"></span>
+              </p>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-1">
+              <input type="text"
+                     name="productSize"
+                     id="productSize"
+                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                     placeholder=" "
+                     v-model="request.product_size"
+                     @blur="validateSize"/>
+              <label for="productSize"
+                     class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Size
+              </label>
+              <p v-if="validationError.productSizeError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productSizeError"></span>
+              </p>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-1">
+              <input type="text"
+                     name="productColor"
+                     id="productColor"
+                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                     placeholder=" "
+                     v-model="request.product_color"
+                     @blur="validateColor"/>
+              <label for="productColor"
+                     class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Color
+              </label>
+              <p v-if="validationError.productColorError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productColorError"></span>
+              </p>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-1">
+              <input type="text"
+                     name="productOrderPoint"
+                     id="productOrderPoint"
+                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                     placeholder=" "
+                     v-model="request.product_order_point"
+                     @blur="validateOrderPoint"/>
+              <label for="productOrderPoint"
+                     class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Order point
+              </label>
+              <p v-if="validationError.productOrderPointError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productOrderPointError"></span>
+              </p>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-1">
+              <div @click="toggleCategoryList"
+                   tabindex="0"
+                   id="underline_select"
+                   class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 focus:cursor-text hover:cursor-text peer">
+                <h1 class="test">a</h1>
+              </div>
+              <div
+                  :class="categoryListHide ? 'select-box max-h-[5rem] overflow-scroll hidden' : 'select-box max-h-[5rem] overflow-scroll block'">
+                <div @click="selectCategory(category)"
+                     v-for="category in categories"
+                     :key="category.id"
+                     class="py-1 px-3 text-sm hover:bg-gray-300 hover:cursor-pointer flex items-center justify-between">
+                  <span v-text="category.name"></span>
+                  <Icon v-if="selectedCategories.indexOf(category) >= 0"
+                        name="typcn:tick" width="16" height="16"
+                        color="rgb(34 197 94)"/>
+                </div>
+              </div>
+              <label v-if="selectedCategories.length === 0" for="underline_select"
+                     class="peer-focus:font-medium peer-focus:hidden absolute text-sm text-gray-500 duration-300 transform top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0">
+                Category
+              </label>
+              <div class="absolute top-3 w-full overflow-hidden">
+                  <span v-for="category in selectedCategories"
+                        :key="category.id"
+                        class="inline-flex items-center rounded-md bg-gray-50 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                    <span class="pl-2 border-r-2 border-gray-300 pr-2 hover:cursor-default py-1"
+                          v-text="category.name"></span>
+                    <span class="pl-1 hover:cursor-pointer pr-2 py-1 hover:bg-gray-200 rounded-r-md"
+                          @click="removeCategory(category)">x</span>
+                  </span>
+              </div>
+              <p v-if="validationError.productCategoriesError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productCategoriesError"></span>
+              </p>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-2">
+              <div class="grid grid-cols-3 gap-3">
+                <div class="col-span-2">
+                  <input type="text"
+                         name="productTaobaoUrl"
+                         id="productTaobaoUrl"
+                         class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                         placeholder=" "
+                         v-model="request.product_taobao_url"
+                         @blur="validateTaobaoUrl"/>
+                  <label for="productTaobaoUrl"
+                         class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                    Taobao url
+                  </label>
+                  <p v-if="validationError.productTaobaoUrlError.length !== 0"
+                     class="mt-2 text-sm text-red-600 relative">
+                    <span class="text-sm" v-text="validationError.productTaobaoUrlError"></span>
+                  </p>
+                </div>
+                <div class="col-span-1 flex justify-center items-end">
+                  <div>
+                    <input id="productEnable"
+                           type="checkbox"
+                           value="true"
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                           @change="toggleEnableProduct">
+                    <label for="productEnable" class="ml-2 text-sm font-medium text-gray-900">Enable</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-2">
+              <label for="message" class="block mb-2 text-sm font-medium text-gray-900">
+                Description
+              </label>
+              <textarea id="message" rows="3"
+                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Description..."
+                        v-model="request.product_description"></textarea>
+              <p v-if="validationError.productDescriptionError.length !== 0" class="mt-2 text-sm text-red-600 relative">
+                <span class="text-sm" v-text="validationError.productDescriptionError"></span>
+              </p>
+            </div>
+            <div class="relative z-0 w-full mb-6 group col-span-2">
+              <button @click="submit"
+                      type="submit"
+                      class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      :disabled="isSubmitted">
+                Create product
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="col-span-1">
-          <span class="hover:cursor-default">Media</span>
-          <input ref="product-pictures" type="file" class="w-full">
-        </div>
-        <div class="col-span-2">
-          <span class="hover:cursor-default">Description</span>
-          <textarea ref="product-description" class="w-full outline-none border border-gray-400" rows="3"></textarea>
-        </div>
-        <div class="col-span-2">
-          <ButtonSubmit :name="'Create product'" :textSize="'0.875rem'" :color="'white'" :bgColor="'rgb(22 163 74)'" />
-        </div>
-      </Form>
+      </AdminContentArea>
+      <div class="absolute top-[10rem] right-0 w-[25%]">
+        <ClientOnly>
+          <AlertListError @hidden="alertHiddenListener"
+                          :hidden="hideAlert"
+                          :error-messages="callServerError"
+                          :title="'Can not create product: '"/>
+        </ClientOnly>
+      </div>
     </div>
-    <div class="fixed right-0 top-20 backdrop-blur-md hidden" ref="success-alert">
-      <AlertSuccess :class="(pageData?.createProductSuccessMsg.length === 0) ? 'translate-x-14' : 'translate-x-0'"
-        :content="pageData?.createProductSuccessMsg" />
-    </div>
-    <div class="fixed right-0 top-20 backdrop-blur-md hidden" ref="danger-alert">
-      <AlertDanger :class="(pageData?.createProductErrorMsg.length === 0) ? 'translate-x-14' : 'translate-x-0'"
-        :contents="pageData?.createProductErrorMsg" />
-    </div>
-  </div>
+  </LoadingBlockUI>
 </template>
 
-<style lang="scss" scoped>
-$page_bg: #f4f6f9;
+<style scoped>
+.test {
+  text-indent: -9999px;
+}
 
-.product-create {
-  background-color: $page_bg;
-  padding-bottom: 1.5rem;
-  min-height: 100vh;
-  position: relative;
-
-  & .form {
-    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
-  }
+.select-box {
+  box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
 </style>

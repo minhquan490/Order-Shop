@@ -97,6 +97,8 @@ public class MessageSettingRegistration extends AbstractSetup {
         messages.add("Can not find email template for sending");
         messages.add("Receiver must specify");
         messages.add("{0} associate with {1} must not be null");
+        messages.add("Can not access url {0}, no permission");
+        messages.add("File size limit exceeded");
         return messages;
     }
 }

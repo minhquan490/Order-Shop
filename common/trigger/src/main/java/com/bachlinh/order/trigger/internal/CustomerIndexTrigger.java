@@ -1,6 +1,8 @@
 package com.bachlinh.order.trigger.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
@@ -10,12 +12,14 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 @ActiveReflection
+@ApplyOn(entity = Customer.class)
 public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     private EntityFactory entityFactory;
 
     @ActiveReflection
     public CustomerIndexTrigger(DependenciesResolver resolver) {
         super(resolver);
+        changeConcurrentType(RunnableType.INDEX);
     }
 
     @Override
@@ -32,7 +36,7 @@ public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "customerIndexTrigger";
     }
 

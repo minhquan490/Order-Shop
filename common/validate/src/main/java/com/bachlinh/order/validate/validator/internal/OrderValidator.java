@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Order;
@@ -12,6 +13,7 @@ import com.bachlinh.order.validate.validator.spi.Result;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = Order.class)
 public class OrderValidator extends AbstractValidator<Order> {
     private static final String SPECIFIC_INVALID_MESSAGE_ID = "MSG-000014";
 

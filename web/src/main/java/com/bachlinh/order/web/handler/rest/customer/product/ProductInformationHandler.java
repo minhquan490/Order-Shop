@@ -1,7 +1,5 @@
 package com.bachlinh.order.web.handler.rest.customer.product;
 
-import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -11,9 +9,11 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
+import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "productInformationHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ProductInformationHandler extends AbstractController<ProductResp, Void> {
     private String productInfoUrl;

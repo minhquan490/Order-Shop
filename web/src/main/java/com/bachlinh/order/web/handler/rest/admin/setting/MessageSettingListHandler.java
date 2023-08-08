@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import java.util.Collection;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "messageSettingListHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class MessageSettingListHandler extends AbstractController<Collection<MessageSettingResp>, Void> {
 

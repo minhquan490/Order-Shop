@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "emailFolderUpdateHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class EmailFolderUpdateHandler extends AbstractController<EmailFolderInfoResp, EmailFolderUpdateForm> {
     private EmailFolderService emailFolderService;

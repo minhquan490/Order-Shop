@@ -1,19 +1,22 @@
 package com.bachlinh.order.web.handler.rest.customer.order;
 
-import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.OrderInfoResp;
 import com.bachlinh.order.web.service.common.OrderService;
+import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "orderInfoHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@Permit(roles = {Role.CUSTOMER, Role.ADMIN})
 public class OrderInfoHandler extends AbstractController<OrderInfoResp, Void> {
     private OrderService orderService;
     private String url;

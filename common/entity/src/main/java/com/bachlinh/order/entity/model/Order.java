@@ -2,9 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,10 +16,12 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -33,12 +32,12 @@ import java.util.HashSet;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "order")
 @Label("ODR-")
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.OrderValidator")
-@Trigger(triggers = {"com.bachlinh.order.trigger.internal.OrderHistoryTrigger", "com.bachlinh.order.trigger.internal.NewOrderPushingTrigger"})
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class Order extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Order extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
@@ -76,16 +75,25 @@ public class Order extends AbstractEntity {
 
     @ActiveReflection
     public void setTimeOrder(Timestamp timeOrder) {
+        if (this.timeOrder != null && !this.timeOrder.equals(timeOrder)) {
+            trackUpdatedField("ORDER_TIME", this.timeOrder.toString());
+        }
         this.timeOrder = timeOrder;
     }
 
     @ActiveReflection
     public void setOrderStatus(OrderStatus orderStatus) {
+        if (this.orderStatus != null && !this.orderStatus.getId().equals(orderStatus.getId())) {
+            trackUpdatedField("ORDER_STATUS_ID", this.orderStatus.getId().toString());
+        }
         this.orderStatus = orderStatus;
     }
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
+        if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+        }
         this.customer = customer;
     }
 
@@ -96,18 +104,9 @@ public class Order extends AbstractEntity {
 
     @ActiveReflection
     public void setBankTransactionCode(String bankTransactionCode) {
+        if (this.bankTransactionCode != null && !this.bankTransactionCode.equals(bankTransactionCode)) {
+            trackUpdatedField("BANK_TRANSACTION_CODE", this.bankTransactionCode);
+        }
         this.bankTransactionCode = bankTransactionCode;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Order order)) return false;
-        return Objects.equal(getId(), order.getId()) && Objects.equal(getTimeOrder(), order.getTimeOrder()) && Objects.equal(getBankTransactionCode(), order.getBankTransactionCode()) && Objects.equal(getOrderStatus(), order.getOrderStatus()) && Objects.equal(getCustomer(), order.getCustomer()) && Objects.equal(getOrderDetails(), order.getOrderDetails());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getTimeOrder(), getBankTransactionCode(), getOrderStatus(), getCustomer(), getOrderDetails());
     }
 }

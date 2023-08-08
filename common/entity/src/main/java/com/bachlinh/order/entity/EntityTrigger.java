@@ -4,7 +4,7 @@ import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
 
-public interface EntityTrigger<T extends BaseEntity> {
+public interface EntityTrigger<T extends BaseEntity<?>> {
     /**
      * Execute operation on specific entity.
      *
@@ -21,4 +21,6 @@ public interface EntityTrigger<T extends BaseEntity> {
     TriggerMode getMode();
 
     TriggerExecution[] getExecuteOn();
+
+    String getTriggerName();
 }

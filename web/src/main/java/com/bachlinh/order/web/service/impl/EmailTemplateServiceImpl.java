@@ -1,11 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -34,6 +28,12 @@ import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
 import com.bachlinh.order.web.service.business.EmailTemplateSearchService;
 import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -114,7 +114,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemp
     @Override
     public void processTemplateAndSend(TemplateMailSendingForm form, Customer templateOwner, Environment environment) {
         var template = emailTemplateRepository.getEmailTemplateById(form.getTemplateId(), templateOwner);
-        if (template.getTotalArgument().equals(form.getParams().length)) {
+        if (!template.getTotalArgument().equals(form.getParams().length)) {
             throw new BadVariableException("Total param not match with template, can not send email");
         }
         var model = BindingModel.getInstance();

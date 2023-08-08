@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = LoginHistory.class)
 public class LoginHistoryValidator extends AbstractValidator<LoginHistory> {
     private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
     private static final String LENGTH_INVALID_MESSAGE_ID = "MSG-000002";

@@ -1,14 +1,14 @@
 package com.bachlinh.order.annotation.processor.writer;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
-import javax.tools.JavaFileObject;
 import com.bachlinh.order.annotation.MappedDtoField;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
 import com.bachlinh.order.annotation.processor.parser.ClassMetadataParser;
 import com.bachlinh.order.annotation.processor.parser.GetterMetadataParser;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.MessageFormat;
@@ -17,6 +17,7 @@ import java.util.Collection;
 class DtoProxyClassWriter implements ClassWriter {
     private static final String PROXY = "Proxy";
     private static final String OVERRIDE = "@Override";
+    private static final String JSON_IGNORE = "@JsonIgnore";
     private final JavaFileObject source;
     private final Elements elements;
     private final GetterMetadataParser getterMetadataParser;
@@ -41,6 +42,7 @@ class DtoProxyClassWriter implements ClassWriter {
             writeMethod(writer, element);
             writeWrapMethod(writer, parser.getClassName(), parser.getField());
             writeProxyForTypeMethod(writer, parser.getClassName());
+            writeFactoryMethod(writer, parser.getClassName());
             writer.write('}');
         }
     }
@@ -67,6 +69,8 @@ class DtoProxyClassWriter implements ClassWriter {
         writer.write("@ActiveReflection");
         writer.write(System.lineSeparator());
         writer.write("@DtoProxy");
+        writer.write(System.lineSeparator());
+        writer.write("@JsonInclude(Include.NON_NULL)");
         writer.write(System.lineSeparator());
         writer.write(MessageFormat.format(template, name, dtoName, dtoName, fieldMeta.type()));
         writer.write('{');
@@ -104,7 +108,7 @@ class DtoProxyClassWriter implements ClassWriter {
         writer.write(OVERRIDE);
         writer.write(System.lineSeparator());
         writeTab(writer);
-        writer.write("@JsonIgnore");
+        writer.write(JSON_IGNORE);
         writer.write(System.lineSeparator());
         writeTab(writer);
         writer.write(String.format(template, dtoName, fieldMeta.type()));
@@ -142,6 +146,28 @@ class DtoProxyClassWriter implements ClassWriter {
         writer.write(System.lineSeparator());
     }
 
+    private void writeFactoryMethod(Writer writer, String className) throws IOException {
+        var constructorName = className.substring(className.lastIndexOf(".") + 1);
+        var template = "return new {0}();";
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writer.write(JSON_IGNORE);
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writer.write(OVERRIDE);
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writer.write("public Proxy<?, ?> getInstance() {");
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writeTab(writer);
+        writer.write(MessageFormat.format(template, constructorName));
+        writer.write(System.lineSeparator());
+        writeTab(writer);
+        writer.write('}');
+        writer.write(System.lineSeparator());
+    }
+
     private void writeDoubleSeparator(Writer writer) throws IOException {
         writer.write(System.lineSeparator());
         writer.write(System.lineSeparator());
@@ -157,7 +183,7 @@ class DtoProxyClassWriter implements ClassWriter {
         @Override
         public void write(FieldMeta meta) throws IOException {
             writeTab(writer);
-            writer.write("@JsonIgnore");
+            writer.write(JSON_IGNORE);
             writer.write(System.lineSeparator());
             var template = "private {0} {1};";
             writeTab(writer);

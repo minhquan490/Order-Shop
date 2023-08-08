@@ -2,8 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,29 +11,33 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 
 @Label("ADR-")
 @Entity
 @Table(name = "ADDRESS")
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.AddressValidator")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class Address extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Address extends AbstractEntity<String> {
 
     @Id
-    @Column(name = "ID", nullable = false, columnDefinition = "varchar(32)", updatable = false)
+    @Column(name = "ID", nullable = false, columnDefinition = "varchar(32)", updatable = false, unique = true)
     private String id;
 
-    @Column(name = "VALUE", nullable = false, columnDefinition = "nvarchar")
+    @Column(name = "VALUE", nullable = false, columnDefinition = "nvarchar(266)")
     private String value;
 
-    @Column(name = "CITY", nullable = false, columnDefinition = "nvarchar")
+    @Column(name = "CITY", nullable = false, columnDefinition = "nvarchar(266)")
     private String city;
 
-    @Column(name = "COUNTRY", columnDefinition = "nvarchar")
+    @Column(name = "COUNTRY", columnDefinition = "nvarchar(266)")
     private String country;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,7 +46,7 @@ public class Address extends AbstractEntity {
 
     @Override
     @ActiveReflection
-    public void setId(Object id) {
+    public void setId(@NonNull Object id) {
         if (!(id instanceof String)) {
             throw new PersistenceException("Address entity must be string");
         }
@@ -52,34 +54,34 @@ public class Address extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setValue(String value) {
+    public void setValue(@NonNull String value) {
+        if (this.value != null && !value.equals(this.value)) {
+            trackUpdatedField("VALUE", this.value);
+        }
         this.value = value;
     }
 
     @ActiveReflection
-    public void setCity(String city) {
+    public void setCity(@NonNull String city) {
+        if (this.city != null && !city.equals(this.city)) {
+            trackUpdatedField("CITY", this.city);
+        }
         this.city = city;
     }
 
     @ActiveReflection
-    public void setCountry(String country) {
+    public void setCountry(@NonNull String country) {
+        if (this.country != null && !country.equals(this.country)) {
+            trackUpdatedField("COUNTRY", this.country);
+        }
         this.country = country;
     }
 
     @ActiveReflection
-    public void setCustomer(Customer customer) {
+    public void setCustomer(@NonNull Customer customer) {
+        if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+        }
         this.customer = customer;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Address address)) return false;
-        return Objects.equal(getId(), address.getId()) && Objects.equal(getValue(), address.getValue()) && Objects.equal(getCity(), address.getCity()) && Objects.equal(getCountry(), address.getCountry()) && Objects.equal(getCustomer(), address.getCustomer());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getValue(), getCity(), getCountry(), getCustomer());
     }
 }

@@ -5,7 +5,7 @@ import com.bachlinh.order.entity.model.EmailTrash;
 
 import java.util.Collection;
 
-public interface EmailTrashRepository {
+public interface EmailTrashRepository extends NativeQueryRepository {
     EmailTrash saveEmailTrash(EmailTrash emailTrash);
 
     EmailTrash updateTrash(EmailTrash emailTrash);

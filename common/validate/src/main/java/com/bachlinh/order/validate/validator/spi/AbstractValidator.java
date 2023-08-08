@@ -10,7 +10,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
  *
  * @author Hoang Minh Quan
  */
-public abstract class AbstractValidator<T extends BaseEntity> implements EntityValidator<T> {
+public abstract class AbstractValidator<T extends BaseEntity<?>> implements EntityValidator<T> {
     private final DependenciesResolver resolver;
 
     protected AbstractValidator(DependenciesResolver resolver) {

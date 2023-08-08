@@ -1,8 +1,7 @@
 package com.bachlinh.order.trigger.internal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Order;
@@ -15,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
+@ApplyOn(entity = Order.class)
 public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private WebSocketSessionManager webSocketSessionManager;
 
@@ -26,7 +25,7 @@ public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "newOrderPushingTrigger";
     }
 

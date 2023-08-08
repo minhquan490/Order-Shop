@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = Address.class)
 public class AddressValidator extends AbstractValidator<Address> {
     private static final String NOT_EMPTY_MESSAGE_ID = "MSG-000001";
 

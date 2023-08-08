@@ -1,7 +1,5 @@
 package com.bachlinh.order.web.handler.rest.common.email.folder;
 
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -11,8 +9,10 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.EmailFolderCreateForm;
 import com.bachlinh.order.web.dto.resp.EmailFolderInfoResp;
 import com.bachlinh.order.web.service.common.EmailFolderService;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-@RouteProvider
+@RouteProvider(name = "emailFolderCreateHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class EmailFolderCreateHandler extends AbstractController<EmailFolderInfoResp, EmailFolderCreateForm> {

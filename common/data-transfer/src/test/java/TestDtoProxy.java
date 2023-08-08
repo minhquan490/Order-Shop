@@ -1,7 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.bachlinh.order.annotation.DtoProxy;
 import com.bachlinh.order.dto.proxy.Proxy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @DtoProxy
 public class TestDtoProxy extends TestDto implements Proxy<TestDto, TestEntity> {
@@ -31,5 +31,10 @@ public class TestDtoProxy extends TestDto implements Proxy<TestDto, TestEntity> 
     @Override
     public Class<TestDto> proxyForType() {
         return TestDto.class;
+    }
+
+    @Override
+    public Proxy<?, ?> getInstance() {
+        return new TestDtoProxy();
     }
 }
