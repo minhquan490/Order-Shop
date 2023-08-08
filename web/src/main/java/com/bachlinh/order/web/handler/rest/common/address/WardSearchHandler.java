@@ -13,13 +13,14 @@ import lombok.NoArgsConstructor;
 import java.util.Collection;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "wardSearchHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class WardSearchHandler extends AbstractController<Collection<WardResp>, WardSearchForm> {
     private String url;
     private WardSearchService wardSearchService;
 
     @Override
+    @ActiveReflection
     protected Collection<WardResp> internalHandler(Payload<WardSearchForm> request) {
         return wardSearchService.search(request.data());
     }

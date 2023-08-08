@@ -1,23 +1,27 @@
 package com.bachlinh.order.web.handler.rest.common;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.BadVariableException;
+import com.bachlinh.order.exception.http.ValidationFailureException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.service.business.RegisterService;
+import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@RouteProvider
+@RouteProvider(name = "registerHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class RegisterHandler extends AbstractController<RegisterResp, RegisterForm> {
-    private String url;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
+    private String url;
     private RegisterService registerService;
 
     @Override
@@ -25,7 +29,12 @@ public class RegisterHandler extends AbstractController<RegisterResp, RegisterFo
     protected RegisterResp internalHandler(Payload<RegisterForm> request) {
         RegisterResp resp = registerService.register(request.data());
         if (resp.isError()) {
-            throw new BadVariableException(resp.message());
+            if (resp.exception() instanceof ValidationFailureException failureException) {
+                throw failureException;
+            } else {
+                log.debug(resp.message(), resp.exception());
+                throw new BadVariableException(resp.message(), resp.exception(), getPath());
+            }
         }
         return resp;
     }

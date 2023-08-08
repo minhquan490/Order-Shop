@@ -10,6 +10,7 @@ import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
@@ -31,7 +32,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -116,6 +116,25 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     public Customer getCustomerByPhone(String phone) {
         var condition = Where.builder().attribute(Customer_.PHONE_NUMBER).value(phone).operator(Operator.EQ).build();
         return getCustomer(Collections.singletonList(condition), Collections.emptyList());
+    }
+
+    @Override
+    public Customer getCustomerBasicInformation(String customerId) {
+        Join avatarJoin = Join.builder().attribute(Customer_.CUSTOMER_MEDIA).type(JoinType.LEFT).build();
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select firstNameSelect = Select.builder().column(Customer_.FIRST_NAME).build();
+        Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
+        Select roleSelect = Select.builder().column(Customer_.ROLE).build();
+        Select mediaSelect = Select.builder().column(Customer_.CUSTOMER_MEDIA).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).build();
+        Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            queryExtractor.select(idSelect, firstNameSelect, lastNameSelect, roleSelect, mediaSelect);
+            queryExtractor.join(avatarJoin);
+            queryExtractor.where(customerIdWhere);
+            return queryExtractor.extract();
+        });
+        return findOne(spec).orElse(null);
     }
 
     @Override
@@ -204,12 +223,5 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
-    }
-
-    @Override
-    public <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType) {
-        var typedQuery = getEntityManager().createQuery(query, receiverType);
-        attributes.forEach(typedQuery::setParameter);
-        return typedQuery.getResultList();
     }
 }

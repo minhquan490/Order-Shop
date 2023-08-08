@@ -1,13 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -17,9 +9,19 @@ import com.bachlinh.order.entity.model.CustomerAccessHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.Collection;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
+import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 @RepositoryComponent
 @ActiveReflection
@@ -36,6 +38,12 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Cust
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public CustomerAccessHistory saveCustomerHistory(CustomerAccessHistory customerAccessHistory) {
         return this.save(customerAccessHistory);
+    }
+
+    @Override
+    @Transactional(propagation = REQUIRED, isolation = READ_COMMITTED)
+    public void saveAllCustomerAccessHistory(Collection<CustomerAccessHistory> customerAccessHistories) {
+        saveAll(customerAccessHistories);
     }
 
     @Override

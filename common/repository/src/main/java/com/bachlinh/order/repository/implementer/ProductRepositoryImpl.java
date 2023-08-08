@@ -1,5 +1,15 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Product;
+import com.bachlinh.order.entity.model.Product_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.ProductRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
@@ -9,23 +19,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.Product;
-import com.bachlinh.order.entity.model.Product_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -107,10 +109,15 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
     }
 
     @Override
-    public <T> List<T> executeNativeQuery(String query, Map<String, Object> attributes, Class<T> receiverType) {
-        var typedQuery = getEntityManager().createQuery(query, receiverType);
-        attributes.forEach(typedQuery::setParameter);
-        return typedQuery.getResultList();
+    public Collection<Product> getProducts(Pageable pageable) {
+        var mediasJoin = Join.builder().attribute(Product_.MEDIAS).type(JoinType.LEFT).build();
+        var categoriesJoin = Join.builder().attribute(Product_.CATEGORIES).type(JoinType.INNER).build();
+        Specification<Product> spec = Specification.where((root, query, criteriaBuilder) -> {
+            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            queryExtractor.join(mediasJoin, categoriesJoin);
+            return queryExtractor.extract();
+        });
+        return findAll(spec, pageable).toList();
     }
 
     private Specification<Product> specWithCondition(Map<String, Object> conditions) {

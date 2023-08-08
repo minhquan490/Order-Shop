@@ -6,8 +6,11 @@ import com.bachlinh.order.core.http.writer.MessageWriter;
 import com.bachlinh.order.handler.strategy.ResponseStrategy;
 import com.bachlinh.order.handler.strategy.ServletResponseStrategy;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServletResponse> {
     private final ServletResponseStrategy strategy = ServletResponseStrategy.defaultStrategy();
@@ -36,7 +39,7 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
 
     @Override
     protected NativeResponse<?> createDefault() {
-        return NativeResponse.builder().build();
+        return NativeResponse.builder().headers(new LinkedMultiValueMap<>()).build();
     }
 
     @Override
@@ -47,6 +50,8 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
     @Override
     protected void writeResponse(NativeResponse<?> nativeResponse, HttpServletResponse response) {
         MessageWriter messageWriter = MessageWriter.httpMessageWriter(response);
+        messageWriter.writeCookies(nativeResponse.getCookies());
+        messageWriter.writeHeader(nativeResponse.getHeaders());
         messageWriter.writeHttpStatus(nativeResponse.getStatusCode());
         messageWriter.writeMessage(nativeResponse.getBody());
     }
@@ -60,7 +65,24 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
             nativeResponse = getRootNode().translateError((Error) throwable);
         }
         MessageWriter messageWriter = MessageWriter.httpMessageWriter(response);
+        messageWriter.writeCookies(nativeResponse.getCookies());
+        messageWriter.writeHeader(nativeResponse.getHeaders());
         messageWriter.writeHttpStatus(nativeResponse.getStatusCode());
         messageWriter.writeMessage(nativeResponse.getBody());
+    }
+
+    @Override
+    protected void configResponse(NativeResponse<?> nativeResponse, HttpServletResponse actualResponse) {
+        var headerNames = actualResponse.getHeaderNames();
+        for (var headerName : headerNames) {
+            var headerValues = actualResponse.getHeaders(headerName);
+            headerValues.forEach(val -> nativeResponse.addHeader(headerName, val));
+        }
+        nativeResponse.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        if (nativeResponse.getCookies() != null) {
+            for (var cookie : nativeResponse.getCookies()) {
+                actualResponse.addCookie(cookie.toServletCookie());
+            }
+        }
     }
 }

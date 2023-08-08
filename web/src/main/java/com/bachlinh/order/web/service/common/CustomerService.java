@@ -1,13 +1,15 @@
 package com.bachlinh.order.web.service.common;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.resp.CustomerBasicInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerInfoResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.MyInfoResp;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CustomerService {
 
@@ -22,4 +24,6 @@ public interface CustomerService {
     CustomerResp deleteCustomer(CustomerDeleteForm customerDeleteForm);
 
     CustomerInfoResp getCustomerInfo(String customerId);
+
+    CustomerBasicInformationResp basicCustomerInfo(String accessToken, NativeResponse<?> response);
 }

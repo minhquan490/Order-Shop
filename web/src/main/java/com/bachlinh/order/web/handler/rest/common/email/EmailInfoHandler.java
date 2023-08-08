@@ -1,8 +1,5 @@
 package com.bachlinh.order.web.handler.rest.common.email;
 
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -12,8 +9,11 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailInfoResp;
 import com.bachlinh.order.web.service.common.EmailService;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 
-@RouteProvider
+@RouteProvider(name = "emailInfoHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class EmailInfoHandler extends AbstractController<EmailInfoResp, Void> {

@@ -7,11 +7,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Transient;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * Abstract entity, super class of all entity object available in system.
@@ -21,7 +23,8 @@ import java.util.Collection;
  */
 @MappedSuperclass
 @Getter
-public abstract non-sealed class AbstractEntity implements BaseEntity {
+@EqualsAndHashCode
+public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Column(name = "CREATED_BY", updatable = false)
     private String createdBy;
@@ -37,6 +40,9 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
 
     @Transient
     private transient Collection<FieldUpdated> updatedFields;
+
+    @Transient
+    private transient boolean isNew = false;
 
     /**
      * Clone the object, because super interface {@link BaseEntity} extends {@link Cloneable} and constructor of all entities
@@ -54,7 +60,7 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
     }
 
     @Override
-    public int compareTo(@NonNull BaseEntity that) {
+    public int compareTo(@NonNull BaseEntity<?> that) {
         if (this.equals(that)) return 0;
         if (this.hashCode() - that.hashCode() > 0) {
             return 1;
@@ -64,27 +70,44 @@ public abstract non-sealed class AbstractEntity implements BaseEntity {
     }
 
     @ActiveReflection
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(@NonNull String createdBy) {
         this.createdBy = createdBy;
     }
 
     @ActiveReflection
-    public void setModifiedBy(String modifiedBy) {
+    public void setModifiedBy(@NonNull String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
 
     @ActiveReflection
-    public void setCreatedDate(Timestamp createdDate) {
+    public void setCreatedDate(@NonNull Timestamp createdDate) {
         this.createdDate = createdDate;
     }
 
     @ActiveReflection
-    public void setModifiedDate(Timestamp modifiedDate) {
+    public void setModifiedDate(@NonNull Timestamp modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
 
-    @ActiveReflection
     public void setUpdatedFields(Collection<FieldUpdated> updatedFields) {
         this.updatedFields = updatedFields;
+    }
+
+    public void setUpdatedField(FieldUpdated updatedField) {
+        if (this.updatedFields == null) {
+            this.updatedFields = new LinkedList<>();
+        }
+        this.updatedFields.add(updatedField);
+    }
+
+    @Override
+    @ActiveReflection
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    protected void trackUpdatedField(String fieldName, String oldValue) {
+        FieldUpdated fieldUpdated = new FieldUpdated(fieldName, oldValue);
+        setUpdatedField(fieldUpdated);
     }
 }

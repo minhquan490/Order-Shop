@@ -26,6 +26,7 @@ dependencies {
     implementation "org.eclipse.jetty.http2:http2-server"
     implementation "org.eclipse.jetty:jetty-alpn-server"
     implementation "org.eclipse.jetty:jetty-alpn-java-server"
+    implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.google.apis:google-api-services-gmail:${libs.versions.gmailApi.get()}"
     implementation 'org.hibernate.validator:hibernate-validator'

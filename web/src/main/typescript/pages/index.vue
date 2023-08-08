@@ -1,8 +1,17 @@
+<script lang="ts">
+
+export default {
+  data() {
+    const test = 0;
+    return {
+      test
+    }
+  }
+}
+</script>
+
 <template>
   <div>
-    Page: foo
+    Home {{ test }}
   </div>
-  <footer>
-    <Footer />
-  </footer>
 </template>

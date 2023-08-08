@@ -3,7 +3,7 @@ package com.bachlinh.order.handler.router;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.translator.internal.JsonStringExceptionTranslator;
+import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.Controller;
@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 
 class DefaultNode extends AbstractNode implements NodeRegister {
@@ -29,7 +30,7 @@ class DefaultNode extends AbstractNode implements NodeRegister {
 
     private Controller<Object, Object> controller;
 
-    public DefaultNode(ControllerManager controllerManager, JsonStringExceptionTranslator exceptionTranslator, String name, Node parent) {
+    public DefaultNode(ControllerManager controllerManager, JsonExceptionTranslator exceptionTranslator, String name, Node parent) {
         super(controllerManager, exceptionTranslator, name, parent);
     }
 
@@ -52,7 +53,9 @@ class DefaultNode extends AbstractNode implements NodeRegister {
         // Case tail node
         if (urlHolder.paths().isEmpty()) {
             if (controller == null) {
-                controller = getController(new ArrayList<>(), method);
+                var paths = new ArrayList<String>();
+                paths.add(path);
+                controller = getController(paths, method);
                 if (controller == null) {
                     isControllerNotfound = true;
                     throw new ResourceNotFoundException("Not found", "");
@@ -104,12 +107,12 @@ class DefaultNode extends AbstractNode implements NodeRegister {
 
 
     @Override
-    public NativeResponse<String> translateException(Exception exception) {
+    public NativeResponse<byte[]> translateException(Exception exception) {
         return exceptionTranslator().translateException(exception);
     }
 
     @Override
-    public NativeResponse<String> translateError(Error error) {
+    public NativeResponse<byte[]> translateError(Error error) {
         return exceptionTranslator().translateError(error);
     }
 
@@ -121,6 +124,7 @@ class DefaultNode extends AbstractNode implements NodeRegister {
         if (getParent() != null) {
             return ((DefaultNode) getParent()).getController(paths, method);
         } else {
+            paths.removeIf(Objects::isNull);
             Collections.reverse((List<?>) paths);
             String actualPath = String.join("/", paths.toArray(new String[0]));
             return getContext().getController(actualPath, method);

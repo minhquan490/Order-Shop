@@ -27,6 +27,11 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
     }
 
     @Override
+    public Province getProvinceById(String provinceId) {
+        return findById(Integer.parseInt(provinceId)).orElse(null);
+    }
+
+    @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public boolean saveAllProvinces(Collection<Province> provinces) {
         return !saveAll(provinces).isEmpty();

@@ -1,6 +1,7 @@
 package com.bachlinh.order.trigger.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
@@ -12,6 +13,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 @ActiveReflection
+@ApplyOn(entity = Order.class)
 public class OrderHistoryTrigger extends AbstractTrigger<Order> {
     private EntityFactory entityFactory;
     private OrderHistoryRepository orderHistoryRepository;
@@ -47,7 +49,7 @@ public class OrderHistoryTrigger extends AbstractTrigger<Order> {
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "orderHistoryTrigger";
     }
 

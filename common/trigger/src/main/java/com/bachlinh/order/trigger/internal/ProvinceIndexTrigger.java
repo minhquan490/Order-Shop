@@ -1,6 +1,8 @@
 package com.bachlinh.order.trigger.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
@@ -8,29 +10,39 @@ import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 @ActiveReflection
+@ApplyOn(entity = Province.class)
 public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final int TOTAL_PROVINCE = 63;
+    private final Collection<Province> caches = Collections.synchronizedList(new ArrayList<>(TOTAL_PROVINCE));
 
     private EntityFactory entityFactory;
 
     @ActiveReflection
     public ProvinceIndexTrigger(DependenciesResolver dependenciesResolver) {
         super(dependenciesResolver);
+        changeConcurrentType(RunnableType.INDEX);
     }
 
     @Override
     protected void doExecute(Province entity) {
         EntityContext entityContext = entityFactory.getEntityContext(Province.class);
-        if (log.isDebugEnabled()) {
-            log.debug("Index province has name [{}]", entity.getName());
+        if (caches.size() != TOTAL_PROVINCE - 1) {
+            caches.add(entity);
+        } else {
+            caches.add(entity);
+            try {
+                entityContext.analyze(new ArrayList<>(caches));
+            } catch (Exception e) {
+                log.error("Can not index province has name [{}]", entity.getName(), e);
+            }
+            caches.clear();
         }
-        entityContext.analyze(Collections.singleton(entity));
     }
 
     @Override
@@ -41,7 +53,7 @@ public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "provinceIndexTrigger";
     }
 

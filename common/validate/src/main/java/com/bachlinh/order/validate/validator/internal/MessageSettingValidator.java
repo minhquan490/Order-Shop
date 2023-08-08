@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
@@ -11,6 +12,7 @@ import com.bachlinh.order.validate.validator.spi.Result;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = MessageSetting.class)
 public class MessageSettingValidator extends AbstractValidator<MessageSetting> {
     private static final String LENGTH_MESSAGE_ID = "MSG-000002";
     private static final String EXISTED_MESSAGE_ID = "MSG-000007";

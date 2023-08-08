@@ -4,11 +4,17 @@ package com.bachlinh.order.repository.adapter;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityManagerHolder;
 import com.bachlinh.order.entity.EntityTrigger;
+import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.HintDecorator;
+import com.bachlinh.order.entity.ValidateResult;
+import com.bachlinh.order.entity.context.IdContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.exception.HttpException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.exception.http.ValidationFailureException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityManager;
@@ -23,10 +29,10 @@ import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -59,9 +65,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -74,7 +82,9 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.applyAndB
 import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
 import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
 
-public abstract class RepositoryAdapter<T extends BaseEntity, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
+public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String ENTITY_NULL_MESSAGE = "Entity must not be null";
     private final Class<T> domainClass;
@@ -96,6 +106,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
         this.useCache = getDomainClass().isAnnotationPresent(Cacheable.class) && getDomainClass().isAnnotationPresent(Cache.class);
         this.asyncEntityManager = resolver.resolveDependencies(EntityManager.class);
         this.triggerExecution = new InternalTriggerExecution(entityFactory);
+
     }
 
     protected void setEntityManager(EntityManager entityManager) {
@@ -567,24 +578,23 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
     @Transactional
     @Override
     public <S extends T> S save(@NonNull S entity) {
+        if (log.isDebugEnabled()) {
+            log.debug("START SAVE entity [{}]", entity.getClass().getName());
+        }
 
-        Assert.notNull(entity, ENTITY_NULL_MESSAGE);
-        if (entity.getId() == null) {
-            return triggerExecution.trigger(t -> {
-                if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-                    return saveAsync(entity);
-                } else {
-                    return saveSync(entity);
-                }
-            }, entity, domainClass, TriggerExecution.ON_INSERT);
-        } else {
-            return triggerExecution.trigger(t -> {
-                if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-                    return saveAsync(entity);
-                } else {
-                    return saveSync(entity);
-                }
-            }, entity, domainClass, TriggerExecution.ON_UPDATE);
+        UnaryOperator<S> saveCallback = getSaveCallback();
+
+        try {
+            Assert.notNull(entity, ENTITY_NULL_MESSAGE);
+            if (entity.getId() == null) {
+                return triggerExecution.trigger(saveCallback, entity, domainClass, TriggerExecution.ON_INSERT);
+            } else {
+                return triggerExecution.trigger(saveCallback, entity, domainClass, TriggerExecution.ON_UPDATE);
+            }
+        } finally {
+            if (log.isDebugEnabled()) {
+                log.debug("END SAVE entity [{}]", entity.getClass().getName());
+            }
         }
     }
 
@@ -796,6 +806,16 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
         }
     }
 
+    private <S extends T> UnaryOperator<S> getSaveCallback() {
+        return t -> {
+            if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+                return saveAsync(t);
+            } else {
+                return saveSync(t);
+            }
+        };
+    }
+
     private static long executeCountQuery(TypedQuery<Long> query) {
 
         Assert.notNull(query, "TypedQuery must not be null");
@@ -853,7 +873,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
     }
 
     private class InternalTriggerExecution {
-        private final Logger log = LogManager.getLogger(InternalTriggerExecution.class);
+
         private final EntityFactory entityFactory;
 
         InternalTriggerExecution(EntityFactory entityFactory) {
@@ -872,10 +892,22 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
 
         private <S extends T> S runTrigger(Collection<EntityTrigger<S>> bases, S entity, TriggerExecution execution, UnaryOperator<S> function) {
             Collection<EntityTrigger<S>> triggers = extractTriggers(bases, execution);
-            executeBeforeAction(triggers, entity);
-            S result = function.apply(entity);
-            executeAfterAction(triggers, entity);
-            return result;
+            IdContext idContext = entityFactory.getEntityContext(entity.getClass());
+            idContext.beginTransaction();
+            try {
+                executeBeforeAction(triggers, entity);
+                validateBeforeSave(entity);
+                S result = function.apply(entity);
+                executeAfterAction(triggers, entity);
+                idContext.commit();
+                return result;
+            } catch (HttpException e) {
+                idContext.rollback();
+                throw e;
+            } catch (Exception e) {
+                idContext.rollback();
+                throw new CriticalException(String.format("Fail to save entity [%s].", entity.getClass().getName()), e);
+            }
         }
 
         private <S extends T> Collection<EntityTrigger<S>> extractTriggers(Collection<EntityTrigger<S>> triggers, TriggerExecution triggerExecution) {
@@ -890,7 +922,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
                     .toList();
             beforeAction.forEach(trigger -> {
                 if (log.isDebugEnabled()) {
-                    log.debug("Execute trigger [{}] with type [BEFORE] on entity [{}]", trigger.getClass().getName(), entity.getClass().getName());
+                    log.debug("Execute trigger [{}] with type [BEFORE] on entity [{}]", trigger.getTriggerName(), entity.getClass().getName());
                 }
                 trigger.execute(entity);
             });
@@ -902,10 +934,38 @@ public abstract class RepositoryAdapter<T extends BaseEntity, U> implements Hint
                     .toList();
             beforeAction.forEach(trigger -> {
                 if (log.isDebugEnabled()) {
-                    log.debug("Execute trigger [{}] with type [AFTER] on entity [{}]", trigger.getClass().getName(), entity.getClass().getName());
+                    log.debug("Execute trigger [{}] with type [AFTER] on entity [{}]", trigger.getTriggerName(), entity.getClass().getName());
                 }
                 trigger.execute(entity);
             });
+        }
+
+        @SuppressWarnings("unchecked")
+        private void validateBeforeSave(T entity) {
+            Collection<EntityValidator<T>> validators = new ArrayList<>();
+            getEntityFactory().getEntityContext(entity.getClass()).getValidators().forEach(validator -> validators.add((EntityValidator<T>) validator));
+            if (validators.isEmpty()) {
+                log.info("Skip validate on entity [{}]", entity.getClass().getName());
+                return;
+            }
+            log.info("BEGIN validate entity [{}]", entity.getClass().getName());
+            doValidate(validators, entity);
+            log.info("END validate entity [{}]", entity.getClass().getName());
+        }
+
+        private void doValidate(Collection<EntityValidator<T>> validators, T entity) {
+            Set<String> errors = new HashSet<>();
+            validators.forEach(entityValidator -> entityValidatorCallback(entityValidator, errors, entity));
+            if (!errors.isEmpty()) {
+                throw new ValidationFailureException(errors, String.format("Fail when validate entity [%s]", entity.getClass()));
+            }
+        }
+
+        private void entityValidatorCallback(EntityValidator<T> entityValidator, Set<String> errors, T entity) {
+            ValidateResult result = entityValidator.validate(entity);
+            if (result.hasError()) {
+                errors.addAll(result.getMessages());
+            }
         }
     }
 }

@@ -4,6 +4,8 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingDeleteForm;
 import com.bachlinh.order.web.service.common.MessageSettingService;
@@ -14,8 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "messageSettingDeleteHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@Permit(roles = Role.ADMIN)
 public class MessageSettingDeleteHandler extends AbstractController<Map<String, Object>, MessageSettingDeleteForm> {
 
     private String url;

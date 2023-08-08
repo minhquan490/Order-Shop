@@ -1,9 +1,9 @@
 package com.bachlinh.order.repository;
 
-import org.springframework.data.domain.Page;
 import com.bachlinh.order.entity.model.Category;
+import org.springframework.data.domain.Page;
 
-public interface CategoryRepository {
+public interface CategoryRepository extends NativeQueryRepository {
 
     Category getCategoryByName(String categoryName);
 

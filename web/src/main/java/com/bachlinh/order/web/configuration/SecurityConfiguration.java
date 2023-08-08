@@ -6,13 +6,12 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.security.auth.internal.TokenManagerProvider;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.filter.servlet.AuthenticationFilter;
-import com.bachlinh.order.security.filter.servlet.ClientSecretFilter;
 import com.bachlinh.order.security.filter.servlet.LoggingRequestFilter;
 import com.bachlinh.order.security.filter.servlet.PermissionFilter;
-import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.utils.HeaderUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +26,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -53,13 +53,7 @@ public class SecurityConfiguration {
 
     @Bean
     LoggingRequestFilter loggingRequestFilter(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile) {
-        Environment environment = Environment.getInstance(profile);
-        return new LoggingRequestFilter(containerResolver, environment.getProperty("shop.url.client"), Integer.parseInt(environment.getProperty("server.port")), profile);
-    }
-
-    @Bean
-    ClientSecretFilter clientSecretFilter(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile, PathMatcher pathMatcher) {
-        return new ClientSecretFilter(containerResolver, getExcludeUrls(profile), pathMatcher, profile);
+        return new LoggingRequestFilter(containerResolver, profile);
     }
 
     @Bean
@@ -69,12 +63,7 @@ public class SecurityConfiguration {
 
     @Bean
     BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(20);
-    }
-
-    @Bean
-    ClientSecretHandler clientSecretHandler() {
-        return new ClientSecretHandler();
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean
@@ -95,17 +84,32 @@ public class SecurityConfiguration {
         String urlAdmin = environment.getProperty("shop.url.pattern.admin");
         String urlCustomer = environment.getProperty("shop.url.pattern.customer");
         return http
-                .csrf(csrf -> csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0])))
+                .csrf(csrf -> {
+//                    var cookieCsrfTokenRepository = new CookieCsrfTokenRepository();
+//                    cookieCsrfTokenRepository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder.httpOnly(false));
+//                    csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0]));
+//                    csrf.csrfTokenRepository(cookieCsrfTokenRepository);
+                    csrf.disable();
+                })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl)))
                 .anonymous(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
+                .headers(httpSecurityHeadersConfigurer -> {
+                    httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable);
+                    httpSecurityHeadersConfigurer.httpStrictTransportSecurity(hstsConfig -> {
+                        hstsConfig.includeSubDomains(true);
+                        hstsConfig.maxAgeInSeconds(63072000);
+                        hstsConfig.preload(true);
+                    });
+                    httpSecurityHeadersConfigurer.xssProtection(xXssConfig -> xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED));
+                    httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                })
                 .requiresChannel(channelRequestMatcherRegistry -> channelRequestMatcherRegistry.anyRequest().requiresSecure())
                 .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers(urlAdmin).hasAuthority(Role.ADMIN.name());
-                    registry.requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name());
+                    registry.requestMatchers(urlAdmin).hasAnyAuthority(Role.ADMIN.name(), Role.SEO.name(), Role.MARKETING.name());
+                    registry.requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name(), Role.SEO.name(), Role.MARKETING.name());
                     registry.requestMatchers(getExcludeUrls(profile).toArray(new String[0])).permitAll();
                 })
                 .requestCache(RequestCacheConfigurer::disable)
@@ -113,7 +117,6 @@ public class SecurityConfiguration {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .addFilterAfter(loggingRequestFilter(containerResolver, profile), CsrfFilter.class)
                 .addFilterBefore(authenticationFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(clientSecretFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(permissionFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -128,12 +131,6 @@ public class SecurityConfiguration {
         return new FilterChainAdapter(containerResolver.getDependenciesResolver());
     }
 
-//    @Bean
-//    @Lazy
-//    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
-//        return new HandlerMappingIntrospector();
-//    }
-
     private CorsConfigurationSource corsConfigurationSource(String clientUrl) {
         UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
 
@@ -141,6 +138,9 @@ public class SecurityConfiguration {
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.addAllowedOrigin(clientUrl);
+        configuration.addExposedHeader(HeaderUtils.getAuthorizeHeader());
+        configuration.addExposedHeader(HeaderUtils.getRefreshHeader());
+        configuration.addExposedHeader("X-XSRF-TOKEN");
 
         corsConfigurationSource.registerCorsConfiguration("/**", configuration);
         return corsConfigurationSource;
@@ -159,6 +159,7 @@ public class SecurityConfiguration {
             lazyExcludeUrls.add(environment.getProperty("shop.url.customer.reset.password"));
             lazyExcludeUrls.add(environment.getProperty("shop.url.websocket"));
             lazyExcludeUrls.add(environment.getProperty("shop.url.revoke-token"));
+            lazyExcludeUrls.add(environment.getProperty("shop.url.basic-info"));
         }
         return lazyExcludeUrls;
     }

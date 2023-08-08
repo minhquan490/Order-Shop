@@ -1,5 +1,9 @@
 package com.bachlinh.order.core.http.writer;
 
+import com.bachlinh.order.core.http.NativeCookie;
+import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletResponseAdapter;
+import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.utils.map.MultiValueMap;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
@@ -11,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletResponseAdapter;
-import com.bachlinh.order.utils.JacksonUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,7 +59,16 @@ class HttpMessageWriter implements MessageWriter {
 
     @Override
     public void writeHeader(String headerName, Object headerValue) {
-        this.actualResponse.setHeader(headerName, String.valueOf(headerValue));
+        var headerContained = this.actualResponse.containsHeader(headerName);
+        if (headerContained) {
+            var value = String.valueOf(headerValue);
+            var headers = this.actualResponse.getHeaders(headerName);
+            if (!headers.contains(value)) {
+                this.actualResponse.addHeader(headerName, value);
+            }
+        } else {
+            this.actualResponse.setHeader(headerName, String.valueOf(headerValue));
+        }
     }
 
     @Override
@@ -68,6 +79,26 @@ class HttpMessageWriter implements MessageWriter {
     @Override
     public void writeHeader(HttpHeaders headers) {
         headers.forEach((s, strings) -> strings.forEach(v -> writeHeader(s, v)));
+    }
+
+    @Override
+    public void writeHeader(MultiValueMap<String, String> headers) {
+        headers.forEach((s, strings) -> strings.forEach(s1 -> writeHeader(s, s1)));
+    }
+
+    @Override
+    public void writeCookie(NativeCookie cookie) {
+        this.actualResponse.addCookie(cookie.toServletCookie());
+    }
+
+    @Override
+    public void writeCookies(NativeCookie[] cookies) {
+        if (cookies == null) {
+            return;
+        }
+        for (var cookie : cookies) {
+            writeCookie(cookie);
+        }
     }
 
     @Override

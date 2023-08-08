@@ -4,9 +4,6 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +15,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Label("ETE-")
 @Entity
@@ -32,13 +31,13 @@ import lombok.NoArgsConstructor;
                 @Index(name = "idx_email_template_name", columnList = "NAME")
         }
 )
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.EmailTemplateValidator")
 @ActiveReflection
 @EnableFullTextSearch
-@Trigger(triggers = {"com.bachlinh.order.trigger.internal.EmailTemplateIndexTrigger"})
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class EmailTemplate extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class EmailTemplate extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)")
@@ -85,64 +84,68 @@ public class EmailTemplate extends AbstractEntity {
         }
         throw new PersistenceException("Id of email template must be string");
     }
-    
+
     @ActiveReflection
     public void setTitle(String title) {
+        if (this.title != null && !this.title.equals(title)) {
+            trackUpdatedField("TITLE", this.title);
+        }
         this.title = title;
     }
 
     @ActiveReflection
     public void setContent(String content) {
+        if (this.content != null && !this.content.equals(content)) {
+            trackUpdatedField("CONTENT", this.content);
+        }
         this.content = content;
     }
 
     @ActiveReflection
     public void setExpiryPolicy(Integer expiryPolicy) {
+        if (this.expiryPolicy != null && !this.expiryPolicy.equals(expiryPolicy)) {
+            trackUpdatedField("EXPIRY_POLICY", this.expiryPolicy.toString());
+        }
         this.expiryPolicy = expiryPolicy;
     }
 
     @ActiveReflection
     public void setOwner(Customer owner) {
+        if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
+            trackUpdatedField("OWNER_ID", this.owner.getId());
+        }
         this.owner = owner;
     }
 
     @ActiveReflection
     public void setFolder(EmailTemplateFolder folder) {
+        if (this.folder != null && !this.folder.getId().equals(folder.getId())) {
+            trackUpdatedField("FOLDER_ID", this.folder.getId());
+        }
         this.folder = folder;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getTotalArgument() {
-        return totalArgument;
     }
 
     @ActiveReflection
     public void setName(String name) {
+        if (this.name != null && !this.name.equals(name)) {
+            trackUpdatedField("NAME", this.name);
+        }
         this.name = name;
     }
 
     @ActiveReflection
     public void setTotalArgument(Integer totalArgument) {
+        if (this.totalArgument != null && !this.totalArgument.equals(totalArgument)) {
+            trackUpdatedField("TOTAL_ARGUMENT", this.totalArgument.toString());
+        }
         this.totalArgument = totalArgument;
     }
 
     @ActiveReflection
     public void setParams(String params) {
+        if (this.params != null && !this.params.equals(params)) {
+            trackUpdatedField("PARAMS", this.params);
+        }
         this.params = params;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EmailTemplate that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getName(), that.getName()) && Objects.equal(getTitle(), that.getTitle()) && Objects.equal(getContent(), that.getContent()) && Objects.equal(getExpiryPolicy(), that.getExpiryPolicy()) && Objects.equal(getTotalArgument(), that.getTotalArgument()) && Objects.equal(getParams(), that.getParams()) && Objects.equal(getOwner(), that.getOwner()) && Objects.equal(getFolder(), that.getFolder());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getTitle(), getContent(), getExpiryPolicy(), getTotalArgument(), getParams(), getOwner(), getFolder());
     }
 }

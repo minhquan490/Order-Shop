@@ -10,20 +10,20 @@ import org.springframework.http.MediaType;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public abstract class ExceptionHandler implements ThrowableHandler<Exception, NativeResponse<String>> {
+public abstract class ExceptionHandler implements ThrowableHandler<Exception, NativeResponse<byte[]>> {
 
     @Override
-    public NativeResponse<String> handle(Exception throwable) {
+    public NativeResponse<byte[]> handle(Exception throwable) {
         doOnException(throwable);
-        String json = JacksonUtils.writeObjectAsString(new ExceptionReturn(status(), message(throwable)));
-        NativeResponse.NativeResponseBuilder<String> builder = NativeResponse.builder();
-        NativeResponse<String> response = builder
+        var json = JacksonUtils.writeObjectAsBytes(new ExceptionReturn(status(), message(throwable)));
+        NativeResponse.NativeResponseBuilder<byte[]> builder = NativeResponse.builder();
+        NativeResponse<byte[]> response = builder
                 .statusCode(status())
                 .headers(new LinkedMultiValueMap<>())
                 .body(json)
                 .build();
         response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        response.addHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(json.length()));
+        response.addHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(json.length));
         return response;
     }
 

@@ -1,9 +1,11 @@
 package com.bachlinh.order.trigger.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -14,6 +16,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 @ActiveReflection
+@ApplyOn(entity = Customer.class)
 public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<CustomerInfoChangeHistory> {
     private CustomerInfoChangerHistoryRepository repository;
     private EntityFactory entityFactory;
@@ -61,7 +64,7 @@ public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<CustomerIn
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "customerInfoChangeHistoryTrigger";
     }
 }

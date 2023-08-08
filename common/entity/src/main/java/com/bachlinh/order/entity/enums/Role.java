@@ -1,8 +1,10 @@
 package com.bachlinh.order.entity.enums;
 
 public enum Role {
-    CUSTOMER,
-    ADMIN;
+    ADMIN,
+    SEO,
+    MARKETING,
+    CUSTOMER;
 
     public static Role of(String roleName) {
         for (Role r : values()) {

@@ -1,9 +1,8 @@
 package com.bachlinh.order.web.common.entity;
 
-import com.bachlinh.order.annotation.Ignore;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Trigger;
-import com.bachlinh.order.annotation.Validator;
+import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.context.EntityContext;
@@ -13,40 +12,43 @@ import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.NoTransactionException;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.trigger.spi.AbstractTrigger;
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.Table;
 import org.apache.lucene.store.Directory;
 import org.hibernate.annotations.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 public class DefaultEntityContext implements EntityContext {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Class<?> idType;
-    private final BaseEntity baseEntity;
+    private final BaseEntity<?> baseEntity;
     private final String prefix;
     private final String cacheRegion;
-    private final Collection<EntityValidator<? extends BaseEntity>> validators;
-    private final Collection<EntityTrigger<? extends BaseEntity>> triggers;
+    private final List<EntityValidator<? extends BaseEntity<?>>> validators;
+    private final List<EntityTrigger<? extends BaseEntity<?>>> triggers;
     private final SearchManager searchManager;
-    private volatile int previousId;
+    private volatile Integer previousId;
     private volatile int createIdTime = -1;
+    private final Class<?> entityType;
+    private final DependenciesResolver dependenciesResolver;
 
     public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
         try {
@@ -54,10 +56,9 @@ public class DefaultEntityContext implements EntityContext {
                 log.debug("Init entity context for entity {}", entity.getSimpleName());
             }
             this.idType = queryIdType(entity);
-            this.baseEntity = (BaseEntity) newInstance(entity, null, null);
+            this.baseEntity = (BaseEntity<?>) newInstance(entity, null, null);
             this.validators = getValidators(entity, dependenciesResolver);
             this.triggers = getTriggers(entity, dependenciesResolver, environment);
-            this.previousId = 0;
             Label label = entity.getAnnotation(Label.class);
             if (label != null) {
                 this.prefix = entity.getAnnotation(Label.class).value();
@@ -70,28 +71,31 @@ public class DefaultEntityContext implements EntityContext {
             } else {
                 this.cacheRegion = null;
             }
+            this.searchManager = searchManager;
+            this.entityType = entity;
+            this.dependenciesResolver = dependenciesResolver;
+        } catch (Exception e) {
+            throw new PersistenceException("Can not instance entity with type [" + entity.getSimpleName() + "]", e);
+        } finally {
             if (log.isDebugEnabled()) {
                 log.debug("Init complete");
             }
-        } catch (Exception e) {
-            throw new PersistenceException("Can not instance entity with type [" + entity.getSimpleName() + "]", e);
         }
-        this.searchManager = searchManager;
     }
 
     @Override
-    public BaseEntity getEntity() {
-        return (BaseEntity) ((AbstractEntity) baseEntity).clone();
+    public BaseEntity<?> getEntity() {
+        return (BaseEntity<?>) ((AbstractEntity<?>) baseEntity).clone();
     }
 
     @Override
     public Collection<EntityValidator<?>> getValidators() {
-        return validators;
+        return new ArrayList<>(validators);
     }
 
     @Override
     public Collection<EntityTrigger<?>> getTrigger() {
-        return triggers;
+        return new ArrayList<>(triggers);
     }
 
     @Override
@@ -106,6 +110,13 @@ public class DefaultEntityContext implements EntityContext {
 
     @Override
     public synchronized Object getNextId() {
+        if (this.previousId == null) {
+            try {
+                this.previousId = configLastId();
+            } catch (Exception e) {
+                throw new PersistenceException(String.format("Can not get next id of entity [%s]", entityType.getName()));
+            }
+        }
         if (this.createIdTime < 0) {
             throw new NoTransactionException("You must call beginTransaction() before this method");
         }
@@ -129,8 +140,10 @@ public class DefaultEntityContext implements EntityContext {
 
     @Override
     public synchronized void rollback() {
-        this.previousId -= createIdTime;
-        this.createIdTime = -1;
+        if (this.createIdTime > 0) {
+            this.previousId -= createIdTime;
+            this.createIdTime = -1;
+        }
     }
 
     @Override
@@ -148,53 +161,42 @@ public class DefaultEntityContext implements EntityContext {
         searchManager.analyze(entities);
     }
 
-    private List<EntityValidator<? extends BaseEntity>> getValidators(Class<?> entity, DependenciesResolver resolver) {
-        Validator v = entity.getAnnotation(Validator.class);
-        if (v == null) {
-            return Collections.emptyList();
-        }
-        List<EntityValidator<?>> vs = new ArrayList<>();
-        for (String validatorName : v.validators()) {
-            try {
-                Class<?> validator = Class.forName(validatorName);
-                if (log.isDebugEnabled()) {
-                    log.debug("Create validator [{}]", validator.getName());
-                }
-                EntityValidator<? extends BaseEntity> entityValidator = (EntityValidator<? extends BaseEntity>) newInstance(validator, new Class[]{DependenciesResolver.class}, new Object[]{resolver});
-                vs.add(entityValidator);
-            } catch (Exception e) {
-                log.error("Can not create validator [{}]", e.getClass().getName(), e);
-            }
-        }
-        return vs;
+    @SuppressWarnings("unchecked")
+    private <T extends EntityValidator<? extends BaseEntity<?>>> List<T> getValidators(Class<?> entity, DependenciesResolver resolver) {
+        ApplicationScanner scanner = new ApplicationScanner();
+        return scanner.findComponents()
+                .stream()
+                .filter(this::isValidator)
+                .filter(validatorClass -> {
+                    ApplyOn applyOn = validatorClass.getAnnotation(ApplyOn.class);
+                    return applyOn.entity().equals(entity);
+                })
+                .map(validator -> {
+                    Object returnValidator = newInstance(validator, new Class[]{DependenciesResolver.class}, new Object[]{resolver});
+                    if (log.isDebugEnabled()) {
+                        log.debug("Init validator [{}] for entity [{}]", validator.getName(), baseEntity.getClass().getName());
+                    }
+                    return returnValidator;
+                })
+                .map(returnObject -> (T) returnObject)
+                .toList();
     }
 
-    private List<EntityTrigger<? extends BaseEntity>> getTriggers(Class<?> entity, DependenciesResolver dependenciesResolver, Environment environment) {
-        List<EntityTrigger<? extends BaseEntity>> entityTriggers = new ArrayList<>();
-        entityTriggers.add(initTrigger("com.bachlinh.order.trigger.spi.IdGenTrigger", dependenciesResolver, environment));
-        entityTriggers.add(initTrigger("com.bachlinh.order.trigger.spi.AuditingTrigger", dependenciesResolver, environment));
-        Trigger trigger = entity.getAnnotation(Trigger.class);
-        if (trigger == null) {
-            return entityTriggers;
-        }
-        try {
-            for (String triggerName : trigger.triggers()) {
-                EntityTrigger<? extends BaseEntity> triggerObject = initTrigger(triggerName, dependenciesResolver, environment);
-                if (triggerObject != null) {
-                    entityTriggers.add(triggerObject);
-                }
-            }
-        } catch (Exception e) {
-            log.error("Can not create trigger", e);
-        }
-        return entityTriggers.stream()
-                .filter(Objects::nonNull)
+    @SuppressWarnings("unchecked")
+    private <T extends EntityTrigger<? extends BaseEntity<?>>> List<T> getTriggers(Class<?> entity, DependenciesResolver dependenciesResolver, Environment environment) {
+        ApplicationScanner scanner = new ApplicationScanner();
+        return scanner.findComponents()
+                .stream()
+                .filter(this::isTrigger)
+                .filter(triggerClass -> {
+                    ApplyOn applyOn = triggerClass.getAnnotation(ApplyOn.class);
+                    return applyOn.entity().equals(entity) || applyOn.type().equals(ApplyOn.ApplyType.ALL);
+                })
+                .map(clazz -> (Class<T>) clazz)
+                .map(triggerClass -> initTrigger(triggerClass, dependenciesResolver, environment))
                 .sorted(Comparator.comparing(entityTrigger -> {
-                    Order order = entityTrigger.getClass().getAnnotation(Order.class);
-                    if (order == null) {
-                        return Ordered.LOWEST_PRECEDENCE;
-                    }
-                    return order.value();
+                    ApplyOn applyOn = entityTrigger.getClass().getAnnotation(ApplyOn.class);
+                    return applyOn.order();
                 }))
                 .toList();
     }
@@ -208,44 +210,75 @@ public class DefaultEntityContext implements EntityContext {
         throw new PersistenceException("Can not find type of entity id");
     }
 
-    private Object newInstance(Class<?> initiator, @Nullable Class<?>[] paramTypes, @Nullable Object[] params) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Constructor<?> constructor;
-        if (paramTypes == null) {
-            constructor = initiator.getDeclaredConstructor();
-        } else {
-            constructor = initiator.getDeclaredConstructor(paramTypes);
-        }
-        if (!Modifier.isPublic(constructor.getModifiers())) {
-            constructor.setAccessible(true);
-        }
-        if (params == null) {
-            return constructor.newInstance();
-        } else {
-            return constructor.newInstance(params);
-        }
-    }
-
-    private EntityTrigger<? extends BaseEntity> initTrigger(String triggerName, DependenciesResolver dependenciesResolver, Environment environment) {
+    private Object newInstance(Class<?> initiator, @Nullable Class<?>[] paramTypes, @Nullable Object[] params) {
         try {
-            Class<?> triggerClass = Class.forName(triggerName);
-            if (triggerClass.isAnnotationPresent(Ignore.class)) {
-                return null;
+            Constructor<?> constructor;
+            if (paramTypes == null) {
+                constructor = initiator.getDeclaredConstructor();
+            } else {
+                constructor = initiator.getDeclaredConstructor(paramTypes);
             }
-            Constructor<?> constructor = triggerClass.getDeclaredConstructor(DependenciesResolver.class);
             if (!Modifier.isPublic(constructor.getModifiers())) {
                 constructor.setAccessible(true);
             }
-            var setEnvironmentMethod = triggerClass.getMethod("setEnvironment", Environment.class);
-            var trigger = (EntityTrigger<? extends BaseEntity>) constructor.newInstance(dependenciesResolver);
-            setEnvironmentMethod.invoke(trigger, environment);
-            return trigger;
-        } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException |
+            if (params == null) {
+                return constructor.newInstance();
+            } else {
+                return constructor.newInstance(params);
+            }
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                  NoSuchMethodException e) {
-            throw new CriticalException("Can not init trigger [" + triggerName + "]");
+            throw new CriticalException("Can not init validator [" + initiator.getName() + "]");
+        }
+    }
+
+    private <T extends EntityTrigger<? extends BaseEntity<?>>> T initTrigger(Class<T> triggerClass, DependenciesResolver dependenciesResolver, Environment environment) {
+        try {
+            Constructor<T> constructor = triggerClass.getDeclaredConstructor(DependenciesResolver.class);
+            if (!Modifier.isPublic(constructor.getModifiers())) {
+                constructor.setAccessible(true);
+            }
+            AbstractTrigger<? extends BaseEntity<?>> trigger = (AbstractTrigger<? extends BaseEntity<?>>) constructor.newInstance(dependenciesResolver);
+            trigger.setEnvironment(environment);
+
+            return triggerClass.cast(trigger);
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                 NoSuchMethodException e) {
+            throw new CriticalException("Can not init trigger [" + triggerClass.getName() + "]");
         } finally {
             if (log.isDebugEnabled()) {
-                log.debug("Init trigger [{}] for entity [{}]", triggerName, baseEntity.getClass().getName());
+                log.debug("Init trigger [{}] for entity [{}]", triggerClass.getName(), baseEntity.getClass().getName());
             }
         }
+    }
+
+    private int configLastId() throws ClassNotFoundException {
+        String repositoryPattern = "com.bachlinh.order.repository.{0}Repository";
+        String repositoryName = MessageFormat.format(repositoryPattern, entityType.getSimpleName());
+        Class<?> repositoryClass = Class.forName(repositoryName);
+        AbstractRepository<?, ?> repository = (AbstractRepository<?, ?>) dependenciesResolver.resolveDependencies(repositoryClass);
+        String sql = MessageFormat.format("SELECT MAX(ID) FROM {0}", entityType.getAnnotation(Table.class).name());
+        List<?> result = repository.executeNativeQuery(sql, Collections.emptyMap(), idType);
+        if (result.isEmpty()) {
+            return 0;
+        }
+        if (result.get(0) instanceof String idString) {
+            String suffixId = idString.split("-")[1];
+            return Integer.parseInt(suffixId);
+        }
+        if (result.get(0) instanceof Integer idInt) {
+            return idInt;
+        }
+        return 0;
+    }
+
+    private boolean isTrigger(Class<?> clazz) {
+        return clazz.isAnnotationPresent(ApplyOn.class) &&
+                EntityTrigger.class.isAssignableFrom(clazz);
+    }
+
+    private boolean isValidator(Class<?> clazz) {
+        return clazz.isAnnotationPresent(ApplyOn.class) &&
+                EntityValidator.class.isAssignableFrom(clazz);
     }
 }

@@ -1,10 +1,5 @@
 package com.bachlinh.order.setup.execution;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.entity.EntityFactory;
@@ -16,11 +11,15 @@ import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.WardRepository;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.setup.spi.AbstractSetup;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -108,7 +107,7 @@ public class VnAddressSetupExecution extends AbstractSetup {
         }
         JsonNode resp;
         try {
-            resp = restTemplate.get(provinceApi, null, null, Collections.emptyMap());
+            resp = restTemplate.get(provinceApi, null, null);
         } catch (IOException e) {
             log.warn("Call province api failure");
             return;
@@ -137,7 +136,7 @@ public class VnAddressSetupExecution extends AbstractSetup {
         }
         JsonNode resp;
         try {
-            resp = restTemplate.get(districtApi, null, null, Collections.emptyMap());
+            resp = restTemplate.get(districtApi, null, null);
         } catch (IOException e) {
             log.warn("Failure when process district response");
             return;
@@ -195,7 +194,7 @@ public class VnAddressSetupExecution extends AbstractSetup {
         }
         JsonNode resp;
         try {
-            resp = restTemplate.get(wardApi, null, null, Collections.emptyMap());
+            resp = restTemplate.get(wardApi, null, null);
         } catch (IOException e) {
             log.warn("Failure when process district response");
             return;

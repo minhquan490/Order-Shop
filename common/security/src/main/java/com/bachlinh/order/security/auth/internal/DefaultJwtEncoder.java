@@ -6,9 +6,12 @@ import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +45,10 @@ class DefaultJwtEncoder implements JwtEncoder {
     @Override
     public String getTokenValue() {
         Map<String, Object> copyProp = internalProp.get();
+        Date date = Date.from(LocalDateTime.now(Clock.systemDefaultZone()).plusMinutes(MINUS_EXPIRE)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+        copyProp.put("expiry", date.toString());
         internalProp.remove();
         return encoder.encode(JwtEncoderParameters.from(buildHeader(), buildClaimsSet(copyProp))).getTokenValue();
     }

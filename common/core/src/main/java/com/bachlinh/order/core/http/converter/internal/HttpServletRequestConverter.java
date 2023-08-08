@@ -2,11 +2,13 @@ package com.bachlinh.order.core.http.converter.internal;
 
 import com.bachlinh.order.core.NativeMethodHandleRequestMetadataReader;
 import com.bachlinh.order.core.http.HttpServletNativeRequest;
+import com.bachlinh.order.core.http.MultipartRequest;
 import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.core.http.converter.spi.NativeCookieConverter;
 import com.bachlinh.order.core.http.converter.spi.RequestConverter;
+import com.bachlinh.order.core.http.parser.internal.MultipartServletRequestBodyParser;
 import com.bachlinh.order.core.http.parser.internal.ServletRequestBodyParser;
 import com.bachlinh.order.core.http.parser.spi.RequestBodyParser;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
@@ -15,6 +17,7 @@ import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,11 +26,13 @@ import java.util.List;
 
 public class HttpServletRequestConverter implements RequestConverter<HttpServletRequest> {
     private final RequestBodyParser<ServletRequest> parser;
+    private final RequestBodyParser<AbstractMultipartHttpServletRequest> multipartParser;
     private final NativeCookieConverter<Cookie> nativeCookieConverter;
 
     public HttpServletRequestConverter() {
         this.parser = new ServletRequestBodyParser();
         this.nativeCookieConverter = NativeCookieConverter.nativeCookieConverter();
+        this.multipartParser = new MultipartServletRequestBodyParser();
     }
 
     @Override
@@ -42,7 +47,12 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
             throw new ResourceNotFoundException("Not found", request.getRequestURI());
         }
         Class<?> requestType = reader.parameterType();
-        nativeRequest.setPayload(new Payload<>(parser.parseRequest(request, requestType)));
+        if (nativeRequest.isMultipart()) {
+            var multipartRequest = multipartParser.parseRequest((AbstractMultipartHttpServletRequest) request, MultipartRequest.class);
+            nativeRequest.setPayload(new Payload<>(multipartRequest));
+        } else {
+            nativeRequest.setPayload(new Payload<>(parser.parseRequest(request, requestType)));
+        }
         nativeRequest.setCustomerIp(request.getRemoteAddr());
         return nativeRequest;
     }
@@ -54,6 +64,9 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
             MultiValueMap<String, String> queryParamMap = new LinkedMultiValueMap<>(queryParams.length);
             for (String queryParam : queryParams) {
                 String[] part = queryParam.split("=");
+                if (part.length == 1) {
+                    return queryParamMap;
+                }
                 queryParamMap.putIfAbsent(part[0], Arrays.asList(part[1].contains(",") ? part[1].split(",") : new String[]{part[1]}));
             }
             return queryParamMap;

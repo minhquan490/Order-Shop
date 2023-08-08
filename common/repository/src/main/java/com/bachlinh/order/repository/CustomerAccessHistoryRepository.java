@@ -6,9 +6,11 @@ import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import java.sql.Date;
 import java.util.Collection;
 
-public interface CustomerAccessHistoryRepository {
+public interface CustomerAccessHistoryRepository extends NativeQueryRepository {
 
     CustomerAccessHistory saveCustomerHistory(CustomerAccessHistory customerAccessHistory);
+
+    void saveAllCustomerAccessHistory(Collection<CustomerAccessHistory> customerAccessHistories);
 
     boolean deleteCustomerHistory(CustomerAccessHistory customerAccessHistory);
 

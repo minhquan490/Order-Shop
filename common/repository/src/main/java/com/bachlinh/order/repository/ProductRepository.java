@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository;
 
+import com.bachlinh.order.entity.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.bachlinh.order.entity.model.Product;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,4 +28,6 @@ public interface ProductRepository extends NativeQueryRepository {
     Page<Product> getProductsWithUnion(Collection<String> ids, Map<String, Object> conditions, Pageable pageable);
 
     Page<Product> getAllProducts(Pageable pageable);
+
+    Collection<Product> getProducts(Pageable pageable);
 }

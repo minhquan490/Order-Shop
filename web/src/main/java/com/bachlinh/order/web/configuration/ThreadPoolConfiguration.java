@@ -1,5 +1,8 @@
 package com.bachlinh.order.web.configuration;
 
+import com.bachlinh.order.core.concurrent.ThreadPoolManager;
+import com.bachlinh.order.core.concurrent.support.DefaultThreadPoolManager;
+import com.bachlinh.order.core.concurrent.support.ThreadPoolOption;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,5 +28,16 @@ public class ThreadPoolConfiguration {
         scheduler.setThreadFactory(executor);
         scheduler.setThreadPriority(2);
         return scheduler;
+    }
+
+    @Bean
+    ThreadPoolManager threadPoolManager() {
+        ThreadPoolOption threadPoolOption = new ThreadPoolOption();
+        threadPoolOption.setSchedulerPoolSize(6);
+        threadPoolOption.setHttpExecutorCorePoolSize(3);
+        threadPoolOption.setIndexExecutorCorePoolSize(50);
+        threadPoolOption.setAsyncExecutorCorePoolSize(10);
+        threadPoolOption.setServiceExecutorCorePoolSize(10);
+        return new DefaultThreadPoolManager(threadPoolOption);
     }
 }

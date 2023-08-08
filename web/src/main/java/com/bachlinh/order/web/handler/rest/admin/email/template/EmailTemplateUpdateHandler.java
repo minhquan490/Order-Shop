@@ -12,7 +12,7 @@ import com.bachlinh.order.web.service.common.EmailTemplateService;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-@RouteProvider
+@RouteProvider(name = "emailTemplateUpdateHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class EmailTemplateUpdateHandler extends AbstractController<EmailTemplateInfoResp, EmailTemplateUpdateForm> {

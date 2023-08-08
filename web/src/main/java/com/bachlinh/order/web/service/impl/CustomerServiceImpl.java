@@ -3,20 +3,24 @@ package com.bachlinh.order.web.service.impl;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.concurrent.RunnableType;
+import com.bachlinh.order.core.concurrent.ThreadPoolManager;
 import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.FieldUpdated;
 import com.bachlinh.order.entity.enums.Gender;
-import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailTemplate;
-import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.RefreshToken;
+import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.InvalidTokenException;
+import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.http.TemporaryTokenExpiredException;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.exception.system.common.CriticalException;
@@ -25,13 +29,13 @@ import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
-import com.bachlinh.order.repository.EmailTrashRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
+import com.bachlinh.order.repository.RefreshTokenRepository;
+import com.bachlinh.order.repository.TemporaryTokenRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.handler.ClientSecretHandler;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.ResourceUtils;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
@@ -40,12 +44,15 @@ import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.form.common.LoginForm;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
+import com.bachlinh.order.web.dto.resp.ConfirmEmailResp;
+import com.bachlinh.order.web.dto.resp.CustomerBasicInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerInfoResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.dto.resp.MyInfoResp;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.dto.resp.RevokeTokenResp;
+import com.bachlinh.order.web.service.business.ConfirmEmailService;
 import com.bachlinh.order.web.service.business.CustomerAnalyzeService;
 import com.bachlinh.order.web.service.business.CustomerSearchingService;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
@@ -62,8 +69,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -73,14 +80,15 @@ import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @ServiceComponent
 @ActiveReflection
@@ -93,23 +101,25 @@ public class CustomerServiceImpl implements CustomerService,
                                             ForgotPasswordService,
                                             CustomerAnalyzeService,
                                             RevokeAccessTokenService,
-                                            CustomerSearchingService { // @formatter:on
-    private final Map<String, TempTokenHolder> tempTokenMap = new ConcurrentHashMap<>();
+                                            CustomerSearchingService,
+                                            ConfirmEmailService { // @formatter:on
+    private static final String CUSTOMER_ID_KEY = "customerId";
+    private static final String USERNAME_KEY = "username";
 
     private final PasswordEncoder passwordEncoder;
     private final EntityFactory entityFactory;
     private final CustomerRepository customerRepository;
     private final TokenManager tokenManager;
     private final LoginHistoryRepository loginHistoryRepository;
-    private final ClientSecretHandler clientSecretHandler;
     private final GmailSendingService gmailSendingService;
     private final TemporaryTokenGenerator tokenGenerator;
     private final EmailTemplateRepository emailTemplateRepository;
-    private final EmailTrashRepository emailTrashRepository;
     private final EmailFolderService emailFolderService;
     private final CustomerInfoChangerHistoryRepository customerInfoChangerHistoryRepository;
+    private final TemporaryTokenRepository temporaryTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final DtoMapper dtoMapper;
-    private final ThreadPoolTaskExecutor executor;
+    private final ThreadPoolManager threadPoolManager;
     private String urlResetPassword;
     private String botEmail;
 
@@ -198,70 +208,98 @@ public class CustomerServiceImpl implements CustomerService,
     }
 
     @Override
+    public CustomerBasicInformationResp basicCustomerInfo(String accessToken, NativeResponse<?> nativeResponse) {
+        Map<String, Object> tokenClaims = tokenManager.getClaimsFromToken(accessToken);
+        if (tokenClaims.isEmpty()) {
+            throw new UnAuthorizationException("Invalid token", "");
+        }
+        String customerId = (String) tokenClaims.get(CUSTOMER_ID_KEY);
+        Customer customer = customerRepository.getCustomerBasicInformation(customerId);
+        if (customer == null) {
+            throw new UnAuthorizationException("Invalid token", "");
+        }
+        if (customer.getCustomerMedia() != null) {
+            nativeResponse.setActivePushBuilder(true);
+        }
+        return dtoMapper.map(customer, CustomerBasicInformationResp.class);
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public LoginResp login(LoginForm loginForm, NativeRequest<?> request) {
         Customer customer = customerRepository.getCustomerByUsername(loginForm.username());
         if (customer == null) {
-            return new LoginResp(null, null, false);
+            throw new UnAuthorizationException("Wrong username or password", "");
         }
         if (!passwordEncoder.matches(loginForm.password(), customer.getPassword())) {
-            saveHistory(customer, request);
-            return new LoginResp(null, null, false);
+            saveHistory(customer, request, false);
+            throw new UnAuthorizationException("Wrong username or password", "");
         }
-        tokenManager.encode("customerId", customer.getId());
-        tokenManager.encode("username", customer.getUsername());
+        tokenManager.encode(CUSTOMER_ID_KEY, customer.getId());
+        tokenManager.encode(USERNAME_KEY, customer.getUsername());
         String accessToken = tokenManager.getTokenValue();
-        RefreshToken refreshToken = tokenManager.getRefreshTokenGenerator().generateToken(customer.getId(), customer.getUsername());
-        saveHistory(customer, request);
-        return new LoginResp(refreshToken.getRefreshTokenValue(), accessToken, true);
+        RefreshToken refreshToken = refreshTokenRepository.getRefreshTokenByCustomer(customer);
+        if (refreshToken == null) {
+            refreshToken = tokenManager.getRefreshTokenGenerator().generateToken(customer.getId(), customer.getUsername());
+        } else {
+            String tokenValue = tokenManager.getRefreshTokenGenerator().generateToken(customer.getId(), customer.getUsername()).getRefreshTokenValue();
+            refreshToken.setRefreshTokenValue(tokenValue);
+        }
+        refreshTokenRepository.saveRefreshToken(refreshToken);
+        saveHistory(customer, request, true);
+        return new LoginResp(refreshToken.getRefreshTokenValue(), accessToken, true, "");
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public RegisterResp register(RegisterForm registerForm) {
-        Customer customer = registerForm.toCustomer(entityFactory, passwordEncoder);
-        Cart cart = entityFactory.getEntity(Cart.class);
-        cart.setCustomer(customer);
-        customer.setCart(cart);
+        Customer customer = dtoMapper.map(registerForm, Customer.class);
         try {
-            customer = customerRepository.saveCustomer(customer);
-            emailFolderService.createDefaultFolders(customer);
-            var trash = entityFactory.getEntity(EmailTrash.class);
-            trash.setCustomer(customer);
-            customer.setEmailTrash(trash);
-            emailTrashRepository.saveEmailTrash(trash);
-            return new RegisterResp("Register success", false);
+            customerRepository.saveCustomer(customer);
+            return new RegisterResp("Register success, we will sent you confirm email for active your account", false, null);
         } catch (Exception e) {
-            return new RegisterResp("Register failure", true);
+            return new RegisterResp("Register failure", true, e);
         }
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-    public boolean logout(Customer customer, String secret) {
-        customer = customerRepository.getCustomerById(customer.getId(), false);
-        clientSecretHandler.removeClientSecret(customer.getRefreshToken().getRefreshTokenValue(), secret);
-        customer.setRefreshToken(null);
-        return customerRepository.updateCustomer(customer) != null;
+    public boolean logout(Customer customer) {
+        RefreshToken refreshToken = refreshTokenRepository.getRefreshTokenByCustomer(customer);
+        refreshToken.setRefreshTokenValue(null);
+        return refreshTokenRepository.saveRefreshToken(refreshToken) != null;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public void saveHistory(Customer customer, NativeRequest<?> request) {
-        executor.execute(() -> {
+    public void saveHistory(Customer customer, NativeRequest<?> request, boolean isSuccess) {
+        threadPoolManager.execute(() -> {
             LoginHistory loginHistory = entityFactory.getEntity(LoginHistory.class);
             loginHistory.setCustomer(customer);
             loginHistory.setLastLoginTime(Timestamp.from(Instant.now()));
             loginHistory.setLoginIp(request.getCustomerIp());
-            loginHistory.setSuccess(true);
+            loginHistory.setSuccess(isSuccess);
             loginHistoryRepository.saveHistory(loginHistory);
-        });
+        }, RunnableType.SERVICE);
     }
 
     @Override
     public void sendEmailResetPassword(String email) {
+        Customer customer = customerRepository.getCustomerByEmail(email);
+        if (customer == null) {
+            throw new BadVariableException(String.format("Email %s is not existed", email));
+        }
         String tempToken = tokenGenerator.generateTempToken();
-        TempTokenHolder holder = new TempTokenHolder(LocalDateTime.now(), email);
-        tempTokenMap.put(tempToken, holder);
+
+        TemporaryToken token = entityFactory.getEntity(TemporaryToken.class);
+        if (token == null) {
+            token = entityFactory.getEntity(TemporaryToken.class);
+        }
+        token.setValue(tempToken);
+        token.setAssignCustomer(customer);
+        token.setExpiryTime(Timestamp.from(Instant.now(Clock.systemDefaultZone()).plus(10, ChronoUnit.MINUTES)));
+
+        temporaryTokenRepository.saveTemporaryToken(token);
+
         EmailTemplate emailTemplate = emailTemplateRepository.getDefaultEmailTemplate("Reset password");
         if (emailTemplate != null) {
             GmailMessage model = new GmailMessage(botEmail);
@@ -277,19 +315,18 @@ public class CustomerServiceImpl implements CustomerService,
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void resetPassword(String temporaryToken, String newPassword) {
-        TempTokenHolder holder = tempTokenMap.get(temporaryToken);
-        if (holder == null) {
+        TemporaryToken token = temporaryTokenRepository.getTemporaryToken(temporaryToken);
+        if (token == null) {
             throw new InvalidTokenException("Your token is invalid");
         }
-        LocalDateTime expireTime = tempTokenMap.get(temporaryToken).expireTime();
+        LocalDateTime expireTime = token.getExpiryTime().toLocalDateTime();
         if (expireTime.isAfter(LocalDateTime.now())) {
             throw new TemporaryTokenExpiredException("Temp token is expiry");
         }
-        Customer customer = customerRepository.getCustomerByEmail(holder.email());
+        Customer customer = token.getAssignCustomer();
         String hashedPassword = passwordEncoder.encode(newPassword);
         customer.setPassword(hashedPassword);
         customerRepository.updateCustomer(customer);
-        tempTokenMap.remove(temporaryToken, holder);
     }
 
     private Collection<FieldUpdated> findUpdatedFields(Customer oldCustomer, Customer newCustomer) {
@@ -364,7 +401,17 @@ public class CustomerServiceImpl implements CustomerService,
         return dtoMapper.map(customers, CustomerResp.class);
     }
 
-    private record TempTokenHolder(LocalDateTime expireTime, String email) {
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
+    public ConfirmEmailResp confirmEmail(String temporaryToken) {
+        TemporaryToken token = temporaryTokenRepository.getTemporaryToken(temporaryToken);
+        if (token == null) {
+            throw new ResourceNotFoundException("Not found", "");
+        }
+        Customer customer = token.getAssignCustomer();
+        customer.setActivated(true);
+        customerRepository.updateCustomer(customer);
+        return new ConfirmEmailResp(HttpStatus.OK.value(), new String[]{"Confirm email successfully"});
     }
 
     @DependenciesInitialize

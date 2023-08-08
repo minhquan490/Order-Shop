@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,18 +11,21 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "ORDER_HISTORY")
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.OrderHistoryValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class OrderHistory extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class OrderHistory extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", updatable = false, columnDefinition = "int")
@@ -68,17 +69,5 @@ public class OrderHistory extends AbstractEntity {
     @ActiveReflection
     public void setOrder(Order order) {
         this.order = order;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OrderHistory that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getOrderTime(), that.getOrderTime()) && Objects.equal(getOrderStatus(), that.getOrderStatus()) && Objects.equal(getOrder(), that.getOrder());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getOrderTime(), getOrderStatus(), getOrder());
     }
 }

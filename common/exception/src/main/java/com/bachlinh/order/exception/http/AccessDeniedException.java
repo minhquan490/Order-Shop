@@ -1,9 +1,14 @@
 package com.bachlinh.order.exception.http;
 
-import lombok.NonNull;
 import com.bachlinh.order.exception.HttpException;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class AccessDeniedException extends HttpException {
+    private String ip;
 
     public AccessDeniedException(Object message, String url) {
         super(message, url);

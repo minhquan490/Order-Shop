@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,16 +12,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Table(name = "PRODUCT_MEDIA", indexes = @Index(name = "idx_product_media_product", columnList = "PRODUCT_ID"))
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.ProductMediaValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class ProductMedia extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class ProductMedia extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", nullable = false, unique = true, columnDefinition = "int")
@@ -53,33 +54,33 @@ public class ProductMedia extends AbstractEntity {
 
     @ActiveReflection
     public void setUrl(String url) {
+        if (this.url != null && !this.url.equals(url)) {
+            trackUpdatedField("URL", this.url);
+        }
         this.url = url;
     }
 
     @ActiveReflection
     public void setContentType(String contentType) {
+        if (this.contentType != null && !this.contentType.equals(contentType)) {
+            trackUpdatedField("CONTENT_TYPE", this.contentType);
+        }
         this.contentType = contentType;
     }
 
     @ActiveReflection
-    public void setContentLength(long contentLength) {
+    public void setContentLength(Long contentLength) {
+        if (this.contentLength != null && !this.contentLength.equals(contentLength)) {
+            trackUpdatedField("CONTENT_LENGTH", this.contentLength.toString());
+        }
         this.contentLength = contentLength;
     }
 
     @ActiveReflection
     public void setProduct(Product product) {
+        if (this.product != null && this.product.getId().equals(product.getId())) {
+            trackUpdatedField("PRODUCT_ID", this.product.getId());
+        }
         this.product = product;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ProductMedia that)) return false;
-        return getContentLength() == that.getContentLength() && Objects.equal(getId(), that.getId()) && Objects.equal(getUrl(), that.getUrl()) && Objects.equal(getContentType(), that.getContentType()) && Objects.equal(getProduct(), that.getProduct());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getUrl(), getContentType(), getContentLength(), getProduct());
     }
 }

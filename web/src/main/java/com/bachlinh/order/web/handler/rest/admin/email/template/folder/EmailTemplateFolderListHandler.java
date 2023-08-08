@@ -1,7 +1,5 @@
 package com.bachlinh.order.web.handler.rest.admin.email.template.folder;
 
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -9,10 +7,12 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderListResp;
 import com.bachlinh.order.web.service.common.EmailTemplateFolderService;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collection;
 
-@RouteProvider
+@RouteProvider(name = "emailTemplateFolderListHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class EmailTemplateFolderListHandler extends AbstractController<Collection<EmailTemplateFolderListResp>, Void> {

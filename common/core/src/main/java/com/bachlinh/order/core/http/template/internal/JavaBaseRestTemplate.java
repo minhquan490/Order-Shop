@@ -6,6 +6,8 @@ import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,9 +20,11 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 class JavaBaseRestTemplate implements RestTemplate {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final HttpClient httpClient;
     private final JavaBaseResponseConverter converter = JavaBaseResponseConverter.defaultConverter();
 
@@ -29,22 +33,46 @@ class JavaBaseRestTemplate implements RestTemplate {
     }
 
     @Override
-    public JsonNode get(String url, Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
-        return request(url, RequestMethod.GET, body, headers, uriVariables);
+    public JsonNode get(String url, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
+        if (headers == null) {
+            headers = new LinkedMultiValueMap<>();
+        }
+        if (uriVariables == null) {
+            uriVariables = new LinkedHashMap<>();
+        }
+        return request(url, RequestMethod.GET, null, headers, uriVariables);
     }
 
     @Override
-    public JsonNode put(String url, Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
+    public JsonNode patch(String url, Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
+        if (headers == null) {
+            headers = new LinkedMultiValueMap<>();
+        }
+        if (uriVariables == null) {
+            uriVariables = new LinkedHashMap<>();
+        }
         return request(url, RequestMethod.PATCH, body, headers, uriVariables);
     }
 
     @Override
     public JsonNode post(String url, Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
+        if (headers == null) {
+            headers = new LinkedMultiValueMap<>();
+        }
+        if (uriVariables == null) {
+            uriVariables = new LinkedHashMap<>();
+        }
         return request(url, RequestMethod.POST, body, headers, uriVariables);
     }
 
     @Override
     public JsonNode delete(String url, Object body, MultiValueMap<String, String> headers, Map<String, ?> uriVariables) throws IOException {
+        if (headers == null) {
+            headers = new LinkedMultiValueMap<>();
+        }
+        if (uriVariables == null) {
+            uriVariables = new LinkedHashMap<>();
+        }
         return request(url, RequestMethod.DELETE, body, headers, uriVariables);
     }
 
@@ -66,6 +94,7 @@ class JavaBaseRestTemplate implements RestTemplate {
             HttpResponse<byte[]> response = httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofByteArray());
             return converter.convert(response);
         } catch (InterruptedException e) {
+            logger.error("Can not send request !", e);
             return NullNode.getInstance();
         }
     }

@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Voucher;
@@ -15,6 +16,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 
 @ActiveReflection
+@ApplyOn(entity = Voucher.class)
 public class VoucherValidator extends AbstractValidator<Voucher> {
     private static final String NON_EMPTY_MESSAGE_ID = "MSG-000001";
     private static final String SPECIFIC_INVALID_MESSAGE_ID = "MSG-000014";

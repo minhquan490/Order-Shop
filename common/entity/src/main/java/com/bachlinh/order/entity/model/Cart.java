@@ -2,8 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +16,11 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,10 +29,11 @@ import java.util.HashSet;
 @Table(name = "CART", indexes = @Index(name = "idx_cart_customer", columnList = "CUSTOMER_ID"))
 @Label("CRT-")
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.CartValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class Cart extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Cart extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID", nullable = false, updatable = false, columnDefinition = "varchar(32)")
@@ -63,29 +65,20 @@ public class Cart extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setCustomer(Customer customer) {
+    public void setCustomer(@NonNull Customer customer) {
+        if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+        }
         this.customer = customer;
     }
 
     @ActiveReflection
-    public void setCartDetails(Collection<CartDetail> cartDetails) {
+    public void setCartDetails(@NonNull Collection<CartDetail> cartDetails) {
         this.cartDetails = cartDetails;
     }
 
     @ActiveReflection
-    public void setProducts(Collection<Product> products) {
+    public void setProducts(@NonNull Collection<Product> products) {
         this.products = products;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Cart cart)) return false;
-        return Objects.equal(getId(), cart.getId()) && Objects.equal(getCustomer(), cart.getCustomer()) && Objects.equal(getCartDetails(), cart.getCartDetails()) && Objects.equal(getProducts(), cart.getProducts());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getCustomer(), getCartDetails(), getProducts());
     }
 }

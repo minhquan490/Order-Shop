@@ -3,8 +3,6 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Trigger;
-import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,10 +13,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +34,12 @@ import java.util.List;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "province")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.trigger.internal.ProvinceIndexTrigger")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class Province extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class Province extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", nullable = false, unique = true)
@@ -77,43 +78,46 @@ public class Province extends AbstractEntity {
 
     @ActiveReflection
     public void setName(String name) {
+        if (this.name != null && !this.name.equals(name)) {
+            trackUpdatedField("NAME", this.name);
+        }
         this.name = name;
     }
 
     @ActiveReflection
     public void setCode(Integer code) {
+        if (this.code != null && !this.code.equals(code)) {
+            trackUpdatedField("CODE", this.code.toString());
+        }
         this.code = code;
     }
 
     @ActiveReflection
     public void setDivisionType(String divisionType) {
+        if (this.divisionType != null && !this.divisionType.equals(divisionType)) {
+            trackUpdatedField("DIVISION_TYPE", this.divisionType);
+        }
         this.divisionType = divisionType;
     }
 
     @ActiveReflection
     public void setCodeName(String codeName) {
+        if (this.codeName != null && !this.codeName.equals(codeName)) {
+            trackUpdatedField("CODE_NAME", this.codeName);
+        }
         this.codeName = codeName;
     }
 
     @ActiveReflection
     public void setPhoneCode(Integer phoneCode) {
+        if (this.phoneCode != null && !this.phoneCode.equals(phoneCode)) {
+            trackUpdatedField("PHONE_CODE", this.phoneCode.toString());
+        }
         this.phoneCode = phoneCode;
     }
 
     @ActiveReflection
     public void setDistricts(List<District> districts) {
         this.districts = districts;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Province province)) return false;
-        return Objects.equal(getId(), province.getId()) && Objects.equal(getName(), province.getName()) && Objects.equal(getCode(), province.getCode()) && Objects.equal(getDivisionType(), province.getDivisionType()) && Objects.equal(getCodeName(), province.getCodeName()) && Objects.equal(getPhoneCode(), province.getPhoneCode()) && Objects.equal(getDistricts(), province.getDistricts());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getCode(), getDivisionType(), getCodeName(), getPhoneCode(), getDistricts());
     }
 }

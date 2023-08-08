@@ -1,9 +1,9 @@
 package com.bachlinh.order.validate.rule;
 
-import org.springframework.lang.NonNull;
 import com.bachlinh.order.exception.http.ValidationFailureException;
 import com.bachlinh.order.exception.system.validate.ValidationRuleNotFoundException;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ class BaseRuleManager implements RuleManager {
     <T extends ValidatedDto> BaseRuleManager(Collection<ValidationRule<T>> dtoCollection) {
         dtoCollection.forEach(dto -> ruleContext.put(dto.applyOnType(), dto));
     }
-    
+
     @Override
     @NonNull
     @SuppressWarnings("unchecked")

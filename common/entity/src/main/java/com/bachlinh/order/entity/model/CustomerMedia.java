@@ -2,8 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,17 +10,20 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Label("CMA-")
 @Table(name = "CUSTOMER_MEDIA")
 @Entity
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.CustomerMediaValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class CustomerMedia extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class CustomerMedia extends AbstractEntity<String> {
 
     @Id
     @Column(name = "ID")
@@ -47,16 +48,25 @@ public class CustomerMedia extends AbstractEntity {
 
     @ActiveReflection
     public void setContentLength(long contentLength) {
+        if (this.contentLength != null && !this.contentLength.equals(contentLength)) {
+            trackUpdatedField("CONTENT_LENGTH", this.contentLength.toString());
+        }
         this.contentLength = contentLength;
     }
 
     @ActiveReflection
     public void setUrl(String url) {
+        if (this.url != null && !this.url.equals(url)) {
+            trackUpdatedField("URL", this.url);
+        }
         this.url = url;
     }
 
     @ActiveReflection
     public void setContentType(String contentType) {
+        if (this.contentType != null && !this.contentType.equals(contentType)) {
+            trackUpdatedField("CONTENT_TYPE", this.contentType);
+        }
         this.contentType = contentType;
     }
 
@@ -68,17 +78,5 @@ public class CustomerMedia extends AbstractEntity {
             return;
         }
         throw new PersistenceException("Id of CustomerMedia must be string");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CustomerMedia that)) return false;
-        return getContentLength() == that.getContentLength() && Objects.equal(getId(), that.getId()) && Objects.equal(getUrl(), that.getUrl()) && Objects.equal(getContentType(), that.getContentType()) && Objects.equal(getCustomer(), that.getCustomer());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getUrl(), getContentType(), getContentLength(), getCustomer());
     }
 }

@@ -5,7 +5,7 @@ import com.bachlinh.order.entity.model.BatchReport;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-public interface BatchReportRepository {
+public interface BatchReportRepository extends NativeQueryRepository {
     void saveAllReport(Collection<BatchReport> reports);
 
     void deleteReport(Collection<Integer> reportIds);

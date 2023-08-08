@@ -25,6 +25,8 @@ public interface CustomerRepository extends NativeQueryRepository {
 
     Customer getCustomerByPhone(String phone);
 
+    Customer getCustomerBasicInformation(String customerId);
+
     Customer saveCustomer(@NonNull Customer customer);
 
     Customer updateCustomer(@NonNull Customer customer);

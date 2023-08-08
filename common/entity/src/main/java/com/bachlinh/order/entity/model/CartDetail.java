@@ -1,8 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Validator;
-import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,16 +12,20 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "CART_DETAIL", indexes = @Index(name = "idx_cart_cartDetail", columnList = "CART_ID"))
 @ActiveReflection
-@Validator(validators = "com.bachlinh.order.validate.validator.internal.CartDetailValidator")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class CartDetail extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class CartDetail extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", columnDefinition = "int", nullable = false, updatable = false)
@@ -42,7 +44,7 @@ public class CartDetail extends AbstractEntity {
 
     @Override
     @ActiveReflection
-    public void setId(Object id) {
+    public void setId(@NonNull Object id) {
         if (id instanceof Integer casted) {
             this.id = casted;
             return;
@@ -51,29 +53,26 @@ public class CartDetail extends AbstractEntity {
     }
 
     @ActiveReflection
-    public void setAmount(Integer amount) {
+    public void setAmount(@NonNull Integer amount) {
+        if (this.amount != null && !this.amount.equals(amount)) {
+            trackUpdatedField("AMOUNT", this.amount.toString());
+        }
         this.amount = amount;
     }
 
     @ActiveReflection
-    public void setProduct(Product product) {
+    public void setProduct(@NonNull Product product) {
+        if (this.product != null && !this.product.getId().equals(product.getId())) {
+            trackUpdatedField("PRODUCT_ID", this.product.getId());
+        }
         this.product = product;
     }
 
     @ActiveReflection
-    public void setCart(Cart cart) {
+    public void setCart(@NonNull Cart cart) {
+        if (this.cart != null && !this.cart.getId().equals(cart.getId())) {
+            trackUpdatedField("CART_ID", this.cart.getId());
+        }
         this.cart = cart;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CartDetail that)) return false;
-        return Objects.equal(getId(), that.getId()) && Objects.equal(getAmount(), that.getAmount()) && Objects.equal(getProduct(), that.getProduct()) && Objects.equal(getCart(), that.getCart());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getAmount(), getProduct(), getCart());
     }
 }

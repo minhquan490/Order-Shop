@@ -1,6 +1,8 @@
 package com.bachlinh.order.trigger.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
@@ -8,29 +10,39 @@ import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 @ActiveReflection
+@ApplyOn(entity = Ward.class)
 public class WardIndexTrigger extends AbstractTrigger<Ward> {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final int TOTAL_WARD = 10598;
+    private final Collection<Ward> caches = Collections.synchronizedList(new ArrayList<>(TOTAL_WARD));
 
     private EntityFactory entityFactory;
 
     @ActiveReflection
     public WardIndexTrigger(DependenciesResolver dependenciesResolver) {
         super(dependenciesResolver);
+        changeConcurrentType(RunnableType.INDEX);
     }
 
     @Override
     protected void doExecute(Ward entity) {
         EntityContext entityContext = entityFactory.getEntityContext(Ward.class);
-        if (log.isDebugEnabled()) {
-            log.debug("Index ward has name [{}]", (entity).getName());
+        if (caches.size() != TOTAL_WARD - 1) {
+            caches.add(entity);
+        } else {
+            caches.add(entity);
+            try {
+                entityContext.analyze(new ArrayList<>(caches));
+            } catch (Exception e) {
+                log.error("Can not index province has name [{}]", entity.getName(), e);
+            }
+            caches.clear();
         }
-        entityContext.analyze(Collections.singleton(entity));
     }
 
     @Override
@@ -41,7 +53,7 @@ public class WardIndexTrigger extends AbstractTrigger<Ward> {
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "wardIndexTrigger";
     }
 

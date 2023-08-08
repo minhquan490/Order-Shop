@@ -1,19 +1,17 @@
 package com.bachlinh.order.web.handler.advice;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.http.handler.ErrorHandler;
+import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RouteExceptionHandler
 @ActiveReflection
+@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class GlobalErrorHandler extends ErrorHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @ActiveReflection
-    public GlobalErrorHandler() {
-    }
 
     @Override
     protected void executeOnError(Error error) {

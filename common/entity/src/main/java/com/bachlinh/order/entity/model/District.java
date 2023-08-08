@@ -3,8 +3,6 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Trigger;
-import com.google.common.base.Objects;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,10 +16,13 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +38,12 @@ import java.util.List;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "district")
 @EnableFullTextSearch
-@Trigger(triggers = "com.bachlinh.order.trigger.internal.DistrictIndexTrigger")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-public class District extends AbstractEntity {
+@DynamicUpdate
+@EqualsAndHashCode(callSuper = true)
+public class District extends AbstractEntity<Integer> {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -81,43 +83,46 @@ public class District extends AbstractEntity {
 
     @ActiveReflection
     public void setName(String name) {
+        if (this.name != null && !this.name.equals(name)) {
+            trackUpdatedField("NAME", this.name);
+        }
         this.name = name;
     }
 
     @ActiveReflection
     public void setCode(Integer code) {
+        if (this.code != null && !this.code.equals(code)) {
+            trackUpdatedField("CODE", this.code.toString());
+        }
         this.code = code;
     }
 
     @ActiveReflection
     public void setDivisionType(String divisionType) {
+        if (this.divisionType != null && !this.divisionType.equals(divisionType)) {
+            trackUpdatedField("DIVISION_TYPE", this.divisionType);
+        }
         this.divisionType = divisionType;
     }
 
     @ActiveReflection
     public void setCodeName(String codeName) {
+        if (this.codeName != null && !this.codeName.equals(codeName)) {
+            trackUpdatedField("CODE_NAME", this.codeName);
+        }
         this.codeName = codeName;
     }
 
     @ActiveReflection
-    public void setProvince(Province province) {
+    public void setProvince(@NonNull Province province) {
+        if (this.province != null && !this.province.getId().equals(province.getId())) {
+            trackUpdatedField("PROVINCE_ID", this.province.getId().toString());
+        }
         this.province = province;
     }
 
     @ActiveReflection
     public void setWards(List<Ward> wards) {
         this.wards = wards;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof District district)) return false;
-        return Objects.equal(getId(), district.getId()) && Objects.equal(getName(), district.getName()) && Objects.equal(getCode(), district.getCode()) && Objects.equal(getDivisionType(), district.getDivisionType()) && Objects.equal(getCodeName(), district.getCodeName()) && Objects.equal(getProvince(), district.getProvince()) && Objects.equal(getWards(), district.getWards());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId(), getName(), getCode(), getDivisionType(), getCodeName(), getProvince(), getWards());
     }
 }

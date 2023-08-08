@@ -10,23 +10,23 @@ import org.springframework.http.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ErrorHandler implements ThrowableHandler<Error, NativeResponse<String>> {
+public abstract class ErrorHandler implements ThrowableHandler<Error, NativeResponse<byte[]>> {
 
     @Override
-    public NativeResponse<String> handle(Error throwable) {
+    public NativeResponse<byte[]> handle(Error throwable) {
         executeOnError(throwable);
         Map<String, Object> error = new HashMap<>(2);
         error.put("status", HttpStatus.SERVICE_UNAVAILABLE);
-        error.put("message", "Problem when process your request, please contact to the admin");
-        NativeResponse.NativeResponseBuilder<String> builder = NativeResponse.builder();
-        String json = JacksonUtils.writeObjectAsString(error);
-        NativeResponse<String> response = builder
+        error.put("messages", new String[]{"Problem when process your request, please contact to the admin"});
+        NativeResponse.NativeResponseBuilder<byte[]> builder = NativeResponse.builder();
+        var json = JacksonUtils.writeObjectAsBytes(error);
+        NativeResponse<byte[]> response = builder
                 .statusCode(HttpStatus.SERVICE_UNAVAILABLE.value())
                 .headers(new LinkedMultiValueMap<>())
                 .body(json)
                 .build();
         response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        response.addHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(json.length()));
+        response.addHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(json.length));
         return response;
     }
 

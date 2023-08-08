@@ -4,7 +4,9 @@ import com.bachlinh.order.entity.model.Province;
 
 import java.util.Collection;
 
-public interface ProvinceRepository {
+public interface ProvinceRepository extends NativeQueryRepository {
+
+    Province getProvinceById(String provinceId);
 
     boolean saveAllProvinces(Collection<Province> provinces);
 

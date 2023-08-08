@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import java.util.Collection;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "districtSearchHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class DistrictSearchHandler extends AbstractController<Collection<DistrictResp>, DistrictSearchForm> {
     private String url;

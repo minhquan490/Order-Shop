@@ -20,12 +20,8 @@ public abstract class AbstractExecutor<T> implements Executor<T> {
     public void execute(BootWrapper<?> wrapper) {
         inject();
         T source = (T) wrapper.getSource();
-        if (source != null) {
-            if (!getBootObjectType().isAssignableFrom(source.getClass())) {
-                if (!getBootObjectType().equals(source.getClass())) {
-                    throw new CriticalException("Expected param [" + getBootObjectType().getName() + "] but receive [" + wrapper.getSource().getClass() + "]");
-                }
-            }
+        if (source != null && (!getBootObjectType().isAssignableFrom(source.getClass()) && (!getBootObjectType().equals(source.getClass())))) {
+            throw new CriticalException("Expected param [" + getBootObjectType().getName() + "] but receive [" + wrapper.getSource().getClass() + "]");
         }
         doExecute(source);
     }

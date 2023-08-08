@@ -1,8 +1,5 @@
 package com.bachlinh.order.web.handler.rest.admin.email.sending;
 
-import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -11,11 +8,14 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.sending.TemplateMailSendingForm;
 import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
+import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@RouteProvider
+@RouteProvider(name = "templateMailSendingHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class TemplateMailSendingHandler extends AbstractController<Map<String, Object>, TemplateMailSendingForm> {

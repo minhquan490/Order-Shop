@@ -4,7 +4,7 @@ import com.bachlinh.order.entity.model.MessageSetting;
 
 import java.util.Collection;
 
-public interface MessageSettingRepository {
+public interface MessageSettingRepository extends NativeQueryRepository {
     MessageSetting saveMessage(MessageSetting messageSetting);
 
     MessageSetting updateMessage(MessageSetting messageSetting);

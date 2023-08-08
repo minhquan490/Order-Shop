@@ -1,17 +1,20 @@
 package com.bachlinh.order.web.handler.rest.admin.order;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.service.business.OrderInDateService;
+import lombok.NoArgsConstructor;
 
-@RouteProvider
+@RouteProvider(name = "orderNewInDateHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@Permit(roles = {Role.ADMIN, Role.MARKETING})
 public class OrderNewInDateHandler extends AbstractController<Integer, Object> {
     private String url;
     private OrderInDateService orderInDateService;

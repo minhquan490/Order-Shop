@@ -10,7 +10,7 @@ public class VietnameseAnalyzer extends StopwordAnalyzerBase {
     private final VietnameseConfig config;
 
     public VietnameseAnalyzer(VietnameseConfig config) {
-        super(config.getStopword());
+        super(config.stopword());
         this.config = config;
     }
 

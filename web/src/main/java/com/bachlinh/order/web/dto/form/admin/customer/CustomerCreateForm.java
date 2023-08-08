@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.dto.form.admin.customer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.validate.base.ValidatedDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.validate.base.ValidatedDto;
 
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))

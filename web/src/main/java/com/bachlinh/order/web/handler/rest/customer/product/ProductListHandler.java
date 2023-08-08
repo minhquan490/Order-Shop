@@ -1,8 +1,5 @@
 package com.bachlinh.order.web.handler.rest.customer.product;
 
-import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -12,23 +9,27 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
+import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "productListHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-public class ProductListHandler extends AbstractController<Page<ProductResp>, Object> {
+public class ProductListHandler extends AbstractController<Collection<ProductResp>, Object> {
 
     private ProductService productService;
     private String productListUrl;
 
     @Override
     @ActiveReflection
-    protected Page<ProductResp> internalHandler(Payload<Object> request) {
+    protected Collection<ProductResp> internalHandler(Payload<Object> request) {
         String page = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("page")).orElse("1");
         String size = Optional.ofNullable(getNativeRequest().getUrlQueryParam().getFirst("size")).orElse("100");
-        return productList(page, size);
+        return productList(page, size).toList();
     }
 
     @Override

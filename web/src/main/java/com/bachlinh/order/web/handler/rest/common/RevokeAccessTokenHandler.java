@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.handler.rest.common;
 
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -10,8 +9,9 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.web.dto.resp.RevokeTokenResp;
 import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
+import lombok.NoArgsConstructor;
 
-@RouteProvider
+@RouteProvider(name = "revokeAccessTokenHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class RevokeAccessTokenHandler extends AbstractController<RevokeTokenResp, Void> {

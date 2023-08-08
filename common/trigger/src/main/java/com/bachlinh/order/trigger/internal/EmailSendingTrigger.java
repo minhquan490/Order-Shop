@@ -1,8 +1,7 @@
 package com.bachlinh.order.trigger.internal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
@@ -20,8 +19,8 @@ import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 
 @ActiveReflection
+@ApplyOn(entity = Email.class)
 public class EmailSendingTrigger extends AbstractTrigger<Email> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private GmailSendingService gmailSendingService;
     private String botEmail;
@@ -43,7 +42,7 @@ public class EmailSendingTrigger extends AbstractTrigger<Email> {
 
     @Override
     protected void doExecute(Email entity) {
-        if (entity.getFromCustomer().getRole().equals(Role.ADMIN.name())) {
+        if (entity.getFromCustomer() == null || entity.getFromCustomer().getRole().equals(Role.ADMIN.name())) {
             var gmailMessage = new GmailMessage(botEmail);
             gmailMessage.setCharset(StandardCharsets.UTF_8);
             gmailMessage.setContentType(entity.getMediaType());
@@ -52,7 +51,7 @@ public class EmailSendingTrigger extends AbstractTrigger<Email> {
             gmailMessage.setBody(entity.getContent());
             var result = gmailSendingService.send(gmailMessage);
             if (result.getStatusCode() >= 400) {
-                logger.error("Sending gmail failure", new MailException(result.getDetail()));
+                log.error("Sending gmail failure", new MailException(result.getDetail()));
             }
         }
     }
@@ -76,7 +75,7 @@ public class EmailSendingTrigger extends AbstractTrigger<Email> {
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "gmailSendingTrigger";
     }
 }

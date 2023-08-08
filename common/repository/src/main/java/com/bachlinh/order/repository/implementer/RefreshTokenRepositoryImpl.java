@@ -1,21 +1,26 @@
 package com.bachlinh.order.repository.implementer;
 
+import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.DependenciesInitialize;
+import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.RefreshToken;
+import com.bachlinh.order.entity.model.RefreshToken_;
+import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.RefreshTokenRepository;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
-import com.bachlinh.order.entity.model.RefreshToken;
-import com.bachlinh.order.entity.model.RefreshToken_;
-import com.bachlinh.order.repository.AbstractRepository;
-import com.bachlinh.order.repository.RefreshTokenRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 
 @RepositoryComponent
 @ActiveReflection
@@ -35,6 +40,17 @@ public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken,
             return criteriaBuilder.equal(root.get(RefreshToken_.REFRESH_TOKEN_VALUE), token);
         }));
         return get(spec);
+    }
+
+    @Override
+    public RefreshToken getRefreshTokenByCustomer(Customer customer) {
+        Specification<RefreshToken> spec = Specification.where((root, query, criteriaBuilder) -> {
+            Where customerWhere = Where.builder().attribute(RefreshToken_.CUSTOMER).value(customer).operator(Operator.EQ).build();
+            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            queryExtractor.where(customerWhere);
+            return queryExtractor.extract();
+        });
+        return findOne(spec).orElse(null);
     }
 
     @Override

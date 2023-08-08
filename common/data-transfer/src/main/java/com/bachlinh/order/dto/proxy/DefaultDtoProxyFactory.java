@@ -19,7 +19,7 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
     @Override
     public <T, U> T createProxy(U source, Class<T> receiverType) {
         var proxies = dtoProxyMap.get(receiverType);
-        if (canCreate(receiverType) || proxies == null || proxies.isEmpty()) {
+        if (!canCreate(receiverType) || proxies == null || proxies.isEmpty()) {
             throw new DtoProxyConvertException("Can not create dto be cause missing proxy object");
         } else {
             for (var proxy : proxies) {
@@ -27,9 +27,9 @@ class DefaultDtoProxyFactory implements DtoProxyFactory {
                 var delegateClass = (Class<?>) delegateType;
                 if (delegateClass.isAssignableFrom(source.getClass())) {
                     @SuppressWarnings("unchecked")
-                    var castedProxy = (Proxy<T, U>) proxy;
+                    Proxy<T, U> castedProxy = (Proxy<T, U>) ((Proxy<?, ?>) proxy).getInstance();
                     castedProxy.wrap(source);
-                    return receiverType.cast(proxy);
+                    return receiverType.cast(castedProxy);
                 }
             }
         }

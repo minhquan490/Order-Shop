@@ -1,6 +1,8 @@
 package com.bachlinh.order.trigger.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
@@ -11,16 +13,18 @@ import com.bachlinh.order.trigger.spi.AbstractTrigger;
 import java.util.Collections;
 
 @ActiveReflection
+@ApplyOn(entity = Email.class)
 public class IndexEmailContentTrigger extends AbstractTrigger<Email> {
     private EntityFactory entityFactory;
 
     @ActiveReflection
     public IndexEmailContentTrigger(DependenciesResolver dependenciesResolver) {
         super(dependenciesResolver);
+        changeConcurrentType(RunnableType.INDEX);
     }
 
     @Override
-    protected String getTriggerName() {
+    public String getTriggerName() {
         return "indexEmailContentTrigger";
     }
 

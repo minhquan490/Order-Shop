@@ -5,7 +5,7 @@ import com.bachlinh.order.entity.model.EmailTemplateFolder;
 
 import java.util.Collection;
 
-public interface EmailTemplateFolderRepository {
+public interface EmailTemplateFolderRepository extends NativeQueryRepository {
     EmailTemplateFolder saveTemplateFolder(EmailTemplateFolder folder);
 
     EmailTemplateFolder updateTemplateFolder(EmailTemplateFolder folder);

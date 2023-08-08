@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -12,6 +13,7 @@ import com.bachlinh.order.validate.validator.spi.Result;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = EmailTrash.class)
 public class EmailTrashValidator extends AbstractValidator<EmailTrash> {
     private static final String ASSOCIATE_INVALID_MESSAGE_ID = "MSG-000032";
 

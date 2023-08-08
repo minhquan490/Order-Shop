@@ -1,8 +1,5 @@
 package com.bachlinh.order.web.handler.rest.customer.product;
 
-import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
@@ -13,11 +10,14 @@ import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.common.ProductSearchForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
+import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Collection;
 
 @ActiveReflection
-@RouteProvider
+@RouteProvider(name = "productSearchHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 public class ProductSearchHandler extends AbstractController<Collection<ProductResp>, ProductSearchForm> {
     private String productSearchUrl;

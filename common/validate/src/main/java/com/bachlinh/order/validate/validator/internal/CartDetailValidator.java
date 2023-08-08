@@ -1,6 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -12,6 +13,7 @@ import com.bachlinh.order.validate.validator.spi.Result;
 import java.text.MessageFormat;
 
 @ActiveReflection
+@ApplyOn(entity = CartDetail.class)
 public class CartDetailValidator extends AbstractValidator<CartDetail> {
     private static final String NON_NULL_MESSAGE_ID = "MSG-000003";
     private static final String NON_CONTAIN_PRODUCT_MESSAGE_ID = "MSG-000004";

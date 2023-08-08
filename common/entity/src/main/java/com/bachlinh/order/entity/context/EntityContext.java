@@ -21,7 +21,7 @@ public interface EntityContext extends IdContext, SearchManager {
      *
      * @return The entity
      */
-    BaseEntity getEntity();
+    BaseEntity<?> getEntity();
 
     /**
      * Return the validator of entity.

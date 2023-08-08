@@ -10,7 +10,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 
-public interface VoucherRepository {
+public interface VoucherRepository extends NativeQueryRepository {
     Voucher saveVoucher(Voucher voucher);
 
     Voucher updateVoucher(Voucher voucher);
