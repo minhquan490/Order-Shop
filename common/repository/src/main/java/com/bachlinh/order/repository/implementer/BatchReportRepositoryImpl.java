@@ -1,12 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -14,10 +7,25 @@ import com.bachlinh.order.entity.model.BatchReport;
 import com.bachlinh.order.entity.model.BatchReport_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.BatchReportRepository;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.OrderBy;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelection;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.query.WhereOperation;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -44,12 +52,23 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
 
     @Override
     public Collection<BatchReport> getReports(Timestamp from, Timestamp to) {
-        Specification<BatchReport> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(BatchReport_.timeReport), from, to));
-        return findAll(spec);
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        Where timeReportWhere = Where.builder().attribute(BatchReport_.TIME_REPORT).value(new Object[]{from, to}).operator(Operator.BETWEEN).build();
+        SqlSelection sqlSelection = sqlBuilder.from(BatchReport.class);
+        WhereOperation whereOperation = sqlSelection.where(timeReportWhere);
+        String query = whereOperation.getNativeQuery();
+        Map<String, Object> attributes = new HashMap<>();
+        whereOperation.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
+        return executeNativeQuery(query, attributes, BatchReport.class);
     }
 
     @Override
     public Collection<BatchReport> getAllReport() {
-        return findAll(Sort.by(BatchReport_.TIME_REPORT).ascending());
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        OrderBy timeReportOrderBy = OrderBy.builder().column(BatchReport_.TIME_REPORT).type(OrderBy.Type.ASC).build();
+        SqlSelection sqlSelection = sqlBuilder.from(BatchReport.class);
+        sqlSelection.orderBy(timeReportOrderBy);
+        String query = sqlSelection.getNativeQuery();
+        return executeNativeQuery(query, Collections.emptyMap(), BatchReport.class);
     }
 }

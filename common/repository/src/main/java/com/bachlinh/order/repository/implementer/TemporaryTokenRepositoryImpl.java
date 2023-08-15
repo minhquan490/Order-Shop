@@ -7,8 +7,8 @@ import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.entity.model.TemporaryToken_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
@@ -50,9 +50,9 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<TemporaryTo
     public TemporaryToken getTemporaryTokenOfCustomer(Customer customer) {
         Where customerWhere = Where.builder().attribute(TemporaryToken_.ASSIGN_CUSTOMER).value(customer).build();
         Specification<TemporaryToken> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.where(customerWhere);
-            return extractor.extract();
+            return extractor.parse();
         });
         return findOne(spec).orElse(null);
     }
@@ -62,10 +62,10 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<TemporaryTo
         Where tokenValueWhere = Where.builder().attribute(TemporaryToken_.VALUE).value(tokenValue).build();
         Join customerJoin = Join.builder().attribute(TemporaryToken_.ASSIGN_CUSTOMER).type(JoinType.INNER).build();
         Specification<TemporaryToken> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             queryExtractor.where(tokenValueWhere);
             queryExtractor.join(customerJoin);
-            return queryExtractor.extract();
+            return queryExtractor.parse();
         });
         return findOne(spec).orElse(null);
     }

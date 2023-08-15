@@ -26,6 +26,7 @@ export const usePageAccessPermission = () => {
                 return Promise.resolve(resp);
             }
         } catch (error) {
+            console.log(error);
             return Promise.resolve(undefined);
         }
     }

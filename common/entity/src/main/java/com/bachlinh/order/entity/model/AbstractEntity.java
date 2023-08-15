@@ -1,12 +1,15 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.context.FieldUpdated;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Transient;
+import jakarta.persistence.Tuple;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
@@ -14,6 +17,7 @@ import org.springframework.lang.NonNull;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Abstract entity, super class of all entity object available in system.
@@ -24,6 +28,7 @@ import java.util.LinkedList;
 @MappedSuperclass
 @Getter
 @EqualsAndHashCode
+@Formula("CREATED_BY, MODIFIED_BY, CREATED_DATE, MODIFIED_DATE")
 public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Column(name = "CREATED_BY", updatable = false)
@@ -109,5 +114,14 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     protected void trackUpdatedField(String fieldName, String oldValue) {
         FieldUpdated fieldUpdated = new FieldUpdated(fieldName, oldValue);
         setUpdatedField(fieldUpdated);
+    }
+
+    protected Queue<EntityMapper.MappingObject> parseTuple(Tuple target) {
+        Queue<EntityMapper.MappingObject> mappingObjectQueue = new LinkedList<>();
+        for (var ele : target.getElements()) {
+            var mappedObject = new EntityMapper.MappingObject(ele.getAlias(), target.get(ele.getAlias(), ele.getJavaType()));
+            mappingObjectQueue.add(mappedObject);
+        }
+        return mappingObjectQueue;
     }
 }

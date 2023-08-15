@@ -8,8 +8,8 @@ import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.RefreshToken_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
@@ -46,9 +46,9 @@ public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken,
     public RefreshToken getRefreshTokenByCustomer(Customer customer) {
         Specification<RefreshToken> spec = Specification.where((root, query, criteriaBuilder) -> {
             Where customerWhere = Where.builder().attribute(RefreshToken_.CUSTOMER).value(customer).operator(Operator.EQ).build();
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             queryExtractor.where(customerWhere);
-            return queryExtractor.extract();
+            return queryExtractor.parse();
         });
         return findOne(spec).orElse(null);
     }

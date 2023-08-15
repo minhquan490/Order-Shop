@@ -1,4 +1,4 @@
-import {Category, ErrorResponse, NavBarsSource, Request, Response} from "~/types";
+import {Category, ErrorResponse, NavBarsSource, Request} from "~/types";
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
 import productCreatePage from '~/pages/admin/product/create.vue';
 
@@ -182,30 +182,34 @@ const validateBeforeSubmit = (request: RequestType, component: ProductCreatePage
 
 const submitRequest = (request: RequestType, component: ProductCreatePage): void => {
     const serverUrl: string = useAppConfig().serverUrl;
-    const authorization: string = useAppConfig().authorization;
-    const refresh: string = useAppConfig().refreshToken;
     const apiUrl: string = `${serverUrl}/admin/product/create`;
-    const {getValue} = useLocalStorage();
-    const accessToken: string | null = getValue(authorization);
-    const refreshToken: string | null = getValue(refresh);
-    const actualRequest: Request = {
-        apiUrl: apiUrl,
-        body: request
-    };
-    const {postAsyncCall} = useXmlHttpRequest(actualRequest, accessToken === null ? undefined : accessToken, refreshToken === null ? undefined : refreshToken);
-    const resp: Promise<Response<ProductCreateResp>> = postAsyncCall<ProductCreateResp>();
-    resp.then((resp: Response<ProductCreateResp>): void => {
-        component.isLoading = false;
-        alert("Create product successfully");
-        const navigate = useNavigation().value;
-        component.isSubmitted = false;
-        navigate('/admin/product');
-    }).catch(resp => {
-        component.isLoading = false;
-        component.callServerError = (resp.body as ErrorResponse).messages;
-        component.hideAlert = false;
-        component.isSubmitted = false;
-    });
+    const {readAuth} = useAuthInformation();
+    readAuth().then(async auth => {
+        let accessToken;
+        let refreshToken;
+        if (auth) {
+            accessToken = auth.accessToken;
+            refreshToken = auth.refreshToken;
+        }
+        const actualRequest: Request = {
+            apiUrl: apiUrl,
+            body: request
+        };
+        const {postAsyncCall} = useXmlHttpRequest(actualRequest, accessToken ?? undefined, refreshToken ?? undefined);
+        try {
+            await postAsyncCall<ProductCreateResp>();
+            component.isLoading = false;
+            alert("Create product successfully");
+            const navigate = useNavigation().value;
+            component.isSubmitted = false;
+            navigate('/admin/product');
+        } catch (error) {
+            component.isLoading = false;
+            component.callServerError = (error.body as ErrorResponse).messages;
+            component.hideAlert = false;
+            component.isSubmitted = false;
+        }
+    })
 }
 
 export {

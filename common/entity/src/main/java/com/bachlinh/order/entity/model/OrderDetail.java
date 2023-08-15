@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +12,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Queue;
 
 @Entity
 @Table(name = "ORDER_DETAIL", indexes = @Index(name = "idx_order", columnList = "ORDER_ID"))
@@ -33,12 +41,14 @@ public class OrderDetail extends AbstractEntity<Integer> {
     @Column(name = "AMOUNT", nullable = false)
     private Integer amount;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false, updatable = false)
+    @Fetch(FetchMode.JOIN)
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "ORDER_ID", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private Order order;
 
     @Override
@@ -48,6 +58,18 @@ public class OrderDetail extends AbstractEntity<Integer> {
             throw new PersistenceException("Id of OrderDetail must be int");
         }
         this.id = (Integer) id;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
@@ -60,7 +82,7 @@ public class OrderDetail extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setProduct(Product product) {
-        if (this.product != null && !this.product.getId().equals(product.getId())) {
+        if (this.product != null && !Objects.requireNonNull(this.product.getId()).equals(product.getId())) {
             trackUpdatedField("PRODUCT_ID", product.getId());
         }
         this.product = product;
@@ -68,9 +90,57 @@ public class OrderDetail extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setOrder(Order order) {
-        if (this.order != null && !this.order.getId().equals(order.getId())) {
+        if (this.order != null && !Objects.requireNonNull(this.order.getId()).equals(order.getId())) {
             trackUpdatedField("ORDER_ID", this.order.getId());
         }
         this.order = order;
+    }
+
+    public static EntityMapper<OrderDetail> getMapper() {
+        return new OrderDetailMapper();
+    }
+
+    private static class OrderDetailMapper implements EntityMapper<OrderDetail> {
+
+        @Override
+        public OrderDetail map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new OrderDetail().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public OrderDetail map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            OrderDetail result = new OrderDetail();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("ORDER_DETAIL")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Product.getMapper();
+                var product = mapper.map(resultSet);
+                result.setProduct(product);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Order.getMapper();
+                var order = mapper.map(resultSet);
+                order.getOrderDetails().add(result);
+                result.setOrder(order);
+            }
+            return result;
+        }
+
+        private void setData(OrderDetail target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "ORDER_DETAIL.ID" -> target.setId(mappingObject.value());
+                case "ORDER_DETAIL.AMOUNT" -> target.setAmount((Integer) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

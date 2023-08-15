@@ -1,10 +1,12 @@
 package com.bachlinh.order.repository.query;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Builder
 @Getter
+@EqualsAndHashCode
 public class Where {
     private final Operator operator;
     private final String attribute;

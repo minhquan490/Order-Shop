@@ -2,6 +2,7 @@ package com.bachlinh.order.entity.context;
 
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.EntityValidator;
+import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.BaseEntity;
 
@@ -14,7 +15,7 @@ import java.util.Collections;
  *
  * @author Hoang Minh Quan
  */
-public interface EntityContext extends IdContext, SearchManager {
+public interface EntityContext extends IdContext, SearchManager, TableMetadataHolder {
 
     /**
      * Return the entity associate with its context.

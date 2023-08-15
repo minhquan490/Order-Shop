@@ -10,16 +10,19 @@ import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.DistrictRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelection;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.query.WhereOperation;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
@@ -66,14 +69,16 @@ public class DistrictRepositoryImpl extends AbstractRepository<District, Integer
         Select idSelect = Select.builder().column(District_.ID).build();
         Select nameSelect = Select.builder().column(District_.NAME).build();
         OrderBy nameOrderBy = OrderBy.builder().column(District_.NAME).type(OrderBy.Type.ASC).build();
-        Specification<District> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
-            queryExtractor.select(idSelect, nameSelect);
-            queryExtractor.where(provinceWhere);
-            queryExtractor.orderBy(nameOrderBy);
-            return queryExtractor.extract();
-        });
-        return findAll(spec);
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelection sqlSelection = sqlBuilder.from(District.class);
+        sqlSelection.select(idSelect).select(nameSelect);
+        WhereOperation whereOperation = sqlSelection.where(provinceWhere);
+        whereOperation.orderBy(nameOrderBy);
+        String query = whereOperation.getNativeQuery();
+        Map<String, Object> params = new HashMap<>();
+        whereOperation.getQueryBindings().forEach(queryBinding -> params.put(queryBinding.attribute(), queryBinding.value()));
+        return executeNativeQuery(query, params, District.class);
     }
 
     @Override

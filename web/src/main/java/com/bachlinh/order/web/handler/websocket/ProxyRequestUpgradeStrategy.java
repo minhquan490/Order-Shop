@@ -1,5 +1,11 @@
 package com.bachlinh.order.web.handler.websocket;
 
+import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.exception.http.UnAuthorizationException;
+import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.security.auth.spi.PrincipalHolder;
+import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +23,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeFailureException;
 import org.springframework.web.socket.server.RequestUpgradeStrategy;
 import org.springframework.web.socket.server.jetty.JettyRequestUpgradeStrategy;
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.exception.http.UnAuthorizationException;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.security.auth.spi.PrincipalHolder;
-import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.handler.UnAuthorizationHandler;
-import com.bachlinh.order.security.helper.AuthenticationHelper;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -70,7 +69,7 @@ public class ProxyRequestUpgradeStrategy implements RequestUpgradeStrategy {
             }
         }
         var customer = customerRepository.getCustomerById((String) claims.get("id"), false);
-        var holder = new PrincipalHolder(customer, AuthenticationHelper.findClientSecret(servletRequest));
+        var holder = new PrincipalHolder(customer, "");
         delegate.upgrade(request, response, selectedProtocol, selectedExtensions, holder, wsHandler, attributes);
     }
 }

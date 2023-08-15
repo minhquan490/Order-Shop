@@ -1,10 +1,9 @@
 package com.bachlinh.order.security.helper;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.utils.HeaderUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,16 +25,6 @@ public final class AuthenticationHelper {
 
     public static void release(String requestId) {
         responseHolder.remove(requestId);
-    }
-
-    public static String findClientSecret(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(HeaderUtils.getClientSecret())) {
-                return cookie.getValue();
-            }
-        }
-        return null;
     }
 
     public static Map<String, Object> parseAuthentication(HttpServletRequest request, HttpServletResponse response, TokenManager tokenManager) {

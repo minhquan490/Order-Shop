@@ -3,6 +3,8 @@ package com.bachlinh.order.security.handler;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.utils.JacksonUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +15,12 @@ import java.util.Map;
 
 public final class UnAuthorizationHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public void onAuthenticationFailure(HttpServletResponse response, UnAuthorizationException exception) throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Un authorized cause", exception);
+        }
         int code = HttpStatus.UNAUTHORIZED.value();
         Map<String, Object> res = new HashMap<>();
         res.put("messages", new String[]{exception.getMessage()});

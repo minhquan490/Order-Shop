@@ -6,7 +6,6 @@ import {checkAdminPermission} from "~/logic/permission.logic";
 export default {
   setup() {
     const navigation: NavBarsSource[] = navigationSources();
-
     return {
       navigation
     }

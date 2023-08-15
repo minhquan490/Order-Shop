@@ -58,7 +58,7 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getRequestURI().startsWith(websocketUrl);
     }
 

@@ -7,8 +7,8 @@ import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.MessageSetting_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
@@ -73,9 +73,9 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSett
     public boolean messageValueExisted(String messageValue) {
         Where valueWhere = Where.builder().attribute(MessageSetting_.VALUE).value(messageValue).operator(Operator.EQ).build();
         Specification<MessageSetting> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             queryExtractor.where(valueWhere);
-            return queryExtractor.extract();
+            return queryExtractor.parse();
         });
         return exists(spec);
     }

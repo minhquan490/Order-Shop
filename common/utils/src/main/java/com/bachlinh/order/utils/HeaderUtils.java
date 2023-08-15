@@ -1,11 +1,11 @@
 package com.bachlinh.order.utils;
 
+import com.bachlinh.order.utils.map.MultiValueMap;
+import com.bachlinh.order.utils.map.MultiValueMapAdapter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import com.bachlinh.order.utils.map.MultiValueMap;
-import com.bachlinh.order.utils.map.MultiValueMapAdapter;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -44,11 +44,11 @@ public final class HeaderUtils {
     }
 
     public static String getAuthorizeHeader() {
-        return AUTHORIZE_HEADER;
+        return AUTHORIZE_HEADER.toLowerCase();
     }
 
     public static String getRefreshHeader() {
-        return REFRESH_HEADER;
+        return REFRESH_HEADER.toLowerCase();
     }
 
     public static String getClientSecret() {

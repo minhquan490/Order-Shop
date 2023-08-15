@@ -1,11 +1,12 @@
 import {BasicCustomerInfo, Response} from "~/types";
 
 const checkAdminPermission = async (): Promise<void> => {
-    const {isDefault, getCustomer} = useCustomerBasicInfo();
+    const {isDefault} = useCustomerBasicInfo();
     const route = useRoute();
     if (isDefault) {
         await setUpState();
     }
+    const {getCustomer} = useCustomerBasicInfo();
     if (route.fullPath.startsWith("/admin") && getCustomer.role !== 'ADMIN') {
         const navigate = useNavigation().value;
         navigate('/403');

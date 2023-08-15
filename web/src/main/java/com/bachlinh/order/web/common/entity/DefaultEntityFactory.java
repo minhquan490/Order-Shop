@@ -68,6 +68,10 @@ public final class DefaultEntityFactory implements EntityFactory {
         return activeProfile;
     }
 
+    public Map<Class<?>, EntityContext> getAllContexts() {
+        return this.entityContext;
+    }
+
     public static class DefaultEntityFactoryBuilder implements EntityFactoryBuilder {
         private String activeProfile;
         private ContainerWrapper containerWrapper;

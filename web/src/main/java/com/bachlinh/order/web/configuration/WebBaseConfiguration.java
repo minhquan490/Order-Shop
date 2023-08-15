@@ -15,6 +15,8 @@ import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.handler.router.ServletRouter;
 import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlBuilderFactory;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
@@ -171,6 +173,13 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
         JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
         factory.getServerCustomizers().addAll(serverCustomizers.orderedStream().toList());
         return factory;
+    }
+
+    @Bean
+    SqlBuilder sqlBuilder(DefaultEntityFactory entityFactory) {
+        var seed = entityFactory.getAllContexts();
+        SqlBuilderFactory sqlBuilderFactory = SqlBuilderFactory.defaultInstance(seed.values());
+        return sqlBuilderFactory.getQueryBuilder();
     }
 
     @Override

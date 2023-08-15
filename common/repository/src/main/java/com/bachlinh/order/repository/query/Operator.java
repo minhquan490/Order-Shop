@@ -9,5 +9,6 @@ public enum Operator {
     NEQ, //not equal
     NULL, // null
     NON_NULL, // not null
-    IN // in
+    IN, // in
+    BETWEEN
 }
