@@ -4,6 +4,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,6 +19,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,14 +27,21 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 @Entity
@@ -42,7 +51,9 @@ import java.util.Set;
         indexes = {
                 @Index(name = "idx_customer_username", columnList = "USER_NAME", unique = true),
                 @Index(name = "idx_customer_phone", columnList = "PHONE_NUMBER"),
-                @Index(name = "idx_customer_email", columnList = "EMAIL", unique = true)
+                @Index(name = "idx_customer_email", columnList = "EMAIL", unique = true),
+                @Index(name = "idx_customer_media", columnList = "CUSTOMER_MEDIA_ID"),
+                @Index(name = "idx_customer_temporary_token", columnList = "TEMPORARY_TOKEN_ID")
         }
 )
 @Cacheable
@@ -112,21 +123,26 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @Column(name = "ENABLED", nullable = false, columnDefinition = "bit")
     private boolean enabled = true;
 
-    @OneToOne(optional = false, mappedBy = "customer")
+    @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
     private Cart cart;
 
-    @OneToOne(optional = false, mappedBy = "customer", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
     private RefreshToken refreshToken;
+
+    @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    private EmailTrash emailTrash;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_MEDIA_ID")
+    @Fetch(FetchMode.JOIN)
     private CustomerMedia customerMedia;
-
-    @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private EmailTrash emailTrash;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "TEMPORARY_TOKEN_ID", updatable = false)
+    @Fetch(FetchMode.JOIN)
     private TemporaryToken temporaryToken;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
@@ -160,6 +176,40 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
             return;
         }
         throw new PersistenceException("Id of customer is only string");
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        if (entities.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            Deque<Customer> results = new LinkedList<>();
+            Customer first = null;
+            for (var entity : entities) {
+                if (first == null) {
+                    first = (Customer) entity;
+                } else {
+                    Customer casted = (Customer) entity;
+                    if (casted.getAddresses().isEmpty() && casted.getOrders().isEmpty() && casted.getHistories().isEmpty() && casted.getAssignedVouchers().isEmpty()) {
+                        results.add(casted);
+                    } else {
+                        first.getAddresses().addAll(casted.getAddresses());
+                        first.getOrders().addAll(casted.getOrders());
+                        first.getHistories().addAll(casted.getHistories());
+                        first.getAssignedVouchers().addAll(casted.getAssignedVouchers());
+                    }
+                }
+            }
+            results.addFirst(first);
+            return (Collection<U>) results;
+        }
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -325,5 +375,186 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setTemporaryToken(TemporaryToken temporaryToken) {
         this.temporaryToken = temporaryToken;
+    }
+
+    public static EntityMapper<Customer> getMapper() {
+        return new CustomerMapper();
+    }
+
+    private static class CustomerMapper implements EntityMapper<Customer> {
+
+        @Override
+        public Customer map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new Customer().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public Customer map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            Customer result = new Customer();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("ADDRESS")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                assignCart(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignRefreshToken(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignEmailTrash(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignCustomerMedia(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignTemporaryToken(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignAddress(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignOrders(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignHistories(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignVouchers(resultSet, result);
+            }
+            return result;
+        }
+
+        private void setData(Customer target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "CUSTOMER.ID" -> target.setId(mappingObject.value());
+                case "CUSTOMER.USER_NAME" -> target.setUsername((String) mappingObject.value());
+                case "CUSTOMER.PASSWORD" -> target.setPassword((String) mappingObject.value());
+                case "CUSTOMER.FIRST_NAME" -> target.setFirstName((String) mappingObject.value());
+                case "CUSTOMER.LAST_NAME" -> target.setLastName((String) mappingObject.value());
+                case "CUSTOMER.PHONE_NUMBER" -> target.setPhoneNumber((String) mappingObject.value());
+                case "CUSTOMER.EMAIL" -> target.setEmail((String) mappingObject.value());
+                case "CUSTOMER.GENDER" -> target.setGender((String) mappingObject.value());
+                case "CUSTOMER.ROLE" -> target.setRole((String) mappingObject.value());
+                case "CUSTOMER.ORDER_POINT" -> target.setOrderPoint((Integer) mappingObject.value());
+                case "CUSTOMER.ACTIVATED" -> target.setActivated((Boolean) mappingObject.value());
+                case "CUSTOMER.ACCOUNT_NON_EXPIRED" -> target.setAccountNonExpired((Boolean) mappingObject.value());
+                case "CUSTOMER.ACCOUNT_NON_LOCKED" -> target.setAccountNonLocked((Boolean) mappingObject.value());
+                case "CUSTOMER.CREDENTIALS_NON_EXPIRED" ->
+                        target.setCredentialsNonExpired((Boolean) mappingObject.value());
+                case "CUSTOMER.ENABLED" -> target.setEnabled((Boolean) mappingObject.value());
+                case "CUSTOMER.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "CUSTOMER.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "CUSTOMER.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "CUSTOMER.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
+
+        private void assignRefreshToken(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = RefreshToken.getMapper();
+            var refreshToken = mapper.map(resultSet);
+            result.setRefreshToken(refreshToken);
+            refreshToken.setCustomer(result);
+        }
+
+        private void assignCart(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = Cart.getMapper();
+            var cart = mapper.map(resultSet);
+            result.setCart(cart);
+            cart.setCustomer(result);
+        }
+
+        private void assignEmailTrash(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = EmailTrash.getMapper();
+            var emailTrash = mapper.map(resultSet);
+            result.setEmailTrash(emailTrash);
+            emailTrash.setCustomer(result);
+        }
+
+        private void assignCustomerMedia(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = CustomerMedia.getMapper();
+            var customerMedia = mapper.map(resultSet);
+            result.setCustomerMedia(customerMedia);
+            customerMedia.setCustomer(result);
+        }
+
+        private void assignTemporaryToken(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = TemporaryToken.getMapper();
+            var temporaryToken = mapper.map(resultSet);
+            result.setTemporaryToken(temporaryToken);
+            temporaryToken.setAssignCustomer(result);
+        }
+
+        private void assignAddress(Queue<MappingObject> resultSet, Customer result) {
+            MappingObject hook = resultSet.peek();
+            var mapper = Address.getMapper();
+            Set<Address> addressSet = new LinkedHashSet<>();
+            while (!resultSet.isEmpty()) {
+                if (hook.columnName().startsWith("ADDRESS")) {
+                    var address = mapper.map(resultSet);
+                    address.setCustomer(result);
+                    addressSet.add(address);
+                } else {
+                    break;
+                }
+            }
+            result.setAddresses(addressSet);
+        }
+
+        private void assignOrders(Queue<MappingObject> resultSet, Customer result) {
+            MappingObject hook = resultSet.peek();
+            var mapper = Order.getMapper();
+            Set<Order> orderSet = new LinkedHashSet<>();
+            while (!resultSet.isEmpty()) {
+                if (hook.columnName().startsWith("ORDER")) {
+                    var order = mapper.map(resultSet);
+                    order.setCustomer(result);
+                    orderSet.add(order);
+                } else {
+                    break;
+                }
+            }
+            result.setOrders(orderSet);
+        }
+
+        private void assignHistories(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = CustomerAccessHistory.getMapper();
+            MappingObject hook = resultSet.peek();
+            Set<CustomerAccessHistory> historySet = new LinkedHashSet<>();
+            while (!resultSet.isEmpty()) {
+                if (hook.columnName().startsWith("CUSTOMER_ACCESS_HISTORY")) {
+                    var customerAccessHistory = mapper.map(resultSet);
+                    customerAccessHistory.setCustomer(result);
+                    historySet.add(customerAccessHistory);
+                } else {
+                    break;
+                }
+            }
+            result.setHistories(historySet);
+        }
+
+        private void assignVouchers(Queue<MappingObject> resultSet, Customer result) {
+            var mapper = Voucher.getMapper();
+            MappingObject hook = resultSet.peek();
+            Set<Voucher> voucherSet = new LinkedHashSet<>();
+            while (!resultSet.isEmpty()) {
+                if (hook.columnName().startsWith("VOUCHER")) {
+                    var voucher = mapper.map(resultSet);
+                    voucher.getCustomers().add(result);
+                    voucherSet.add(voucher);
+                } else {
+                    break;
+                }
+            }
+            result.setAssignedVouchers(voucherSet);
+        }
     }
 }

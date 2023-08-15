@@ -1,5 +1,5 @@
 <script lang="ts">
-import {AdminProduct, NavBarsSource, TableData, TableFilter, TableHeader, TableNewData} from "~/types";
+import {NavBarsSource, TableData, TableFilter, TableHeader, TableNewData} from "~/types";
 import {
   deleteProduct,
   getProductCategories,
@@ -64,22 +64,9 @@ export default {
     }
   },
   beforeMount() {
+    this.isLoading = true;
     getProductCategories(this);
     getProductList(this);
-    const mockData: AdminProduct = {
-      id: '1',
-      categories: [],
-      color: 'Test color',
-      description: 'Test description',
-      name: 'Test name',
-      pictures: [],
-      price: 'Test price',
-      size: 'Test size',
-      taobao_url: 'https://dawddwa.com',
-      enable: true,
-      orderPoint: '1000'
-    }
-    this.tableData.push(mockData);
   }
 }
 </script>

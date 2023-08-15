@@ -7,9 +7,9 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
@@ -51,10 +51,10 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @Override
     public Customer getCustomer(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins) {
         Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.join(joins.toArray(new Join[0]));
             extractor.where(wheres.toArray(new Where[0]));
-            return extractor.extract();
+            return extractor.parse();
         });
         return findOne(spec).orElse(null);
     }
@@ -62,10 +62,10 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @Override
     public Collection<Customer> getCustomers(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins, @Nullable Pageable pageable, @Nullable Sort sort) {
         Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.where(wheres.toArray(new Where[0]));
             extractor.join(joins.toArray(new Join[0]));
-            return extractor.extract();
+            return extractor.parse();
         });
         if (pageable == null && sort == null) {
             return findAll(spec);
@@ -126,13 +126,13 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
         Select roleSelect = Select.builder().column(Customer_.ROLE).build();
         Select mediaSelect = Select.builder().column(Customer_.CUSTOMER_MEDIA).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
         Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             queryExtractor.select(idSelect, firstNameSelect, lastNameSelect, roleSelect, mediaSelect);
             queryExtractor.join(avatarJoin);
             queryExtractor.where(customerIdWhere);
-            return queryExtractor.extract();
+            return queryExtractor.parse();
         });
         return findOne(spec).orElse(null);
     }
@@ -177,6 +177,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void updateCustomers(Collection<Customer> customers) {
         saveAll(customers);
     }

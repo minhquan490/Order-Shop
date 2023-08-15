@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,11 +9,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Queue;
 
 @Entity
 @Table(name = "ORDER_STATUS")
@@ -42,6 +48,18 @@ public class OrderStatus extends AbstractEntity<Integer> {
         this.id = (Integer) id;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
+    }
+
     @ActiveReflection
     public void setStatus(String status) {
         if (this.status != null && !this.status.equals(status)) {
@@ -53,5 +71,52 @@ public class OrderStatus extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public static EntityMapper<OrderStatus> getMapper() {
+        return new OrderStatusMapper();
+    }
+
+    private static class OrderStatusMapper implements EntityMapper<OrderStatus> {
+
+        @Override
+        public OrderStatus map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new OrderStatus().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public OrderStatus map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            OrderStatus result = new OrderStatus();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("ORDER_STATUS")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Order.getMapper();
+                var order = mapper.map(resultSet);
+                order.setOrderStatus(result);
+                result.setOrder(order);
+            }
+            return result;
+        }
+
+        private void setData(OrderStatus target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "ORDER_STATUS.ID" -> target.setId(mappingObject.value());
+                case "ORDER_STATUS.STATUS" -> target.setStatus((String) mappingObject.value());
+                case "ORDER_STATUS.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "ORDER_STATUS.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "ORDER_STATUS.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "ORDER_STATUS.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

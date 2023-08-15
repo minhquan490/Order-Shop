@@ -8,9 +8,9 @@ import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.VoucherRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
@@ -54,11 +54,11 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
     @Override
     public Voucher getVoucher(@NonNull Collection<Select> selects, @NonNull Collection<Join> joins, @NonNull Collection<Where> wheres) {
         Specification<Voucher> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.select(selects.toArray(new Select[0]));
             extractor.join(joins.toArray(new Join[0]));
             extractor.where(wheres.toArray(new Where[0]));
-            return extractor.extract();
+            return extractor.parse();
         });
         return findOne(spec).orElse(null);
     }
@@ -87,13 +87,15 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void updateVouchers(Collection<Voucher> vouchers) {
         saveAll(vouchers);
     }
 
     @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteVouchers(Collection<Voucher> vouchers) {
-        vouchers.forEach(this::delete);
+        this.deleteAll(vouchers);
     }
 
     @Override
@@ -114,11 +116,11 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
     @Override
     public Collection<Voucher> getVouchers(Collection<Select> selects, Collection<Join> joins, Collection<Where> wheres) {
         Specification<Voucher> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.select(selects.toArray(new Select[0]));
             extractor.join(joins.toArray(new Join[0]));
             extractor.where(wheres.toArray(new Where[0]));
-            return extractor.extract();
+            return extractor.parse();
         });
         return findAll(spec);
     }

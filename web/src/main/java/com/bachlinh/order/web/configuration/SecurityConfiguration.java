@@ -8,6 +8,7 @@ import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.filter.servlet.AuthenticationFilter;
 import com.bachlinh.order.security.filter.servlet.LoggingRequestFilter;
 import com.bachlinh.order.security.filter.servlet.PermissionFilter;
+import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
@@ -129,6 +130,11 @@ public class SecurityConfiguration {
     @Bean
     FilterChainAdapter filterChainAdapter(DependenciesContainerResolver containerResolver) {
         return new FilterChainAdapter(containerResolver.getDependenciesResolver());
+    }
+
+    @Bean
+    AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandler();
     }
 
     private CorsConfigurationSource corsConfigurationSource(String clientUrl) {

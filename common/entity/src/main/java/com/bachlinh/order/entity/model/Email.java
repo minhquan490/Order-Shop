@@ -4,6 +4,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,14 +15,21 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.http.MediaType;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Queue;
 
 @Label("EMR-")
 @Entity
@@ -70,20 +78,24 @@ public class Email extends AbstractEntity<String> {
     @Column(name = "MEDIA_TYPE", nullable = false, length = 50)
     private String mediaType = MediaType.TEXT_PLAIN_VALUE;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_CUSTOMER_ID", updatable = false)
+    @Fetch(FetchMode.JOIN)
     private Customer fromCustomer;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_CUSTOMER_ID", nullable = false, updatable = false)
+    @Fetch(FetchMode.JOIN)
     private Customer toCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "FOLDER_ID", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private EmailFolders folder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMAIL_TRASH_ID")
+    @Fetch(FetchMode.JOIN)
     private EmailTrash emailTrash;
 
     @Override
@@ -94,6 +106,18 @@ public class Email extends AbstractEntity<String> {
             return;
         }
         throw new PersistenceException("Id of email received must be string");
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
@@ -167,7 +191,7 @@ public class Email extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setFolder(EmailFolders folder) {
-        if (this.folder != null && this.folder.getId().equals(folder.getId())) {
+        if (this.folder != null && Objects.requireNonNull(this.folder.getId()).equals(folder.getId())) {
             trackUpdatedField("FOLDER_ID", this.folder.getId());
         }
         this.folder = folder;
@@ -175,9 +199,106 @@ public class Email extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setEmailTrash(EmailTrash emailTrash) {
-        if (this.emailTrash != null && !this.emailTrash.getId().equals(emailTrash.getId())) {
-            trackUpdatedField("EMAIL_TRASH_ID", this.emailTrash.getId().toString());
+        if (this.emailTrash != null && this.emailTrash.getId() != null && !Objects.requireNonNull(this.emailTrash.getId()).equals(emailTrash.getId())) {
+            trackUpdatedField("EMAIL_TRASH_ID", Objects.requireNonNull(this.emailTrash.getId()).toString());
         }
         this.emailTrash = emailTrash;
+    }
+
+    public static EntityMapper<Email> getMapper() {
+        return new EmailMapper();
+    }
+
+    private static class EmailMapper implements EntityMapper<Email> {
+
+        @Override
+        public Email map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new Email().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public Email map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            Email result = new Email();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("EMAILS")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                assignFromCustomer(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                assignToCustomer(resultSet, result);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = EmailFolders.getMapper();
+                var emailFolders = mapper.map(resultSet);
+                emailFolders.getEmails().add(result);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = EmailTrash.getMapper();
+                var emailTrash = mapper.map(resultSet);
+                emailTrash.getEmails().add(result);
+                result.setEmailTrash(emailTrash);
+            }
+            return result;
+        }
+
+        private void setData(Email target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "EMAILS.ID" -> target.setId(mappingObject.value());
+                case "EMAILS.CONTENT" -> target.setContent((String) mappingObject.value());
+                case "EMAILS.RECEIVED_TIME" -> target.setReceivedTime((Timestamp) mappingObject.value());
+                case "EMAILS.SENT_TIME" -> target.setTimeSent((Timestamp) mappingObject.value());
+                case "EMAILS.TITLE" -> target.setTitle((String) mappingObject.value());
+                case "EMAILS.WAS_READ" -> target.setRead((Boolean) mappingObject.value());
+                case "EMAILS.WAS_SENT" -> target.setSent((Boolean) mappingObject.value());
+                case "EMAILS.MEDIA_TYPE" -> target.setMediaType((String) mappingObject.value());
+                case "EMAILS.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "EMAILS.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "EMAILS.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "EMAILS.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
+
+        private void assignFromCustomer(Queue<MappingObject> resultSet, Email result) {
+            MappingObject hook = resultSet.peek();
+            Queue<MappingObject> cloned = new LinkedList<>();
+            while (!resultSet.isEmpty()) {
+                if (hook.columnName().startsWith("FROM_CUSTOMER")) {
+                    hook = resultSet.poll();
+                    cloned.add(new MappingObject(hook.columnName().replace("FROM_CUSTOMER", "CUSTOMER"), hook.value()));
+                } else {
+                    break;
+                }
+            }
+            var mapper = Customer.getMapper();
+            var fromCustomer = mapper.map(cloned);
+            result.setFromCustomer(fromCustomer);
+        }
+
+        private void assignToCustomer(Queue<MappingObject> resultSet, Email result) {
+            String toCustomerKey = "TO_CUSTOMER";
+            MappingObject hook = resultSet.peek();
+            Queue<MappingObject> cloned = new LinkedList<>();
+            while (!resultSet.isEmpty()) {
+                if (hook.columnName().startsWith(toCustomerKey)) {
+                    hook = resultSet.poll();
+                    cloned.add(new MappingObject(hook.columnName().replace(toCustomerKey, "CUSTOMER"), hook.value()));
+                } else {
+                    break;
+                }
+            }
+            var mapper = Customer.getMapper();
+            var toCustomer = mapper.map(cloned);
+            result.setToCustomer(toCustomer);
+        }
     }
 }

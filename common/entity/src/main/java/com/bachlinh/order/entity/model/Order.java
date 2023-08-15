@@ -2,6 +2,7 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,10 +24,19 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 
 @Entity
 @Table(name = "ORDERS", indexes = @Index(name = "idx_order_customer", columnList = "CUSTOMER_ID"))
@@ -49,12 +60,18 @@ public class Order extends AbstractEntity<String> {
     @Column(name = "BANK_TRANSACTION_CODE")
     private String bankTransactionCode;
 
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, optional = false, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "ORDER_STATUS_ID", unique = true, nullable = false, updatable = false)
+    @Fetch(FetchMode.JOIN)
     private OrderStatus orderStatus;
+
+    @OneToOne(mappedBy = "order")
+    @Fetch(FetchMode.JOIN)
+    private OrderHistory orderHistory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
+    @Fetch(FetchMode.JOIN)
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order", orphanRemoval = true)
@@ -67,6 +84,37 @@ public class Order extends AbstractEntity<String> {
             throw new PersistenceException("Id of order must be string");
         }
         this.id = (String) id;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        if (entities.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            Deque<Order> results = new LinkedList<>();
+            Order first = null;
+            for (var entity : entities) {
+                if (first == null) {
+                    first = (Order) entity;
+                } else {
+                    Order casted = (Order) entity;
+                    if (casted.getOrderDetails().isEmpty()) {
+                        results.add(first);
+                    } else {
+                        first.getOrderDetails().addAll(casted.getOrderDetails());
+                    }
+                }
+            }
+            results.addFirst(first);
+            return (Collection<U>) results;
+        }
     }
 
     public boolean isDeposited() {
@@ -83,8 +131,8 @@ public class Order extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setOrderStatus(OrderStatus orderStatus) {
-        if (this.orderStatus != null && !this.orderStatus.getId().equals(orderStatus.getId())) {
-            trackUpdatedField("ORDER_STATUS_ID", this.orderStatus.getId().toString());
+        if (this.orderStatus != null && !Objects.requireNonNull(this.orderStatus.getId()).equals(orderStatus.getId())) {
+            trackUpdatedField("ORDER_STATUS_ID", Objects.requireNonNull(this.orderStatus.getId()).toString());
         }
         this.orderStatus = orderStatus;
     }
@@ -108,5 +156,81 @@ public class Order extends AbstractEntity<String> {
             trackUpdatedField("BANK_TRANSACTION_CODE", this.bankTransactionCode);
         }
         this.bankTransactionCode = bankTransactionCode;
+    }
+
+    @ActiveReflection
+    public void setOrderHistory(OrderHistory orderHistory) {
+        this.orderHistory = orderHistory;
+    }
+
+    public static EntityMapper<Order> getMapper() {
+        return new OrderMapper();
+    }
+
+    private static class OrderMapper implements EntityMapper<Order> {
+
+        @Override
+        public Order map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new Order().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public Order map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            Order result = new Order();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("ORDERS")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = OrderStatus.getMapper();
+                var orderStatus = mapper.map(resultSet);
+                orderStatus.setOrder(result);
+                result.setOrderStatus(orderStatus);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = OrderHistory.getMapper();
+                var orderHistory = mapper.map(resultSet);
+                orderHistory.setOrder(result);
+                result.setOrderHistory(orderHistory);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Customer.getMapper();
+                var customer = mapper.map(resultSet);
+                customer.getOrders().add(result);
+                result.setCustomer(customer);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = OrderDetail.getMapper();
+                hook = resultSet.peek();
+                Set<OrderDetail> orderDetailSet = new LinkedHashSet<>();
+                while (!resultSet.isEmpty()) {
+                    if (hook.columnName().startsWith("ORDER_DETAIL")) {
+                        var orderDetails = mapper.map(resultSet);
+                        orderDetails.setOrder(result);
+                        orderDetailSet.add(orderDetails);
+                    } else {
+                        break;
+                    }
+                }
+                result.setOrderDetails(orderDetailSet);
+            }
+            return result;
+        }
+
+        private void setData(Order target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "ORDERS.ID" -> target.setId(mappingObject.value());
+                case "ORDERS.ORDER_TIME" -> target.setTimeOrder((Timestamp) mappingObject.value());
+                case "ORDERS.BANK_TRANSACTION_CODE" -> target.setBankTransactionCode((String) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

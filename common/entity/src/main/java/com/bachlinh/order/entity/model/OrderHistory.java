@@ -1,22 +1,28 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Queue;
 
 @Entity
 @Table(name = "ORDER_HISTORY")
@@ -38,7 +44,8 @@ public class OrderHistory extends AbstractEntity<Integer> {
     private String orderStatus;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @MapsId
+    @JoinColumn(name = "ORDER_ID")
+    @Fetch(FetchMode.JOIN)
     private Order order;
 
     @ActiveReflection
@@ -49,6 +56,18 @@ public class OrderHistory extends AbstractEntity<Integer> {
             return;
         }
         throw new PersistenceException("Can not set id for order history, supported only integer");
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
@@ -69,5 +88,53 @@ public class OrderHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public static EntityMapper<OrderHistory> getMapper() {
+        return new OrderHistoryMapper();
+    }
+
+    private static class OrderHistoryMapper implements EntityMapper<OrderHistory> {
+
+        @Override
+        public OrderHistory map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new OrderHistory().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public OrderHistory map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            OrderHistory result = new OrderHistory();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("ORDER_HISTORY")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Order.getMapper();
+                var order = mapper.map(resultSet);
+                order.setOrderHistory(result);
+                result.setOrder(order);
+            }
+            return result;
+        }
+
+        private void setData(OrderHistory target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "ORDER_HISTORY.ID" -> target.setId(mappingObject.value());
+                case "ORDER_HISTORY.ORDER_TIME" -> target.setOrderTime((Timestamp) mappingObject.value());
+                case "ORDER_HISTORY.ORDER_STATUS" -> target.setOrderStatus((String) mappingObject.value());
+                case "ORDER_HISTORY.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "ORDER_HISTORY.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "ORDER_HISTORY.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "ORDER_HISTORY.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

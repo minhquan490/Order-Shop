@@ -3,6 +3,7 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,10 +24,19 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
 
 @Entity
 @Table(
@@ -67,6 +78,7 @@ public class District extends AbstractEntity<Integer> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROVINCE_ID", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private Province province;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
@@ -79,6 +91,37 @@ public class District extends AbstractEntity<Integer> {
             throw new PersistenceException("Id of district must be int");
         }
         this.id = (Integer) id;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        if (entities.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            Deque<District> results = new LinkedList<>();
+            District first = null;
+            for (var entity : entities) {
+                if (first == null) {
+                    first = (District) entity;
+                } else {
+                    District casted = (District) entity;
+                    if (casted.getWards().isEmpty()) {
+                        results.addFirst(casted);
+                    } else {
+                        first.getWards().addAll(casted.getWards());
+                    }
+                }
+            }
+            results.addFirst(first);
+            return (Collection<U>) results;
+        }
     }
 
     @ActiveReflection
@@ -115,8 +158,8 @@ public class District extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setProvince(@NonNull Province province) {
-        if (this.province != null && !this.province.getId().equals(province.getId())) {
-            trackUpdatedField("PROVINCE_ID", this.province.getId().toString());
+        if (this.province != null && !Objects.requireNonNull(this.province.getId()).equals(province.getId())) {
+            trackUpdatedField("PROVINCE_ID", Objects.requireNonNull(this.province.getId()).toString());
         }
         this.province = province;
     }
@@ -124,5 +167,70 @@ public class District extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setWards(List<Ward> wards) {
         this.wards = wards;
+    }
+
+    public static EntityMapper<District> getMapper() {
+        return new DistrictMapper();
+    }
+
+    private static class DistrictMapper implements EntityMapper<District> {
+
+        @Override
+        public District map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new District().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public District map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            District result = new District();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("DISTRICT")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Province.getMapper();
+                var province = mapper.map(resultSet);
+                province.getDistricts().add(result);
+                result.setProvince(province);
+            }
+            if (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                var mapper = Ward.getMapper();
+                List<Ward> wardSet = new LinkedList<>();
+                while (!resultSet.isEmpty()) {
+                    if (hook.columnName().startsWith("WARD")) {
+                        var ward = mapper.map(resultSet);
+                        ward.setDistrict(result);
+                        wardSet.add(ward);
+                    } else {
+                        break;
+                    }
+                }
+                result.setWards(wardSet);
+            }
+            return result;
+        }
+
+        private void setData(District target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "DISTRICT.ID" -> target.setId(mappingObject.value());
+                case "DISTRICT.NAME" -> target.setName((String) mappingObject.value());
+                case "DISTRICT.CODE" -> target.setCode((Integer) mappingObject.value());
+                case "DISTRICT.DIVISION_TYPE" -> target.setDivisionType((String) mappingObject.value());
+                case "DISTRICT.CODE_NAME" -> target.setCodeName((String) mappingObject.value());
+                case "DISTRICT.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "DISTRICT.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "DISTRICT.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "DISTRICT.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

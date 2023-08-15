@@ -1,4 +1,4 @@
-import { ErrorResponse, QueryParam, Request, RequestHeader, Response } from "~/types";
+import {Authentication, ErrorResponse, QueryParam, Request, Response} from "~/types";
 
 export const useXmlHttpRequest = (request: Request, accessToken?: string, refreshToken?: string) => {
 
@@ -12,6 +12,20 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
     }
 
     function createResponse<T>(xmlRequest: XMLHttpRequest): Response<T> {
+        const accessTokenHeader = useAppConfig().authorization;
+        const accessToken: string = xmlRequest.getResponseHeader(accessTokenHeader);
+        if (accessToken) {
+            const {readAuth, updateAuth} = useAuthInformation();
+            readAuth().then(auth => {
+                if (auth && auth.accessToken !== accessToken) {
+                    const newAuth: Authentication = {
+                        refreshToken: auth.refreshToken,
+                        accessToken: accessToken
+                    };
+                    return updateAuth(newAuth);
+                }
+            });
+        }
         return {
             statusCode: xmlRequest.status,
             body: JSON.parse(xmlRequest.responseText)
@@ -27,26 +41,6 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
         }
     }
 
-    function send<T>(method: string): Response<T> {
-        const {applyCommonHeader, applyAuthenticationHeader} = useRequestDecorator();
-        applyCommonHeader(request);
-        applyAuthenticationHeader(request, accessToken, refreshToken);
-        const xmlHttpRequest: XMLHttpRequest = new XMLHttpRequest();
-        const url: string = decorate(request.apiUrl, request.queryParams);
-        xmlHttpRequest.open(method, url);
-        request.headers?.forEach((header: RequestHeader) => xmlHttpRequest.setRequestHeader(header.name, header.value));
-        try {
-            if (!request.body) {
-                xmlHttpRequest.send();
-            } else {
-                xmlHttpRequest.send(JSON.stringify(request.body));
-            }
-        } catch (e) {
-            return createConnectionErrorResponse();
-        }
-        return createResponse(xmlHttpRequest);
-    }
-
     async function sendAsync<T>(method: string): Promise<Response<T>> {
         return new Promise<Response<T>>((resolve, reject): void => {
             const {applyCommonHeader, applyAuthenticationHeader} = useRequestDecorator();
@@ -55,6 +49,7 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
             const url: string = decorate(request.apiUrl, request.queryParams);
             const xhr: XMLHttpRequest = new XMLHttpRequest();
             xhr.open(method, url);
+            request.headers?.forEach(header => xhr.setRequestHeader(header.name, header.value));
             xhr.onload = (): void => {
                 if (xhr.status >= 200 && xhr.status < 400) {
                     resolve(createResponse<T>(xhr));
@@ -69,22 +64,6 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
                 xhr.send(JSON.stringify(request.body));
             }
         });
-    }
-
-    const getCall = <T>(): Response<T> => {
-        return send<T>('GET');
-    }
-
-    const patchCall = <T>(): Response<T> => {
-        return send<T>('PATCH');
-    }
-
-    const postCall = <T>(): Response<T> => {
-        return send<T>('POST');
-    }
-
-    const deleteCall = <T>(): Response<T> => {
-        return send<T>('DELETE');
     }
 
     const getAsyncCall = async <T>(): Promise<Response<T>> => {
@@ -104,10 +83,6 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
     }
 
     return {
-        deleteCall,
-        postCall,
-        patchCall,
-        getCall,
         getAsyncCall,
         postAsyncCall,
         deleteAsyncCall,

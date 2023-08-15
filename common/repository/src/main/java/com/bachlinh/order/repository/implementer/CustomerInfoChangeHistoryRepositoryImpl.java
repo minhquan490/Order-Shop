@@ -1,11 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -14,9 +8,15 @@ import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
-import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -54,14 +54,15 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
     public Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer) {
         var customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customer).build();
         Specification<CustomerInfoChangeHistory> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.where(customerWhere);
-            return extractor.extract();
+            return extractor.parse();
         });
         return findAll(spec);
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void deleteHistories(Collection<CustomerInfoChangeHistory> histories) {
         var savePointManager = getEntityFactory().getTransactionManager().getSavePointManager();
         savePointManager.createSavePoint("histories");

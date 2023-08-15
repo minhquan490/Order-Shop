@@ -52,29 +52,34 @@ const checkPageQueryParam = (component: AdminProductInfoPage): void => {
     }
 }
 
-const getProduct = (productId: string, component: AdminProductInfoPage): void => {
+const getProduct = async (productId: string, component: AdminProductInfoPage): Promise<void> => {
     const serverUrl = useAppConfig().serverUrl;
     const productInfoApi: string = `${serverUrl}/content/product?id=${productId}`;
     const request: Request = {
         apiUrl: productInfoApi
     };
-    const {getAsyncCall} = useXmlHttpRequest(request);
-    const resp: Promise<Response<AdminProduct>> = getAsyncCall<AdminProduct>();
-    resp.then((res: Response<AdminProduct>): void => {
-        component.isLoading = false;
-        component.product = res.body as AdminProduct;
-        component.slideItems = component.product.pictures.map((pic: string) => {
-            return {
-                pictureUrl: pic,
-                current: false
-            } as CarouselItem;
-        })
-        component.slideItems[0].current = true;
-    }).catch((): void => {
+    const {readAuth} = useAuthInformation();
+    try {
+        const auth: Authentication | undefined = await readAuth();
+        if (auth) {
+            const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+            const resp: Response<AdminProduct> = await getAsyncCall<AdminProduct>();
+            component.isLoading = false;
+            component.product = resp.body as AdminProduct;
+            component.slideItems = component.product.pictures.map((pic: string) => {
+                return {
+                    pictureUrl: pic,
+                    current: false
+                } as CarouselItem;
+            })
+            component.slideItems[0].current = true;
+        }
+
+    } catch (error) {
         component.isLoading = false;
         const navigate = useNavigation().value;
         navigate('/404');
-    });
+    }
 }
 
 const createDefaultProduct = (): AdminProduct => {
@@ -93,27 +98,29 @@ const createDefaultProduct = (): AdminProduct => {
     };
 };
 
-const getCategories = (component: AdminProductInfoPage): void => {
+const getCategories = async (component: AdminProductInfoPage): Promise<void> => {
     const serverUrl = useAppConfig().serverUrl;
     const categoryApi: string = `${serverUrl}/content/category/list`;
     const request: Request = {
         apiUrl: categoryApi
     };
-    const {getAsyncCall} = useXmlHttpRequest(request);
-    const response: Promise<Response<CategoryResp[]>> = getAsyncCall<CategoryResp[]>();
-    response.then((value: Response<CategoryResp[]>): void => {
-        component.categoriesSource = (value.body as CategoryResp[]).map((res: CategoryResp) => {
+    const {readAuth} = useAuthInformation();
+    const auth: Authentication | undefined = await readAuth();
+    if (auth) {
+        const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+        const response: Response<CategoryResp[]> = await getAsyncCall<CategoryResp[]>();
+        component.categoriesSource = (response.body as CategoryResp[]).map((res: CategoryResp) => {
             return {
                 name: res.category_name,
                 id: res.category_id
             } as Category;
         })
-    }).catch(error => console.log(error.body.messages.join(', ')));
+    }
 }
 
-const onMounted = (component: AdminProductInfoPage): void => {
-    getCategories(component);
-    getProduct(component.query.productId as string, component);
+const onMounted = async (component: AdminProductInfoPage): Promise<void> => {
+    await getCategories(component);
+    await getProduct(component.query.productId as string, component);
     component.initSelectedCategory = component.categoriesSource.filter((value: Category) => component.product.categories.includes(value.name));
 }
 

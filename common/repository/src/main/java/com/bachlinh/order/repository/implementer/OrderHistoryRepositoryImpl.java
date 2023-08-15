@@ -1,14 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -19,14 +10,24 @@ import com.bachlinh.order.entity.model.OrderHistory_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderHistoryRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -69,11 +70,11 @@ public class OrderHistoryRepositoryImpl extends AbstractRepository<OrderHistory,
         var customerWhere = Where.builder().attribute(Order_.CUSTOMER).value(customer).operator(Operator.EQ).build();
         var orderBy = OrderBy.builder().column(OrderHistory_.ORDER_TIME).type(OrderBy.Type.DESC).build();
         Specification<OrderHistory> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
+            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             extractor.join(orderJoin, customerJoin);
             extractor.where(customerWhere);
             extractor.orderBy(orderBy);
-            return extractor.extract();
+            return extractor.parse();
         });
         return findAll(spec);
     }

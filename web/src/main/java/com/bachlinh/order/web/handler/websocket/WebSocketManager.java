@@ -1,11 +1,10 @@
 package com.bachlinh.order.web.handler.websocket;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.socket.WebSocketMessage;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.tcp.context.AbstractWebSocketSessionManager;
-import com.bachlinh.order.security.auth.spi.PrincipalHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.socket.WebSocketMessage;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -26,8 +25,7 @@ public class WebSocketManager extends AbstractWebSocketSessionManager {
 
     @Override
     protected String queryClientSecret() {
-        PrincipalHolder principalHolder = (PrincipalHolder) SecurityContextHolder.getContext().getAuthentication();
-        return principalHolder.getClientSecret();
+        return "";
     }
 
     @Override

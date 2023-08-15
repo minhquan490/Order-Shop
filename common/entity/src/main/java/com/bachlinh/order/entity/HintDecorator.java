@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity;
 
-import jakarta.persistence.TypedQuery;
+
+import jakarta.persistence.Query;
 
 /**
  * The hint decorator for decorate query hint before generate query.
@@ -15,5 +16,5 @@ public interface HintDecorator {
      * @param query  Query for hint apply to.
      * @param region Cache storage name.
      */
-    void applyCacheQueryHints(TypedQuery<?> query, String region);
+    void applyCacheQueryHints(Query query, String region);
 }

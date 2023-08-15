@@ -7,8 +7,8 @@ import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProductRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -113,9 +113,9 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
         var mediasJoin = Join.builder().attribute(Product_.MEDIAS).type(JoinType.LEFT).build();
         var categoriesJoin = Join.builder().attribute(Product_.CATEGORIES).type(JoinType.INNER).build();
         Specification<Product> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             queryExtractor.join(mediasJoin, categoriesJoin);
-            return queryExtractor.extract();
+            return queryExtractor.parse();
         });
         return findAll(spec, pageable).toList();
     }

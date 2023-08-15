@@ -3,6 +3,7 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,6 +23,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Queue;
 
 @Entity
 @Table(
@@ -60,6 +69,7 @@ public class Ward extends AbstractEntity<Integer> {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "DISTRICT_ID", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private District district;
 
     @Override
@@ -69,6 +79,18 @@ public class Ward extends AbstractEntity<Integer> {
             throw new PersistenceException("Id of ward must be int");
         }
         this.id = (Integer) id;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
@@ -105,9 +127,59 @@ public class Ward extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setDistrict(District district) {
-        if (this.district != null && !this.district.getId().equals(district.getId())) {
-            trackUpdatedField("DISTRICT_ID", this.district.getId().toString());
+        if (this.district != null && !Objects.requireNonNull(this.district.getId()).equals(district.getId())) {
+            trackUpdatedField("DISTRICT_ID", Objects.requireNonNull(this.district.getId()).toString());
         }
         this.district = district;
+    }
+
+    public static EntityMapper<Ward> getMapper() {
+        return new WardMapper();
+    }
+
+    private static class WardMapper implements EntityMapper<Ward> {
+
+        @Override
+        public Ward map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new Ward().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public Ward map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            Ward result = new Ward();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("WARD")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = District.getMapper();
+                var district = mapper.map(resultSet);
+                district.getWards().add(result);
+                result.setDistrict(district);
+            }
+            return result;
+        }
+
+        private void setData(Ward target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "WARD.ID" -> target.setId(mappingObject.value());
+                case "WARD.NAME" -> target.setName((String) mappingObject.value());
+                case "WARD.CODE" -> target.setCode((Integer) mappingObject.value());
+                case "WARD.CODE_NAME" -> target.setCodeName((String) mappingObject.value());
+                case "WARD.DIVISION_TYPE" -> target.setDivisionType((String) mappingObject.value());
+                case "WARD.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "WARD.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "WARD.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "WARD.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

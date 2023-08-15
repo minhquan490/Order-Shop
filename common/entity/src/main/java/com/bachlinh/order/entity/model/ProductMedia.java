@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +12,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Queue;
 
 @Entity
 @Table(name = "PRODUCT_MEDIA", indexes = @Index(name = "idx_product_media_product", columnList = "PRODUCT_ID"))
@@ -41,6 +50,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private Product product;
 
     @ActiveReflection
@@ -50,6 +60,18 @@ public class ProductMedia extends AbstractEntity<Integer> {
             throw new PersistenceException("Id of product picture must be int");
         }
         this.id = (Integer) id;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
@@ -78,9 +100,58 @@ public class ProductMedia extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setProduct(Product product) {
-        if (this.product != null && this.product.getId().equals(product.getId())) {
+        if (this.product != null && !Objects.requireNonNull(this.product.getId()).equals(product.getId())) {
             trackUpdatedField("PRODUCT_ID", this.product.getId());
         }
         this.product = product;
+    }
+
+    public static EntityMapper<ProductMedia> getMapper() {
+        return new ProductMediaMapper();
+    }
+
+    private static class ProductMediaMapper implements EntityMapper<ProductMedia> {
+
+        @Override
+        public ProductMedia map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new ProductMedia().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public ProductMedia map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            ProductMedia result = new ProductMedia();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("PRODUCT_MEDIA")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Product.getMapper();
+                var product = mapper.map(resultSet);
+                product.getMedias().add(result);
+                result.setProduct(product);
+            }
+            return result;
+        }
+
+        private void setData(ProductMedia target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "PRODUCT_MEDIA.ID" -> target.setId(mappingObject.value());
+                case "PRODUCT_MEDIA.URL" -> target.setUrl((String) mappingObject.value());
+                case "PRODUCT_MEDIA.CONTENT_LENGTH" -> target.setContentLength((Long) mappingObject.value());
+                case "PRODUCT_MEDIA.CONTENT_TYPE" -> target.setContentType((String) mappingObject.value());
+                case "PRODUCT_MEDIA.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "PRODUCT_MEDIA.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "PRODUCT_MEDIA.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "PRODUCT_MEDIA.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

@@ -1,14 +1,5 @@
 package com.bachlinh.order.repository.implementer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
@@ -17,9 +8,28 @@ import com.bachlinh.order.entity.model.Category_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.QueryExtractor;
+import com.bachlinh.order.repository.query.JoinOperation;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelection;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.query.WhereOperation;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -33,22 +43,20 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
 
     @Override
     public Category getCategoryByName(String categoryName) {
-        Specification<Category> spec = Specification.where((root, query, criteriaBuilder) -> {
-            root.join(Category_.PRODUCTS, JoinType.INNER);
-            var join = Join.builder().attribute(Category_.PRODUCTS).type(JoinType.INNER).build();
-            var where = Where.builder().attribute(Category_.NAME).value(categoryName).build();
-            var extractor = new QueryExtractor(criteriaBuilder, query, root);
-            extractor.join(join);
-            extractor.where(where);
-            return extractor.extract();
-        });
-        return this.get(spec);
+        var join = Join.builder().attribute(Category_.PRODUCTS).type(JoinType.INNER).build();
+        var where = Where.builder().attribute(Category_.NAME).value(categoryName).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelection sqlSelection = sqlBuilder.from(Category.class);
+        JoinOperation joinOperation = sqlSelection.join(join);
+        return getCategory(joinOperation.where(where));
     }
 
     @Override
     public Category getCategoryById(String categoryId) {
-        Specification<Category> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Category_.ID), categoryId));
-        return this.get(spec);
+        Where idWhere = Where.builder().attribute(Category_.ID).value(categoryId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelection sqlSelection = sqlBuilder.from(Category.class);
+        return getCategory(sqlSelection.where(idWhere));
     }
 
     @Override
@@ -69,12 +77,8 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
         if (category == null) {
             return false;
         }
-        if (existsById(category.getId())) {
-            delete(category);
-            return true;
-        } else {
-            return false;
-        }
+        delete(category);
+        return true;
     }
 
     @Override
@@ -84,7 +88,14 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
 
     @Override
     public Page<Category> getCategories() {
-        return this.findAll(Pageable.unpaged());
+        Select idSelect = Select.builder().column(Category_.ID).build();
+        Select nameSelect = Select.builder().column(Category_.NAME).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelection sqlSelection = sqlBuilder.from(Category.class);
+        sqlSelection.select(idSelect).select(nameSelect);
+        String query = sqlSelection.getNativeQuery();
+        var results = executeNativeQuery(query, Collections.emptyMap(), Category.class);
+        return new PageImpl<>(results);
     }
 
     @Override
@@ -92,5 +103,17 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
     @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
+    }
+
+    @Nullable
+    private Category getCategory(WhereOperation whereOperation) {
+        String query = whereOperation.getNativeQuery();
+        Map<String, Object> attributes = new HashMap<>();
+        whereOperation.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
+        var results = executeNativeQuery(query, attributes, Category.class);
+        if (results.isEmpty()) {
+            return null;
+        }
+        return results.get(0);
     }
 }

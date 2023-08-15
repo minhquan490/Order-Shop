@@ -2,6 +2,7 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,14 +14,23 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 @Label("EFR-")
@@ -49,8 +59,9 @@ public class EmailFolders extends AbstractEntity<String> {
     @Column(name = "EMAIL_CLEAR_POLICY")
     private Integer emailClearPolicy = -1;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
+    @Fetch(FetchMode.JOIN)
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
@@ -64,6 +75,37 @@ public class EmailFolders extends AbstractEntity<String> {
             return;
         }
         throw new PersistenceException("Id of email folder must be string");
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        if (entities.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            Deque<EmailFolders> results = new LinkedList<>();
+            EmailFolders first = null;
+            for (var entity : entities) {
+                if (first == null) {
+                    first = (EmailFolders) entity;
+                } else {
+                    EmailFolders casted = (EmailFolders) entity;
+                    if (casted.getEmails().isEmpty()) {
+                        results.add(casted);
+                    } else {
+                        first.getEmails().addAll(casted.getEmails());
+                    }
+                }
+            }
+            results.addFirst(first);
+            return (Collection<U>) results;
+        }
     }
 
     @ActiveReflection
@@ -101,5 +143,68 @@ public class EmailFolders extends AbstractEntity<String> {
     @ActiveReflection
     public void setEmails(Set<Email> emails) {
         this.emails = emails;
+    }
+
+    public static EntityMapper<EmailFolders> getMapper() {
+        return new EmailFoldersMapper();
+    }
+
+    private static class EmailFoldersMapper implements EntityMapper<EmailFolders> {
+
+        @Override
+        public EmailFolders map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new EmailFolders().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public EmailFolders map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            EmailFolders result = new EmailFolders();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("EMAIL_FOLDER")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Customer.getMapper();
+                var customer = mapper.map(resultSet);
+                result.setOwner(customer);
+            }
+            if (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                var mapper = Email.getMapper();
+                Set<Email> emailSet = new LinkedHashSet<>();
+                while (!resultSet.isEmpty()) {
+                    if (hook.columnName().startsWith("EMAIL")) {
+                        var email = mapper.map(resultSet);
+                        email.setFolder(result);
+                        emailSet.add(email);
+                    } else {
+                        break;
+                    }
+                }
+                result.setEmails(emailSet);
+            }
+            return result;
+        }
+
+        private void setData(EmailFolders target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "EMAIL_FOLDER.ID" -> target.setId(mappingObject.value());
+                case "EMAIL_FOLDER.NAME" -> target.setName((String) mappingObject.value());
+                case "EMAIL_FOLDER.TIME_CREATED" -> target.setTimeCreated((Timestamp) mappingObject.value());
+                case "EMAIL_FOLDER.EMAIL_CLEAR_POLICY" -> target.setEmailClearPolicy((Integer) mappingObject.value());
+                case "EMAIL_FOLDER.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "EMAIL_FOLDER.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "EMAIL_FOLDER.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "EMAIL_FOLDER.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

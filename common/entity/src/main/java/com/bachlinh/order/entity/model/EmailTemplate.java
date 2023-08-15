@@ -4,6 +4,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,11 +15,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Queue;
 
 @Label("ETE-")
 @Entity
@@ -67,12 +76,14 @@ public class EmailTemplate extends AbstractEntity<String> {
     @Column(name = "PARAMS", nullable = false)
     private String params;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
+    @Fetch(FetchMode.JOIN)
     private Customer owner;
 
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "FOLDER_ID", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private EmailTemplateFolder folder;
 
     @ActiveReflection
@@ -83,6 +94,18 @@ public class EmailTemplate extends AbstractEntity<String> {
             return;
         }
         throw new PersistenceException("Id of email template must be string");
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
+        return (U) getMapper().map(resultSet);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
+        return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
@@ -119,7 +142,7 @@ public class EmailTemplate extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setFolder(EmailTemplateFolder folder) {
-        if (this.folder != null && !this.folder.getId().equals(folder.getId())) {
+        if (this.folder != null && !Objects.requireNonNull(this.folder.getId()).equals(folder.getId())) {
             trackUpdatedField("FOLDER_ID", this.folder.getId());
         }
         this.folder = folder;
@@ -147,5 +170,62 @@ public class EmailTemplate extends AbstractEntity<String> {
             trackUpdatedField("PARAMS", this.params);
         }
         this.params = params;
+    }
+
+    public static EntityMapper<EmailTemplate> getMapper() {
+        return new EmailTemplateMapper();
+    }
+
+    private static class EmailTemplateMapper implements EntityMapper<EmailTemplate> {
+
+        @Override
+        public EmailTemplate map(Tuple resultSet) {
+            Queue<MappingObject> mappingObjectQueue = new EmailTemplate().parseTuple(resultSet);
+            return this.map(mappingObjectQueue);
+        }
+
+        @Override
+        public EmailTemplate map(Queue<MappingObject> resultSet) {
+            MappingObject hook;
+            EmailTemplate result = new EmailTemplate();
+            while (!resultSet.isEmpty()) {
+                hook = resultSet.peek();
+                if (hook.columnName().startsWith("EMAIL_TEMPLATE")) {
+                    hook = resultSet.poll();
+                    setData(result, hook);
+                } else {
+                    break;
+                }
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = Customer.getMapper();
+                var owner = mapper.map(resultSet);
+                result.setOwner(owner);
+            }
+            if (!resultSet.isEmpty()) {
+                var mapper = EmailTemplateFolder.getMapper();
+                var emailTemplateFolder = mapper.map(resultSet);
+                emailTemplateFolder.getEmailTemplates().add(result);
+                result.setFolder(emailTemplateFolder);
+            }
+            return result;
+        }
+
+        private void setData(EmailTemplate target, MappingObject mappingObject) {
+            switch (mappingObject.columnName()) {
+                case "EMAIL_TEMPLATE.ID" -> target.setId(mappingObject.value());
+                case "EMAIL_TEMPLATE.NAME" -> target.setName((String) mappingObject.value());
+                case "EMAIL_TEMPLATE.TITLE" -> target.setTitle((String) mappingObject.value());
+                case "EMAIL_TEMPLATE.CONTENT" -> target.setContent((String) mappingObject.value());
+                case "EMAIL_TEMPLATE.EXPIRY_POLICY" -> target.setExpiryPolicy((Integer) mappingObject.value());
+                case "EMAIL_TEMPLATE.TOTAL_ARGUMENT" -> target.setTotalArgument((Integer) mappingObject.value());
+                case "EMAIL_TEMPLATE.PARAMS" -> target.setParams((String) mappingObject.value());
+                case "EMAIL_TEMPLATE.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
+                case "EMAIL_TEMPLATE.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
+                case "EMAIL_TEMPLATE.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
+                case "EMAIL_TEMPLATE.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
+                default -> {/* Do nothing */}
+            }
+        }
     }
 }

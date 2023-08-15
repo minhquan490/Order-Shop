@@ -8,9 +8,9 @@ import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.WardRepository;
+import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.QueryExtractor;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
@@ -62,11 +62,11 @@ public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implem
         Where districtWhere = Where.builder().attribute(Ward_.DISTRICT).value(district).operator(Operator.EQ).build();
         OrderBy nameOrderBy = OrderBy.builder().column(Ward_.NAME).type(OrderBy.Type.ASC).build();
         Specification<Ward> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new QueryExtractor(criteriaBuilder, query, root);
+            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
             queryExtractor.select(idSelect, nameSelect);
             queryExtractor.where(districtWhere);
             queryExtractor.orderBy(nameOrderBy);
-            return queryExtractor.extract();
+            return queryExtractor.parse();
         });
         return findAll(spec);
     }

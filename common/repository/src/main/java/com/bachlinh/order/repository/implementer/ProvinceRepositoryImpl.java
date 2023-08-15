@@ -4,14 +4,24 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Province;
+import com.bachlinh.order.entity.model.Province_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelection;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.query.WhereOperation;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
@@ -28,7 +38,19 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
 
     @Override
     public Province getProvinceById(String provinceId) {
-        return findById(Integer.parseInt(provinceId)).orElse(null);
+        Where idWhere = Where.builder().attribute(Province_.ID).operator(Operator.EQ).value(provinceId).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelection sqlSelection = sqlBuilder.from(Province.class);
+        WhereOperation whereOperation = sqlSelection.where(idWhere);
+        String sql = whereOperation.getNativeQuery();
+        Map<String, Object> attributes = new HashMap<>(1);
+        whereOperation.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
+        List<Province> results = executeNativeQuery(sql, attributes, Province.class);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 
     @Override
@@ -44,7 +66,10 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
 
     @Override
     public Collection<Province> getAllProvinces() {
-        return findAll();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelection sqlSelection = sqlBuilder.from(Province.class);
+        String query = sqlSelection.getNativeQuery();
+        return executeNativeQuery(query, Collections.emptyMap(), Province.class);
     }
 
     @Override

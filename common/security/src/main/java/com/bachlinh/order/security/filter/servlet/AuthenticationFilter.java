@@ -1,12 +1,5 @@
 package com.bachlinh.order.security.filter.servlet;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.lang.NonNull;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.PathMatcher;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -16,6 +9,13 @@ import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.security.helper.AuthenticationHelper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.PathMatcher;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -57,7 +57,7 @@ public class AuthenticationFilter extends AbstractWebFilter {
             authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Invalid credential", request.getRequestURI()));
             return;
         }
-        SecurityContextHolder.getContext().setAuthentication(new PrincipalHolder(customer, AuthenticationHelper.findClientSecret(request)));
+        SecurityContextHolder.getContext().setAuthentication(new PrincipalHolder(customer, ""));
         filterChain.doFilter(request, response);
     }
 
