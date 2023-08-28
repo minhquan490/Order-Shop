@@ -15,7 +15,6 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.jpa.HibernateHints;
-import org.hibernate.query.spi.AbstractQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,11 +33,9 @@ import java.util.Map;
 
 public abstract class AbstractRepository<T extends BaseEntity<U>, U> extends RepositoryAdapter<T, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U>, NativeQueryRepository {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final SqlBuilder sqlBuilder;
 
     protected AbstractRepository(Class<T> domainClass, DependenciesResolver dependenciesResolver) {
         super(domainClass, dependenciesResolver);
-        this.sqlBuilder = dependenciesResolver.resolveDependencies(SqlBuilder.class);
     }
 
     @Override
@@ -56,8 +53,9 @@ public abstract class AbstractRepository<T extends BaseEntity<U>, U> extends Rep
             return (List<K>) result;
         } else {
             resultSetType = receiverType;
-            var typedQuery = getEntityManager().createNativeQuery(query, resultSetType).unwrap(AbstractQuery.class);
+            var typedQuery = getEntityManager().createNativeQuery(query, resultSetType);
             attributes.forEach(typedQuery::setParameter);
+            // TODO add custom mapping
             return typedQuery.getResultList();
         }
     }

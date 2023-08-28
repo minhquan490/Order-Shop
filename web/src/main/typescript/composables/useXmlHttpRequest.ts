@@ -54,10 +54,10 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
                 if (xhr.status >= 200 && xhr.status < 400) {
                     resolve(createResponse<T>(xhr));
                 } else {
-                    reject(createResponse<T>(xhr))
+                    resolve(createResponse<T>(xhr))
                 }
             };
-            xhr.onerror = () => reject(createConnectionErrorResponse());
+            xhr.onerror = () => resolve(createConnectionErrorResponse());
             if (!request.body) {
                 xhr.send();
             } else {

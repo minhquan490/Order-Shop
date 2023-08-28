@@ -8,5 +8,5 @@ import java.util.Collection;
 public interface LoginHistoryRepository extends NativeQueryRepository {
     LoginHistory saveHistory(LoginHistory loginHistory);
 
-    Collection<LoginHistory> getHistories(Customer owner);
+    Collection<LoginHistory> getHistories(Customer owner, long limit);
 }

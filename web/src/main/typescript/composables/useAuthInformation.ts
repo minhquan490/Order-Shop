@@ -35,7 +35,7 @@ export const useAuthInformation = () => {
             const result: Authentication | undefined = await resolveReadAuth(data);
             return Promise.resolve(result);
         } catch (error) {
-            return Promise.reject(undefined);
+            return Promise.resolve(undefined);
         }
     }
 

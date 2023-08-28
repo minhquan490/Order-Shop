@@ -151,7 +151,7 @@ public class Ward extends AbstractEntity<Integer> {
             Ward result = new Ward();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("WARD")) {
+                if (hook.columnName().split("\\.")[0].equals("WARD")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -160,14 +160,27 @@ public class Ward extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = District.getMapper();
-                var district = mapper.map(resultSet);
-                district.getWards().add(result);
-                result.setDistrict(district);
+                if (mapper.canMap(resultSet)) {
+                    var district = mapper.map(resultSet);
+                    district.getWards().add(result);
+                    result.setDistrict(district);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("WARD");
+            });
+        }
+
         private void setData(Ward target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "WARD.ID" -> target.setId(mappingObject.value());
                 case "WARD.NAME" -> target.setName((String) mappingObject.value());

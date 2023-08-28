@@ -40,6 +40,7 @@ public class CustomerInfoStrategy extends AbstractDtoStrategy<CustomerInfoResp, 
         resp.setPicture(source.getPicture());
         resp.setHistories(source.getHistories()
                 .stream()
+                .limit(3)
                 .map(customerAccessHistory -> {
                     var historyResp = new CustomerInfoResp.History();
                     historyResp.setPathRequest(customerAccessHistory.getPathRequest());
@@ -52,6 +53,7 @@ public class CustomerInfoStrategy extends AbstractDtoStrategy<CustomerInfoResp, 
         );
         resp.setVouchers(source.getAssignedVouchers()
                 .stream()
+                .limit(3)
                 .map(voucher -> {
                     var voucherResp = new CustomerInfoResp.Voucher();
                     voucherResp.setId(voucher.getId());
@@ -63,6 +65,7 @@ public class CustomerInfoStrategy extends AbstractDtoStrategy<CustomerInfoResp, 
         );
         resp.setOrders(source.getOrders()
                 .stream()
+                .limit(3)
                 .map(order -> {
                     var orderResp = new CustomerInfoResp.Order();
                     orderResp.setId(order.getId());

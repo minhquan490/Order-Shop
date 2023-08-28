@@ -5,26 +5,39 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.enums.OrderStatusValue;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.Order;
+import com.bachlinh.order.entity.model.OrderDetail;
 import com.bachlinh.order.entity.model.OrderDetail_;
+import com.bachlinh.order.entity.model.OrderStatus;
 import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
+import com.bachlinh.order.entity.model.Product;
+import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlJoin;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -58,12 +71,8 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
         if (order == null) {
             return false;
         }
-        if (existsById(order.getId())) {
-            delete(order);
-            return true;
-        } else {
-            return false;
-        }
+        delete(order);
+        return true;
     }
 
     @Override
@@ -73,40 +82,70 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
 
     @Override
     public Order getOrder(String orderId) {
-        Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
-            root.join(Order_.orderStatus, JoinType.INNER);
-            root.join(Order_.orderDetails, JoinType.INNER);
-            root.join(OrderDetail_.PRODUCT, JoinType.INNER);
-            return criteriaBuilder.equal(root.get(Order_.id), orderId);
-        });
-        return findOne(spec).orElse(null);
-    }
-
-    @Override
-    public List<Order> getOrderOfCustomer(Customer customer) {
-        Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
-            root.join(Order_.orderStatus, JoinType.INNER);
-            root.join(Order_.orderDetails, JoinType.INNER).join(OrderDetail_.product, JoinType.INNER);
-            return criteriaBuilder.equal(root.get(Order_.customer), customer);
-        });
-        return findAll(spec);
+        Select idSelect = Select.builder().column(Order_.ID).build();
+        Select timeOrderSelect = Select.builder().column(Order_.TIME_ORDER).build();
+        Select orderStatusSelect = Select.builder().column(OrderStatus_.STATUS).build();
+        Select orderDetailAmountSelect = Select.builder().column(OrderDetail_.AMOUNT).build();
+        Select productIdSelect = Select.builder().column(Product_.ID).build();
+        Select productNameSelect = Select.builder().column(Product_.NAME).build();
+        Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.INNER).build();
+        Join orderDetailsJoin = Join.builder().attribute(Order_.ORDER_DETAILS).type(JoinType.INNER).build();
+        Join productJoin = Join.builder().attribute(OrderDetail_.PRODUCT).type(JoinType.INNER).build();
+        Where idWhere = Where.builder().attribute(Order_.ID).value(orderId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Order.class);
+        sqlSelect.select(idSelect)
+                .select(timeOrderSelect)
+                .select(orderStatusSelect, OrderStatus.class)
+                .select(orderDetailAmountSelect, OrderDetail.class)
+                .select(productIdSelect, Product.class)
+                .select(productNameSelect, Product.class);
+        SqlJoin sqlJoin = sqlSelect.join(orderStatusJoin).join(orderDetailsJoin).join(productJoin, Product.class);
+        SqlWhere sqlWhere = sqlJoin.where(idWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(sql, attributes, Order.class);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 
     @Override
     public List<Order> getNewOrdersInDate() {
+        Select idSelect = Select.builder().column(Order_.ID).build();
+        Select timeOrderSelect = Select.builder().column(Order_.TIME_ORDER).build();
+        Select bankTransactionCodeSelect = Select.builder().column(Order_.BANK_TRANSACTION_CODE).build();
+        Select orderStatusSelect = Select.builder().column(OrderStatus_.STATUS).build();
+        Select customerUsernameSelect = Select.builder().column(Customer_.USERNAME).build();
         LocalDate now = LocalDate.now();
-        Specification<Order> spec = Specification.where((root, query, criteriaBuilder) -> {
-            Predicate firstStatement = criteriaBuilder.greaterThanOrEqualTo(root.get(Order_.timeOrder), Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(0, 0, 0))));
-            Predicate secondStatement = criteriaBuilder.lessThanOrEqualTo(root.get(Order_.timeOrder), Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(23, 59, 59))));
-            Predicate thirdStatement = criteriaBuilder.equal(root.get(OrderStatus_.ORDER), OrderStatusValue.UN_CONFIRMED.name());
-            return criteriaBuilder.and(firstStatement, secondStatement, thirdStatement);
-        });
-        return findAll(spec, Sort.unsorted());
+        Timestamp start = Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(0, 0, 0)));
+        Timestamp end = Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(23, 59, 59)));
+        Where timeOrderWhere = Where.builder().attribute(Order_.TIME_ORDER).value(new Object[]{start, end}).operator(Operator.BETWEEN).build();
+        Where orderStatusWhere = Where.builder().attribute(OrderStatus_.STATUS).value(OrderStatusValue.UN_CONFIRMED.name()).operator(Operator.EQ).build();
+        Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.INNER).build();
+        Join orderCustomerJoin = Join.builder().attribute(Order_.CUSTOMER).type(JoinType.INNER).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Order.class);
+        sqlSelect.select(idSelect)
+                .select(timeOrderSelect)
+                .select(bankTransactionCodeSelect)
+                .select(orderStatusSelect, OrderStatus.class)
+                .select(customerUsernameSelect, Customer.class);
+        SqlJoin sqlJoin = sqlSelect.join(orderStatusJoin).join(orderCustomerJoin);
+        SqlWhere sqlWhere = sqlJoin.where(timeOrderWhere).and(orderStatusWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(sql, attributes, Order.class);
     }
 
     @Override
     public List<Order> getAll() {
-        return findAll();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Order.class);
+        String sql = sqlSelect.getNativeQuery();
+        return executeNativeQuery(sql, Collections.emptyMap(), Order.class);
     }
 
     @Override

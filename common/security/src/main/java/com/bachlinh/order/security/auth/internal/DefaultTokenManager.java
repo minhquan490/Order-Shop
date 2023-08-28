@@ -126,7 +126,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
 
     @Override
     public RefreshToken generateToken(Object customerId, String username) {
-        Customer customer = customerRepository.getCustomerById((String) customerId, false);
+        Customer customer = customerRepository.getCustomerForRefreshTokenGeneration((String) customerId);
         RefreshToken refreshToken = entityFactory.getEntity(RefreshToken.class);
         refreshToken.setCustomer(customer);
         Instant timeCreated = Instant.now();

@@ -51,6 +51,7 @@ public class CustomerInfoChangeHistory extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @Override
@@ -113,7 +114,7 @@ public class CustomerInfoChangeHistory extends AbstractEntity<String> {
             CustomerInfoChangeHistory result = new CustomerInfoChangeHistory();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CUSTOMER_INFORMATION_CHANGE_HISTORY")) {
+                if (hook.columnName().split("\\.")[0].equals("CUSTOMER_INFORMATION_CHANGE_HISTORY")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -122,13 +123,26 @@ public class CustomerInfoChangeHistory extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    result.setCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CUSTOMER_INFORMATION_CHANGE_HISTORY");
+            });
+        }
+
         private void setData(CustomerInfoChangeHistory target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CUSTOMER_INFORMATION_CHANGE_HISTORY.ID" -> target.setId(mappingObject.value());
                 case "CUSTOMER_INFORMATION_CHANGE_HISTORY.OLD_VALUE" ->

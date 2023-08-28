@@ -5,6 +5,7 @@ import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.context.FieldUpdated;
+import com.bachlinh.order.entity.formula.internal.CommonFieldSelectFormula;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
@@ -28,7 +29,7 @@ import java.util.Queue;
 @MappedSuperclass
 @Getter
 @EqualsAndHashCode
-@Formula("CREATED_BY, MODIFIED_BY, CREATED_DATE, MODIFIED_DATE")
+@Formula(processor = CommonFieldSelectFormula.class)
 public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Column(name = "CREATED_BY", updatable = false)

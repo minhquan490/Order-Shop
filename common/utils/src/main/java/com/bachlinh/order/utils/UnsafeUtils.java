@@ -1,10 +1,10 @@
 package com.bachlinh.order.utils;
 
+import com.bachlinh.order.annotation.Reachable;
+import com.bachlinh.order.exception.system.utils.UnsafeException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import sun.misc.Unsafe;
-import com.bachlinh.order.annotation.Reachable;
-import com.bachlinh.order.exception.system.utils.UnsafeException;
 
 import java.lang.reflect.Field;
 
@@ -25,5 +25,9 @@ public final class UnsafeUtils {
 
     public static Unsafe getUnsafe() {
         return INSTANCE;
+    }
+
+    public static <T> T allocateInstance(Class<T> type) throws InstantiationException {
+        return type.cast(getUnsafe().allocateInstance(type));
     }
 }

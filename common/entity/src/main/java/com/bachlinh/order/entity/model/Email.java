@@ -81,21 +81,25 @@ public class Email extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_CUSTOMER_ID", updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer fromCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer toCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "FOLDER_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private EmailFolders folder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMAIL_TRASH_ID")
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private EmailTrash emailTrash;
 
     @Override
@@ -223,7 +227,7 @@ public class Email extends AbstractEntity<String> {
             Email result = new Email();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("EMAILS")) {
+                if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -238,19 +242,34 @@ public class Email extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = EmailFolders.getMapper();
-                var emailFolders = mapper.map(resultSet);
-                emailFolders.getEmails().add(result);
+                if (mapper.canMap(resultSet)) {
+                    var emailFolders = mapper.map(resultSet);
+                    emailFolders.getEmails().add(result);
+                }
             }
             if (!resultSet.isEmpty()) {
                 var mapper = EmailTrash.getMapper();
-                var emailTrash = mapper.map(resultSet);
-                emailTrash.getEmails().add(result);
-                result.setEmailTrash(emailTrash);
+                if (mapper.canMap(resultSet)) {
+                    var emailTrash = mapper.map(resultSet);
+                    emailTrash.getEmails().add(result);
+                    result.setEmailTrash(emailTrash);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("EMAILS");
+            });
+        }
+
         private void setData(Email target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "EMAILS.ID" -> target.setId(mappingObject.value());
                 case "EMAILS.CONTENT" -> target.setContent((String) mappingObject.value());
@@ -269,10 +288,10 @@ public class Email extends AbstractEntity<String> {
         }
 
         private void assignFromCustomer(Queue<MappingObject> resultSet, Email result) {
-            MappingObject hook = resultSet.peek();
             Queue<MappingObject> cloned = new LinkedList<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("FROM_CUSTOMER")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("FROM_CUSTOMER")) {
                     hook = resultSet.poll();
                     cloned.add(new MappingObject(hook.columnName().replace("FROM_CUSTOMER", "CUSTOMER"), hook.value()));
                 } else {
@@ -286,10 +305,10 @@ public class Email extends AbstractEntity<String> {
 
         private void assignToCustomer(Queue<MappingObject> resultSet, Email result) {
             String toCustomerKey = "TO_CUSTOMER";
-            MappingObject hook = resultSet.peek();
             Queue<MappingObject> cloned = new LinkedList<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith(toCustomerKey)) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals(toCustomerKey)) {
                     hook = resultSet.poll();
                     cloned.add(new MappingObject(hook.columnName().replace(toCustomerKey, "CUSTOMER"), hook.value()));
                 } else {

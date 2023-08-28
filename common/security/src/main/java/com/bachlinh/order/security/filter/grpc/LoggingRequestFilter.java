@@ -1,13 +1,5 @@
 package com.bachlinh.order.security.filter.grpc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.oauth2.jwt.JwtException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
@@ -23,6 +15,14 @@ import com.bachlinh.order.security.filter.GrpcWebFilter;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -118,7 +118,7 @@ public class LoggingRequestFilter extends GrpcWebFilter {
 
     private void logCustomer(String customerId, HttpServletRequest request) throws IOException {
         CustomerAccessHistory customerAccessHistory = entityFactory.getEntity(CustomerAccessHistory.class);
-        Customer customer = customerRepository.getCustomerById(customerId, true);
+        Customer customer = customerRepository.getCustomerForAuthentication(customerId);
         if (customer.getRole().equalsIgnoreCase(Role.ADMIN.name())) {
             return;
         }

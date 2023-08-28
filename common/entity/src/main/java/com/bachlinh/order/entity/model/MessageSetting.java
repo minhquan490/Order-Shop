@@ -90,7 +90,7 @@ public class MessageSetting extends AbstractEntity<String> {
             MessageSetting result = new MessageSetting();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("MESSAGE_SETTING")) {
+                if (hook.columnName().split("\\.")[0].equals("MESSAGE_SETTING")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -100,7 +100,18 @@ public class MessageSetting extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("MESSAGE_SETTING");
+            });
+        }
+
         private void setData(MessageSetting target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "MESSAGE_SETTING.ID" -> target.setId(mappingObject.value());
                 case "MESSAGE_SETTING.VALUE" -> target.setValue((String) mappingObject.value());

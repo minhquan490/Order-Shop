@@ -6,7 +6,6 @@ import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
-import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.environment.Environment;
@@ -24,6 +23,7 @@ import com.bachlinh.order.web.service.business.ProductSearchingService;
 import com.bachlinh.order.web.service.common.ProductService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Isolation;
@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -74,7 +73,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         conditions.put(Product_.COLOR, form.color());
         conditions.put(Product_.ENABLED, Boolean.parseBoolean(form.enable()));
         if (form.categories() != null) {
-            List<Category> categories = Arrays.stream(form.categories()).map(categoryRepository::getCategoryByName).toList();
+            var categories = categoryRepository.getCategoryByNames(Arrays.asList(form.categories()));
             conditions.put(Product_.CATEGORIES, categories);
         }
         conditions = conditions.entrySet()
@@ -95,7 +94,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         conditions.put(Product_.SIZE, form.productSize());
         conditions.put(Product_.ENABLED, true);
         if (form.categories() != null) {
-            List<Category> categories = Arrays.stream(form.categories()).map(categoryRepository::getCategoryByName).toList();
+            var categories = categoryRepository.getCategoryByNames(Arrays.asList(form.categories()));
             conditions.put(Product_.CATEGORIES, categories);
         }
         conditions = conditions.entrySet()
@@ -107,17 +106,14 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
 
     @Override
     public Page<ProductResp> productList(Pageable pageable) {
-        Map<String, Object> conditions = new HashMap<>();
-        Page<Product> products = productRepository.getProductsByCondition(conditions, pageable);
+        Page<Product> products = productRepository.getAllProducts(pageable);
         return products.map(product -> ProductResp.toDto(product, resourceUrl));
     }
 
     @Override
     public Page<ProductResp> getProductsWithId(Collection<Object> ids) {
-        Pageable pageable = Pageable.ofSize(ids.size());
-        Map<String, Object> conditions = new HashMap<>();
-        conditions.put("IDS", ids);
-        return productRepository.getProductsByCondition(conditions, pageable).map(product -> ProductResp.toDto(product, resourceUrl));
+        var results = productRepository.getProductInfos(ids.stream().map(o -> (String) o).toList()).stream().map(product -> ProductResp.toDto(product, resourceUrl)).toList();
+        return new PageImpl<>(results);
     }
 
     @Override
@@ -139,9 +135,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public ProductResp updateProduct(ProductUpdateForm form) {
-        var conditions = new HashMap<String, Object>(1);
-        conditions.put(Product_.ID, form.getProductId());
-        var product = productRepository.getProductByCondition(conditions);
+        var product = productRepository.getProductForUpdate(form.getProductId());
         product.setName(form.getProductName());
         product.setPrice(Integer.parseInt(form.getProductPrice()));
         product.setSize(form.getProductSize());
@@ -180,18 +174,14 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
 
     @Override
     public ProductResp getProductById(String productId) {
-        var conditions = new HashMap<String, Object>(1);
-        conditions.put(Product_.ID, productId);
-        var product = productRepository.getProductByCondition(conditions);
+        var product = productRepository.getProductInfo(productId);
         return ProductResp.toDto(product, resourceUrl);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean deleteProduct(String productId) {
-        var conditions = new HashMap<String, Object>(1);
-        conditions.put(Product_.ID, productId);
-        var product = productRepository.getProductByCondition(conditions);
+        var product = productRepository.getProductForDelete(productId);
         if (product == null) {
             return false;
         } else {

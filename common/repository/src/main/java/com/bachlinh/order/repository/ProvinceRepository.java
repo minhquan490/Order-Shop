@@ -8,6 +8,8 @@ public interface ProvinceRepository extends NativeQueryRepository {
 
     Province getProvinceById(String provinceId);
 
+    Province getAddress(String provinceId, String districtId, String wardId);
+
     boolean saveAllProvinces(Collection<Province> provinces);
 
     long countProvince();

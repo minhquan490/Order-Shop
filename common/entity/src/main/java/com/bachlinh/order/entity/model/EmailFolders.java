@@ -62,9 +62,11 @@ public class EmailFolders extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
+    @EqualsAndHashCode.Exclude
     private Set<Email> emails = new HashSet<>();
 
     @Override
@@ -163,7 +165,7 @@ public class EmailFolders extends AbstractEntity<String> {
             EmailFolders result = new EmailFolders();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("EMAIL_FOLDER")) {
+                if (hook.columnName().split("\\.")[0].equals("EMAIL_FOLDER")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -172,15 +174,17 @@ public class EmailFolders extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                result.setOwner(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    result.setOwner(customer);
+                }
             }
             if (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
                 var mapper = Email.getMapper();
                 Set<Email> emailSet = new LinkedHashSet<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("EMAIL")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
                         var email = mapper.map(resultSet);
                         email.setFolder(result);
                         emailSet.add(email);
@@ -193,7 +197,18 @@ public class EmailFolders extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("EMAIL_FOLDER");
+            });
+        }
+
         private void setData(EmailFolders target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "EMAIL_FOLDER.ID" -> target.setId(mappingObject.value());
                 case "EMAIL_FOLDER.NAME" -> target.setName((String) mappingObject.value());

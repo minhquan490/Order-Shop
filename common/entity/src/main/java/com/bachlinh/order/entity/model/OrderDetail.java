@@ -44,11 +44,13 @@ public class OrderDetail extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "ORDER_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Order order;
 
     @Override
@@ -114,7 +116,7 @@ public class OrderDetail extends AbstractEntity<Integer> {
             OrderDetail result = new OrderDetail();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("ORDER_DETAIL")) {
+                if (hook.columnName().split("\\.")[0].equals("ORDER_DETAIL")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -123,19 +125,34 @@ public class OrderDetail extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Product.getMapper();
-                var product = mapper.map(resultSet);
-                result.setProduct(product);
+                if (mapper.canMap(resultSet)) {
+                    var product = mapper.map(resultSet);
+                    result.setProduct(product);
+                }
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Order.getMapper();
-                var order = mapper.map(resultSet);
-                order.getOrderDetails().add(result);
-                result.setOrder(order);
+                if (mapper.canMap(resultSet)) {
+                    var order = mapper.map(resultSet);
+                    order.getOrderDetails().add(result);
+                    result.setOrder(order);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("ORDER_DETAIL");
+            });
+        }
+
         private void setData(OrderDetail target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "ORDER_DETAIL.ID" -> target.setId(mappingObject.value());
                 case "ORDER_DETAIL.AMOUNT" -> target.setAmount((Integer) mappingObject.value());

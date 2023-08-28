@@ -5,9 +5,7 @@ import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.District;
-import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.repository.DistrictRepository;
-import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.web.dto.form.common.DistrictSearchForm;
 import com.bachlinh.order.web.dto.resp.DistrictResp;
 import com.bachlinh.order.web.service.business.DistrictSearchService;
@@ -21,7 +19,6 @@ import java.util.Collection;
 @RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class DistrictServiceImpl implements DistrictSearchService, DistrictService {
     private final DistrictRepository districtRepository;
-    private final ProvinceRepository provinceRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
 
@@ -35,7 +32,6 @@ public class DistrictServiceImpl implements DistrictSearchService, DistrictServi
 
     @Override
     public Collection<DistrictResp> getDistrictByProvince(String provinceId) {
-        Province province = provinceRepository.getProvinceById(provinceId);
-        return dtoMapper.map(districtRepository.getDistrictsByProvince(province), DistrictResp.class);
+        return dtoMapper.map(districtRepository.getDistrictsByProvince(provinceId), DistrictResp.class);
     }
 }

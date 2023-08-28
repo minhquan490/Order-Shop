@@ -3,35 +3,49 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Address;
+import com.bachlinh.order.entity.model.Address_;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.CustomerAccessHistory;
+import com.bachlinh.order.entity.model.CustomerAccessHistory_;
+import com.bachlinh.order.entity.model.CustomerMedia;
+import com.bachlinh.order.entity.model.CustomerMedia_;
 import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.entity.model.Order;
+import com.bachlinh.order.entity.model.OrderStatus;
+import com.bachlinh.order.entity.model.OrderStatus_;
+import com.bachlinh.order.entity.model.Order_;
+import com.bachlinh.order.entity.model.Voucher;
+import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlJoin;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -49,73 +63,14 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
-    public Customer getCustomer(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins) {
-        Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            extractor.join(joins.toArray(new Join[0]));
-            extractor.where(wheres.toArray(new Where[0]));
-            return extractor.parse();
-        });
-        return findOne(spec).orElse(null);
-    }
-
-    @Override
-    public Collection<Customer> getCustomers(@NonNull Collection<Where> wheres, @NonNull Collection<Join> joins, @Nullable Pageable pageable, @Nullable Sort sort) {
-        Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            extractor.where(wheres.toArray(new Where[0]));
-            extractor.join(joins.toArray(new Join[0]));
-            return extractor.parse();
-        });
-        if (pageable == null && sort == null) {
-            return findAll(spec);
-        }
-        if (pageable != null && sort == null) {
-            return findAll(spec, pageable).toList();
-        }
-        if (pageable == null) {
-            return findAll(spec, sort);
-        }
-        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-        return findAll(spec, newPageable).toList();
-    }
-
-    @Override
     public Collection<Customer> getCustomerByIds(Collection<String> ids) {
-        return findAllById(ids);
-    }
-
-    @Override
-    public Customer getCustomerById(String id, boolean useJoin) {
-        var condition = Where.builder().attribute(Customer_.ID).value(id).operator(Operator.EQ).build();
-        Collection<Join> joins;
-        if (useJoin) {
-            joins = new ArrayList<>(2);
-            joins.add(Join.builder().attribute(Customer_.REFRESH_TOKEN).type(JoinType.INNER).build());
-            joins.add(Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.LEFT).build());
-        } else {
-            joins = new ArrayList<>(0);
-        }
-        return getCustomer(Collections.singletonList(condition), joins);
-    }
-
-    @Override
-    public Customer getCustomerByUsername(String username) {
-        var usernameCondition = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
-        var enableCondition = Where.builder().attribute(Customer_.ENABLED).value(true).operator(Operator.EQ).build();
-        return getCustomer(Arrays.asList(usernameCondition, enableCondition), Collections.emptyList());
-    }
-
-    @Override
-    public Customer getCustomerByEmail(String email) {
-        var condition = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
-        return getCustomer(Collections.singletonList(condition), Collections.emptyList());
-    }
-
-    @Override
-    public Customer getCustomerByPhone(String phone) {
-        var condition = Where.builder().attribute(Customer_.PHONE_NUMBER).value(phone).operator(Operator.EQ).build();
-        return getCustomer(Collections.singletonList(condition), Collections.emptyList());
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(ids.toArray()).operator(Operator.IN).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(query, attributes, Customer.class);
     }
 
     @Override
@@ -127,37 +82,266 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         Select roleSelect = Select.builder().column(Customer_.ROLE).build();
         Select mediaSelect = Select.builder().column(Customer_.CUSTOMER_MEDIA).build();
         Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
-        Specification<Customer> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            queryExtractor.select(idSelect, firstNameSelect, lastNameSelect, roleSelect, mediaSelect);
-            queryExtractor.join(avatarJoin);
-            queryExtractor.where(customerIdWhere);
-            return queryExtractor.parse();
-        });
-        return findOne(spec).orElse(null);
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect).select(firstNameSelect).select(lastNameSelect).select(roleSelect).select(mediaSelect);
+        SqlJoin sqlJoin = sqlSelect.join(avatarJoin);
+        SqlWhere sqlWhere = sqlJoin.where(customerIdWhere);
+        return getCustomer(sqlWhere);
     }
 
     @Override
-    public Customer getCustomerUseJoin(Object customerId, Collection<Join> joins) {
-        var condition = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
-        return getCustomer(Collections.singletonList(condition), joins);
+    public Customer getCustomerForRefreshTokenGeneration(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where idWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class).select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(idWhere);
+        return getCustomer(sqlWhere);
     }
 
     @Override
-    public long countCustomer() {
-        return customerCount.get();
+    public Customer getCustomerForAuthentication(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select usernameSelect = Select.builder().column(Customer_.USERNAME).build();
+        Select firstNameSelect = Select.builder().column(Customer_.FIRST_NAME).build();
+        Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
+        Select phoneSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
+        Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
+        Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select roleSelect = Select.builder().column(Customer_.ROLE).build();
+        Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
+        Select activatedSelect = Select.builder().column(Customer_.ACTIVATED).build();
+        Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
+        Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
+        Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
+        Select enabledSelect = Select.builder().column(Customer_.ENABLED).build();
+        Where idWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect)
+                .select(usernameSelect)
+                .select(firstNameSelect)
+                .select(lastNameSelect)
+                .select(phoneSelect)
+                .select(emailSelect)
+                .select(genderSelect)
+                .select(roleSelect)
+                .select(orderPointSelect)
+                .select(activatedSelect)
+                .select(accountNonExpiredSelect)
+                .select(accountNonLockedSelect)
+                .select(credentialsNonExpiredSelect)
+                .select(enabledSelect);
+        SqlWhere sqlWhere = sqlSelect.where(idWhere);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getCustomerForLogin(String username) {
+        var usernameCondition = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
+        var enableCondition = Where.builder().attribute(Customer_.ENABLED).value(true).operator(Operator.EQ).build();
+        var idSelect = Select.builder().column(Customer_.ID).build();
+        var usernameSelect = Select.builder().column(Customer_.USERNAME).build();
+        var passwordSelect = Select.builder().column(Customer_.PASSWORD).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect).select(usernameSelect).select(passwordSelect);
+        SqlWhere sqlWhere = sqlSelect.where(usernameCondition).and(enableCondition);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getCustomerForResetPassword(String email) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
+        Where enabledWhere = Where.builder().attribute(Customer_.ENABLED).value(true).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(emailWhere).and(enabledWhere);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getCustomerForEmailSending(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect).select(emailSelect);
+        SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getCustomerUpdatableInfo(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select usernameSelect = Select.builder().column(Customer_.USERNAME).build();
+        Select firstNameSelect = Select.builder().column(Customer_.FIRST_NAME).build();
+        Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
+        Select phoneNumberSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
+        Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
+        Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
+        Select addressValueSelect = Select.builder().column(Address_.VALUE).build();
+        Select addressCitySelect = Select.builder().column(Address_.CITY).build();
+        Select addressCountrySelect = Select.builder().column(Address_.COUNTRY).build();
+        Join addressJoin = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.INNER).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect)
+                .select(usernameSelect)
+                .select(firstNameSelect)
+                .select(lastNameSelect)
+                .select(phoneNumberSelect)
+                .select(emailSelect)
+                .select(genderSelect)
+                .select(orderPointSelect)
+                .select(addressValueSelect, Address.class)
+                .select(addressCitySelect, Address.class)
+                .select(addressCountrySelect, Address.class);
+        SqlJoin sqlJoin = sqlSelect.join(addressJoin);
+        SqlWhere sqlWhere = sqlJoin.where(customerIdWhere);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getCustomerInfoForUpdate(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select usernameSelect = Select.builder().column(Customer_.USERNAME).build();
+        Select firstNameSelect = Select.builder().column(Customer_.FIRST_NAME).build();
+        Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
+        Select phoneNumberSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
+        Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
+        Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
+        Select activatedSelect = Select.builder().column(Customer_.ACTIVATED).build();
+        Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
+        Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
+        Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
+        Select enabledSelect = Select.builder().column(Customer_.ENABLED).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect)
+                .select(usernameSelect)
+                .select(firstNameSelect)
+                .select(lastNameSelect)
+                .select(phoneNumberSelect)
+                .select(emailSelect)
+                .select(genderSelect)
+                .select(orderPointSelect)
+                .select(activatedSelect)
+                .select(accountNonExpiredSelect)
+                .select(accountNonLockedSelect)
+                .select(credentialsNonExpiredSelect)
+                .select(enabledSelect);
+        SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getCustomerForDelete(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
+        return getCustomer(sqlWhere);
+    }
+
+    @Override
+    public Customer getFullInformation(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select usernameSelect = Select.builder().column(Customer_.USERNAME).build();
+        Select firstNameSelect = Select.builder().column(Customer_.FIRST_NAME).build();
+        Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
+        Select phoneNumberSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
+        Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
+        Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select roleSelect = Select.builder().column(Customer_.ROLE).build();
+        Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
+        Select activatedSelect = Select.builder().column(Customer_.ACTIVATED).build();
+        Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
+        Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
+        Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
+        Select customerMediaIdSelect = Select.builder().column(CustomerMedia_.ID).build();
+        Select customerMediaUrlSelect = Select.builder().column(CustomerMedia_.URL).build();
+        Select customerMediaContentTypeSelect = Select.builder().column(CustomerMedia_.CONTENT_TYPE).build();
+        Select customerMediaContentLengthSelect = Select.builder().column(CustomerMedia_.CONTENT_LENGTH).build();
+        Select customerAddressIdSelect = Select.builder().column(Address_.ID).build();
+        Select customerAddressValueSelect = Select.builder().column(Address_.VALUE).build();
+        Select customerAddressCitySelect = Select.builder().column(Address_.CITY).build();
+        Select customerAddressCountrySelect = Select.builder().column(Address_.COUNTRY).build();
+        Select customerOrderIdSelect = Select.builder().column(Order_.ID).build();
+        Select customerTimeOrderSelect = Select.builder().column(Order_.TIME_ORDER).build();
+        Select customerOrderTransactionCodeSelect = Select.builder().column(Order_.BANK_TRANSACTION_CODE).build();
+        Select orderStatusSelect = Select.builder().column(OrderStatus_.STATUS).build();
+        Select customerAccessHistoryPathRequestSelect = Select.builder().column(CustomerAccessHistory_.PATH_REQUEST).build();
+        Select customerAccessHistoryRequestTypeSelect = Select.builder().column(CustomerAccessHistory_.REQUEST_TYPE).build();
+        Select customerAccessHistoryRequestTimeSelect = Select.builder().column(CustomerAccessHistory_.REQUEST_TIME).build();
+        Select customerAssignVoucherIdSelect = Select.builder().column(Voucher_.ID).build();
+        Select customerAssignVoucherNameSelect = Select.builder().column(Voucher_.NAME).build();
+        Join historyJoin = Join.builder().attribute(Customer_.HISTORIES).type(JoinType.LEFT).build();
+        Join voucherJoin = Join.builder().attribute(Customer_.ASSIGNED_VOUCHERS).type(JoinType.LEFT).build();
+        Join orderJoin = Join.builder().attribute(Customer_.ORDERS).type(JoinType.LEFT).build();
+        Join addressJoin = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.LEFT).build();
+        Join mediaJoin = Join.builder().attribute(Customer_.CUSTOMER_MEDIA).type(JoinType.LEFT).build();
+        Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.LEFT).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect)
+                .select(usernameSelect)
+                .select(firstNameSelect)
+                .select(lastNameSelect)
+                .select(phoneNumberSelect)
+                .select(emailSelect)
+                .select(genderSelect)
+                .select(roleSelect)
+                .select(orderPointSelect)
+                .select(activatedSelect)
+                .select(accountNonExpiredSelect)
+                .select(accountNonLockedSelect)
+                .select(credentialsNonExpiredSelect)
+                .select(customerMediaIdSelect)
+                .select(customerMediaUrlSelect, CustomerMedia.class)
+                .select(customerMediaContentTypeSelect, CustomerMedia.class)
+                .select(customerMediaContentLengthSelect, CustomerMedia.class)
+                .select(customerAddressIdSelect, Address.class)
+                .select(customerAddressValueSelect, Address.class)
+                .select(customerAddressCitySelect, Address.class)
+                .select(customerAddressCountrySelect, Address.class)
+                .select(customerOrderIdSelect, Order.class)
+                .select(customerTimeOrderSelect, Order.class)
+                .select(customerOrderTransactionCodeSelect, Order.class)
+                .select(orderStatusSelect, OrderStatus.class)
+                .select(customerAccessHistoryPathRequestSelect, CustomerAccessHistory.class)
+                .select(customerAccessHistoryRequestTypeSelect, CustomerAccessHistory.class)
+                .select(customerAccessHistoryRequestTimeSelect, CustomerAccessHistory.class)
+                .select(customerAssignVoucherIdSelect, Voucher.class)
+                .select(customerAssignVoucherNameSelect, Voucher.class);
+        SqlJoin sqlJoin = sqlSelect.join(mediaJoin)
+                .join(addressJoin)
+                .join(orderJoin)
+                .join(orderStatusJoin, Order.class)
+                .join(historyJoin)
+                .join(voucherJoin);
+        SqlWhere sqlWhere = sqlJoin.where(customerIdWhere);
+        return getCustomer(sqlWhere);
     }
 
     @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     @ActiveReflection
-    public boolean deleteCustomer(@NonNull Customer customer) {
+    public void deleteCustomer(@NonNull Customer customer) {
         if (StringUtils.hasText((CharSequence) customer.getId())) {
             long numRowDeleted = this.delete(Specification.where((root, query, builder) -> builder.equal(root.get(Customer_.ID), customer.getId())));
             customerCount.set((int) (customerCount.get() - numRowDeleted));
-            return numRowDeleted == 1;
-        } else {
-            return false;
         }
     }
 
@@ -183,40 +367,89 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     }
 
     @Override
-    public boolean usernameExist(String username) {
-        return this.getCustomerByUsername(username) != null;
+    public boolean isEmailExisted(String email) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
+        return isColumnValueExisted(idSelect, emailWhere);
     }
 
     @Override
-    public boolean phoneNumberExist(String phone) {
-        return this.getCustomerByPhone(phone) != null;
+    public boolean isPhoneNumberExisted(String phoneNumber) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where phoneNumberWhere = Where.builder().attribute(Customer_.PHONE_NUMBER).value(phoneNumber).operator(Operator.EQ).build();
+        return isColumnValueExisted(idSelect, phoneNumberWhere);
     }
 
     @Override
-    public boolean emailExist(String email) {
-        return this.getCustomerByEmail(email) != null;
+    public boolean isUsernameExisted(String username) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where usernameWhere = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
+        return isColumnValueExisted(idSelect, usernameWhere);
     }
 
     @Override
-    public boolean existById(Object customerId) {
-        return super.existsById((String) customerId);
+    public boolean isCustomerIdExisted(String customerId) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        return isColumnValueExisted(idSelect, customerIdWhere);
     }
 
     @Override
-    public Page<Customer> getAll(Pageable pageable, Sort sort) {
-        if (pageable == null && sort == null) {
-            List<Customer> results = this.findAll();
+    public Page<Customer> getAll(Pageable pageable, Collection<OrderBy> orderByCollection) {
+        Select idSelect = Select.builder().column(Customer_.ID).build();
+        Select usernameSelect = Select.builder().column(Customer_.USERNAME).build();
+        Select firstNameSelect = Select.builder().column(Customer_.FIRST_NAME).build();
+        Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
+        Select phoneNumberSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
+        Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
+        Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select roleSelect = Select.builder().column(Customer_.ROLE).build();
+        Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
+        Select activatedSelect = Select.builder().column(Customer_.ACTIVATED).build();
+        Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
+        Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
+        Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect)
+                .select(usernameSelect)
+                .select(firstNameSelect)
+                .select(lastNameSelect)
+                .select(phoneNumberSelect)
+                .select(emailSelect)
+                .select(genderSelect)
+                .select(roleSelect)
+                .select(orderPointSelect)
+                .select(activatedSelect)
+                .select(accountNonExpiredSelect)
+                .select(accountNonLockedSelect)
+                .select(credentialsNonExpiredSelect);
+        if (pageable == null && orderByCollection.isEmpty()) {
+            String sql = sqlSelect.getNativeQuery();
+            List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
             return new PageImpl<>(results, Pageable.unpaged(), results.size());
         }
-        if (pageable != null && sort == null) {
-            return this.findAll(pageable);
+        if (pageable != null && orderByCollection.isEmpty()) {
+            long offset = pageable.getOffset();
+            long limit = pageable.getPageSize();
+            sqlSelect.limit(limit).offset(offset);
+            String sql = sqlSelect.getNativeQuery();
+            List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
+            return new PageImpl<>(results, Pageable.unpaged(), results.size());
         }
         if (pageable == null) {
-            List<Customer> results = this.findAll(sort);
+            orderByCollection.forEach(sqlSelect::orderBy);
+            String sql = sqlSelect.getNativeQuery();
+            List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
             return new PageImpl<>(results, Pageable.unpaged(), results.size());
         }
-        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-        return this.findAll(newPageable);
+        long offset = pageable.getOffset();
+        long limit = pageable.getPageSize();
+        sqlSelect.limit(limit).offset(offset);
+        orderByCollection.forEach(sqlSelect::orderBy);
+        String sql = sqlSelect.getNativeQuery();
+        List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
+        return new PageImpl<>(results, Pageable.unpaged(), results.size());
     }
 
     @Override
@@ -224,5 +457,27 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
+    }
+
+    @Nullable
+    private Customer getCustomer(SqlWhere sqlWhere) {
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(sql, attributes, Customer.class);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
+    }
+
+    private boolean isColumnValueExisted(Select idSelect, Where where) {
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
+        sqlSelect.select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(where);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return !executeNativeQuery(sql, attributes, Customer.class).isEmpty();
     }
 }

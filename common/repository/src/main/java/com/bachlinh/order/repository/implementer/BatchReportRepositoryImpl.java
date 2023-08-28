@@ -10,9 +10,9 @@ import com.bachlinh.order.repository.BatchReportRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelection;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.query.WhereOperation;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,11 +54,11 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
     public Collection<BatchReport> getReports(Timestamp from, Timestamp to) {
         SqlBuilder sqlBuilder = getSqlBuilder();
         Where timeReportWhere = Where.builder().attribute(BatchReport_.TIME_REPORT).value(new Object[]{from, to}).operator(Operator.BETWEEN).build();
-        SqlSelection sqlSelection = sqlBuilder.from(BatchReport.class);
-        WhereOperation whereOperation = sqlSelection.where(timeReportWhere);
-        String query = whereOperation.getNativeQuery();
+        SqlSelect sqlSelect = sqlBuilder.from(BatchReport.class);
+        SqlWhere sqlWhere = sqlSelect.where(timeReportWhere);
+        String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = new HashMap<>();
-        whereOperation.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
+        sqlWhere.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
         return executeNativeQuery(query, attributes, BatchReport.class);
     }
 
@@ -66,9 +66,9 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
     public Collection<BatchReport> getAllReport() {
         SqlBuilder sqlBuilder = getSqlBuilder();
         OrderBy timeReportOrderBy = OrderBy.builder().column(BatchReport_.TIME_REPORT).type(OrderBy.Type.ASC).build();
-        SqlSelection sqlSelection = sqlBuilder.from(BatchReport.class);
-        sqlSelection.orderBy(timeReportOrderBy);
-        String query = sqlSelection.getNativeQuery();
+        SqlSelect sqlSelect = sqlBuilder.from(BatchReport.class);
+        sqlSelect.orderBy(timeReportOrderBy);
+        String query = sqlSelect.getNativeQuery();
         return executeNativeQuery(query, Collections.emptyMap(), BatchReport.class);
     }
 }

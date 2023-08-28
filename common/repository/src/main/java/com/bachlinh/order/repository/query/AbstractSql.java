@@ -23,11 +23,26 @@ public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T>
     }
 
     protected String processLimitOffset() {
-        String template = " OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-        if (limit == -1 || offset == -1) {
-            return "";
+        if (limit >= 1 && offset < 0) {
+            offset = 0;
         }
-        return MessageFormat.format(template, offset, limit);
+        return processOffset() + processLimit();
+    }
+
+    private String processLimit() {
+        String template = " FETCH NEXT {0} ROWS ONLY";
+        if (limit >= 1) {
+            return MessageFormat.format(template, limit);
+        }
+        return "";
+    }
+
+    private String processOffset() {
+        String template = " OFFSET {0} ROWS";
+        if (offset >= 0) {
+            return MessageFormat.format(template, offset);
+        }
+        return "";
     }
 
     protected String processOrder(String tableName, String colName, String type) {
@@ -50,7 +65,7 @@ public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T>
         } else {
             Collection<String> processedOrder = combineOrderBy();
 
-            String orderBy = String.join(" ,", processedOrder.toArray(new String[0]));
+            String orderBy = String.join(", ", processedOrder.toArray(new String[0]));
             return MessageFormat.format(orderByStatementPattern, orderBy);
         }
     }

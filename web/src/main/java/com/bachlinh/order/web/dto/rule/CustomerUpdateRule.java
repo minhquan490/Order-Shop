@@ -11,7 +11,7 @@ import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.form.customer.CustomerUpdateForm;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;

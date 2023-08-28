@@ -25,6 +25,7 @@ class NativeQueryResultProcessing implements ResultListProcessing<BaseEntity<?>,
             results.add(entity);
         }
         var entity = entityFactory.getEntity(domainClass);
+        entity.setNew(false);
         return new LinkedList<>(entity.reduce(results));
     }
 }

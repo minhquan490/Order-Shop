@@ -2,9 +2,11 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.entity.EntityMapper;
+import com.bachlinh.order.entity.formula.internal.ProductEnableFormula;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -50,6 +52,7 @@ import java.util.Set;
 @Getter
 @DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
+@Formula(processor = ProductEnableFormula.class)
 public class Product extends AbstractEntity<String> {
 
     @Id
@@ -87,12 +90,15 @@ public class Product extends AbstractEntity<String> {
     private boolean enabled = true;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Collection<ProductMedia> medias = new HashSet<>();
 
     @ManyToMany(mappedBy = "products")
+    @EqualsAndHashCode.Exclude
     private Collection<Category> categories = new HashSet<>();
 
     @ManyToMany(mappedBy = "products")
+    @EqualsAndHashCode.Exclude
     private Collection<Cart> carts = new HashSet<>();
 
     @Override
@@ -234,7 +240,7 @@ public class Product extends AbstractEntity<String> {
             Product result = new Product();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("PRODUCT")) {
+                if (hook.columnName().split("\\.")[0].equals("PRODUCT")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -253,7 +259,18 @@ public class Product extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("PRODUCT");
+            });
+        }
+
         private void setData(Product target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "PRODUCT.ID" -> target.setId(mappingObject.value());
                 case "PRODUCT.NAME" -> target.setName((String) mappingObject.value());
@@ -270,10 +287,10 @@ public class Product extends AbstractEntity<String> {
 
         private void assignMedias(Queue<MappingObject> resultSet, Product result) {
             var mapper = ProductMedia.getMapper();
-            MappingObject hook = resultSet.peek();
             Set<ProductMedia> productMediaSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("PRODUCT_MEDIA")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("PRODUCT_MEDIA")) {
                     var productMedia = mapper.map(resultSet);
                     productMedia.setProduct(result);
                     productMediaSet.add(productMedia);
@@ -286,10 +303,10 @@ public class Product extends AbstractEntity<String> {
 
         private void assignCategories(Queue<MappingObject> resultSet, Product result) {
             var mapper = Category.getMapper();
-            MappingObject hook = resultSet.peek();
             Set<Category> categorySet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("CATEGORY")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("CATEGORY")) {
                     var category = mapper.map(resultSet);
                     category.getProducts().add(result);
                     categorySet.add(category);
@@ -300,10 +317,10 @@ public class Product extends AbstractEntity<String> {
 
         private void assignCarts(Queue<MappingObject> resultSet, Product result) {
             var mapper = Cart.getMapper();
-            MappingObject hook = resultSet.peek();
             Set<Cart> cartSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("CART")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("CART")) {
                     var cart = mapper.map(resultSet);
                     cart.getProducts().add(result);
                     cartSet.add(cart);

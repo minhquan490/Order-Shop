@@ -1,23 +1,35 @@
 package com.bachlinh.order.repository.implementer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
+import com.bachlinh.order.entity.model.EmailTemplate_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlJoin;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
@@ -42,14 +54,22 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void deleteTemplateFolder(EmailTemplateFolder folder) {
         delete(folder);
     }
 
     @Override
     public boolean isEmailTemplateFolderNameExisted(String emailTemplateFolderName) {
-        Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(EmailTemplateFolder_.name), emailTemplateFolderName));
-        return findOne(spec).isPresent();
+        Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(emailTemplateFolderName).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
+        sqlSelect.select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(emailTemplateFolderNameWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return !executeNativeQuery(sql, attributes, EmailTemplateFolder.class).isEmpty();
     }
 
     @Override
@@ -59,48 +79,99 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
 
     @Override
     public EmailTemplateFolder getEmailTemplateFolderById(String id, Customer owner) {
-        Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> {
-            root.join(EmailTemplateFolder_.emailTemplates);
-            var firstStatement = criteriaBuilder.equal(root.get(EmailTemplateFolder_.id), id);
-            var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
-            return criteriaBuilder.and(firstStatement, secondStatement);
-        });
-        return findOne(spec).orElse(null);
+        Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
+        Select timeTemplateClearedSelect = Select.builder().column(EmailTemplateFolder_.CLEAR_TEMPLATE_POLICY).build();
+        Select emailTemplateIdSelect = Select.builder().column(EmailTemplate_.ID).build();
+        Select emailTemplateNameSelect = Select.builder().column(EmailTemplate_.NAME).build();
+        Select emailTemplateTitleSelect = Select.builder().column(EmailTemplate_.TITLE).build();
+        Join emailTemplatesJoin = Join.builder().attribute(EmailTemplateFolder_.EMAIL_TEMPLATES).type(JoinType.LEFT).build();
+        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(owner).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
+        sqlSelect.select(idSelect)
+                .select(nameSelect)
+                .select(timeTemplateClearedSelect)
+                .select(emailTemplateIdSelect, EmailTemplate.class)
+                .select(emailTemplateNameSelect, EmailTemplate.class)
+                .select(emailTemplateTitleSelect, EmailTemplate.class);
+        SqlJoin sqlJoin = sqlSelect.join(emailTemplatesJoin);
+        return getEmailTemplateFolder(ownerWhere, sqlJoin.where(idWhere));
     }
 
 
     @Override
     public EmailTemplateFolder getEmailTemplateFolderByName(String name, Customer owner) {
-        Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var firstStatement = criteriaBuilder.equal(root.get(EmailTemplateFolder_.name), name);
-            var secondStatement = criteriaBuilder.equal(root.get(Customer_.ID), owner.getId());
-            return criteriaBuilder.and(firstStatement, secondStatement);
-        });
-        return findOne(spec).orElse(null);
+        Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
+        Select clearTemplatePolicySelect = Select.builder().column(EmailTemplateFolder_.CLEAR_TEMPLATE_POLICY).build();
+        Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(name).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(owner).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
+        sqlSelect.select(idSelect).select(nameSelect).select(clearTemplatePolicySelect);
+        return getEmailTemplateFolder(ownerWhere, sqlSelect.where(emailTemplateFolderNameWhere));
     }
 
     @Override
     public EmailTemplateFolder getEmailTemplateFolderHasCustomer(String id) {
-        Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> {
-            root.join(EmailTemplateFolder_.owner);
-            return criteriaBuilder.equal(root.get(EmailTemplateFolder_.id), id);
-        });
-        return findOne(spec).orElse(null);
+        Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
+        Select clearTemplatePolicySelect = Select.builder().column(EmailTemplateFolder_.CLEAR_TEMPLATE_POLICY).build();
+        Join ownerJoin = Join.builder().attribute(EmailTemplateFolder_.OWNER).type(JoinType.INNER).build();
+        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
+        sqlSelect.select(idSelect).select(nameSelect).select(clearTemplatePolicySelect);
+        SqlJoin sqlJoin = sqlSelect.join(ownerJoin);
+        SqlWhere sqlWhere = sqlJoin.where(idWhere);
+        return processNativeQuery(sqlWhere);
     }
 
     @Override
     public Collection<EmailTemplateFolder> getEmailTemplateFolders(String customerId) {
-        Specification<EmailTemplateFolder> spec = Specification.where((root, query, criteriaBuilder) -> {
-            root.join(EmailTemplateFolder_.emailTemplates);
-            root.join(EmailTemplateFolder_.owner);
-            return criteriaBuilder.equal(root.get(Customer_.ID), customerId);
-        });
-        return findAll(spec);
+        Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
+        Select clearTemplatePolicySelect = Select.builder().column(EmailTemplateFolder_.CLEAR_TEMPLATE_POLICY).build();
+        Select emailTemplateIdSelect = Select.builder().column(EmailTemplate_.ID).build();
+        Join ownerJoin = Join.builder().attribute(EmailTemplateFolder_.OWNER).type(JoinType.INNER).build();
+        Join emailTemplatesJoin = Join.builder().attribute(EmailTemplateFolder_.EMAIL_TEMPLATES).type(JoinType.LEFT).build();
+        Where ownerIdWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(customerId).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
+        sqlSelect.select(idSelect)
+                .select(nameSelect)
+                .select(clearTemplatePolicySelect)
+                .select(emailTemplateIdSelect, EmailTemplate.class);
+        SqlJoin sqlJoin = sqlSelect.join(ownerJoin).join(emailTemplatesJoin);
+        SqlWhere sqlWhere = sqlJoin.where(ownerIdWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(sql, attributes, EmailTemplateFolder.class);
     }
 
     @Override
     @PersistenceContext
-    protected void setEntityManager(EntityManager entityManager) {
+    public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
+    }
+
+    @Nullable
+    private EmailTemplateFolder getEmailTemplateFolder(Where ownerWhere, SqlWhere where) {
+        SqlWhere sqlWhere = where.and(ownerWhere);
+        return processNativeQuery(sqlWhere);
+    }
+
+    @Nullable
+    private EmailTemplateFolder processNativeQuery(SqlWhere sqlWhere) {
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(sql, attributes, EmailTemplateFolder.class);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 }

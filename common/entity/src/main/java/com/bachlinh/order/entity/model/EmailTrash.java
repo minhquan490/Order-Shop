@@ -51,6 +51,7 @@ public class EmailTrash extends AbstractEntity<Integer> {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, unique = true, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @ActiveReflection
@@ -125,7 +126,7 @@ public class EmailTrash extends AbstractEntity<Integer> {
             EmailTrash result = new EmailTrash();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("EMAIL_TRASH")) {
+                if (hook.columnName().split("\\.")[0].equals("EMAIL_TRASH")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -134,10 +135,10 @@ public class EmailTrash extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Email.getMapper();
-                hook = resultSet.peek();
                 Set<Email> emailSet = new LinkedHashSet<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("EMAILS")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
                         var email = mapper.map(resultSet);
                         email.setEmailTrash(result);
                         emailSet.add(email);
@@ -149,14 +150,27 @@ public class EmailTrash extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.setEmailTrash(result);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.setEmailTrash(result);
+                    result.setCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("EMAIL_TRASH");
+            });
+        }
+
         private void setData(EmailTrash target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "EMAIL_TRASH.ID" -> target.setId(mappingObject.value());
                 case "EMAIL_TRASH.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());

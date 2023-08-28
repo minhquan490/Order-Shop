@@ -106,7 +106,7 @@ public class CrawlResult extends AbstractEntity<Integer> {
             CrawlResult result = new CrawlResult();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CRAWL_RESULT")) {
+                if (hook.columnName().split("\\.")[0].equals("CRAWL_RESULT")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -116,7 +116,18 @@ public class CrawlResult extends AbstractEntity<Integer> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CRAWL_RESULT");
+            });
+        }
+
         private void setData(CrawlResult target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CRAWL_RESULT.ID" -> target.setId(mappingObject.value());
                 case "CRAWL_RESULT.SOURCE_PATH" -> target.setSourcePath((String) mappingObject.value());

@@ -62,7 +62,7 @@ public class TemplateMailSendingRule extends AbstractRule<TemplateMailSendingFor
             RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
 
-        if (customerRepository.existById(dto.getToCustomer())) {
+        if (customerRepository.isCustomerIdExisted(dto.getToCustomer())) {
             var key = "to";
             String errorContent = MessageFormat.format(notFoundMessage.getValue(), "Receiver");
             RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);

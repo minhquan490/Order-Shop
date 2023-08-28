@@ -8,23 +8,29 @@ import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.VoucherRepository;
-import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlJoin;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
@@ -53,14 +59,12 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
 
     @Override
     public Voucher getVoucher(@NonNull Collection<Select> selects, @NonNull Collection<Join> joins, @NonNull Collection<Where> wheres) {
-        Specification<Voucher> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            extractor.select(selects.toArray(new Select[0]));
-            extractor.join(joins.toArray(new Join[0]));
-            extractor.where(wheres.toArray(new Where[0]));
-            return extractor.parse();
-        });
-        return findOne(spec).orElse(null);
+        var results = new ArrayList<>(getVouchers(selects, joins, wheres));
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 
     @Override
@@ -115,14 +119,31 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
 
     @Override
     public Collection<Voucher> getVouchers(Collection<Select> selects, Collection<Join> joins, Collection<Where> wheres) {
-        Specification<Voucher> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            extractor.select(selects.toArray(new Select[0]));
-            extractor.join(joins.toArray(new Join[0]));
-            extractor.where(wheres.toArray(new Where[0]));
-            return extractor.parse();
-        });
-        return findAll(spec);
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Voucher.class);
+        selects.forEach(sqlSelect::select);
+        SqlJoin sqlJoin = null;
+        if (!joins.isEmpty()) {
+            for (var join : joins) {
+                sqlJoin = sqlSelect.join(join);
+            }
+        }
+        SqlWhere sqlWhere = null;
+        if (!wheres.isEmpty()) {
+            for (var where : wheres) {
+                sqlWhere = Objects.requireNonNullElse(sqlJoin, sqlSelect).where(where);
+            }
+        }
+        String query;
+        Map<String, Object> attributes;
+        if (sqlWhere == null) {
+            query = sqlSelect.getNativeQuery();
+            attributes = Collections.emptyMap();
+        } else {
+            query = sqlWhere.getNativeQuery();
+            attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        }
+        return executeNativeQuery(query, attributes, Voucher.class);
     }
 
     @Override
@@ -133,7 +154,7 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
     @Override
     @PersistenceContext
     @ActiveReflection
-    protected void setEntityManager(EntityManager entityManager) {
+    public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }
 }

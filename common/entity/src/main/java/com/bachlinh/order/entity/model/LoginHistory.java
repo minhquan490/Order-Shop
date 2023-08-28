@@ -50,6 +50,7 @@ public class LoginHistory extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @Override
@@ -111,7 +112,7 @@ public class LoginHistory extends AbstractEntity<Integer> {
             LoginHistory result = new LoginHistory();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("LOGIN_HISTORY")) {
+                if (hook.columnName().split("\\.")[0].equals("LOGIN_HISTORY")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -126,7 +127,18 @@ public class LoginHistory extends AbstractEntity<Integer> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("LOGIN_HISTORY");
+            });
+        }
+
         private void setData(LoginHistory target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "LOGIN_HISTORY.ID" -> target.setId(mappingObject.value());
                 case "LOGIN_HISTORY.LAST_LOGIN_TIME" -> target.setLastLoginTime((Timestamp) mappingObject.value());

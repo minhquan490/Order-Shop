@@ -73,6 +73,7 @@ public class Voucher extends AbstractEntity<String> {
     private boolean active = false;
 
     @ManyToMany(mappedBy = "assignedVouchers")
+    @EqualsAndHashCode.Exclude
     private Set<Customer> customers = new HashSet<>();
 
     @Override
@@ -195,7 +196,7 @@ public class Voucher extends AbstractEntity<String> {
             Voucher result = new Voucher();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("VOUCHER")) {
+                if (hook.columnName().split("\\.")[0].equals("VOUCHER")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -204,10 +205,10 @@ public class Voucher extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                hook = resultSet.peek();
                 Set<Customer> customerSet = new LinkedHashSet<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("CUSTOMER")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("CUSTOMER")) {
                         var customer = mapper.map(resultSet);
                         result.getCustomers().add(customer);
                         customerSet.add(customer);
@@ -218,7 +219,18 @@ public class Voucher extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("VOUCHER");
+            });
+        }
+
         private void setData(Voucher target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "VOUCHER.ID" -> target.setId(mappingObject.value());
                 case "VOUCHER.NAME" -> target.setName((String) mappingObject.value());

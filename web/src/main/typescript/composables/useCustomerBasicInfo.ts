@@ -23,7 +23,7 @@ export const useCustomerBasicInfo = defineStore('customer', () => {
         return cus.id === '' && cus.role === '' && cus.avatarUrl === '' && cus.firstName === '' && cus.firstName === '';
     });
 
-    function setCustomer(newCustomer: BasicCustomerInfo) {
+    function setCustomer(newCustomer: BasicCustomerInfo): void {
         customer.value = newCustomer;
     }
 

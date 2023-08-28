@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.dto.resp;
 
+import com.bachlinh.order.annotation.Dto;
+import com.bachlinh.order.annotation.MappedDtoField;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.bachlinh.order.annotation.Dto;
-import com.bachlinh.order.annotation.MappedDtoField;
 
 @NoArgsConstructor
 @Getter
@@ -26,9 +26,6 @@ public class EmailInfoResp {
 
     @MappedDtoField(targetField = "read", outputJsonField = "is_read")
     private boolean read;
-
-    @MappedDtoField(targetField = "sent", outputJsonField = "is_sent")
-    private boolean sent;
 
     @MappedDtoField(targetField = "mediaType", outputJsonField = "email_type")
     private String mediaType;

@@ -8,6 +8,7 @@ import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.Controller;
 import com.bachlinh.order.handler.controller.ControllerManager;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -46,19 +47,22 @@ class DefaultNode extends AbstractNode implements NodeRegister {
     @SuppressWarnings("unchecked")
     public <T, U> NativeResponse<T> handleRequest(UrlHolder urlHolder, RequestMethod method, NativeRequest<U> request) {
         if (isControllerNotfound) {
-            throw new ResourceNotFoundException("Not found", "");
+            throw new ResourceNotFoundException("Not found", urlHolder.actualUrl());
         }
         String path = urlHolder.paths().poll();
 
         // Case tail node
         if (urlHolder.paths().isEmpty()) {
+            if (getChildren().length != 0) {
+                return search(path).handleRequest(urlHolder, method, request);
+            }
             if (controller == null) {
                 var paths = new ArrayList<String>();
                 paths.add(path);
                 controller = getController(paths, method);
                 if (controller == null) {
                     isControllerNotfound = true;
-                    throw new ResourceNotFoundException("Not found", "");
+                    throw new ResourceNotFoundException("Not found", urlHolder.actualUrl());
                 }
             }
             if (!controller.getRequestMethod().equals(method)) {
@@ -76,11 +80,10 @@ class DefaultNode extends AbstractNode implements NodeRegister {
             path = urlHolder.paths().poll();
         }
 
-        int position = Collections.binarySearch(nodeNames, path);
-        return nodes.get(position).handleRequest(urlHolder, method, request);
+        return search(path).handleRequest(urlHolder, method, request);
     }
 
-    @Nullable
+    @NonNull
     @Override
     public Node[] getChildren() {
         return nodes.toArray(new Node[0]);
@@ -129,5 +132,10 @@ class DefaultNode extends AbstractNode implements NodeRegister {
             String actualPath = String.join("/", paths.toArray(new String[0]));
             return getContext().getController(actualPath, method);
         }
+    }
+
+    private DefaultNode search(String path) {
+        int position = Collections.binarySearch(nodeNames, path);
+        return (DefaultNode) nodes.get(position);
     }
 }

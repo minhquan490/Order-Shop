@@ -4,20 +4,29 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.LoginHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
-import com.bachlinh.order.repository.query.CriteriaPredicateParser;
+import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.OrderBy;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlJoin;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
@@ -39,19 +48,32 @@ public class LoginHistoryRepositoryImpl extends AbstractRepository<LoginHistory,
     }
 
     @Override
-    public Collection<LoginHistory> getHistories(Customer owner) {
-        var ownerWhere = Where.builder().attribute(LoginHistory_.CUSTOMER).value(owner).operator(Operator.EQ).build();
-        Specification<LoginHistory> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            extractor.where(ownerWhere);
-            return extractor.parse();
-        });
-        return findAll(spec);
+    public Collection<LoginHistory> getHistories(Customer owner, long limit) {
+        Select idSelect = Select.builder().column(LoginHistory_.ID).build();
+        Select lastLoginTimeSelect = Select.builder().column(LoginHistory_.LAST_LOGIN_TIME).build();
+        Select loginIpSelect = Select.builder().column(LoginHistory_.LOGIN_IP).build();
+        Select successSelect = Select.builder().column(LoginHistory_.SUCCESS).build();
+        Join customerJoin = Join.builder().attribute(LoginHistory_.CUSTOMER).type(JoinType.INNER).build();
+        OrderBy lastLoginTimeOrderBy = OrderBy.builder().column(LoginHistory_.LAST_LOGIN_TIME).type(OrderBy.Type.DESC).build();
+        var ownerWhere = Where.builder().attribute(Customer_.ID).value(owner.getId()).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(LoginHistory.class);
+        sqlSelect.select(idSelect)
+                .select(lastLoginTimeSelect)
+                .select(loginIpSelect)
+                .select(successSelect);
+        SqlJoin sqlJoin = sqlSelect.join(customerJoin);
+        SqlWhere sqlWhere = sqlJoin.where(ownerWhere, Customer.class);
+        sqlWhere.orderBy(lastLoginTimeOrderBy, LoginHistory.class);
+        sqlWhere.limit(limit);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(sql, attributes, LoginHistory.class);
     }
 
     @Override
     @PersistenceContext
-    protected void setEntityManager(EntityManager entityManager) {
+    public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
     }
 }

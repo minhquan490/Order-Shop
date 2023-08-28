@@ -7,7 +7,6 @@ import com.bachlinh.order.core.http.MultipartRequest;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
-import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
@@ -40,8 +39,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @ServiceComponent
@@ -61,9 +58,7 @@ public class ProductMediaServiceImpl implements ProductMediaService, FileUploadS
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public void catAndFlushFile(FileFlushForm form) throws IOException {
-        Map<String, Object> condition = new HashMap<>(1);
-        condition.put(Product_.ID, form.productId());
-        Product product = productRepository.getProductByCondition(condition);
+        Product product = productRepository.getProductForFileUpload(form.productId());
 
         if (product == null) {
             throw new ResourceNotFoundException("Product with id [" + form.productId() + "] not found", "");

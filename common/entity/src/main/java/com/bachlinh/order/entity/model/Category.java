@@ -63,6 +63,7 @@ public class Category extends AbstractEntity<String> {
             indexes = @Index(name = "idx_product_category", columnList = "CATEGORY_ID, PRODUCT_ID"),
             uniqueConstraints = @UniqueConstraint(name = "udx_product_category_product", columnNames = "CATEGORY_ID")
     )
+    @EqualsAndHashCode.Exclude
     private Set<Product> products = new HashSet<>();
 
     @Override
@@ -136,7 +137,7 @@ public class Category extends AbstractEntity<String> {
             Category result = new Category();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CATEGORY")) {
+                if (hook.columnName().split("\\.")[0].equals("CATEGORY")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -144,11 +145,11 @@ public class Category extends AbstractEntity<String> {
                 }
             }
             if (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
                 var mapper = Product.getMapper();
                 Set<Product> productSet = new LinkedHashSet<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("PRODUCT")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("PRODUCT")) {
                         var product = mapper.map(resultSet);
                         product.getCategories().add(result);
                         productSet.add(product);
@@ -159,7 +160,18 @@ public class Category extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CATEGORY");
+            });
+        }
+
         private void setData(Category target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CATEGORY.ID" -> target.setId(mappingObject.value());
                 case "CATEGORY.NAME" -> target.setName((String) mappingObject.value());

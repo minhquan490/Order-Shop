@@ -7,8 +7,6 @@ import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.InvalidTokenException;
 import com.bachlinh.order.exception.http.ValidationFailureException;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 @ActiveReflection
@@ -18,8 +16,6 @@ public class BadRequestHandler extends ExceptionHandler {
     private final CurlyBracketProcessor curlyBracketProcessor = new CurlyBracketProcessor();
     private final SquareBracketProcessor squareBracketProcessor = new SquareBracketProcessor();
     private final CommaProcessor commaProcessor = new CommaProcessor();
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     protected int status() {

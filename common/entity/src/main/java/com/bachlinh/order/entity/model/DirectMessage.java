@@ -54,11 +54,13 @@ public class DirectMessage extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer fromCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer toCustomer;
 
     @Override
@@ -133,7 +135,7 @@ public class DirectMessage extends AbstractEntity<Integer> {
             DirectMessage result = new DirectMessage();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("DIRECT_MESSAGE")) {
+                if (hook.columnName().split("\\.")[0].equals("DIRECT_MESSAGE")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -149,7 +151,18 @@ public class DirectMessage extends AbstractEntity<Integer> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("DIRECT_MESSAGE");
+            });
+        }
+
         private void setData(DirectMessage target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "DIRECT_MESSAGE.ID" -> target.setId(mappingObject.value());
                 case "DIRECT_MESSAGE.CONTENT" -> target.setContent((String) mappingObject.value());
@@ -164,10 +177,10 @@ public class DirectMessage extends AbstractEntity<Integer> {
 
         private void assignToCustomer(Queue<MappingObject> resultSet, DirectMessage result) {
             String toCustomerKey = "TO_CUSTOMER";
-            MappingObject hook = resultSet.peek();
             Queue<MappingObject> cloned = new LinkedList<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith(toCustomerKey)) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals(toCustomerKey)) {
                     hook = resultSet.poll();
                     cloned.add(new MappingObject(hook.columnName().replace(toCustomerKey, "CUSTOMER"), hook.value()));
                 } else {
@@ -180,10 +193,10 @@ public class DirectMessage extends AbstractEntity<Integer> {
         }
 
         private void assignFromCustomer(Queue<MappingObject> resultSet, DirectMessage result) {
-            MappingObject hook = resultSet.peek();
             Queue<MappingObject> cloned = new LinkedList<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("FROM_CUSTOMER")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("FROM_CUSTOMER")) {
                     hook = resultSet.poll();
                     cloned.add(new MappingObject(hook.columnName().replace("FROM_CUSTOMER", "CUSTOMER"), hook.value()));
                 } else {

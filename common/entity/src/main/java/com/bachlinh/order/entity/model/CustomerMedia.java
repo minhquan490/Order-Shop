@@ -45,6 +45,7 @@ public class CustomerMedia extends AbstractEntity<String> {
     private Long contentLength;
 
     @OneToOne(optional = false, mappedBy = "customerMedia", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @ActiveReflection
@@ -116,7 +117,7 @@ public class CustomerMedia extends AbstractEntity<String> {
             CustomerMedia result = new CustomerMedia();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CUSTOMER_MEDIA")) {
+                if (hook.columnName().split("\\.")[0].equals("CUSTOMER_MEDIA")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -125,14 +126,27 @@ public class CustomerMedia extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.setCustomerMedia(result);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.setCustomerMedia(result);
+                    result.setCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CUSTOMER_MEDIA");
+            });
+        }
+
         private void setData(CustomerMedia target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CUSTOMER_MEDIA.ID" -> target.setId(mappingObject.value());
                 case "CUSTOMER_MEDIA.URL" -> target.setUrl((String) mappingObject.value());

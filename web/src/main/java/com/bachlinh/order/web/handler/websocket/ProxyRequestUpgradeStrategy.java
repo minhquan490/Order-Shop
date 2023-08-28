@@ -68,7 +68,7 @@ public class ProxyRequestUpgradeStrategy implements RequestUpgradeStrategy {
                 return;
             }
         }
-        var customer = customerRepository.getCustomerById((String) claims.get("id"), false);
+        var customer = customerRepository.getCustomerForAuthentication((String) claims.get("id"));
         var holder = new PrincipalHolder(customer, "");
         delegate.upgrade(request, response, selectedProtocol, selectedExtensions, holder, wsHandler, attributes);
     }

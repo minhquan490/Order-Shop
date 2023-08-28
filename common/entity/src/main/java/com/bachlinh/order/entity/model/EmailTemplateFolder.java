@@ -56,9 +56,11 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
+    @EqualsAndHashCode.Exclude
     private Set<EmailTemplate> emailTemplates = new HashSet<>();
 
     @Override
@@ -149,7 +151,7 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
             EmailTemplateFolder result = new EmailTemplateFolder();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("EMAIL_TEMPLATE_FOLDER")) {
+                if (hook.columnName().split("\\.")[0].equals("EMAIL_TEMPLATE_FOLDER")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -158,15 +160,17 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var owner = mapper.map(resultSet);
-                result.setOwner(owner);
+                if (mapper.canMap(resultSet)) {
+                    var owner = mapper.map(resultSet);
+                    result.setOwner(owner);
+                }
             }
             if (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
                 var mapper = EmailTemplate.getMapper();
                 Set<EmailTemplate> emailTemplateSet = new LinkedHashSet<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("EMAIL_TEMPLATE")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("EMAIL_TEMPLATE")) {
                         var emailTemplate = mapper.map(resultSet);
                         emailTemplate.setFolder(result);
                         emailTemplateSet.add(emailTemplate);
@@ -179,7 +183,18 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("EMAIL_TEMPLATE_FOLDER");
+            });
+        }
+
         private void setData(EmailTemplateFolder target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "EMAIL_TEMPLATE_FOLDER.ID" -> target.setId(mappingObject.value());
                 case "EMAIL_TEMPLATE_FOLDER.NAME" -> target.setName((String) mappingObject.value());

@@ -48,7 +48,7 @@ public class AuthenticationFilter extends GrpcWebFilter {
             authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Missing token, login is required", request.getRequestURI()));
             return;
         }
-        Customer customer = customerRepository.getCustomerById((String) claims.get("customerId"), true);
+        Customer customer = customerRepository.getCustomerForAuthentication((String) claims.get("customerId"));
         if (customer == null) {
             authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Invalid credential", request.getRequestURI()));
             return;

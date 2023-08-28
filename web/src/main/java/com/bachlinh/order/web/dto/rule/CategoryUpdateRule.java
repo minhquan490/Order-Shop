@@ -62,7 +62,7 @@ public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
                 RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(rangeInvalidMessage.getValue(), nameOfCategory, "4", "32"), r);
             }
 
-            if (categoryRepository.getCategoryByName(dto.name()) != null) {
+            if (categoryRepository.isCategoryNameExisted(dto.name())) {
                 MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
                 RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(existedMessage.getValue(), nameOfCategory), r);
             }

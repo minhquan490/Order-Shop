@@ -3,13 +3,13 @@ package com.bachlinh.order.repository;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 
+import java.util.Collection;
+
 public interface CartRepository extends NativeQueryRepository {
 
-    Cart saveCart(Cart cart);
+    void saveCart(Cart cart);
 
-    Cart updateCart(Cart cart);
+    Cart getCartForUpdateCartDetail(Customer owner, Collection<String> productIds);
 
-    void deleteCart(Cart cart);
-
-    Cart getCart(Customer customer);
+    Cart getCartForDeleteCartDetail(Customer owner, Collection<Integer> cartDetailIds);
 }

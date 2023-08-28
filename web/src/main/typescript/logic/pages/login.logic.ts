@@ -76,12 +76,12 @@ const login = async (page: LoginPageType, loginUrl: string): Promise<void> => {
             page.isLoading = false;
             const navigate = useNavigation().value;
             navigate('/');
-        } else {
-            page.isLoading = false;
+            return;
         }
     }
     page.loginData.email = '';
     page.loginData.password = '';
+    page.isLoading = false;
 }
 
 export {

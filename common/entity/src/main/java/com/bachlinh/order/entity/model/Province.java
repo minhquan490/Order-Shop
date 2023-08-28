@@ -73,6 +73,7 @@ public class Province extends AbstractEntity<Integer> {
     private Integer phoneCode;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "province")
+    @EqualsAndHashCode.Exclude
     private List<District> districts = new ArrayList<>();
 
     @Override
@@ -178,7 +179,7 @@ public class Province extends AbstractEntity<Integer> {
             Province result = new Province();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("PROVINCE")) {
+                if (hook.columnName().split("\\.")[0].equals("PROVINCE")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -187,10 +188,10 @@ public class Province extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = District.getMapper();
-                hook = resultSet.peek();
                 List<District> districtSet = new LinkedList<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("DISTRICT")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("DISTRICT")) {
                         var district = mapper.map(resultSet);
                         district.setProvince(result);
                         districtSet.add(district);
@@ -203,7 +204,18 @@ public class Province extends AbstractEntity<Integer> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("PROVINCE");
+            });
+        }
+
         private void setData(Province target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "PROVINCE.ID" -> target.setId(mappingObject.value());
                 case "PROVINCE.NAME" -> target.setName((String) mappingObject.value());
