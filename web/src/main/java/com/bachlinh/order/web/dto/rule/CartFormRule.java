@@ -59,11 +59,6 @@ public class CartFormRule extends AbstractRule<CartForm> {
                 }
             }
 
-            if (!StringUtils.hasText(productDto.name())) {
-                var key = "product.name";
-                RuntimeUtils.computeMultiValueMap(key, MessageFormat.format(nonEmptyMessage.getValue(), "Name of product"), validateResult);
-            }
-
             var key = "product.amount";
             if (!StringUtils.hasText(productDto.amount())) {
                 RuntimeUtils.computeMultiValueMap(key, MessageFormat.format(nonEmptyMessage.getValue(), "Amount of product"), validateResult);

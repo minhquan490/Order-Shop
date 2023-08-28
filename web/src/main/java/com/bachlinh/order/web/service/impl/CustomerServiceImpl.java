@@ -11,12 +11,16 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.FieldUpdated;
 import com.bachlinh.order.entity.enums.Gender;
+import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.LoginHistory;
+import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.TemporaryToken;
+import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.InvalidTokenException;
@@ -26,13 +30,15 @@ import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
+import com.bachlinh.order.repository.AddressRepository;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
+import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
-import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
@@ -40,8 +46,9 @@ import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.ResourceUtils;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
-import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateForm;
+import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateInfoForm;
 import com.bachlinh.order.web.dto.form.common.LoginForm;
+import com.bachlinh.order.web.dto.form.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
 import com.bachlinh.order.web.dto.resp.ConfirmEmailResp;
@@ -62,13 +69,11 @@ import com.bachlinh.order.web.service.business.RegisterService;
 import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
 import com.bachlinh.order.web.service.common.CustomerService;
 import com.bachlinh.order.web.service.common.EmailFolderService;
-import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -85,10 +90,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 @ServiceComponent
 @ActiveReflection
@@ -118,6 +125,8 @@ public class CustomerServiceImpl implements CustomerService,
     private final CustomerInfoChangerHistoryRepository customerInfoChangerHistoryRepository;
     private final TemporaryTokenRepository temporaryTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ProvinceRepository provinceRepository;
+    private final AddressRepository addressRepository;
     private final DtoMapper dtoMapper;
     private final ThreadPoolManager threadPoolManager;
     private String urlResetPassword;
@@ -125,14 +134,15 @@ public class CustomerServiceImpl implements CustomerService,
 
     @Override
     public MyInfoResp getMyInfo(String customerId) {
-        Customer customer = customerRepository.getCustomerById(customerId, false);
+        Customer customer = customerRepository.getCustomerUpdatableInfo(customerId);
         return dtoMapper.map(customer, MyInfoResp.class);
     }
 
     @Override
     public Page<CustomerResp> getFullInformationOfCustomer(Pageable pageable) {
+        OrderBy customerIdOrderBy = OrderBy.builder().column(Customer_.ID).type(OrderBy.Type.ASC).build();
         return new PageImpl<>(
-                customerRepository.getAll(pageable, Sort.by(Customer_.ID))
+                customerRepository.getAll(pageable, Collections.singleton(customerIdOrderBy))
                         .stream()
                         .map(customer -> dtoMapper.map(customer, CustomerResp.class))
                         .toList());
@@ -150,7 +160,7 @@ public class CustomerServiceImpl implements CustomerService,
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerResp updateCustomer(CustomerUpdateForm customerUpdateForm) {
-        var customer = customerRepository.getCustomerById(customerUpdateForm.getId(), false);
+        var customer = customerRepository.getCustomerInfoForUpdate(customerUpdateForm.getId());
         var oldCustomer = customer.clone();
         customer.setFirstName(customerUpdateForm.getFirstName());
         customer.setLastName(customerUpdateForm.getLastName());
@@ -165,22 +175,54 @@ public class CustomerServiceImpl implements CustomerService,
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+    public CustomerInfoResp updateCustomerFromAdminScreen(CustomerUpdateInfoForm customerUpdateInfoForm) {
+        Customer customer = customerRepository.getCustomerInfoForUpdate(customerUpdateInfoForm.getId());
+        customer.setFirstName(customerUpdateInfoForm.getFirstName());
+        customer.setLastName(customerUpdateInfoForm.getLastName());
+        customer.setPhoneNumber(customerUpdateInfoForm.getPhoneNumber());
+        customer.setEmail(customerUpdateInfoForm.getEmail());
+        customer.setGender(customerUpdateInfoForm.getGender());
+        customer.setRole(customerUpdateInfoForm.getRole());
+        customer.setOrderPoint(customerUpdateInfoForm.getOrderPoint());
+        customer.setActivated(customerUpdateInfoForm.getActivated());
+        customer.setAccountNonExpired(customerUpdateInfoForm.getAccountNonExpired());
+        customer.setAccountNonLocked(customerUpdateInfoForm.getAccountNonLocked());
+        customer.setCredentialsNonExpired(customerUpdateInfoForm.getCredentialsNonExpired());
+        customer.setEnabled(customerUpdateInfoForm.getEnabled());
+        customerRepository.updateCustomer(customer);
+        Set<Address> addressSet = new LinkedHashSet<>();
+        if (customerUpdateInfoForm.getAddresses() != null) {
+            for (var a : customerUpdateInfoForm.getAddresses()) {
+                Province province = provinceRepository.getAddress(a.getProvinceId(), a.getDistrictId(), a.getWardId());
+                if (province != null) {
+                    Address address = entityFactory.getEntity(Address.class);
+                    address.setCity(province.getName());
+                    District district = province.getDistricts().get(0);
+                    Ward ward = district.getWards().get(0);
+                    address.setCountry("Viet Nam");
+                    address.setValue(String.format("%s, %s, %s", a.getHouseNumber(), ward.getName(), district.getName()));
+                    address.setCustomer(customer);
+                    addressSet.add(address);
+                }
+            }
+        }
+        addressRepository.bulkSave(addressSet);
+        return getCustomerInfo(customer.getId());
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerResp deleteCustomer(CustomerDeleteForm customerDeleteForm) {
-        var customer = customerRepository.getCustomerById(customerDeleteForm.customerId(), true);
+        var customer = customerRepository.getCustomerForDelete(customerDeleteForm.customerId());
         customerRepository.deleteCustomer(customer);
         return dtoMapper.map(customer, CustomerResp.class);
     }
 
     @Override
     public CustomerInfoResp getCustomerInfo(String customerId) {
-        var history = Join.builder().attribute(Customer_.HISTORIES).type(JoinType.INNER).build();
-        var voucher = Join.builder().attribute(Customer_.ASSIGNED_VOUCHERS).type(JoinType.INNER).build();
-        var order = Join.builder().attribute(Customer_.ORDERS).type(JoinType.INNER).build();
-        var address = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.INNER).build();
-        var media = Join.builder().attribute(Customer_.CUSTOMER_MEDIA).type(JoinType.INNER).build();
-        var customer = customerRepository.getCustomerUseJoin(customerId, Arrays.asList(history, voucher, order, address, media));
-        var histories = loginHistoryRepository.getHistories(customer);
-        var changeHistories = customerInfoChangerHistoryRepository.getHistoriesChangeOfCustomer(customer);
+        var customer = customerRepository.getFullInformation(customerId);
+        var histories = loginHistoryRepository.getHistories(customer, 3);
+        var changeHistories = customerInfoChangerHistoryRepository.getHistoriesChangeOfCustomer(customer, 3);
         var result = dtoMapper.map(customer, CustomerInfoResp.class);
         result.setLoginHistories(histories.stream()
                 .map(loginHistory -> {
@@ -227,7 +269,7 @@ public class CustomerServiceImpl implements CustomerService,
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public LoginResp login(LoginForm loginForm, NativeRequest<?> request) {
-        Customer customer = customerRepository.getCustomerByUsername(loginForm.username());
+        Customer customer = customerRepository.getCustomerForLogin(loginForm.username());
         if (customer == null) {
             throw new UnAuthorizationException("Wrong username or password", "");
         }
@@ -284,7 +326,7 @@ public class CustomerServiceImpl implements CustomerService,
 
     @Override
     public void sendEmailResetPassword(String email) {
-        Customer customer = customerRepository.getCustomerByEmail(email);
+        Customer customer = customerRepository.getCustomerForResetPassword(email);
         if (customer == null) {
             throw new BadVariableException(String.format("Email %s is not existed", email));
         }

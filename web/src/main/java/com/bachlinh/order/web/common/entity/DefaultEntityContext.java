@@ -7,8 +7,13 @@ import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.FormulaMetadata;
+import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.context.EntityContext;
-import com.bachlinh.order.entity.enums.FormulaType;
+import com.bachlinh.order.entity.enums.FormulaApplyOn;
+import com.bachlinh.order.entity.formula.FormulaProcessor;
+import com.bachlinh.order.entity.formula.JoinFormulaProcessor;
+import com.bachlinh.order.entity.formula.SelectFormulaProcessor;
+import com.bachlinh.order.entity.formula.WhereFormulaProcessor;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
@@ -20,6 +25,7 @@ import com.bachlinh.order.repository.query.JoinMetadata;
 import com.bachlinh.order.repository.query.JoinMetadataHolder;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
+import com.bachlinh.order.utils.UnsafeUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -48,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,8 +78,8 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     private final DependenciesResolver dependenciesResolver;
     private final String tableName;
     private final Map<String, String> mappedFieldColumns;
-    private final Deque<FormulaMetadataHolder> formulaMetadataHolders;
     private final Map<String, JoinMetadata> joinMetadataMap;
+    private final Collection<FormulaHolder> formulas;
 
     public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
         try {
@@ -92,8 +97,8 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
             this.dependenciesResolver = dependenciesResolver;
             this.tableName = resolveTableName(entity);
             this.mappedFieldColumns = resolveMappedFieldColumn(entity);
-            this.formulaMetadataHolders = resolveFormula(entity);
             this.joinMetadataMap = resolveJoinMetadata(entity);
+            this.formulas = resolveFormulas(entity);
         } catch (Exception e) {
             throw new PersistenceException("Can not instance entity with type [" + entity.getSimpleName() + "]", e);
         } finally {
@@ -190,7 +195,14 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     public String getColumn(String entityFieldName) {
         String template = "%s.%s AS '%s.%s'";
         if (entityFieldName.equals("*")) {
-            return String.join(", ", this.mappedFieldColumns.values().stream().map(s -> String.format(template, getTableName(), s, getTableName(), s)).toList().toArray(new String[0]));
+            var fields = this.mappedFieldColumns
+                    .values()
+                    .stream()
+                    .filter(s -> !s.contains("."))
+                    .map(s -> String.format(template, getTableName(), s, getTableName(), s))
+                    .toList()
+                    .toArray(new String[0]);
+            return String.join(", ", fields);
         }
         String databaseColumnName = this.mappedFieldColumns.get(entityFieldName);
         if (!StringUtils.hasText(databaseColumnName)) {
@@ -200,47 +212,84 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     }
 
     @Override
-    public String getSelectFormula() {
-        var commonResults = this.formulaMetadataHolders
-                .stream()
-                .filter(FormulaMetadataHolder::isCommon)
-                .filter(formulaMetadataHolder -> formulaMetadataHolder.type().equals(FormulaType.SELECT))
-                .map(FormulaMetadataHolder::formulaValue)
+    public Collection<FormulaProcessor> getTableProcessors(TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> !SelectFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()) &&
+                        !JoinFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()) &&
+                        !WhereFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
                 .toList();
-        var results = this.formulaMetadataHolders
-                .stream()
-                .filter(formulaMetadataHolder -> !formulaMetadataHolder.isCommon())
-                .filter(formulaMetadataHolder -> formulaMetadataHolder.type().equals(FormulaType.SELECT))
-                .map(FormulaMetadataHolder::formulaValue)
-                .toList();
-        String common = String.join(", ", commonResults.toArray(new String[0]));
-        String result = String.join(", ", results.toArray(new String[0]));
-        if (StringUtils.hasText(result)) {
-            return common + ", %s, " + result;
-        } else {
-            return common + ", %s";
-        }
-
     }
 
     @Override
-    public String getWhereFormula() {
-        var results = this.formulaMetadataHolders
-                .stream()
-                .filter(formulaMetadataHolder -> formulaMetadataHolder.type().equals(FormulaType.WHERE))
-                .map(FormulaMetadataHolder::formulaValue)
+    public Collection<SelectFormulaProcessor> getTableSelectProcessors(TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> SelectFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
+                .map(SelectFormulaProcessor.class::cast)
                 .toList();
-        return String.join(", ", results.toArray(new String[0]));
     }
 
     @Override
-    public String getJoinFormula() {
-        var results = this.formulaMetadataHolders
-                .stream()
-                .filter(formulaMetadataHolder -> formulaMetadataHolder.type().equals(FormulaType.JOIN))
-                .map(FormulaMetadataHolder::formulaValue)
+    public Collection<JoinFormulaProcessor> getTableJoinProcessors(TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> JoinFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
+                .map(JoinFormulaProcessor.class::cast)
                 .toList();
-        return String.join(", ", results.toArray(new String[0]));
+    }
+
+    @Override
+    public Collection<WhereFormulaProcessor> getTableWhereProcessors(TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> WhereFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
+                .map(WhereFormulaProcessor.class::cast)
+                .toList();
+    }
+
+    @Override
+    public Collection<SelectFormulaProcessor> getColumnSelectProcessors(String fieldName, TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.COLUMN))
+                .filter(formulaHolder -> formulaHolder.fieldName().equals(fieldName))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> SelectFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
+                .map(SelectFormulaProcessor.class::cast)
+                .toList();
+    }
+
+    @Override
+    public Collection<JoinFormulaProcessor> getColumnJoinProcessors(String fieldName, TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.COLUMN))
+                .filter(formulaHolder -> formulaHolder.fieldName().equals(fieldName))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> JoinFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
+                .map(JoinFormulaProcessor.class::cast)
+                .toList();
+    }
+
+    @Override
+    public Collection<WhereFormulaProcessor> getColumnWhereProcessors(String fieldName, TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+        return this.formulas.stream()
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
+                .filter(formulaHolder -> formulaHolder.fieldName().equals(fieldName))
+                .map(FormulaHolder::formulaProcessor)
+                .filter(formulaProcessor -> WhereFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
+                .map(formulaProcessor -> formulaProcessor.getInstance(this.dependenciesResolver, targetTable, tables))
+                .map(WhereFormulaProcessor.class::cast)
+                .toList();
     }
 
     @Override
@@ -405,35 +454,27 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
 
     private Map<String, String> resolveMappedFieldColumn(Class<?> entityType) {
         List<Field> mappedColumnField = Stream.of(entityType.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Column.class))
+                .filter(field -> field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(JoinColumn.class))
                 .toList();
         Map<String, String> resolvedMappedColumnField = new TreeMap<>();
-        mappedColumnField.forEach(field -> resolvedMappedColumnField.put(field.getName(), field.getAnnotation(Column.class).name()));
+        resolveFields(resolvedMappedColumnField, mappedColumnField);
+        Class<?> abstractEntity = entityType.getSuperclass();
+        List<Field> commonFields = Stream.of(abstractEntity.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(JoinColumn.class))
+                .toList();
+        resolveFields(resolvedMappedColumnField, commonFields);
         return resolvedMappedColumnField;
     }
 
-    private Deque<FormulaMetadataHolder> resolveFormula(Class<?> entity) {
-        Deque<FormulaMetadataHolder> results = new LinkedList<>();
-        FormulaMetadataHolder abstractEntityFormula = resolveAbstractEntity(entity);
-        results.add(abstractEntityFormula);
-        if (entity.isAnnotationPresent(Formula.class)) {
-            Formula formula = entity.getAnnotation(Formula.class);
-            results.add(new FormulaMetadataHolder(FormulaType.valueOf(formula.type()), getTableName().concat(".").concat(formula.value()), false));
-        }
-        return results;
-    }
-
-    private FormulaMetadataHolder resolveAbstractEntity(Class<?> entity) {
-        String template = "%s.%s AS '%s.%s'";
-        Class<?> superClass = entity.getSuperclass();
-        if (superClass.isAnnotationPresent(Formula.class)) {
-            var formula = superClass.getAnnotation(Formula.class);
-            String[] formulaColumns = formula.value().split(",");
-            var processedValues = Stream.of(formulaColumns).map(s -> String.format(template, getTableName(), s.trim(), getTableName(), s.trim())).toList();
-            return new FormulaMetadataHolder(FormulaType.valueOf(formula.type()), String.join(", ", processedValues.toArray(new String[0])), true);
-        } else {
-            return resolveAbstractEntity(superClass);
-        }
+    private void resolveFields(Map<String, String> resolvedMappedColumnField, List<Field> fields) {
+        fields.forEach(field -> {
+            if (field.isAnnotationPresent(Column.class)) {
+                resolvedMappedColumnField.put(field.getName(), field.getAnnotation(Column.class).name());
+            }
+            if (field.isAnnotationPresent(JoinColumn.class)) {
+                resolvedMappedColumnField.put(field.getName(), field.getAnnotation(JoinColumn.class).name());
+            }
+        });
     }
 
     private Map<String, JoinMetadata> resolveJoinMetadata(Class<?> entity) {
@@ -464,6 +505,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
                 leftOnJoin = MessageFormat.format(tableAttributeTemplate, getTableName(), "ID");
                 Field referenceField = Stream.of(field.getType().getDeclaredFields()).filter(f -> f.getType().equals(entityType)).toList().get(0);
                 rightOnJoin = MessageFormat.format(tableAttributeTemplate, table.name(), referenceField.getAnnotation(JoinColumn.class).name());
+                this.mappedFieldColumns.put(field.getName(), rightOnJoin);
             }
             joinStatement = MessageFormat.format(joinTemplate, table.name(), leftOnJoin, rightOnJoin);
             metadata = new InternalJoinMetadata(field.getName(), joinStatement);
@@ -473,7 +515,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     }
 
     private Map<String, JoinMetadata> resolveManyToMany(Class<?> entity, String tableAttributeTemplate) {
-        String joinTemplate = "INNER JOIN %s ON %s = %s {0} %s ON %s = %s";
+        String joinTemplate = "LEFT JOIN %s ON %s = %s {0} %s ON %s = %s";
         Map<String, JoinMetadata> results = new HashMap<>();
         List<Field> manyToManyFields = Stream.of(entity.getDeclaredFields()).filter(field -> field.isAnnotationPresent(ManyToMany.class)).toList();
         for (var field : manyToManyFields) {
@@ -489,6 +531,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
             String joinStatement = String.format(joinTemplate, manyToManyTableName, firstParam, secondParam, thirdParam, fourthParam, fifthParam);
             JoinMetadata joinMetadata = new InternalJoinMetadata(field.getName(), joinStatement);
             results.put(field.getName(), joinMetadata);
+            mappedFieldColumns.put(field.getName(), fourthParam);
         }
         return results;
     }
@@ -508,6 +551,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
                 String rightOnJoin = MessageFormat.format(tableAttributeTemplate, table.name(), joinColumn.name());
                 String joinStatement = MessageFormat.format(joinTemplate, table.name(), leftOnJoin, rightOnJoin);
                 results.put(field.getName(), new InternalJoinMetadata(field.getName(), joinStatement));
+                this.mappedFieldColumns.put(referenceField.getName(), rightOnJoin);
             } catch (NoSuchFieldException e) {
                 throw new PersistenceException(String.format("Can not process ManyToOne for type [%s]", entity.getName()), e);
             }
@@ -516,7 +560,6 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     }
 
     private Class<?> getCollectionFieldType(Field field) {
-        field.setAccessible(true);
         try {
             return (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
         } catch (Exception e) {
@@ -556,9 +599,48 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         return joinTable;
     }
 
-    private record FormulaMetadataHolder(FormulaType type, String formulaValue, boolean isCommon) {
+    private Collection<FormulaHolder> resolveFormulas(Class<?> entity) {
+        Collection<FormulaHolder> results = new LinkedList<>();
+        createFormulaTable(entity, results);
+        Class<?> abstractEntityType = entity.getSuperclass();
+        createFormulaTable(abstractEntityType, results);
+        List<Field> formulaFields = Stream.of(entity.getDeclaredFields()).filter(field -> field.isAnnotationPresent(Formula.class)).toList();
+        for (var field : formulaFields) {
+            Formula formula = field.getAnnotation(Formula.class);
+            Class<?> processor = formula.processor();
+            if (Void.class.isAssignableFrom(processor)) {
+                continue;
+            }
+            try {
+                FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
+                FormulaHolder formulaHolder = new FormulaHolder(FormulaApplyOn.COLUMN, formulaProcessor, field.getName());
+                results.add(formulaHolder);
+            } catch (InstantiationException e) {
+                throw new PersistenceException(String.format("Can not create formula [%s]", processor.getName()), e);
+            }
+        }
+        return results;
+    }
+
+    private void createFormulaTable(Class<?> entity, Collection<FormulaHolder> formulaHolders) {
+        if (entity.isAnnotationPresent(Formula.class)) {
+            Formula formula = entity.getAnnotation(Formula.class);
+            Class<?> processor = formula.processor();
+            if (!Void.class.isAssignableFrom(processor)) {
+                try {
+                    FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
+                    FormulaHolder holder = new FormulaHolder(FormulaApplyOn.TABLE, formulaProcessor, "");
+                    formulaHolders.add(holder);
+                } catch (InstantiationException e) {
+                    throw new PersistenceException(String.format("Can not create formula [%s]", processor.getName()), e);
+                }
+            }
+        }
     }
 
     private record InternalJoinMetadata(String attribute, String joinStatement) implements JoinMetadata {
+    }
+
+    private record FormulaHolder(FormulaApplyOn applyOn, FormulaProcessor formulaProcessor, String fieldName) {
     }
 }

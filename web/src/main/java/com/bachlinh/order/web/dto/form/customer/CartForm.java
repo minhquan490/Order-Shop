@@ -1,24 +1,20 @@
 package com.bachlinh.order.web.dto.form.customer;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
+@Getter
+@Setter
 public class CartForm implements ValidatedDto {
 
     @JsonAlias("products")
     private ProductForm[] productForms;
 
-    public void setProductForms(ProductForm[] productForms) {
-        this.productForms = productForms;
-    }
-
-    public ProductForm[] getProductForms() {
-        return productForms;
-    }
-
-    public record ProductForm(String id, String name, String amount) {
+    public record ProductForm(String id, String amount) {
 
         @Override
         public boolean equals(Object o) {

@@ -1,7 +1,6 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.District;
-import com.bachlinh.order.entity.model.Province;
 
 import java.util.Collection;
 
@@ -17,5 +16,5 @@ public interface DistrictRepository extends NativeQueryRepository {
 
     Collection<District> getDistricts(Collection<String> ids);
 
-    Collection<District> getDistrictsByProvince(Province province);
+    Collection<District> getDistrictsByProvince(String provinceId);
 }

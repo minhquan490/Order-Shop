@@ -41,8 +41,8 @@ public class SocketHandler extends SpringWebSocketHandler {
             String receiver = convertedMessage.get(WebSocketSessionManager.RECEIVER_KEY).asText();
             String sender = Objects.requireNonNull(session.getPrincipal()).getName();
             DirectMessage message = entityFactory.getEntity(DirectMessage.class);
-            Customer customerReceive = customerRepository.getCustomerById(receiver, false);
-            Customer customerSend = customerRepository.getCustomerById(sender, false);
+            Customer customerReceive = customerRepository.getCustomerForEmailSending(receiver);
+            Customer customerSend = customerRepository.getCustomerForEmailSending(sender);
             message.setToCustomer(customerReceive);
             message.setFromCustomer(customerSend);
             message.setContent(convertedMessage.get(WebSocketSessionManager.CONTENT_KEY).asText());

@@ -7,23 +7,22 @@ import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Category_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CategoryRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.JoinOperation;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelection;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.query.WhereOperation;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,21 +41,11 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
     }
 
     @Override
-    public Category getCategoryByName(String categoryName) {
-        var join = Join.builder().attribute(Category_.PRODUCTS).type(JoinType.INNER).build();
-        var where = Where.builder().attribute(Category_.NAME).value(categoryName).build();
-        SqlBuilder sqlBuilder = getSqlBuilder();
-        SqlSelection sqlSelection = sqlBuilder.from(Category.class);
-        JoinOperation joinOperation = sqlSelection.join(join);
-        return getCategory(joinOperation.where(where));
-    }
-
-    @Override
     public Category getCategoryById(String categoryId) {
         Where idWhere = Where.builder().attribute(Category_.ID).value(categoryId).operator(Operator.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
-        SqlSelection sqlSelection = sqlBuilder.from(Category.class);
-        return getCategory(sqlSelection.where(idWhere));
+        SqlSelect sqlSelect = sqlBuilder.from(Category.class);
+        return getCategory(sqlSelect.where(idWhere));
     }
 
     @Override
@@ -87,13 +76,38 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
     }
 
     @Override
+    public boolean isCategoryNameExisted(String name) {
+        Select idSelect = Select.builder().column(Category_.ID).build();
+        Where nameWhere = Where.builder().attribute(Category_.NAME).value(name).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Category.class);
+        sqlSelect.select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(nameWhere);
+        return getCategory(sqlWhere) != null;
+    }
+
+    @Override
+    public Collection<Category> getCategoryByNames(Collection<String> names) {
+        Select idSelect = Select.builder().column(Category_.ID).build();
+        Select nameSelect = Select.builder().column(Category_.NAME).build();
+        Where namesWhere = Where.builder().attribute(Category_.NAME).value(names).operator(Operator.IN).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Category.class);
+        sqlSelect.select(idSelect).select(nameSelect);
+        SqlWhere sqlWhere = sqlSelect.where(namesWhere);
+        String query = sqlSelect.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(query, attributes, Category.class);
+    }
+
+    @Override
     public Page<Category> getCategories() {
         Select idSelect = Select.builder().column(Category_.ID).build();
         Select nameSelect = Select.builder().column(Category_.NAME).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
-        SqlSelection sqlSelection = sqlBuilder.from(Category.class);
-        sqlSelection.select(idSelect).select(nameSelect);
-        String query = sqlSelection.getNativeQuery();
+        SqlSelect sqlSelect = sqlBuilder.from(Category.class);
+        sqlSelect.select(idSelect).select(nameSelect);
+        String query = sqlSelect.getNativeQuery();
         var results = executeNativeQuery(query, Collections.emptyMap(), Category.class);
         return new PageImpl<>(results);
     }
@@ -106,10 +120,10 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
     }
 
     @Nullable
-    private Category getCategory(WhereOperation whereOperation) {
-        String query = whereOperation.getNativeQuery();
+    private Category getCategory(SqlWhere sqlWhere) {
+        String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = new HashMap<>();
-        whereOperation.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
+        sqlWhere.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
         var results = executeNativeQuery(query, attributes, Category.class);
         if (results.isEmpty()) {
             return null;

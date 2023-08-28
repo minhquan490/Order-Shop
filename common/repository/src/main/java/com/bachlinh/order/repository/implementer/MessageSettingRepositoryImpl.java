@@ -7,18 +7,22 @@ import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.MessageSetting_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
@@ -44,7 +48,21 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSett
 
     @Override
     public MessageSetting getMessageById(String id) {
-        return findById(id).orElse(null);
+        Select idSelect = Select.builder().column(MessageSetting_.ID).build();
+        Select valueSelect = Select.builder().column(MessageSetting_.VALUE).build();
+        Where idWhere = Where.builder().attribute(MessageSetting_.ID).value(id).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(MessageSetting.class);
+        sqlSelect.select(idSelect).select(valueSelect);
+        SqlWhere sqlWhere = sqlSelect.where(idWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(sql, attributes, MessageSetting.class);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 
     @Override
@@ -71,18 +89,21 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSett
 
     @Override
     public boolean messageValueExisted(String messageValue) {
+        Select idsSelect = Select.builder().column(MessageSetting_.ID).build();
         Where valueWhere = Where.builder().attribute(MessageSetting_.VALUE).value(messageValue).operator(Operator.EQ).build();
-        Specification<MessageSetting> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            queryExtractor.where(valueWhere);
-            return queryExtractor.parse();
-        });
-        return exists(spec);
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(MessageSetting.class);
+        sqlSelect.select(idsSelect);
+        SqlWhere sqlWhere = sqlSelect.where(valueWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(sql, attributes, MessageSetting.class);
+        return !results.isEmpty();
     }
 
     @Override
     public boolean isMessageSettingExisted(String id) {
-        return existsById(id);
+        return getMessageById(id) != null;
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -26,6 +22,11 @@ import com.bachlinh.order.web.service.business.EmailInTrashService;
 import com.bachlinh.order.web.service.business.EmailSearchingService;
 import com.bachlinh.order.web.service.business.EmailSendingService;
 import com.bachlinh.order.web.service.common.EmailService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -53,7 +54,7 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
         email.setRead(false);
         email.setSent(true);
         email.setMediaType(form.getContentType());
-        var toCustomer = customerRepository.getCustomerById(form.getToCustomer(), false);
+        var toCustomer = customerRepository.getCustomerForEmailSending(form.getToCustomer());
         email.setToCustomer(toCustomer);
         email.setFromCustomer(sender);
         var folder = emailFoldersRepository.getEmailFolderByName("Default", toCustomer);
@@ -65,7 +66,7 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
 
     @Override
     public EmailInfoResp getEmailOfCustomer(String id, Customer owner) {
-        var email = emailRepository.getEmailById(id, owner);
+        var email = emailRepository.getEmailOfCustomerById(id, owner);
         return dtoMapper.map(email, EmailInfoResp.class);
     }
 
@@ -81,7 +82,7 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
 
     @Override
     public EmailTrashResp addEmailToTrash(String emailId, Customer owner) {
-        var email = emailRepository.getEmailById(emailId, owner);
+        var email = emailRepository.getEmailForAddToTrash(emailId, owner);
         if (email == null) {
             throw new ResourceNotFoundException("Email not found", "");
         }
@@ -93,7 +94,7 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
 
     @Override
     public EmailTrashResp addEmailsToTrash(Collection<String> emailIds, Customer owner) {
-        var emails = emailRepository.getAllEmailByIds(emailIds);
+        var emails = emailRepository.getEmailsForAddToTrash(emailIds, owner);
         var trash = emailTrashRepository.getTrashOfCustomer(owner);
         trash.getEmails().addAll(emails);
         emailTrashRepository.updateTrash(trash);
@@ -109,7 +110,7 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
     @Override
     public EmailTrashResp restoreEmailFromTrash(Collection<String> emailIds, Customer owner) {
         var trash = emailTrashRepository.getTrashOfCustomer(owner);
-        var emails = emailRepository.getAllEmailByIds(emailIds);
+        var emails = emailRepository.getEmailForRestore(trash.getId(), emailIds);
         trash.getEmails().removeAll(emails);
         trash = emailTrashRepository.updateTrash(trash);
         return dtoMapper.map(trash, EmailTrashResp.class);
@@ -126,9 +127,10 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
 
     @Override
     public Collection<EmailInfoResp> searchEmail(String query) {
+        Customer owner = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var context = entityFactory.getEntityContext(Email.class);
         var ids = context.search(Email.class, query);
-        var result = emailRepository.getAllEmailByIds(ids);
+        var result = emailRepository.getResultSearch(ids, owner);
         return dtoMapper.map(result, EmailInfoResp.class);
     }
 }

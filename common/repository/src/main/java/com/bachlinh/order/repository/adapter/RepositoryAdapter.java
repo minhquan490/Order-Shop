@@ -15,6 +15,7 @@ import com.bachlinh.order.exception.HttpException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.http.ValidationFailureException;
 import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.repository.query.SqlBuilder;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityManager;
@@ -98,6 +99,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
     private final EntityFactory entityFactory;
     private final boolean useCache;
     private final InternalTriggerExecution triggerExecution;
+    protected final SqlBuilder sqlBuilder;
 
     protected RepositoryAdapter(Class<T> domainClass, DependenciesResolver resolver) {
         this.domainClass = domainClass;
@@ -106,7 +108,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
         this.useCache = getDomainClass().isAnnotationPresent(Cacheable.class) && getDomainClass().isAnnotationPresent(Cache.class);
         this.asyncEntityManager = resolver.resolveDependencies(EntityManager.class);
         this.triggerExecution = new InternalTriggerExecution(entityFactory);
-
+        this.sqlBuilder = resolver.resolveDependencies(SqlBuilder.class);
     }
 
     protected void setEntityManager(EntityManager entityManager) {
@@ -717,6 +719,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
             return entity;
         }
         sessionFactory.getCache().evict(entity.getClass(), entity.getId());
+        //FIXME use native query to update for improved performance
         S result = asyncEntityManager.merge(entity);
         asyncEntityManager.getTransaction().commit();
         return result;
@@ -728,6 +731,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
             return entity;
         }
         sessionFactory.getCache().evict(entity.getClass(), entity.getId());
+        //FIXME use native query to update for improved performance
         return em.merge(entity);
     }
 

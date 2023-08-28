@@ -3,9 +3,9 @@ package com.bachlinh.order.repository;
 import com.bachlinh.order.entity.model.Category;
 import org.springframework.data.domain.Page;
 
-public interface CategoryRepository extends NativeQueryRepository {
+import java.util.Collection;
 
-    Category getCategoryByName(String categoryName);
+public interface CategoryRepository extends NativeQueryRepository {
 
     Category getCategoryById(String categoryId);
 
@@ -16,6 +16,10 @@ public interface CategoryRepository extends NativeQueryRepository {
     boolean deleteCategory(Category category);
 
     boolean isExits(String id);
+
+    boolean isCategoryNameExisted(String name);
+
+    Collection<Category> getCategoryByNames(Collection<String> names);
 
     Page<Category> getCategories();
 }

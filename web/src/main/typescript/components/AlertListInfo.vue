@@ -1,5 +1,6 @@
 <script lang="ts">
 export default {
+  emits: ['hidden'],
   props: {
     errorMessages: {
       type: Array<string>,

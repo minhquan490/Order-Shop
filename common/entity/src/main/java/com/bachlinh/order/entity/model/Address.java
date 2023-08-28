@@ -52,6 +52,7 @@ public class Address extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @Override
@@ -125,7 +126,7 @@ public class Address extends AbstractEntity<String> {
             Address result = new Address();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("ADDRESS")) {
+                if (hook.columnName().split("\\.")[0].equals("ADDRESS")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -134,13 +135,26 @@ public class Address extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    result.setCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("ADDRESS");
+            });
+        }
+
         private void setData(Address target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "ADDRESS.ID" -> target.setId(mappingObject.value());
                 case "ADDRESS.VALUE" -> target.setValue((String) mappingObject.value());

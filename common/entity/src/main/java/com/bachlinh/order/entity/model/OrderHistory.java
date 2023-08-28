@@ -46,6 +46,7 @@ public class OrderHistory extends AbstractEntity<Integer> {
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "ORDER_ID")
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Order order;
 
     @ActiveReflection
@@ -108,7 +109,7 @@ public class OrderHistory extends AbstractEntity<Integer> {
             OrderHistory result = new OrderHistory();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("ORDER_HISTORY")) {
+                if (hook.columnName().split("\\.")[0].equals("ORDER_HISTORY")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -117,14 +118,27 @@ public class OrderHistory extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Order.getMapper();
-                var order = mapper.map(resultSet);
-                order.setOrderHistory(result);
-                result.setOrder(order);
+                if (mapper.canMap(resultSet)) {
+                    var order = mapper.map(resultSet);
+                    order.setOrderHistory(result);
+                    result.setOrder(order);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("ORDER_HISTORY");
+            });
+        }
+
         private void setData(OrderHistory target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "ORDER_HISTORY.ID" -> target.setId(mappingObject.value());
                 case "ORDER_HISTORY.ORDER_TIME" -> target.setOrderTime((Timestamp) mappingObject.value());

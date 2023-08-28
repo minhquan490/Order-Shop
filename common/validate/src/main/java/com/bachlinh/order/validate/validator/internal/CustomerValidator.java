@@ -58,7 +58,7 @@ public class CustomerValidator extends AbstractValidator<Customer> {
             if (entity.getUsername().length() > 24) {
                 result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "username", "24"));
             }
-            if (customerRepository.usernameExist(entity.getUsername())) {
+            if (customerRepository.isUsernameExisted(entity.getUsername())) {
                 result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Username"));
             }
         }
@@ -74,7 +74,7 @@ public class CustomerValidator extends AbstractValidator<Customer> {
             if (!ValidateUtils.isEmailValidUsingRfc2822(entity.getEmail())) {
                 result.addMessageError(MessageFormat.format(invalidMessage.getValue(), messageFormatArg));
             }
-            if (customerRepository.emailExist(entity.getEmail())) {
+            if (customerRepository.isEmailExisted(entity.getEmail())) {
                 result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Email"));
             }
         }
@@ -110,7 +110,7 @@ public class CustomerValidator extends AbstractValidator<Customer> {
             if (entity.getPhoneNumber().length() != 10) {
                 result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "phone number", "10"));
             }
-            if (customerRepository.phoneNumberExist(entity.getPhoneNumber())) {
+            if (customerRepository.isPhoneNumberExisted(entity.getPhoneNumber())) {
                 result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Phone number"));
             }
         }

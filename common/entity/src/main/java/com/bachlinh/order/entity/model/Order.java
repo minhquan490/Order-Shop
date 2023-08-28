@@ -63,18 +63,22 @@ public class Order extends AbstractEntity<String> {
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "ORDER_STATUS_ID", unique = true, nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private OrderStatus orderStatus;
 
     @OneToOne(mappedBy = "order")
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private OrderHistory orderHistory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order", orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Collection<OrderDetail> orderDetails = new HashSet<>();
 
     @Override
@@ -181,7 +185,7 @@ public class Order extends AbstractEntity<String> {
             Order result = new Order();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("ORDERS")) {
+                if (hook.columnName().split("\\.")[0].equals("ORDERS")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -190,28 +194,34 @@ public class Order extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = OrderStatus.getMapper();
-                var orderStatus = mapper.map(resultSet);
-                orderStatus.setOrder(result);
-                result.setOrderStatus(orderStatus);
+                if (mapper.canMap(resultSet)) {
+                    var orderStatus = mapper.map(resultSet);
+                    orderStatus.setOrder(result);
+                    result.setOrderStatus(orderStatus);
+                }
             }
             if (!resultSet.isEmpty()) {
                 var mapper = OrderHistory.getMapper();
-                var orderHistory = mapper.map(resultSet);
-                orderHistory.setOrder(result);
-                result.setOrderHistory(orderHistory);
+                if (mapper.canMap(resultSet)) {
+                    var orderHistory = mapper.map(resultSet);
+                    orderHistory.setOrder(result);
+                    result.setOrderHistory(orderHistory);
+                }
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.getOrders().add(result);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.getOrders().add(result);
+                    result.setCustomer(customer);
+                }
             }
             if (!resultSet.isEmpty()) {
                 var mapper = OrderDetail.getMapper();
-                hook = resultSet.peek();
                 Set<OrderDetail> orderDetailSet = new LinkedHashSet<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("ORDER_DETAIL")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("ORDER_DETAIL")) {
                         var orderDetails = mapper.map(resultSet);
                         orderDetails.setOrder(result);
                         orderDetailSet.add(orderDetails);
@@ -224,7 +234,18 @@ public class Order extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("ORDERS");
+            });
+        }
+
         private void setData(Order target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "ORDERS.ID" -> target.setId(mappingObject.value());
                 case "ORDERS.ORDER_TIME" -> target.setTimeOrder((Timestamp) mappingObject.value());

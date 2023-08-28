@@ -46,7 +46,7 @@ const carouselItems = (): CarouselItem[] => {
 }
 
 const checkPageQueryParam = (component: AdminProductInfoPage): void => {
-    if ((!component.query?.productId) || Array.isArray(component.query.productId) || component.query.productId.length === 0) {
+    if ((!component.query['productId']) || Array.isArray(component.query['productId']) || component.query['productId'].length === 0) {
         const navigate = useNavigation().value;
         navigate('/404', true, 301);
     }

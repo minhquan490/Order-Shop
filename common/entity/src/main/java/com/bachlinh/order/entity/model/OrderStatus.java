@@ -37,6 +37,7 @@ public class OrderStatus extends AbstractEntity<Integer> {
     private String status;
 
     @OneToOne(optional = false, mappedBy = "orderStatus", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
     private Order order;
 
     @Override
@@ -91,7 +92,7 @@ public class OrderStatus extends AbstractEntity<Integer> {
             OrderStatus result = new OrderStatus();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("ORDER_STATUS")) {
+                if (hook.columnName().split("\\.")[0].equals("ORDER_STATUS")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -100,14 +101,27 @@ public class OrderStatus extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Order.getMapper();
-                var order = mapper.map(resultSet);
-                order.setOrderStatus(result);
-                result.setOrder(order);
+                if (mapper.canMap(resultSet)) {
+                    var order = mapper.map(resultSet);
+                    order.setOrderStatus(result);
+                    result.setOrder(order);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("ORDER_STATUS");
+            });
+        }
+
         private void setData(OrderStatus target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "ORDER_STATUS.ID" -> target.setId(mappingObject.value());
                 case "ORDER_STATUS.STATUS" -> target.setStatus((String) mappingObject.value());

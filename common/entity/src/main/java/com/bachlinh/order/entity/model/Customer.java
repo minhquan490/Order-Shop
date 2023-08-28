@@ -125,33 +125,41 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
 
     @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Cart cart;
 
     @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private RefreshToken refreshToken;
 
     @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private EmailTrash emailTrash;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_MEDIA_ID")
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private CustomerMedia customerMedia;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "TEMPORARY_TOKEN_ID", updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private TemporaryToken temporaryToken;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Set<Order> orders = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Set<CustomerAccessHistory> histories = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
@@ -163,6 +171,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
                     @Index(name = "idx_user_assignment", columnList = "CUSTOMER_ID, VOUCHER_ID")
             }
     )
+    @EqualsAndHashCode.Exclude
     private Set<Voucher> assignedVouchers = new HashSet<>();
 
     public String getPicture() {
@@ -217,7 +226,19 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     }
 
     public Collection<String> getAddressString() {
-        return this.getAddresses().stream().map(a -> String.join(",", a.getValue(), a.getCity(), a.getCountry())).toList();
+        return this.getAddresses().stream().map(a -> {
+            StringBuilder addressBuilder = new StringBuilder();
+            if (a.getValue() != null) {
+                addressBuilder.append(a.getValue());
+            }
+            if (a.getCity() != null) {
+                addressBuilder.append(a.getCity());
+            }
+            if (a.getCountry() != null) {
+                addressBuilder.append(a.getCountry());
+            }
+            return addressBuilder.toString();
+        }).toList();
     }
 
     @ActiveReflection
@@ -395,7 +416,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
             Customer result = new Customer();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("ADDRESS")) {
+                if (hook.columnName().split("\\.")[0].equals("CUSTOMER")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -432,7 +453,18 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CUSTOMER");
+            });
+        }
+
         private void setData(Customer target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CUSTOMER.ID" -> target.setId(mappingObject.value());
                 case "CUSTOMER.USER_NAME" -> target.setUsername((String) mappingObject.value());
@@ -467,38 +499,46 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
 
         private void assignCart(Queue<MappingObject> resultSet, Customer result) {
             var mapper = Cart.getMapper();
-            var cart = mapper.map(resultSet);
-            result.setCart(cart);
-            cart.setCustomer(result);
+            if (mapper.canMap(resultSet)) {
+                var cart = mapper.map(resultSet);
+                result.setCart(cart);
+                cart.setCustomer(result);
+            }
         }
 
         private void assignEmailTrash(Queue<MappingObject> resultSet, Customer result) {
             var mapper = EmailTrash.getMapper();
-            var emailTrash = mapper.map(resultSet);
-            result.setEmailTrash(emailTrash);
-            emailTrash.setCustomer(result);
+            if (mapper.canMap(resultSet)) {
+                var emailTrash = mapper.map(resultSet);
+                result.setEmailTrash(emailTrash);
+                emailTrash.setCustomer(result);
+            }
         }
 
         private void assignCustomerMedia(Queue<MappingObject> resultSet, Customer result) {
             var mapper = CustomerMedia.getMapper();
-            var customerMedia = mapper.map(resultSet);
-            result.setCustomerMedia(customerMedia);
-            customerMedia.setCustomer(result);
+            if (mapper.canMap(resultSet)) {
+                var customerMedia = mapper.map(resultSet);
+                result.setCustomerMedia(customerMedia);
+                customerMedia.setCustomer(result);
+            }
         }
 
         private void assignTemporaryToken(Queue<MappingObject> resultSet, Customer result) {
             var mapper = TemporaryToken.getMapper();
-            var temporaryToken = mapper.map(resultSet);
-            result.setTemporaryToken(temporaryToken);
-            temporaryToken.setAssignCustomer(result);
+            if (mapper.canMap(resultSet)) {
+                var temporaryToken = mapper.map(resultSet);
+                result.setTemporaryToken(temporaryToken);
+                temporaryToken.setAssignCustomer(result);
+            }
         }
 
         private void assignAddress(Queue<MappingObject> resultSet, Customer result) {
-            MappingObject hook = resultSet.peek();
             var mapper = Address.getMapper();
             Set<Address> addressSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("ADDRESS")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("ADDRESS")) {
                     var address = mapper.map(resultSet);
                     address.setCustomer(result);
                     addressSet.add(address);
@@ -510,11 +550,11 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
         }
 
         private void assignOrders(Queue<MappingObject> resultSet, Customer result) {
-            MappingObject hook = resultSet.peek();
             var mapper = Order.getMapper();
             Set<Order> orderSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("ORDER")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("ORDER")) {
                     var order = mapper.map(resultSet);
                     order.setCustomer(result);
                     orderSet.add(order);
@@ -527,10 +567,10 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
 
         private void assignHistories(Queue<MappingObject> resultSet, Customer result) {
             var mapper = CustomerAccessHistory.getMapper();
-            MappingObject hook = resultSet.peek();
             Set<CustomerAccessHistory> historySet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("CUSTOMER_ACCESS_HISTORY")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("CUSTOMER_ACCESS_HISTORY")) {
                     var customerAccessHistory = mapper.map(resultSet);
                     customerAccessHistory.setCustomer(result);
                     historySet.add(customerAccessHistory);
@@ -543,10 +583,10 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
 
         private void assignVouchers(Queue<MappingObject> resultSet, Customer result) {
             var mapper = Voucher.getMapper();
-            MappingObject hook = resultSet.peek();
             Set<Voucher> voucherSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("VOUCHER")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("VOUCHER")) {
                     var voucher = mapper.map(resultSet);
                     voucher.getCustomers().add(result);
                     voucherSet.add(voucher);

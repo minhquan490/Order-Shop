@@ -80,7 +80,6 @@ export default {
       displayFilterDropdown,
       displayConfirmDialog,
       deletedData,
-      newTable,
       selectedCategories
     }
   },
@@ -96,7 +95,6 @@ export default {
     },
     infoData(data: TableData) {
       this.$emit('info-data', data);
-      return;
     },
     deleteData(data: TableData) {
       this.displayConfirmDialog = true;
@@ -254,6 +252,7 @@ type Table = {
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-500">
+          <caption style="display: none;">Table data</caption>
           <thead class="text-xs text-gray-700 uppercase bg-gray-50">
           <tr>
             <th v-for="header in this.table.headers" scope="col" class="px-4 py-3" :key="header">
@@ -279,12 +278,13 @@ type Table = {
           <tr v-for="data in table.source" class="border-b">
             <td v-for="header in this.table.headers" class="px-4 py-3 w-max text-center">
               <template v-if="urlReg.test(data[header.dataPropertyName])">
-                <a class="underline text-blue-600" :href="data[header.dataPropertyName]"
+                <a class="underline text-blue-600 block w-full min-w-max" :href="data[header.dataPropertyName]"
                    v-text="data[header.dataPropertyName]"></a>
               </template>
               <template v-else>
                 <template v-if="header.dataPropertyName === 'id'">
-                  <a class="underline text-blue-600 hover:cursor-pointer" v-text="data[header.dataPropertyName]"
+                  <a class="underline text-blue-600 hover:cursor-pointer block w-full min-w-max"
+                     v-text="data[header.dataPropertyName]"
                      @click="infoData(data)"></a>
                 </template>
                 <template v-else>
@@ -302,10 +302,12 @@ type Table = {
             </td>
           </tr>
           </tbody>
+          <tbody v-else>
+          <tr>
+            <td :colspan="this.table.headers.length + 1" class="bg-gray-300 text-center">No data available</td>
+          </tr>
+          </tbody>
         </table>
-        <div class="w-full bg-gray-300 flex items-center justify-center p-3" v-if="table.source.length === 0">No data
-          available
-        </div>
       </div>
       <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"
            aria-label="Table navigation">

@@ -43,6 +43,7 @@ public class TemporaryToken extends AbstractEntity<Integer> {
     private Timestamp expiryTime;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "temporaryToken")
+    @EqualsAndHashCode.Exclude
     private Customer assignCustomer;
 
     @Override
@@ -106,7 +107,7 @@ public class TemporaryToken extends AbstractEntity<Integer> {
             TemporaryToken result = new TemporaryToken();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("TEMPORARY_TOKEN")) {
+                if (hook.columnName().split("\\.")[0].equals("TEMPORARY_TOKEN")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -115,14 +116,27 @@ public class TemporaryToken extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.setTemporaryToken(result);
-                result.setAssignCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.setTemporaryToken(result);
+                    result.setAssignCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("TEMPORARY_TOKEN");
+            });
+        }
+
         private void setData(TemporaryToken target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "TEMPORARY_TOKEN.ID" -> target.setId(mappingObject.value());
                 case "TEMPORARY_TOKEN.VALUE" -> target.setValue((String) mappingObject.value());

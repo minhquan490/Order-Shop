@@ -46,11 +46,13 @@ public class CartDetail extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "CART_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Cart cart;
 
     @Override
@@ -117,7 +119,7 @@ public class CartDetail extends AbstractEntity<Integer> {
             CartDetail result = new CartDetail();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CART_DETAIL")) {
+                if (hook.columnName().split("\\.")[0].equals("CART_DETAIL")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -126,19 +128,34 @@ public class CartDetail extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Product.getMapper();
-                var product = mapper.map(resultSet);
-                result.setProduct(product);
+                if (mapper.canMap(resultSet)) {
+                    var product = mapper.map(resultSet);
+                    result.setProduct(product);
+                }
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Cart.getMapper();
-                var cart = mapper.map(resultSet);
-                cart.getCartDetails().add(result);
-                result.setCart(cart);
+                if (mapper.canMap(resultSet)) {
+                    var cart = mapper.map(resultSet);
+                    cart.getCartDetails().add(result);
+                    result.setCart(cart);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CART_DETAIL");
+            });
+        }
+
         private void setData(CartDetail target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CART_DETAIL.ID" -> target.setId(mappingObject.value());
                 case "CART_DETAIL.AMOUNT" -> target.setAmount((Integer) mappingObject.value());

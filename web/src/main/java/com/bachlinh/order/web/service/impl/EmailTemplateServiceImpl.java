@@ -130,7 +130,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemp
         sentEmail.setSent(true);
         sentEmail.setMediaType(MediaType.TEXT_HTML_VALUE);
         sentEmail.setFromCustomer(templateOwner);
-        var toCustomer = customerRepository.getCustomerById(form.getToCustomer(), false);
+        var toCustomer = customerRepository.getCustomerForEmailSending(form.getToCustomer());
         sentEmail.setToCustomer(toCustomer);
         var folder = emailFoldersRepository.getEmailFolderByName("Default", toCustomer);
         sentEmail.setFolder(folder);

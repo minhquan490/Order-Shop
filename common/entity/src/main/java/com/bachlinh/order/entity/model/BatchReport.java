@@ -115,7 +115,7 @@ public class BatchReport extends AbstractEntity<Integer> {
             BatchReport result = new BatchReport();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("BATCH_REPORT")) {
+                if (hook.columnName().split("\\.")[0].equals("BATCH_REPORT")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -125,7 +125,18 @@ public class BatchReport extends AbstractEntity<Integer> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("BATCH_REPORT");
+            });
+        }
+
         private void setData(BatchReport target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "BATCH_REPORT.ID" -> target.setId(mappingObject.value());
                 case "BATCH_REPORT.BATCH_NAME" -> target.setBatchName((String) mappingObject.value());

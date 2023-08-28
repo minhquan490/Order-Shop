@@ -61,6 +61,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @Override
@@ -155,7 +156,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
             CustomerAccessHistory result = new CustomerAccessHistory();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CUSTOMER_ACCESS_HISTORY")) {
+                if (hook.columnName().split("\\.")[0].equals("CUSTOMER_ACCESS_HISTORY")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -164,14 +165,27 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.getHistories().add(result);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.getHistories().add(result);
+                    result.setCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CUSTOMER_ACCESS_HISTORY");
+            });
+        }
+
         private void setData(CustomerAccessHistory target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CUSTOMER_ACCESS_HISTORY.ID" -> target.setId(mappingObject.value());
                 case "CUSTOMER_ACCESS_HISTORY.PATH_REQUEST" -> target.setPathRequest((String) mappingObject.value());

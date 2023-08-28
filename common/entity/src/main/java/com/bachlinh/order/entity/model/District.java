@@ -79,9 +79,11 @@ public class District extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROVINCE_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Province province;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
+    @EqualsAndHashCode.Exclude
     private List<Ward> wards = new ArrayList<>();
 
     @Override
@@ -187,7 +189,7 @@ public class District extends AbstractEntity<Integer> {
             District result = new District();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("DISTRICT")) {
+                if (hook.columnName().split("\\.")[0].equals("DISTRICT")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -196,16 +198,18 @@ public class District extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Province.getMapper();
-                var province = mapper.map(resultSet);
-                province.getDistricts().add(result);
-                result.setProvince(province);
+                if (mapper.canMap(resultSet)) {
+                    var province = mapper.map(resultSet);
+                    province.getDistricts().add(result);
+                    result.setProvince(province);
+                }
             }
             if (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
                 var mapper = Ward.getMapper();
                 List<Ward> wardSet = new LinkedList<>();
                 while (!resultSet.isEmpty()) {
-                    if (hook.columnName().startsWith("WARD")) {
+                    hook = resultSet.peek();
+                    if (hook.columnName().split("\\.")[0].equals("WARD")) {
                         var ward = mapper.map(resultSet);
                         ward.setDistrict(result);
                         wardSet.add(ward);
@@ -218,7 +222,18 @@ public class District extends AbstractEntity<Integer> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("DISTRICT");
+            });
+        }
+
         private void setData(District target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "DISTRICT.ID" -> target.setId(mappingObject.value());
                 case "DISTRICT.NAME" -> target.setName((String) mappingObject.value());

@@ -8,12 +8,16 @@ import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
-import com.bachlinh.order.repository.query.CriteriaPredicateParser;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
@@ -34,31 +39,20 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
-    public void saveHistory(CustomerInfoChangeHistory history) {
-        save(history);
-    }
-
-    @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void saveHistories(Collection<CustomerInfoChangeHistory> histories) {
         saveAll(histories);
     }
 
     @Override
     public Collection<CustomerInfoChangeHistory> getHistoriesInYear() {
-        Specification<CustomerInfoChangeHistory> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(CustomerInfoChangeHistory_.timeUpdate), Timestamp.from(Instant.now())));
-        return findAll(spec);
+        Where timeUpdateWhere = Where.builder().attribute(CustomerInfoChangeHistory_.TIME_UPDATE).value(Timestamp.from(Instant.now())).operator(Operator.GE).build();
+        return getAccessHistories(timeUpdateWhere, -1);
     }
 
     @Override
-    public Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer) {
-        var customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customer).build();
-        Specification<CustomerInfoChangeHistory> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var extractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            extractor.where(customerWhere);
-            return extractor.parse();
-        });
-        return findAll(spec);
+    public Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer, long limit) {
+        var customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customer).operator(Operator.EQ).build();
+        return getAccessHistories(customerWhere, limit);
     }
 
     @Override
@@ -80,5 +74,25 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
     @ActiveReflection
     public void setEntityManager(EntityManager entityManager) {
         super.setEntityManager(entityManager);
+    }
+
+    private Collection<CustomerInfoChangeHistory> getAccessHistories(Where where, long limit) {
+        Select customerInfoChangeHistoryIdSelect = Select.builder().column(CustomerInfoChangeHistory_.ID).build();
+        Select customerInfoChangeHistoryOldValueSelect = Select.builder().column(CustomerInfoChangeHistory_.OLD_VALUE).build();
+        Select customerInfoChangeHistoryFieldNameSelect = Select.builder().column(CustomerInfoChangeHistory_.FIELD_NAME).build();
+        Select customerInfoChangeHistoryTimeUpdateSelect = Select.builder().column(CustomerInfoChangeHistory_.TIME_UPDATE).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(CustomerInfoChangeHistory.class);
+        sqlSelect.select(customerInfoChangeHistoryIdSelect)
+                .select(customerInfoChangeHistoryOldValueSelect)
+                .select(customerInfoChangeHistoryFieldNameSelect)
+                .select(customerInfoChangeHistoryTimeUpdateSelect);
+        SqlWhere sqlWhere = sqlSelect.where(where);
+        if (limit > 0) {
+            sqlWhere.limit(limit);
+        }
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(sql, attributes, CustomerInfoChangeHistory.class);
     }
 }

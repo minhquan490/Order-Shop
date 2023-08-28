@@ -1,9 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -16,6 +12,10 @@ import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -46,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResp updateCategory(CategoryUpdateForm form) {
         var category = categoryRepository.getCategoryById(form.id());
         category.setName(form.name());
-        category = categoryRepository.saveCategory(category);
+        category = categoryRepository.updateCategory(category);
         return dtoMapper.map(category, CategoryResp.class);
     }
 

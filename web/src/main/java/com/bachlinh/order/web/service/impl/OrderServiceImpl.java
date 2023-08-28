@@ -1,13 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -37,6 +29,13 @@ import com.bachlinh.order.web.service.business.OrderAnalyzeService;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
 import com.bachlinh.order.web.service.business.OrderInDateService;
 import com.bachlinh.order.web.service.common.OrderService;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -115,9 +114,7 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public OrderResp saveOrder(OrderCreateForm form) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Map<String, Object> productQueryCondition = new HashMap<>(1);
-        productQueryCondition.put("IDS", Stream.of(form.getDetails()).map(OrderCreateForm.Detail::getProductId).toList());
-        Map<String, Product> productMap = productRepository.getProductsByCondition(productQueryCondition, Pageable.unpaged())
+        Map<String, Product> productMap = productRepository.getProductsForSavingOrder(Stream.of(form.getDetails()).map(OrderCreateForm.Detail::getProductId).toList())
                 .stream()
                 .collect(Collectors.toMap(Product::getId, value -> value));
         Order order = entityFactory.getEntity(Order.class);

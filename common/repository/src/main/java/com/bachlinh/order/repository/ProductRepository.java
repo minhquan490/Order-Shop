@@ -21,10 +21,22 @@ public interface ProductRepository extends NativeQueryRepository {
 
     long countProduct();
 
-    Product getProductByCondition(Map<String, Object> conditions);
+    Product getProductForFileUpload(String productId);
 
+    Product getProductForUpdate(String productId);
+
+    Product getProductForDelete(String productId);
+
+    Product getProductInfo(String productId);
+
+    Collection<Product> getProductInfos(Collection<String> productIds);
+
+    Collection<Product> getProductsForSavingOrder(Collection<String> productIds);
+
+    @Deprecated(forRemoval = true)
     Page<Product> getProductsByCondition(Map<String, Object> conditions, Pageable pageable);
 
+    @Deprecated(forRemoval = true)
     Page<Product> getProductsWithUnion(Collection<String> ids, Map<String, Object> conditions, Pageable pageable);
 
     Page<Product> getAllProducts(Pageable pageable);

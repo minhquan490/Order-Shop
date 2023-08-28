@@ -1,9 +1,17 @@
 <script lang="ts">
-import {navigationSources, tableHeaders} from "~/logic/pages/admin/customer/index.logic";
+import {
+  getCustomersInfo,
+  getDefaultCustomerInfo,
+  navigateToCustomerInfoPage,
+  navigateToNewCustomerPage,
+  navigationSources,
+  tableHeaders
+} from "~/logic/pages/admin/customer/index.logic";
 import {NavBarsSource, TableHeader, TableNewData} from "~/types";
 
 export default {
-  setup() {
+  methods: {navigateToCustomerInfoPage},
+  async setup() {
     const navigationSource: NavBarsSource[] = navigationSources();
     const headers: TableHeader[] = tableHeaders();
     const isLoading: boolean = false;
@@ -11,14 +19,19 @@ export default {
       icon: 'ic:round-plus',
       buttonContent: 'New customer'
     }
+    let customerList: Array<CustomerInfo> = await getCustomersInfo();
     return {
       navigationSource,
       isLoading,
       headers,
-      tableNewData
+      tableNewData,
+      navigateToNewCustomerPage,
+      customerList
     }
   }
 }
+
+type CustomerInfo = ReturnType<typeof getDefaultCustomerInfo>;
 </script>
 
 <template>
@@ -27,7 +40,11 @@ export default {
       <nav-bars-admin :sources="navigationSource"/>
       <page-header title="Customer list" :bread-crumbs-enable="true"/>
       <admin-content-area>
-        <data-table :headers="headers" :button-new="tableNewData"/>
+        <data-table :headers="headers"
+                    :button-new="tableNewData"
+                    @new-data="navigateToNewCustomerPage"
+                    :table-data="customerList"
+                    @info-data="data => navigateToCustomerInfoPage(data['id'])"/>
       </admin-content-area>
     </loading-block-u-i>
   </div>

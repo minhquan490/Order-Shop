@@ -51,6 +51,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "PRODUCT_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Product product;
 
     @ActiveReflection
@@ -124,7 +125,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
             ProductMedia result = new ProductMedia();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("PRODUCT_MEDIA")) {
+                if (hook.columnName().split("\\.")[0].equals("PRODUCT_MEDIA")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -133,14 +134,27 @@ public class ProductMedia extends AbstractEntity<Integer> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Product.getMapper();
-                var product = mapper.map(resultSet);
-                product.getMedias().add(result);
-                result.setProduct(product);
+                if (mapper.canMap(resultSet)) {
+                    var product = mapper.map(resultSet);
+                    product.getMedias().add(result);
+                    result.setProduct(product);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("PRODUCT_MEDIA");
+            });
+        }
+
         private void setData(ProductMedia target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "PRODUCT_MEDIA.ID" -> target.setId(mappingObject.value());
                 case "PRODUCT_MEDIA.URL" -> target.setUrl((String) mappingObject.value());

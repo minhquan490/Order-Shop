@@ -51,7 +51,7 @@ public class RegisterRule extends AbstractRule<RegisterForm> {
                 String errorContent = MessageFormat.format(invalidMessage.getValue(), email);
                 RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, validateResult);
             }
-            if (customerRepository.emailExist(dto.email())) {
+            if (customerRepository.isEmailExisted(dto.email())) {
                 String errorContent = MessageFormat.format(existedMessage.getValue(), email);
                 RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, validateResult);
             }

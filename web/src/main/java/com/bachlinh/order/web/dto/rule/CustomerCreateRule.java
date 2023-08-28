@@ -83,8 +83,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
             if (usernameLength < 4 || usernameLength > 32) {
                 String errorContent = MessageFormat.format(rangeMessage.getValue(), username, "4", "32");
                 RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
-            }
-            if (customerRepository.usernameExist(dto.getUsername())) {
+            } else if (customerRepository.isUsernameExisted(dto.getUsername())) {
                 String errorContent = MessageFormat.format(existedMessage.getValue(), "Username");
                 RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
             }
@@ -97,8 +96,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
             if (!ValidateUtils.isPhoneValid(dto.getPhone())) {
                 String errorContent = MessageFormat.format(invalidMessage.getValue(), "Phone");
                 RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
-            }
-            if (customerRepository.phoneNumberExist(dto.getPhone())) {
+            } else if (customerRepository.isPhoneNumberExisted(dto.getPhone())) {
                 String errorContent = MessageFormat.format(existedMessage.getValue(), "Phone");
                 RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
             }
@@ -112,8 +110,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
             if (!ValidateUtils.isEmailValidUsingRfc5322(dto.getEmail())) {
                 String errorContent = MessageFormat.format(invalidMessage.getValue(), email);
                 RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
-            }
-            if (customerRepository.emailExist(dto.getEmail())) {
+            } else if (customerRepository.isEmailExisted(dto.getEmail())) {
                 String errorContent = MessageFormat.format(existedMessage.getValue(), email);
                 RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
             }

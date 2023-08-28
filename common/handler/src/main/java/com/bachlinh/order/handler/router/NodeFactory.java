@@ -37,7 +37,14 @@ public class NodeFactory {
                 ((NodeRegister) root).registerNode(Node.getInstance(resolver, part, root));
             } else {
                 String a = Objects.requireNonNullElse(processed, part);
-                createInnerNode(node, String.join("/", parts).replaceAll(a, ""));
+                String joined = String.join("/", parts);
+                String p;
+                if (joined.startsWith("/")) {
+                    p = String.join("/", parts).replace("/" + a, "");
+                } else {
+                    p = String.join("/", parts).replace(a, "");
+                }
+                createInnerNode(node, p);
                 return;
             }
             processed = part;

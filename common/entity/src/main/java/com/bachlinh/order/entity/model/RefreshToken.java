@@ -51,6 +51,7 @@ public class RefreshToken extends AbstractEntity<String> {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", unique = true, nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @ActiveReflection
@@ -112,7 +113,7 @@ public class RefreshToken extends AbstractEntity<String> {
             RefreshToken result = new RefreshToken();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("REFRESH_TOKEN")) {
+                if (hook.columnName().split("\\.")[0].equals("REFRESH_TOKEN")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -121,14 +122,27 @@ public class RefreshToken extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.setRefreshToken(result);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.setRefreshToken(result);
+                    result.setCustomer(customer);
+                }
             }
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("REFRESH_TOKEN");
+            });
+        }
+
         private void setData(RefreshToken target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "REFRESH_TOKEN.ID" -> target.setId(mappingObject.value());
                 case "REFRESH_TOKEN.TIME_CREATED" -> target.setTimeCreated((Timestamp) mappingObject.value());

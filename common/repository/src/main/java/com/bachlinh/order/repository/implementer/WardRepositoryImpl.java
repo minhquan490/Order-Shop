@@ -8,18 +8,21 @@ import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
 import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.WardRepository;
-import com.bachlinh.order.repository.query.CriteriaPredicateParser;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
@@ -52,7 +55,13 @@ public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implem
 
     @Override
     public Collection<Ward> getWards(Collection<Integer> ids) {
-        return findAllById(ids);
+        Where idsWhere = Where.builder().attribute(Ward_.ID).value(ids).operator(Operator.IN).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Ward.class);
+        SqlWhere sqlWhere = sqlSelect.where(idsWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(sql, attributes, Ward.class);
     }
 
     @Override
@@ -61,14 +70,14 @@ public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implem
         Select nameSelect = Select.builder().column(Ward_.NAME).build();
         Where districtWhere = Where.builder().attribute(Ward_.DISTRICT).value(district).operator(Operator.EQ).build();
         OrderBy nameOrderBy = OrderBy.builder().column(Ward_.NAME).type(OrderBy.Type.ASC).build();
-        Specification<Ward> spec = Specification.where((root, query, criteriaBuilder) -> {
-            var queryExtractor = new CriteriaPredicateParser(criteriaBuilder, query, root);
-            queryExtractor.select(idSelect, nameSelect);
-            queryExtractor.where(districtWhere);
-            queryExtractor.orderBy(nameOrderBy);
-            return queryExtractor.parse();
-        });
-        return findAll(spec);
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Ward.class);
+        sqlSelect.select(idSelect).select(nameSelect);
+        SqlWhere sqlWhere = sqlSelect.where(districtWhere);
+        sqlWhere.orderBy(nameOrderBy);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return executeNativeQuery(sql, attributes, Ward.class);
     }
 
     @Override

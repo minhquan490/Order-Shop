@@ -53,9 +53,11 @@ public class Cart extends AbstractEntity<String> {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", unique = true, nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
+    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "cart", orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Collection<CartDetail> cartDetails = new HashSet<>();
 
     @ManyToMany
@@ -144,7 +146,7 @@ public class Cart extends AbstractEntity<String> {
             Cart result = new Cart();
             while (!resultSet.isEmpty()) {
                 hook = resultSet.peek();
-                if (hook.columnName().startsWith("CART")) {
+                if (hook.columnName().split("\\.")[0].equals("CART")) {
                     hook = resultSet.poll();
                     setData(result, hook);
                 } else {
@@ -153,9 +155,11 @@ public class Cart extends AbstractEntity<String> {
             }
             if (!resultSet.isEmpty()) {
                 var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                customer.setCart(result);
-                result.setCustomer(customer);
+                if (mapper.canMap(resultSet)) {
+                    var customer = mapper.map(resultSet);
+                    customer.setCart(result);
+                    result.setCustomer(customer);
+                }
             }
             if (!resultSet.isEmpty()) {
                 assignCartDetails(resultSet, result);
@@ -166,7 +170,18 @@ public class Cart extends AbstractEntity<String> {
             return result;
         }
 
+        @Override
+        public boolean canMap(Collection<MappingObject> testTarget) {
+            return testTarget.stream().anyMatch(mappingObject -> {
+                String name = mappingObject.columnName();
+                return name.split("\\.")[0].equals("CART");
+            });
+        }
+
         private void setData(Cart target, MappingObject mappingObject) {
+            if (mappingObject.value() == null) {
+                return;
+            }
             switch (mappingObject.columnName()) {
                 case "CART.ID" -> target.setId(mappingObject.value());
                 case "CART.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
@@ -178,11 +193,11 @@ public class Cart extends AbstractEntity<String> {
         }
 
         private void assignCartDetails(Queue<MappingObject> resultSet, Cart result) {
-            MappingObject hook = resultSet.peek();
             var mapper = CartDetail.getMapper();
             Set<CartDetail> cartDetailSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("CART_DETAIL")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("CART_DETAIL")) {
                     var cartDetail = mapper.map(resultSet);
                     cartDetail.setCart(result);
                     cartDetailSet.add(cartDetail);
@@ -194,11 +209,11 @@ public class Cart extends AbstractEntity<String> {
         }
 
         private void assignProducts(Queue<MappingObject> resultSet, Cart result) {
-            MappingObject hook = resultSet.peek();
             var mapper = Product.getMapper();
             Set<Product> productSet = new LinkedHashSet<>();
             while (!resultSet.isEmpty()) {
-                if (hook.columnName().startsWith("PRODUCT")) {
+                MappingObject hook = resultSet.peek();
+                if (hook.columnName().split("\\.")[0].equals("PRODUCT")) {
                     var product = mapper.map(resultSet);
                     product.getCarts().add(result);
                     productSet.add(product);

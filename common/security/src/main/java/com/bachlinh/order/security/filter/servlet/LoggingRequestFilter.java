@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.io.IOException;
@@ -64,10 +65,10 @@ public class LoggingRequestFilter extends AbstractWebFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        if (!isClientFetch(request)) {
-//            response.setStatus(HttpStatus.NOT_FOUND.value());
-//            return;
-//        }
+        if (!isClientFetch(request)) {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
         HttpServletRequest delegateHttpServletRequest = new DelegateHttpServletRequest(request);
         if (response.isCommitted()) {
             return;
@@ -140,7 +141,7 @@ public class LoggingRequestFilter extends AbstractWebFilter {
 
     private void logCustomer(String customerId, HttpServletRequest request) throws IOException {
         CustomerAccessHistory customerAccessHistory = createCommonHistory(request);
-        Customer customer = customerRepository.getCustomerById(customerId, true);
+        Customer customer = customerRepository.getCustomerForAuthentication(customerId);
         customerAccessHistory.setCustomer(customer);
         saveLog(customerAccessHistory);
     }

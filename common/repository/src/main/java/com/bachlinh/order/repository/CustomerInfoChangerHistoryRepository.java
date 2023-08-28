@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import java.util.Collection;
 
 public interface CustomerInfoChangerHistoryRepository extends NativeQueryRepository {
-    void saveHistory(CustomerInfoChangeHistory history);
 
     void saveHistories(Collection<CustomerInfoChangeHistory> histories);
 
@@ -14,5 +13,5 @@ public interface CustomerInfoChangerHistoryRepository extends NativeQueryReposit
 
     Collection<CustomerInfoChangeHistory> getHistoriesInYear();
 
-    Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer);
+    Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer, long limit);
 }

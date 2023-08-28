@@ -192,7 +192,7 @@ const sort = (component: DataTableComponent, event: Event, header: string): void
         element.setAttribute('data-dir', 'desc');
     }
     component.table.source = source;
-    component.table.data = sliceData(source, component.table);
+    component.table.data = sliceData(source, component);
 }
 
 const filterByCategories = (event: Event, component: DataTableComponent): void => {

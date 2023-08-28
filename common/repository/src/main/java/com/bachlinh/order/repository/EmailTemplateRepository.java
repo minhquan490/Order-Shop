@@ -10,8 +10,6 @@ public interface EmailTemplateRepository extends NativeQueryRepository {
 
     EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate);
 
-    EmailTemplate getEmailTemplateByName(String templateName, Customer owner);
-
     EmailTemplate getEmailTemplateById(String id, Customer owner);
 
     EmailTemplate getDefaultEmailTemplate(String name);
