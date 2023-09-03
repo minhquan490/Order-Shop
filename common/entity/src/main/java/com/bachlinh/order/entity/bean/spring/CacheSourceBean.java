@@ -1,11 +1,9 @@
 package com.bachlinh.order.entity.bean.spring;
 
+import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.entity.cache.SpringCacheManager;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import jakarta.persistence.Cacheable;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
 import org.hibernate.annotations.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +11,21 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.entity.cache.SpringCacheManager;
-import com.bachlinh.order.exception.system.common.CriticalException;
 
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * Not working cache storage. Implement new cache for system
+ */
 @Configuration
 @EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
+@Deprecated(forRemoval = true)
 public class CacheSourceBean {
     private final Logger log = LoggerFactory.getLogger(getClass());
 

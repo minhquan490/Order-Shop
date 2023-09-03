@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -31,7 +30,6 @@ import java.util.Queue;
 @ActiveReflection
 @Label("CIH-")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class CustomerInfoChangeHistory extends AbstractEntity<String> {
 
@@ -78,21 +76,33 @@ public class CustomerInfoChangeHistory extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setOldValue(String oldValue) {
+        if (this.oldValue != null && !oldValue.equals(this.oldValue)) {
+            trackUpdatedField("OLD_VALUE", this.oldValue, oldValue);
+        }
         this.oldValue = oldValue;
     }
 
     @ActiveReflection
     public void setFieldName(String fieldName) {
+        if (this.fieldName != null && !fieldName.equals(this.fieldName)) {
+            trackUpdatedField("FIELD_NAME", this.fieldName, fieldName);
+        }
         this.fieldName = fieldName;
     }
 
     @ActiveReflection
     public void setTimeUpdate(Timestamp timeUpdate) {
+        if (this.timeUpdate != null && !timeUpdate.equals(this.timeUpdate)) {
+            trackUpdatedField("TIME_UPDATE", this.timeUpdate, timeUpdate);
+        }
         this.timeUpdate = timeUpdate;
     }
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
+        if (this.customer != null && !customer.getId().equals(this.customer.getId())) {
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
+        }
         this.customer = customer;
     }
 

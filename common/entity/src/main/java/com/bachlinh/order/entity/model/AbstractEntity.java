@@ -16,8 +16,8 @@ import lombok.Getter;
 import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -45,7 +45,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     private Timestamp modifiedDate;
 
     @Transient
-    private transient Collection<FieldUpdated> updatedFields;
+    private transient List<FieldUpdated> updatedFields;
 
     @Transient
     private transient boolean isNew = false;
@@ -95,7 +95,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
         this.modifiedDate = modifiedDate;
     }
 
-    public void setUpdatedFields(Collection<FieldUpdated> updatedFields) {
+    public void setUpdatedFields(List<FieldUpdated> updatedFields) {
         this.updatedFields = updatedFields;
     }
 
@@ -112,8 +112,8 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
         this.isNew = isNew;
     }
 
-    protected void trackUpdatedField(String fieldName, String oldValue) {
-        FieldUpdated fieldUpdated = new FieldUpdated(fieldName, oldValue);
+    protected void trackUpdatedField(String fieldName, Object oldValue, Object newValue) {
+        FieldUpdated fieldUpdated = new FieldUpdated(fieldName, oldValue, () -> newValue);
         setUpdatedField(fieldUpdated);
     }
 

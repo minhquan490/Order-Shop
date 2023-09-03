@@ -14,6 +14,10 @@ public abstract non-sealed class AbstractInterceptor implements WebInterceptor {
     private DependenciesResolver resolver;
     private Environment environment;
 
+    protected AbstractInterceptor() {
+
+    }
+
     @Override
     public boolean preHandle(NativeRequest<?> request, NativeResponse<?> response) {
         return true;
@@ -28,4 +32,6 @@ public abstract non-sealed class AbstractInterceptor implements WebInterceptor {
     public void onComplete(NativeRequest<?> request, NativeResponse<?> response) {
         // Do nothing in abstract
     }
+
+    public abstract void init();
 }

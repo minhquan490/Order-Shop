@@ -65,7 +65,7 @@ public class MessageSettingRegistration extends AbstractSetup {
 
     private Collection<String> createSettingContent() {
         List<String> messages = new LinkedList<>();
-        messages.add("{0} : must not empty");
+        messages.add("{0}: must not empty");
         messages.add("Length of {0} must not be less than or equals {1} character");
         messages.add("{0} must be not null");
         messages.add("Product: Cart detail must be contain product");
@@ -99,6 +99,7 @@ public class MessageSettingRegistration extends AbstractSetup {
         messages.add("{0} associate with {1} must not be null");
         messages.add("Can not access url {0}, no permission");
         messages.add("File size limit exceeded");
+        messages.add("{0}: Not allow for update");
         return messages;
     }
 }

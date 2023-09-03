@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -31,7 +30,6 @@ import java.util.Queue;
 @Table(name = "ADDRESS", indexes = @Index(name = "idx_address_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class Address extends AbstractEntity<String> {
@@ -79,7 +77,7 @@ public class Address extends AbstractEntity<String> {
     @ActiveReflection
     public void setValue(@NonNull String value) {
         if (this.value != null && !value.equals(this.value)) {
-            trackUpdatedField("VALUE", this.value);
+            trackUpdatedField("VALUE", this.value, value);
         }
         this.value = value;
     }
@@ -87,7 +85,7 @@ public class Address extends AbstractEntity<String> {
     @ActiveReflection
     public void setCity(@NonNull String city) {
         if (this.city != null && !city.equals(this.city)) {
-            trackUpdatedField("CITY", this.city);
+            trackUpdatedField("CITY", this.city, value);
         }
         this.city = city;
     }
@@ -95,7 +93,7 @@ public class Address extends AbstractEntity<String> {
     @ActiveReflection
     public void setCountry(@NonNull String country) {
         if (this.country != null && !country.equals(this.country)) {
-            trackUpdatedField("COUNTRY", this.country);
+            trackUpdatedField("COUNTRY", this.country, value);
         }
         this.country = country;
     }
@@ -103,7 +101,7 @@ public class Address extends AbstractEntity<String> {
     @ActiveReflection
     public void setCustomer(@NonNull Customer customer) {
         if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
     }

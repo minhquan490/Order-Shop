@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.admin.voucher;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @RouteProvider(name = "voucherUpdateHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 @Permit(roles = Role.ADMIN)
+@EnableCsrf
 public class VoucherUpdateHandler extends AbstractController<VoucherResp, VoucherUpdateForm> {
     private String url;
     private VoucherService voucherService;

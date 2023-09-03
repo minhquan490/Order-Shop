@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.scanner;
 
+import com.bachlinh.order.annotation.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -10,7 +11,6 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.lang.NonNull;
-import com.bachlinh.order.annotation.Ignore;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,9 +32,6 @@ public final class ApplicationScanner extends ClassPathScanningCandidateComponen
         if (CACHE_SCANNING_RESULT.isEmpty()) {
             for (BeanDefinition beanDefinition : findCandidateComponents(APPLICATION_PACKAGE)) {
                 try {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Found class [{}]", beanDefinition.getBeanClassName());
-                    }
                     CACHE_SCANNING_RESULT.add(Class.forName(beanDefinition.getBeanClassName()));
                 } catch (ClassNotFoundException e) {
                     log.warn("Class [{}] not found", beanDefinition.getBeanClassName());

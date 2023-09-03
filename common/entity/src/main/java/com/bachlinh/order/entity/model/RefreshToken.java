@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -31,7 +30,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class RefreshToken extends AbstractEntity<String> {
 
@@ -77,21 +75,33 @@ public class RefreshToken extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setTimeCreated(Timestamp timeCreated) {
+        if (this.timeCreated != null && !timeCreated.equals(this.timeCreated)) {
+            trackUpdatedField("TIME_CREATED", this.timeCreated, timeCreated);
+        }
         this.timeCreated = timeCreated;
     }
 
     @ActiveReflection
     public void setTimeExpired(Timestamp timeExpired) {
+        if (this.timeExpired != null && !timeExpired.equals(this.timeExpired)) {
+            trackUpdatedField("TIME_EXPIRED", this.timeExpired, timeExpired);
+        }
         this.timeExpired = timeExpired;
     }
 
     @ActiveReflection
     public void setRefreshTokenValue(String refreshTokenValue) {
+        if (this.refreshTokenValue != null && !refreshTokenValue.equals(this.refreshTokenValue)) {
+            trackUpdatedField("VALUE", this.refreshTokenValue, refreshTokenValue);
+        }
         this.refreshTokenValue = refreshTokenValue;
     }
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
+        if (this.customer != null && !customer.getId().equals(this.customer.getId())) {
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
+        }
         this.customer = customer;
     }
 

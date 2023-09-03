@@ -5,9 +5,16 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Address_;
-import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.AddressRepository;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -16,6 +23,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -58,6 +66,30 @@ public class AddressRepositoryImpl extends AbstractRepository<Address, String> i
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void bulkSave(Collection<Address> addresses) {
         saveAll(addresses);
+    }
+
+    @Override
+    public Address getAddressForUpdate(String id) {
+        Select idSelect = Select.builder().column(Address_.ID).build();
+        Select valueSelect = Select.builder().column(Address_.VALUE).build();
+        Select citySelect = Select.builder().column(Address_.CITY).build();
+        Select countrySelect = Select.builder().column(Address_.COUNTRY).build();
+        Where idWhere = Where.builder().attribute(Address_.ID).value(id).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Address.class);
+        sqlSelect.select(idSelect)
+                .select(valueSelect)
+                .select(citySelect)
+                .select(countrySelect);
+        SqlWhere sqlWhere = sqlSelect.where(idWhere);
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(query, attributes, getDomainClass());
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 
     @Override

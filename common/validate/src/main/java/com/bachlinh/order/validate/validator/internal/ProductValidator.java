@@ -3,6 +3,7 @@ package com.bachlinh.order.validate.validator.internal;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
+import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.repository.MessageSettingRepository;
@@ -13,6 +14,7 @@ import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
+import java.util.Collection;
 
 @ActiveReflection
 @ApplyOn(entity = Product.class)
@@ -49,42 +51,74 @@ public class ProductValidator extends AbstractValidator<Product> {
         MessageSetting lengthInvalidMessage = messageSettingRepository.getMessageById(LENGTH_INVALID_MESSAGE_ID);
         MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
         MessageSetting negativeMessage = messageSettingRepository.getMessageById(NEGATIVE_MESSAGE_ID);
-        MessageSetting productMissingCategoryMessage = messageSettingRepository.getMessageById(PRODUCT_MISSING_CATEGORY_MESSAGE_ID);
 
-        if (!StringUtils.hasText(entity.getName())) {
+        if (entity.isNew()) {
+            validateName(entity.getName(), result, entity, nonEmptyMessage, lengthInvalidMessage, existedMessage);
+            validateSize(entity.getSize(), result, nonEmptyMessage, lengthInvalidMessage);
+            validateColor(entity.getColor(), result, nonEmptyMessage, lengthInvalidMessage);
+            validatePrice(entity.getPrice(), result, negativeMessage);
+            validateCategories(entity.getCategories(), result);
+        } else {
+            Product old = productRepository.getProductForUpdate(entity.getId());
+            if (!old.getName().equals(entity.getName())) {
+                validateName(entity.getName(), result, entity, nonEmptyMessage, lengthInvalidMessage, existedMessage);
+            }
+            if (!old.getSize().equals(entity.getSize())) {
+                validateSize(entity.getSize(), result, nonEmptyMessage, lengthInvalidMessage);
+            }
+            if (!old.getColor().equals(entity.getColor())) {
+                validateColor(entity.getColor(), result, nonEmptyMessage, lengthInvalidMessage);
+            }
+            if (!old.getPrice().equals(entity.getPrice())) {
+                validatePrice(entity.getPrice(), result, negativeMessage);
+            }
+        }
+        return result;
+    }
+
+    private void validateName(String name, ValidateResult result, Product entity, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage, MessageSetting existedMessage) {
+        if (!StringUtils.hasText(name)) {
             result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Product name"));
         } else {
-            if (entity.getName().length() > 100) {
+            if (name.length() > 100) {
                 result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "product name", "100"));
             }
             if (productRepository.productNameExist(entity)) {
                 result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Product name"));
             }
         }
+    }
 
-        if (!StringUtils.hasText(entity.getSize())) {
+    private void validateSize(String size, ValidateResult result, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage) {
+        if (!StringUtils.hasText(size)) {
             result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Product size"));
         } else {
-            if (entity.getSize().length() > 3) {
+            if (size.length() > 3) {
                 result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "product size", "3"));
             }
         }
+    }
 
-        if (!StringUtils.hasText(entity.getColor())) {
+    private void validateColor(String color, ValidateResult result, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage) {
+        if (!StringUtils.hasText(color)) {
             result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Product color"));
         } else {
-            if (entity.getColor().length() > 30) {
+            if (color.length() > 30) {
                 result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "product color", "30"));
             }
         }
+    }
 
-        if (entity.getPrice() < 0) {
+    private void validatePrice(Integer price, ValidateResult result, MessageSetting negativeMessage) {
+        if (price < 0) {
             result.addMessageError(MessageFormat.format(negativeMessage.getValue(), "Price"));
         }
+    }
 
-        if (entity.getCategories().isEmpty()) {
+    private void validateCategories(Collection<Category> categories, ValidateResult result) {
+        if (categories.isEmpty()) {
+            MessageSetting productMissingCategoryMessage = messageSettingRepository.getMessageById(PRODUCT_MISSING_CATEGORY_MESSAGE_ID);
             result.addMessageError(productMissingCategoryMessage.getValue());
         }
-        return result;
     }
 }

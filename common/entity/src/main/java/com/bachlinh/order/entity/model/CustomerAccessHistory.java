@@ -16,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -30,7 +29,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class CustomerAccessHistory extends AbstractEntity<Integer> {
 
@@ -88,7 +86,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setPathRequest(String pathRequest) {
         if (this.pathRequest != null && !this.pathRequest.equals(pathRequest)) {
-            trackUpdatedField("PATH_REQUEST", this.pathRequest);
+            trackUpdatedField("PATH_REQUEST", this.pathRequest, pathRequest);
         }
         this.pathRequest = pathRequest;
     }
@@ -96,7 +94,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setRequestTime(Date requestTime) {
         if (this.requestTime != null && !this.requestTime.equals(requestTime)) {
-            trackUpdatedField("REQUEST_TIME", this.requestTime.toString());
+            trackUpdatedField("REQUEST_TIME", this.requestTime, requestTime);
         }
         this.requestTime = requestTime;
     }
@@ -104,7 +102,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setRequestContent(String requestContent) {
         if (this.requestContent != null && !this.requestContent.equals(requestContent)) {
-            trackUpdatedField("REQUEST_CONTENT", this.requestContent);
+            trackUpdatedField("REQUEST_CONTENT", this.requestContent, requestContent);
         }
         this.requestContent = requestContent;
     }
@@ -112,7 +110,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setRemoveTime(Date removeTime) {
         if (this.removeTime != null && !this.removeTime.equals(removeTime)) {
-            trackUpdatedField("REMOVED_TIME", this.removeTime.toString());
+            trackUpdatedField("REMOVED_TIME", this.removeTime, removeTime);
         }
         this.removeTime = removeTime;
     }
@@ -125,7 +123,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setRequestType(String requestType) {
         if (this.requestType != null && !this.requestType.equals(requestType)) {
-            trackUpdatedField("REQUEST_TYPE", this.requestType);
+            trackUpdatedField("REQUEST_TYPE", this.requestType, requestType);
         }
         this.requestType = requestType;
     }
@@ -133,7 +131,7 @@ public class CustomerAccessHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCustomerIp(String customerIp) {
         if (this.customerIp != null && !this.customerIp.equals(customerIp)) {
-            trackUpdatedField("CUSTOMER_IP", this.customerIp);
+            trackUpdatedField("CUSTOMER_IP", this.customerIp, customerIp);
         }
         this.customerIp = customerIp;
     }

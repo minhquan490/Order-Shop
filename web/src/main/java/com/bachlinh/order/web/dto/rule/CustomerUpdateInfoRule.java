@@ -4,6 +4,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -41,13 +42,36 @@ public class CustomerUpdateInfoRule extends AbstractRule<CustomerUpdateInfoForm>
         MessageSetting rangeMessage = messageSettingRepository.getMessageById("MSG-000010");
 
         validateId(validationResult, dto.getId());
-        validateFirstName(validationResult, dto.getFirstName(), rangeMessage.getValue());
-        validateLastName(validationResult, dto.getLastName(), rangeMessage.getValue());
-        validatePhone(validationResult, dto.getPhoneNumber());
-        validateEmail(validationResult, dto.getEmail());
-        validateGender(validationResult, dto.getGender());
-        validateRole(validationResult, dto.getRole());
-        validateOrderPoint(validationResult, dto.getOrderPoint());
+
+        Customer targetCustomer = customerRepository.getCustomerUpdatableInfo(dto.getId());
+
+        if (!targetCustomer.getFirstName().equals(dto.getFirstName())) {
+            validateFirstName(validationResult, dto.getFirstName(), rangeMessage.getValue());
+        }
+
+        if (!targetCustomer.getLastName().equals(dto.getLastName())) {
+            validateLastName(validationResult, dto.getLastName(), rangeMessage.getValue());
+        }
+
+        if (!targetCustomer.getPhoneNumber().equals(dto.getPhoneNumber())) {
+            validatePhone(validationResult, dto.getPhoneNumber());
+        }
+
+        if (!targetCustomer.getEmail().equals(dto.getEmail())) {
+            validateEmail(validationResult, dto.getEmail());
+        }
+
+        if (!targetCustomer.getGender().equals(dto.getGender())) {
+            validateGender(validationResult, dto.getGender());
+        }
+
+        if (!targetCustomer.getRole().equals(dto.getRole())) {
+            validateRole(validationResult, dto.getRole());
+        }
+
+        if (!targetCustomer.getOrderPoint().equals(dto.getOrderPoint())) {
+            validateOrderPoint(validationResult, dto.getOrderPoint());
+        }
 
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -114,7 +138,7 @@ public class CustomerUpdateInfoRule extends AbstractRule<CustomerUpdateInfoForm>
                 computedError(INVALID_MESSAGE_ID, key, validationResult, targetName);
             } else {
                 boolean isPhoneExisted = customerRepository.isPhoneNumberExisted(phone);
-                if (!isPhoneExisted) {
+                if (isPhoneExisted) {
                     computedError("MSG-000007", key, validationResult, "Phone");
                 }
             }

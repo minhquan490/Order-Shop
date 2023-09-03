@@ -19,7 +19,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -42,7 +41,6 @@ import java.util.Set;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class EmailFolders extends AbstractEntity<String> {
 
@@ -113,7 +111,7 @@ public class EmailFolders extends AbstractEntity<String> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -121,7 +119,7 @@ public class EmailFolders extends AbstractEntity<String> {
     @ActiveReflection
     public void setTimeCreated(Timestamp timeCreated) {
         if (this.timeCreated != null && !this.timeCreated.equals(timeCreated)) {
-            trackUpdatedField("TIME_CREATED", this.timeCreated.toString());
+            trackUpdatedField("TIME_CREATED", this.timeCreated, timeCreated);
         }
         this.timeCreated = timeCreated;
     }
@@ -129,7 +127,7 @@ public class EmailFolders extends AbstractEntity<String> {
     @ActiveReflection
     public void setEmailClearPolicy(Integer emailClearPolicy) {
         if (this.emailClearPolicy != null && !this.emailClearPolicy.equals(emailClearPolicy)) {
-            trackUpdatedField("EMAIL_CLEAR_POLICY", this.emailClearPolicy.toString());
+            trackUpdatedField("EMAIL_CLEAR_POLICY", this.emailClearPolicy, emailClearPolicy);
         }
         this.emailClearPolicy = emailClearPolicy;
     }
@@ -137,7 +135,7 @@ public class EmailFolders extends AbstractEntity<String> {
     @ActiveReflection
     public void setOwner(Customer owner) {
         if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
-            trackUpdatedField("OWNER_ID", this.owner.getId());
+            trackUpdatedField("OWNER_ID", this.owner.getId(), owner.getId());
         }
         this.owner = owner;
     }

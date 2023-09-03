@@ -24,11 +24,11 @@ public class ServiceMonitor {
     public Object monitorService(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         String methodExecuteName = proceedingJoinPoint.getSignature().toShortString();
         StopWatch watch = new StopWatch();
-        log.info("Begin execute service method {}", methodExecuteName);
+        log.info("Begin execute service method [{}]", methodExecuteName);
         watch.start();
         Object result = proceedingJoinPoint.proceed();
         watch.stop();
-        log.info("Finish process service method in {} ms", watch.getTotalTimeMillis());
+        log.info("Finish process service method [{}] in [{} ms]", methodExecuteName, watch.getTotalTimeMillis());
         return result;
     }
 }

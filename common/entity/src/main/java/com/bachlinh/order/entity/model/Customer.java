@@ -5,6 +5,8 @@ import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.entity.EntityMapper;
+import com.bachlinh.order.entity.enums.Gender;
+import com.bachlinh.order.entity.enums.Role;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,7 +28,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -41,6 +42,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -62,7 +64,6 @@ import java.util.Set;
 @ActiveReflection
 @NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Customer extends AbstractEntity<String> implements UserDetails {
 
@@ -94,7 +95,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     private String phoneNumber;
 
-    @Column(name = "EMAIL", unique = true, columnDefinition = "nvarchar(32)")
+    @Column(name = "EMAIL", unique = true, columnDefinition = "nvarchar(266)")
     @FullTextField
     @ActiveReflection
     private String email;
@@ -109,19 +110,19 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     private Integer orderPoint;
 
     @Column(name = "ACTIVATED", nullable = false, columnDefinition = "bit")
-    private boolean activated = false;
+    private Boolean activated;
 
     @Column(name = "ACCOUNT_NON_EXPIRED", nullable = false, columnDefinition = "bit")
-    private boolean accountNonExpired = true;
+    private Boolean accountNonExpired;
 
     @Column(name = "ACCOUNT_NON_LOCKED", nullable = false, columnDefinition = "bit")
-    private boolean accountNonLocked = true;
+    private Boolean accountNonLocked;
 
     @Column(name = "CREDENTIALS_NON_EXPIRED", nullable = false, columnDefinition = "bit")
-    private boolean credentialsNonExpired = true;
+    private Boolean credentialsNonExpired;
 
     @Column(name = "ENABLED", nullable = false, columnDefinition = "bit")
-    private boolean enabled = true;
+    private Boolean enabled;
 
     @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
@@ -225,6 +226,30 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
         return Collections.singleton(new SimpleGrantedAuthority(this.role));
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return getAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return getAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return getCredentialsNonExpired();
+    }
+
+    public boolean isActivated() {
+        return getActivated();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getEnabled();
+    }
+
     public Collection<String> getAddressString() {
         return this.getAddresses().stream().map(a -> {
             StringBuilder addressBuilder = new StringBuilder();
@@ -232,9 +257,11 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
                 addressBuilder.append(a.getValue());
             }
             if (a.getCity() != null) {
+                addressBuilder.append(", ");
                 addressBuilder.append(a.getCity());
             }
             if (a.getCountry() != null) {
+                addressBuilder.append(", ");
                 addressBuilder.append(a.getCountry());
             }
             return addressBuilder.toString();
@@ -244,7 +271,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setUsername(String username) {
         if (this.username != null && !this.username.equals(username)) {
-            trackUpdatedField("USER_NAME", this.username);
+            trackUpdatedField("USER_NAME", this.username, username);
         }
         this.username = username;
     }
@@ -252,7 +279,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setPassword(String password) {
         if (this.password != null && !this.password.equals(password)) {
-            trackUpdatedField("PASSWORD", this.password);
+            trackUpdatedField("PASSWORD", this.password, password);
         }
         this.password = password;
     }
@@ -260,7 +287,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setFirstName(String firstName) {
         if (this.firstName != null && !this.firstName.equals(firstName)) {
-            trackUpdatedField("FIRST_NAME", this.firstName);
+            trackUpdatedField("FIRST_NAME", this.firstName, firstName);
         }
         this.firstName = firstName;
     }
@@ -268,7 +295,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setLastName(String lastName) {
         if (this.lastName != null && !this.lastName.equals(lastName)) {
-            trackUpdatedField("LAST_NAME", this.lastName);
+            trackUpdatedField("LAST_NAME", this.lastName, lastName);
         }
         this.lastName = lastName;
     }
@@ -276,7 +303,7 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setPhoneNumber(String phoneNumber) {
         if (this.phoneNumber != null && !this.phoneNumber.equals(phoneNumber)) {
-            trackUpdatedField("PHONE_NAME", this.phoneNumber);
+            trackUpdatedField("PHONE_NUMBER", this.phoneNumber, phoneNumber);
         }
         this.phoneNumber = phoneNumber;
     }
@@ -284,23 +311,25 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setEmail(String email) {
         if (this.email != null && !this.email.equals(email)) {
-            trackUpdatedField("EMAIL", this.email);
+            trackUpdatedField("EMAIL", this.email, email);
         }
         this.email = email;
     }
 
     @ActiveReflection
     public void setGender(String gender) {
-        if (this.gender != null && !this.gender.equals(gender)) {
-            trackUpdatedField("GENDER", this.gender);
+        Gender g = Gender.of(gender);
+        if (this.gender != null && g != null && !this.gender.equals(g.name())) {
+            trackUpdatedField("GENDER", this.gender, g.name());
         }
         this.gender = gender;
     }
 
     @ActiveReflection
     public void setRole(String role) {
-        if (this.role != null && !this.role.equals(role)) {
-            trackUpdatedField("ROLE", this.role);
+        Role r = Role.of(role.toUpperCase());
+        if (this.role != null && r != null && !r.name().equals(role.toUpperCase())) {
+            trackUpdatedField("ROLE", this.role, role);
         }
         this.role = role;
     }
@@ -308,47 +337,47 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setOrderPoint(Integer orderPoint) {
         if (this.orderPoint != null && !this.orderPoint.equals(orderPoint)) {
-            trackUpdatedField("ORDER_POINT", this.orderPoint.toString());
+            trackUpdatedField("ORDER_POINT", this.orderPoint, orderPoint);
         }
         this.orderPoint = orderPoint;
     }
 
     @ActiveReflection
-    public void setActivated(boolean activated) {
-        if (activated != this.activated) {
-            trackUpdatedField("ACTIVATED", String.valueOf(this.activated));
+    public void setActivated(Boolean activated) {
+        if (this.activated != null && !Objects.equals(activated, this.activated)) {
+            trackUpdatedField("ACTIVATED", this.activated, activated);
         }
         this.activated = activated;
     }
 
     @ActiveReflection
-    public void setAccountNonExpired(boolean accountNonExpired) {
-        if (accountNonExpired != this.accountNonExpired) {
-            trackUpdatedField("ACCOUNT_NON_EXPIRED", String.valueOf(this.accountNonExpired));
+    public void setAccountNonExpired(Boolean accountNonExpired) {
+        if (this.accountNonExpired != null && !Objects.equals(accountNonExpired, this.accountNonExpired)) {
+            trackUpdatedField("ACCOUNT_NON_EXPIRED", this.accountNonExpired, accountNonExpired);
         }
         this.accountNonExpired = accountNonExpired;
     }
 
     @ActiveReflection
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        if (accountNonLocked != this.accountNonLocked) {
-            trackUpdatedField("ACCOUNT_NON_LOCKED", String.valueOf(this.accountNonLocked));
+    public void setAccountNonLocked(Boolean accountNonLocked) {
+        if (this.accountNonLocked != null && !Objects.equals(accountNonLocked, this.accountNonLocked)) {
+            trackUpdatedField("ACCOUNT_NON_LOCKED", this.accountNonLocked, accountNonLocked);
         }
         this.accountNonLocked = accountNonLocked;
     }
 
     @ActiveReflection
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-        if (credentialsNonExpired != this.credentialsNonExpired) {
-            trackUpdatedField("CREDENTIALS_NON_EXPIRED", String.valueOf(this.credentialsNonExpired));
+    public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
+        if (this.credentialsNonExpired != null && !Objects.equals(credentialsNonExpired, this.credentialsNonExpired)) {
+            trackUpdatedField("CREDENTIALS_NON_EXPIRED", this.credentialsNonExpired, credentialsNonExpired);
         }
         this.credentialsNonExpired = credentialsNonExpired;
     }
 
     @ActiveReflection
-    public void setEnabled(boolean enabled) {
-        if (enabled != this.enabled) {
-            trackUpdatedField("ENABLED", String.valueOf(this.enabled));
+    public void setEnabled(Boolean enabled) {
+        if (this.enabled != null && !Objects.equals(enabled, this.enabled)) {
+            trackUpdatedField("ENABLED", this.enabled, enabled);
         }
         this.enabled = enabled;
     }

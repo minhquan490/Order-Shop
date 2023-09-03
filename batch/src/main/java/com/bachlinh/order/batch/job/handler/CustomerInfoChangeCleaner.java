@@ -4,7 +4,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
-import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
+import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class CustomerInfoChangeCleaner extends AbstractJob {
     private static final int REMOVAL_POLICY = 1;
     private LocalDateTime previousTimeExecution;
-    private CustomerInfoChangerHistoryRepository repository;
+    private CustomerInfoChangeHistoryRepository repository;
 
     @ActiveReflection
     public CustomerInfoChangeCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
@@ -24,7 +24,7 @@ public class CustomerInfoChangeCleaner extends AbstractJob {
     @Override
     protected void inject() {
         if (repository == null) {
-            repository = getDependenciesResolver().resolveDependencies(CustomerInfoChangerHistoryRepository.class);
+            repository = getDependenciesResolver().resolveDependencies(CustomerInfoChangeHistoryRepository.class);
         }
     }
 

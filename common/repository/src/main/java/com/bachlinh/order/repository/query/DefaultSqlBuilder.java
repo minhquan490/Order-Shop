@@ -25,4 +25,9 @@ class DefaultSqlBuilder implements SqlBuilder {
         result.setTableAlias(alias);
         return result;
     }
+
+    @Override
+    public SqlUpdate updateQueryFor(Class<? extends AbstractEntity<?>> table) {
+        return new SqlUpdateSqm(tableMetadata.get(table));
+    }
 }

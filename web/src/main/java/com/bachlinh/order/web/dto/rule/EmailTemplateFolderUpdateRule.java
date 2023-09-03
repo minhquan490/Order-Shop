@@ -2,14 +2,17 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderUpdateForm;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
@@ -24,6 +27,7 @@ public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFol
     private static final String CAN_NOT_IDENTITY_MESSAGE_ID = "MSG-000011";
 
     private MessageSettingRepository messageSettingRepository;
+    private EmailTemplateRepository emailTemplateRepository;
 
     @ActiveReflection
     public EmailTemplateFolderUpdateRule(Environment environment, DependenciesResolver resolver) {
@@ -42,7 +46,10 @@ public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFol
             return createResult(validateResult);
         }
 
-        if (!StringUtils.hasText(dto.name())) {
+        var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var emailTemplate = emailTemplateRepository.getEmailTemplateById(dto.id(), customer);
+
+        if (emailTemplate.getName().equals(dto.name()) && !StringUtils.hasText(dto.name())) {
             var key = "name";
             MessageSetting messageSetting = messageSettingRepository.getMessageById(EMPTY_MESSAGE_ID);
             String errorContent = MessageFormat.format(messageSetting.getValue(), "Name of template folder");
@@ -55,6 +62,9 @@ public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFol
     protected void injectDependencies() {
         if (messageSettingRepository == null) {
             messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
+        if (emailTemplateRepository == null) {
+            emailTemplateRepository = getResolver().resolveDependencies(EmailTemplateRepository.class);
         }
     }
 

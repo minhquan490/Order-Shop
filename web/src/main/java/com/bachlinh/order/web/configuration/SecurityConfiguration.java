@@ -85,14 +85,8 @@ public class SecurityConfiguration {
         String urlAdmin = environment.getProperty("shop.url.pattern.admin");
         String urlCustomer = environment.getProperty("shop.url.pattern.customer");
         return http
-                .csrf(csrf -> {
-//                    var cookieCsrfTokenRepository = new CookieCsrfTokenRepository();
-//                    cookieCsrfTokenRepository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder.httpOnly(false));
-//                    csrf.ignoringRequestMatchers(getExcludeUrls(profile).toArray(new String[0]));
-//                    csrf.csrfTokenRepository(cookieCsrfTokenRepository);
-                    csrf.disable();
-                })
-                .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl)))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl, environment)))
                 .anonymous(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
@@ -137,7 +131,7 @@ public class SecurityConfiguration {
         return new AccessDeniedHandler();
     }
 
-    private CorsConfigurationSource corsConfigurationSource(String clientUrl) {
+    private CorsConfigurationSource corsConfigurationSource(String clientUrl, Environment environment) {
         UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration configuration = new CorsConfiguration();
@@ -146,7 +140,7 @@ public class SecurityConfiguration {
         configuration.addAllowedOrigin(clientUrl);
         configuration.addExposedHeader(HeaderUtils.getAuthorizeHeader());
         configuration.addExposedHeader(HeaderUtils.getRefreshHeader());
-        configuration.addExposedHeader("X-XSRF-TOKEN");
+        configuration.addExposedHeader(environment.getProperty("shop.client.csrf.header.key"));
 
         corsConfigurationSource.registerCorsConfiguration("/**", configuration);
         return corsConfigurationSource;

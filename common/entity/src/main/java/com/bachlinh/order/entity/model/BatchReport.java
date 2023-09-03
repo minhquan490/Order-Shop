@@ -12,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
@@ -23,7 +22,6 @@ import java.util.Queue;
 @Table(name = "BATCH_REPORT")
 @ActiveReflection
 @NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class BatchReport extends AbstractEntity<Integer> {
@@ -68,7 +66,7 @@ public class BatchReport extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setBatchName(@NonNull String batchName) {
         if (this.batchName != null && this.batchName.equals(batchName)) {
-            trackUpdatedField("BATCH_NAME", this.batchName);
+            trackUpdatedField("BATCH_NAME", this.batchName, batchName);
         }
         this.batchName = batchName;
     }
@@ -76,7 +74,7 @@ public class BatchReport extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setHasError(boolean hasError) {
         if (this.hasError != hasError) {
-            trackUpdatedField("HAS_ERROR", String.valueOf(this.hasError));
+            trackUpdatedField("HAS_ERROR", this.hasError, hasError);
         }
         this.hasError = hasError;
     }
@@ -84,7 +82,7 @@ public class BatchReport extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setErrorDetail(@NonNull String errorDetail) {
         if (this.errorDetail != null && this.errorDetail.equals(errorDetail)) {
-            trackUpdatedField("ERROR_DETAIL", this.errorDetail);
+            trackUpdatedField("ERROR_DETAIL", this.errorDetail, errorDetail);
         }
         this.errorDetail = errorDetail;
     }
@@ -92,7 +90,7 @@ public class BatchReport extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setTimeReport(@NonNull Timestamp timeReport) {
         if (this.timeReport != null && this.timeReport.equals(timeReport)) {
-            trackUpdatedField("TIME_REPORT", this.timeReport.toString());
+            trackUpdatedField("TIME_REPORT", this.timeReport, timeReport);
         }
         this.timeReport = timeReport;
     }

@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class PermissionFilter extends AbstractWebFilter {
-    private static final Collection<Role> rolesAllowAccess = getRolesAllowAccess();
+    private static final Collection<Role> ROLES_ALLOW_ACCESS_ADMIN = getRolesAllowAccessAdmin();
     private final PathMatcher pathMatcher;
     private final Collection<String> excludePaths;
     private final String adminPath;
@@ -43,7 +43,7 @@ public class PermissionFilter extends AbstractWebFilter {
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (pathMatcher.match(adminPath, request.getRequestURI())) {
-            boolean canAccessAdmin = rolesAllowAccess.contains(Role.of(customer.getRole()));
+            boolean canAccessAdmin = ROLES_ALLOW_ACCESS_ADMIN.contains(Role.of(customer.getRole()));
             if (canAccessAdmin) {
                 filterChain.doFilter(request, response);
             } else {
@@ -61,7 +61,7 @@ public class PermissionFilter extends AbstractWebFilter {
         }
     }
 
-    private static Collection<Role> getRolesAllowAccess() {
+    private static Collection<Role> getRolesAllowAccessAdmin() {
         return List.of(Role.ADMIN, Role.SEO, Role.MARKETING);
     }
 }

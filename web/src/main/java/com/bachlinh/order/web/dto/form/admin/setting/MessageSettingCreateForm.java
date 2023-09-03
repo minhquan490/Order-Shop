@@ -11,6 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MessageSettingCreateForm implements ValidatedDto {
 
-    @JsonAlias("value")
+    @JsonAlias("oldValue")
     private String value;
 }

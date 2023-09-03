@@ -20,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -44,7 +43,6 @@ import java.util.Queue;
 @EnableFullTextSearch
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class EmailTemplate extends AbstractEntity<String> {
 
@@ -113,7 +111,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setTitle(String title) {
         if (this.title != null && !this.title.equals(title)) {
-            trackUpdatedField("TITLE", this.title);
+            trackUpdatedField("TITLE", this.title, title);
         }
         this.title = title;
     }
@@ -121,7 +119,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setContent(String content) {
         if (this.content != null && !this.content.equals(content)) {
-            trackUpdatedField("CONTENT", this.content);
+            trackUpdatedField("CONTENT", this.content, content);
         }
         this.content = content;
     }
@@ -129,7 +127,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setExpiryPolicy(Integer expiryPolicy) {
         if (this.expiryPolicy != null && !this.expiryPolicy.equals(expiryPolicy)) {
-            trackUpdatedField("EXPIRY_POLICY", this.expiryPolicy.toString());
+            trackUpdatedField("EXPIRY_POLICY", this.expiryPolicy, expiryPolicy);
         }
         this.expiryPolicy = expiryPolicy;
     }
@@ -137,7 +135,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setOwner(Customer owner) {
         if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
-            trackUpdatedField("OWNER_ID", this.owner.getId());
+            trackUpdatedField("OWNER_ID", this.owner.getId(), owner.getId());
         }
         this.owner = owner;
     }
@@ -145,7 +143,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setFolder(EmailTemplateFolder folder) {
         if (this.folder != null && !Objects.requireNonNull(this.folder.getId()).equals(folder.getId())) {
-            trackUpdatedField("FOLDER_ID", this.folder.getId());
+            trackUpdatedField("FOLDER_ID", this.folder.getId(), folder.getId());
         }
         this.folder = folder;
     }
@@ -153,7 +151,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -161,7 +159,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setTotalArgument(Integer totalArgument) {
         if (this.totalArgument != null && !this.totalArgument.equals(totalArgument)) {
-            trackUpdatedField("TOTAL_ARGUMENT", this.totalArgument.toString());
+            trackUpdatedField("TOTAL_ARGUMENT", this.totalArgument, totalArgument);
         }
         this.totalArgument = totalArgument;
     }
@@ -169,7 +167,7 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ActiveReflection
     public void setParams(String params) {
         if (this.params != null && !this.params.equals(params)) {
-            trackUpdatedField("PARAMS", this.params);
+            trackUpdatedField("PARAMS", this.params, params);
         }
         this.params = params;
     }

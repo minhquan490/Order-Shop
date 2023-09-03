@@ -17,7 +17,7 @@ public interface FullTextSearchMetadata {
     Class<?> getEntityType();
 
     /**
-     * Return field name that will be applied full text search in and this value.
+     * Return field name that will be applied full text search in and this oldValue.
      *
      * @return Field name and it values.
      */

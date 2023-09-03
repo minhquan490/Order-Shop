@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.MutableQueryHints;
 import org.springframework.data.jpa.repository.support.QueryHints;
 import org.springframework.data.util.Optionals;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import java.util.Optional;
@@ -38,11 +39,13 @@ public class DefaultQueryHints implements QueryHints {
         return new DefaultQueryHints(information, metadata, Optional.empty(), false);
     }
 
+    @NonNull
     @Override
     public QueryHints withFetchGraphs(EntityManager em) {
         return new DefaultQueryHints(this.information, this.metadata, Optional.of(em), this.forCounts);
     }
 
+    @NonNull
     @Override
     public QueryHints forCounts() {
         return new DefaultQueryHints(this.information, this.metadata, this.entityManager, true);

@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.customer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Permit(roles = Role.CUSTOMER)
+@EnableCsrf
 public class CustomerUpdateHandler extends AbstractController<CustomerResp, CustomerUpdateForm> {
     private String url;
     private CustomerService customerService;

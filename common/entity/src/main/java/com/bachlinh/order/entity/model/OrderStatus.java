@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -25,7 +24,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class OrderStatus extends AbstractEntity<Integer> {
 
@@ -64,7 +62,7 @@ public class OrderStatus extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setStatus(String status) {
         if (this.status != null && !this.status.equals(status)) {
-            trackUpdatedField("STATUS", this.status);
+            trackUpdatedField("STATUS", this.status, status);
         }
         this.status = status;
     }

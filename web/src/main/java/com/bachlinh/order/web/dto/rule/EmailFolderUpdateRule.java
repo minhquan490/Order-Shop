@@ -3,6 +3,7 @@ package com.bachlinh.order.web.dto.rule;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailFoldersRepository;
@@ -41,35 +42,15 @@ public class EmailFolderUpdateRule extends AbstractRule<EmailFolderUpdateForm> {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var validateResult = new HashMap<String, List<String>>();
 
-        if (!StringUtils.hasText(dto.getId())) {
-            var key = "id";
-            MessageSetting canNotIdentityMessage = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
-            String errorContent = MessageFormat.format(canNotIdentityMessage.getValue(), "email folder", "", "update");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (emailFoldersRepository.getEmailFolderById(dto.getId(), customer) == null) {
-                var key = "id";
-                MessageSetting notFoundMessage = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
-                String errorContent = MessageFormat.format(notFoundMessage.getValue(), "Email folder");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
+        validateId(dto.getId(), customer, validateResult);
+
+        EmailFolders emailFolders = emailFoldersRepository.getEmailFolderById(dto.getId(), customer);
+
+        if (!emailFolders.getName().equals(dto.getName())) {
+            validateName(dto.getName(), customer, validateResult);
         }
 
-        if (!StringUtils.hasText(dto.getName())) {
-            var key = "name";
-            MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(EMPTY_MESSAGE_ID);
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Name of email folder");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (emailFoldersRepository.isFolderExisted(dto.getName(), customer)) {
-                var key = "name";
-                MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
-                String errorContent = MessageFormat.format(existedMessage.getValue(), "Name of email folder");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
-        }
-
-        if (dto.getCleanPolicy() < -1) {
+        if (!emailFolders.getEmailClearPolicy().equals(dto.getCleanPolicy()) && dto.getCleanPolicy() < -1) {
             dto.setCleanPolicy(-1);
         }
         return new ValidatedDto.ValidateResult() {
@@ -98,5 +79,35 @@ public class EmailFolderUpdateRule extends AbstractRule<EmailFolderUpdateForm> {
     @Override
     public Class<EmailFolderUpdateForm> applyOnType() {
         return EmailFolderUpdateForm.class;
+    }
+
+    private void validateId(String emailFolderId, Customer customer, Map<String, List<String>> validateResult) {
+        var key = "id";
+        if (!StringUtils.hasText(emailFolderId)) {
+            MessageSetting canNotIdentityMessage = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(canNotIdentityMessage.getValue(), "email folder", "", "update");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (emailFoldersRepository.getEmailFolderById(emailFolderId, customer) == null) {
+                MessageSetting notFoundMessage = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
+                String errorContent = MessageFormat.format(notFoundMessage.getValue(), "Email folder");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+    }
+
+    private void validateName(String folderName, Customer customer, Map<String, List<String>> validateResult) {
+        var key = "name";
+        if (!StringUtils.hasText(folderName)) {
+            MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(EMPTY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Name of email folder");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (emailFoldersRepository.isFolderExisted(folderName, customer)) {
+                MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+                String errorContent = MessageFormat.format(existedMessage.getValue(), "Name of email folder");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
     }
 }

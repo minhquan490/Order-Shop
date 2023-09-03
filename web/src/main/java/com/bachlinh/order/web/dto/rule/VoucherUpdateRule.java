@@ -3,6 +3,7 @@ package com.bachlinh.order.web.dto.rule;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.model.MessageSetting;
+import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.VoucherRepository;
@@ -41,78 +42,32 @@ public class VoucherUpdateRule extends AbstractRule<VoucherUpdateForm> {
     protected ValidatedDto.ValidateResult doValidate(VoucherUpdateForm dto) {
         var validationResult = new HashMap<String, List<String>>();
 
-        MessageSetting notEmptyMessage = messageSettingRepository.getMessageById(NOT_EMPTY_MESSAGE_ID);
-        MessageSetting positiveMessage = messageSettingRepository.getMessageById(POSITIVE_MESSAGE_ID);
-        MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
+        validateVoucherId(dto.getId(), validationResult);
 
-        if (!StringUtils.hasText(dto.getId())) {
-            var key = "id";
-            MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_IDENTITY_MESSAGE_ID);
-            String errorContent = MessageFormat.format(messageSetting.getValue(), "voucher", "", "update");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        if (!validationResult.isEmpty()) {
             return createResult(validationResult);
-        } else {
-            if (!voucherRepository.isVoucherIdExist(dto.getId())) {
-                var key = "id";
-                MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_FOUND_MESSAGE_ID);
-                String errorContent = MessageFormat.format(messageSetting.getValue(), "Voucher");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-            }
         }
 
-        if (!StringUtils.hasText(dto.getName())) {
-            var key = "name";
-            String errorContent = MessageFormat.format(notEmptyMessage.getValue(), "Name of voucher");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-        } else {
-            if (voucherRepository.isVoucherNameExist(dto.getName())) {
-                var key = "name";
-                MessageSetting messageSetting = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
-                String errorContent = MessageFormat.format(messageSetting.getValue(), "Name of voucher");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-            }
+        Voucher targetVoucher = voucherRepository.getVoucherForUpdate(dto.getId());
+
+        if (!targetVoucher.getName().equals(dto.getName())) {
+            validateVoucherName(dto.getName(), validationResult);
         }
 
-        if (dto.getDiscountPercent() < 0) {
-            var key = "discount_percent";
-            String errorContent = MessageFormat.format(positiveMessage.getValue(), "Discount percent");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        if (!targetVoucher.getDiscountPercent().equals(dto.getDiscountPercent())) {
+            validateDiscountPercent(dto.getDiscountPercent(), validationResult);
         }
 
-        if (!StringUtils.hasText(dto.getTimeStart())) {
-            var key = "time_start";
-            String errorContent = MessageFormat.format(notEmptyMessage.getValue(), "Time voucher begin");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-        } else {
-            if (!ValidateUtils.isValidDate(dto.getTimeStart())) {
-                var key = "time_start";
-                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Time start of voucher");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-            }
+        validateTimeStart(dto.getTimeStart(), validationResult);
+
+        validateTimeEnd(dto.getTimeEnd(), validationResult);
+
+        if (!targetVoucher.getVoucherContent().equals(dto.getContent())) {
+            validateContent(dto.getContent(), validationResult);
         }
 
-        if (!StringUtils.hasText(dto.getTimeEnd())) {
-            var key = "time_end";
-            String errorContent = MessageFormat.format(notEmptyMessage.getValue(), "Time voucher end");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-        } else {
-            if (!ValidateUtils.isValidDate(dto.getTimeEnd())) {
-                var key = "time_end";
-                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Time end of voucher");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-            }
-        }
-
-        if (!StringUtils.hasText(dto.getContent())) {
-            var key = "content";
-            String errorContent = MessageFormat.format(notEmptyMessage.getValue(), "Content of voucher");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
-        }
-
-        if (dto.getCost() < 0) {
-            var key = "cost";
-            String errorContent = MessageFormat.format(positiveMessage.getValue(), "Cost of voucher");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
+        if (!targetVoucher.getVoucherCost().equals(dto.getCost())) {
+            validateCost(dto.getCost(), validationResult);
         }
 
         return createResult(validationResult);
@@ -145,5 +100,76 @@ public class VoucherUpdateRule extends AbstractRule<VoucherUpdateForm> {
                 return validationResult.isEmpty();
             }
         };
+    }
+
+    private void validateVoucherId(String voucherId, Map<String, List<String>> validationResult) {
+        var key = "id";
+        if (!StringUtils.hasText(voucherId)) {
+            computedError(NOT_IDENTITY_MESSAGE_ID, key, validationResult, "voucher", "", "update");
+        } else {
+            if (!voucherRepository.isVoucherIdExist(voucherId)) {
+                computedError(NOT_FOUND_MESSAGE_ID, key, validationResult, "Voucher");
+            }
+        }
+    }
+
+    private void validateVoucherName(String name, Map<String, List<String>> validationResult) {
+        var key = "name";
+        if (!StringUtils.hasText(name)) {
+            computedError(NOT_EMPTY_MESSAGE_ID, key, validationResult, "Name of voucher");
+        } else {
+            if (voucherRepository.isVoucherNameExist(name)) {
+                computedError(EXISTED_MESSAGE_ID, key, validationResult, "Name of voucher");
+            }
+        }
+    }
+
+    private void validateDiscountPercent(int discountPercent, Map<String, List<String>> validationResult) {
+        var key = "discount_percent";
+        if (discountPercent < 0) {
+            computedError(POSITIVE_MESSAGE_ID, key, validationResult, "Discount percent");
+        }
+    }
+
+    private void validateTimeStart(String timeStart, Map<String, List<String>> validationResult) {
+        var key = "time_start";
+        if (!StringUtils.hasText(timeStart)) {
+            computedError(NOT_EMPTY_MESSAGE_ID, key, validationResult, "Time voucher begin");
+        } else {
+            if (!ValidateUtils.isValidDate(timeStart)) {
+                computedError(INVALID_MESSAGE_ID, key, validationResult, "Time start of voucher");
+            }
+        }
+    }
+
+    private void validateTimeEnd(String timeEnd, Map<String, List<String>> validationResult) {
+        var key = "time_end";
+        if (!StringUtils.hasText(timeEnd)) {
+            computedError(NOT_EMPTY_MESSAGE_ID, key, validationResult, "Time voucher end");
+        } else {
+            if (!ValidateUtils.isValidDate(timeEnd)) {
+                computedError(INVALID_MESSAGE_ID, key, validationResult, "Time end of voucher");
+            }
+        }
+    }
+
+    private void validateContent(String content, Map<String, List<String>> validationResult) {
+        var key = "content";
+        if (!StringUtils.hasText(content)) {
+            computedError(NOT_EMPTY_MESSAGE_ID, key, validationResult, "Content of voucher");
+        }
+    }
+
+    private void validateCost(int cost, Map<String, List<String>> validationResult) {
+        var key = "cost";
+        if (cost < 0) {
+            computedError(POSITIVE_MESSAGE_ID, key, validationResult, "Cost of voucher");
+        }
+    }
+
+    private void computedError(String messageId, String key, Map<String, List<String>> validationResult, Object... params) {
+        MessageSetting messageSetting = messageSettingRepository.getMessageById(messageId);
+        String errorContent = MessageFormat.format(messageSetting.getValue(), params);
+        RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
     }
 }

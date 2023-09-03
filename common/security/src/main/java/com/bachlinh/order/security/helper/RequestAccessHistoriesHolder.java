@@ -17,14 +17,16 @@ public final class RequestAccessHistoriesHolder {
     public static void saveHistories(CustomerAccessHistory customerAccessHistory, CustomerAccessHistoryRepository customerAccessHistoryRepository) {
         HISTORIES.add(customerAccessHistory);
         if (HISTORIES.size() == MAX_REQUEST_BATCH_SIZE) {
-            customerAccessHistoryRepository.saveAllCustomerAccessHistory(HISTORIES);
+            var filtered = HISTORIES.stream().filter(history -> history.getCustomer() != null).toList();
+            customerAccessHistoryRepository.saveAllCustomerAccessHistory(filtered);
             HISTORIES.clear();
         }
     }
 
     public static void flushAllHistories(CustomerAccessHistoryRepository customerAccessHistoryRepository) {
         if (!HISTORIES.isEmpty()) {
-            customerAccessHistoryRepository.saveAllCustomerAccessHistory(HISTORIES);
+            var filtered = HISTORIES.stream().filter(history -> history.getCustomer() != null).toList();
+            customerAccessHistoryRepository.saveAllCustomerAccessHistory(filtered);
             HISTORIES.clear();
         }
     }

@@ -19,20 +19,20 @@ public class HttpHeaderInterceptor extends AbstractInterceptor {
     }
 
     @Override
-    public boolean preHandle(NativeRequest<?> request, NativeResponse<?> response) {
+    public void postHandle(NativeRequest<?> request, NativeResponse<?> response) {
+        boolean isEnableHttp3 = enableHttp3;
+        if (isEnableHttp3) {
+            response.addHeader(HttpHeader.ALT_SVC.asString(), MessageFormat.format("h3=\":{0}\"; ma=2592000", h3Port).replace(",", ""));
+        }
+    }
+
+    @Override
+    public void init() {
         if (enableHttp3 == null) {
             enableHttp3 = Boolean.parseBoolean(getEnvironment().getProperty("server.http3.enable"));
         }
         if (h3Port == null) {
             h3Port = Integer.parseInt(getEnvironment().getProperty("server.port"));
-        }
-        return true;
-    }
-
-    @Override
-    public void postHandle(NativeRequest<?> request, NativeResponse<?> response) {
-        if (enableHttp3) {
-            response.addHeader(HttpHeader.ALT_SVC.asString(), MessageFormat.format("h3=\":{0}\"; ma=2592000", h3Port).replace(",", ""));
         }
     }
 

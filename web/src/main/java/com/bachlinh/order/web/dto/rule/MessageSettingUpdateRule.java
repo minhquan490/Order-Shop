@@ -35,25 +35,18 @@ public class MessageSettingUpdateRule extends AbstractRule<MessageSettingUpdateF
     protected ValidatedDto.ValidateResult doValidate(MessageSettingUpdateForm dto) {
         var validationResult = new HashMap<String, List<String>>();
 
-        if (!StringUtils.hasText(dto.getId())) {
-            MessageSetting messageSetting = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
-            String errorContent = MessageFormat.format(messageSetting.getValue(), "message setting", "", "update");
-            RuntimeUtils.computeMultiValueMap("id", errorContent, validationResult);
+        validateId(dto.getId(), validationResult);
+
+        if (!validationResult.isEmpty()) {
             return createResult(validationResult);
-        } else {
-            if (!StringUtils.hasText(dto.getValue())) {
-                MessageSetting messageSetting = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
-                String errorContent = MessageFormat.format(messageSetting.getValue(), "Value of message setting");
-                RuntimeUtils.computeMultiValueMap("value", errorContent, validationResult);
-            } else {
-                var messageExisted = messageSettingRepository.messageValueExisted(dto.getValue());
-                if (messageExisted) {
-                    MessageSetting messageSetting = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
-                    String errorContent = MessageFormat.format(messageSetting.getValue(), "Value of message setting");
-                    RuntimeUtils.computeMultiValueMap("value", errorContent, validationResult);
-                }
-            }
         }
+
+        MessageSetting messageSetting = messageSettingRepository.getMessageById(dto.getId());
+
+        if (!messageSetting.getValue().equals(dto.getValue())) {
+            validateValue(dto.getValue(), validationResult);
+        }
+        
         return createResult(validationResult);
     }
 
@@ -81,5 +74,35 @@ public class MessageSettingUpdateRule extends AbstractRule<MessageSettingUpdateF
                 return validationResult.isEmpty();
             }
         };
+    }
+
+    private void validateId(String messageSettingId, Map<String, List<String>> validationResult) {
+        String key = "id";
+        if (!StringUtils.hasText(messageSettingId)) {
+            computedError(key, CAN_NOT_IDENTITY_MESSAGE_ID, validationResult, "message setting", "", "update");
+        } else {
+            boolean isExisted = messageSettingRepository.isMessageSettingExisted(messageSettingId);
+            if (!isExisted) {
+                computedError(key, "MSG-000017", validationResult, "Message id");
+            }
+        }
+    }
+
+    private void validateValue(String value, Map<String, List<String>> validationResult) {
+        String key = "value";
+        if (!StringUtils.hasText(value)) {
+            computedError(key, NON_EMPTY_MESSAGE_ID, validationResult, "Value of message setting");
+        } else {
+            var messageExisted = messageSettingRepository.messageValueExisted(value);
+            if (messageExisted) {
+                computedError(key, EXISTED_MESSAGE_ID, validationResult, "Value of message setting");
+            }
+        }
+    }
+
+    private void computedError(String key, String messageId, Map<String, List<String>> validationResult, Object... params) {
+        MessageSetting messageSetting = messageSettingRepository.getMessageById(messageId);
+        String errorContent = MessageFormat.format(messageSetting.getValue(), params);
+        RuntimeUtils.computeMultiValueMap(key, errorContent, validationResult);
     }
 }

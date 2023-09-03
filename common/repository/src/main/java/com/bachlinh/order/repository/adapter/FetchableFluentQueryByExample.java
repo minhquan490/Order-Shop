@@ -121,7 +121,7 @@ class FetchableFluentQueryByExample<S, R> extends FluentQuerySupport<S, R> imple
     public R firstValue() {
 
         TypedQuery<S> limitedQuery = createSortedAndProjectedQuery();
-        limitedQuery.setMaxResults(1); // Never need more than 1 value
+        limitedQuery.setMaxResults(1); // Never need more than 1 oldValue
 
         List<S> results = limitedQuery.getResultList();
 

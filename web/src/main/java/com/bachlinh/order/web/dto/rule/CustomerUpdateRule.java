@@ -2,6 +2,8 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.enums.Gender;
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -43,78 +45,34 @@ public class CustomerUpdateRule extends AbstractRule<CustomerUpdateForm> {
         MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
         MessageSetting rangeInvalidMessage = messageSettingRepository.getMessageById(RANGE_INVALID_MESSAGE_ID);
 
-        if (!StringUtils.hasText(dto.getId())) {
-            var key = "id";
-            MessageSetting canNotIdentityMessage = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
-            String errorContent = MessageFormat.format(canNotIdentityMessage.getValue(), "customer", "", "update");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        validateCustomerId(dto.getId(), validateResult);
+
+        Customer updateTarget = customerRepository.getCustomerUpdatableInfo(dto.getId());
+
+        if (!updateTarget.getFirstName().equals(dto.getFirstName())) {
+            validateFirstName(dto.getFirstName(), validateResult, nonEmptyMessage, rangeInvalidMessage);
         }
 
-        if (!StringUtils.hasText(dto.getFirstName())) {
-            var key = "first_name";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "First name of customer");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (dto.getFirstName().length() < 6 || dto.getFirstName().length() > 32) {
-                var key = "first_name";
-                String errorContent = MessageFormat.format(rangeInvalidMessage.getValue(), "First name of customer", "6", "32");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
+        if (!updateTarget.getLastName().equals(dto.getLastName())) {
+            validateLastName(dto.getLastName(), validateResult, nonEmptyMessage, rangeInvalidMessage);
         }
 
-        if (!StringUtils.hasText(dto.getLastName())) {
-            var key = "last_name";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Last name of customer");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (dto.getLastName().length() < 6 || dto.getLastName().length() > 32) {
-                var key = "last_name";
-                String errorContent = MessageFormat.format(rangeInvalidMessage.getValue(), "Last name of customer", "6", "32");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
+        if (!updateTarget.getPhoneNumber().equals(dto.getPhone())) {
+            validatePhone(dto.getPhone(), validateResult, nonEmptyMessage, invalidMessage);
         }
 
-        if (!StringUtils.hasText(dto.getPhone())) {
-            var key = "phone";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Phone of customer");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (!ValidateUtils.isPhoneValid(dto.getPhone())) {
-                var key = "phone";
-                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Phone of customer");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
+        if (!updateTarget.getEmail().equals(dto.getEmail())) {
+            validateEmail(dto.getEmail(), validateResult, nonEmptyMessage, invalidMessage);
         }
 
-        if (!StringUtils.hasText(dto.getEmail())) {
-            var key = "email";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Email of customer");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (!ValidateUtils.isEmailValidUsingRfc5322(dto.getEmail())) {
-                var key = "email";
-                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Email of customer");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
+        if (!updateTarget.getGender().equalsIgnoreCase(dto.getGender())) {
+            validateGender(dto.getGender(), validateResult, nonEmptyMessage);
         }
 
-        if (!StringUtils.hasText(dto.getGender())) {
-            var key = "gender";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Gender of customer");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        if (!updateTarget.getUsername().equalsIgnoreCase(dto.getUsername())) {
+            validateUsername(dto.getUsername(), validateResult, nonEmptyMessage, rangeInvalidMessage);
         }
 
-        if (!StringUtils.hasText(dto.getUsername())) {
-            var key = "username";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Username of customer");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        } else {
-            if (dto.getUsername().length() < 4 || dto.getUsername().length() > 32) {
-                var key = "username";
-                String errorContent = MessageFormat.format(rangeInvalidMessage.getValue(), "Username of customer", "4", "32");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-            }
-        }
 
         return new ValidatedDto.ValidateResult() {
             @Override
@@ -142,5 +100,106 @@ public class CustomerUpdateRule extends AbstractRule<CustomerUpdateForm> {
     @Override
     public Class<CustomerUpdateForm> applyOnType() {
         return CustomerUpdateForm.class;
+    }
+
+    private void validateCustomerId(String customerId, Map<String, List<String>> validateResult) {
+        var key = "id";
+        if (!StringUtils.hasText(customerId)) {
+            MessageSetting canNotIdentityMessage = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
+            String errorContent = MessageFormat.format(canNotIdentityMessage.getValue(), "customer", "", "update");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            boolean isExisted = customerRepository.isCustomerIdExisted(customerId);
+            if (!isExisted) {
+                MessageSetting messageSetting = messageSettingRepository.getMessageById("MSG-000017");
+                String err = MessageFormat.format(messageSetting.getValue(), customerId);
+                RuntimeUtils.computeMultiValueMap(key, err, validateResult);
+            }
+        }
+    }
+
+    private void validateFirstName(String firstName, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting rangeInvalidMessage) {
+        var key = "first_name";
+        if (!StringUtils.hasText(firstName)) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "First name of customer");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            int length = firstName.length();
+            if (length < 6 || length > 32) {
+                String errorContent = MessageFormat.format(rangeInvalidMessage.getValue(), "First name of customer", "6", "32");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+    }
+
+    private void validateLastName(String lastName, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting rangeInvalidMessage) {
+        var key = "last_name";
+        if (!StringUtils.hasText(lastName)) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Last name of customer");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            int length = lastName.length();
+            if (length < 6 || length > 32) {
+                String errorContent = MessageFormat.format(rangeInvalidMessage.getValue(), "Last name of customer", "6", "32");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+    }
+
+    private void validatePhone(String phone, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting invalidMessage) {
+        var key = "phone";
+        if (!StringUtils.hasText(phone)) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Phone of customer");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (!ValidateUtils.isPhoneValid(phone)) {
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Phone of customer");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+    }
+
+    private void validateEmail(String email, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting invalidMessage) {
+        var key = "email";
+        if (!StringUtils.hasText(email)) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Email of customer");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            if (!ValidateUtils.isEmailValidUsingRfc5322(email)) {
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Email of customer");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+        }
+    }
+
+    private void validateGender(String gender, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage) {
+        var key = "gender";
+        if (!StringUtils.hasText(gender)) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Gender of customer");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            Gender testTarget = Gender.of(gender);
+            if (testTarget == null) {
+                MessageSetting messageSetting = messageSettingRepository.getMessageById("MSG-000021");
+                RuntimeUtils.computeMultiValueMap(key, messageSetting.getValue(), validateResult);
+            }
+        }
+    }
+
+    private void validateUsername(String username, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting rangeInvalidMessage) {
+        var key = "username";
+        if (!StringUtils.hasText(username)) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Username of customer");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        } else {
+            int length = username.length();
+            if (length < 4 || length > 32) {
+                String errorContent = MessageFormat.format(rangeInvalidMessage.getValue(), "Username of customer", "4", "32");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            }
+            MessageSetting messageSetting = messageSettingRepository.getMessageById("MSG-000035");
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Username");
+            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+        }
     }
 }

@@ -13,7 +13,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -25,7 +24,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class CrawlResult extends AbstractEntity<Integer> {
 
@@ -67,7 +65,7 @@ public class CrawlResult extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setSourcePath(String sourcePath) {
         if (this.sourcePath != null && !this.sourcePath.equals(sourcePath)) {
-            trackUpdatedField("SOURCE_PATH", this.sourcePath);
+            trackUpdatedField("SOURCE_PATH", this.sourcePath, sourcePath);
         }
         this.sourcePath = sourcePath;
     }
@@ -75,7 +73,7 @@ public class CrawlResult extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setTimeFinish(Timestamp timeFinish) {
         if (this.timeFinish != null && !this.timeFinish.equals(timeFinish)) {
-            trackUpdatedField("TIME_FINISH", this.timeFinish.toString());
+            trackUpdatedField("TIME_FINISH", this.timeFinish, timeFinish);
         }
         this.timeFinish = timeFinish;
     }
@@ -83,7 +81,7 @@ public class CrawlResult extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setResources(String resources) {
         if (this.resources != null && !this.resources.equals(resources)) {
-            trackUpdatedField("RESOURCES", this.resources);
+            trackUpdatedField("RESOURCES", this.resources, resources);
         }
         this.resources = resources;
     }

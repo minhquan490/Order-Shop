@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.common.email.folder;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -16,6 +17,7 @@ import java.util.Map;
 @RouteProvider(name = "emailFolderDeleteHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@EnableCsrf
 public class EmailFolderDeleteHandler extends AbstractController<Map<String, Object>, EmailFolderDeleteForm> {
     private EmailFolderService emailFolderService;
     private String url;

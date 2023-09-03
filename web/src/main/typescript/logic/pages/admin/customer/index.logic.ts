@@ -1,6 +1,7 @@
 import {Authentication, NavBarsSource, Request, Response, TableHeader} from "~/types";
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
 import {checkResponseStatus} from "~/utils/ResponseUtils";
+import {onUnLogin} from "~/utils/NavigationUtils";
 
 type CustomerInfo = {
     id: string,
@@ -61,21 +62,20 @@ const getAuth = async (): Promise<Authentication | undefined> => {
 }
 
 const getCustomersInfo = async (): Promise<Array<CustomerInfo>> => {
-    const request: Request = getCustomersInfoRequest();
     const auth: Authentication | undefined = await getAuth();
     if (!auth) {
-        const navigate = useNavigation().value;
-        navigate('/login');
-        return;
-    }
-    const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-    const response: Response<CustomerInfo> = await getAsyncCall<CustomerInfo>();
-    if (response.statusCode >= 400) {
-        checkResponseStatus(response);
-        return Promise.resolve([]);
+        onUnLogin();
     } else {
-        const resp: Array<CustomerInfo> = response.body as Array<CustomerInfo>;
-        return Promise.resolve(resp);
+        const request: Request = getCustomersInfoRequest();
+        const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+        const response: Response<CustomerInfo> = await getAsyncCall<CustomerInfo>();
+        if (response.isError) {
+            checkResponseStatus(response);
+            return Promise.resolve([]);
+        } else {
+            const resp: Array<CustomerInfo> = response.body as Array<CustomerInfo>;
+            return Promise.resolve(resp);
+        }
     }
 }
 

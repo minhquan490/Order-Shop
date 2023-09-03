@@ -1,9 +1,12 @@
 package com.bachlinh.order.web.handler.rest.admin.product;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteMediaForm;
 import com.bachlinh.order.web.service.common.ProductMediaService;
@@ -12,6 +15,8 @@ import lombok.NoArgsConstructor;
 @ActiveReflection
 @RouteProvider
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@Permit(roles = Role.ADMIN)
+@EnableCsrf
 public class ProductDeleteMediaHandler extends AbstractController<Void, ProductDeleteMediaForm> {
     private static final Void RETURN_INSTANCE = initReturnObject();
 

@@ -9,7 +9,6 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import jakarta.persistence.EntityManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.MySQLDialect;
@@ -53,11 +52,6 @@ public class DataSourceBean {
     @Bean(name = "transactionManager")
     HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
         return new HibernateTransactionManager(sessionFactory);
-    }
-
-    @Bean
-    EntityManager entityManager(SessionFactory sessionFactory) {
-        return sessionFactory.createEntityManager();
     }
 
     @Bean

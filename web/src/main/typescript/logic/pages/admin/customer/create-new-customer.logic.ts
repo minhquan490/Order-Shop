@@ -1,14 +1,16 @@
-import {Authentication, ErrorResponse, NavBarsSource, Request, Response} from "~/types";
+import {Authentication, District, ErrorResponse, NavBarsSource, Province, Request, Response, Ward} from "~/types";
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
 import createNewCustomer from "~/pages/admin/customer/create-new-customer.vue";
+import {onUnLogin} from "~/utils/NavigationUtils";
+import {getDistrictFetchRequest, getProvinceFetchRequest, getWardFetchRequest} from "~/utils/RequestUtils";
 
 type PageType = InstanceType<typeof createNewCustomer>;
 
 type PageData = {
     roles: string[],
-    provinces: { name: string, id: string }[],
-    districts: { name: string, id: string }[],
-    wards: { name: string, id: string }[],
+    provinces: Province[],
+    districts: District[],
+    wards: Ward[],
     customerCreateData: CustomerCreate,
     selectedData: SelectedData,
     validationError: PageValidationError,
@@ -57,39 +59,6 @@ type Address = {
     province: string
 }
 
-const getProvinceRequest = (): Request => {
-    const serverUrl: string = useAppConfig().serverUrl;
-    return {
-        apiUrl: `${serverUrl}/content/province/list`
-    }
-}
-
-const getDistrictRequest = (provinceId: string): Request => {
-    const serverUrl: string = useAppConfig().serverUrl;
-    return {
-        apiUrl: `${serverUrl}/content/district/list-with-province`,
-        queryParams: [
-            {
-                name: 'provinceId',
-                value: provinceId
-            }
-        ]
-    }
-}
-
-const getWardRequest = (districtId: string): Request => {
-    const serverUrl: string = useAppConfig().serverUrl;
-    return {
-        apiUrl: `${serverUrl}/content/ward/list-with-district`,
-        queryParams: [
-            {
-                name: 'districtId',
-                value: districtId
-            }
-        ]
-    }
-}
-
 const getCustomerCreateRequest = (): Request => {
     const serverUrl: string = useAppConfig().serverUrl;
     return {
@@ -100,8 +69,7 @@ const getCustomerCreateRequest = (): Request => {
 const getAuthentication = async (): Promise<Authentication> => {
     const auth: Authentication | undefined = await useAuthInformation().readAuth();
     if (!auth) {
-        const navigate = useNavigation().value;
-        navigate('/login');
+        onUnLogin();
     } else {
         return Promise.resolve(auth);
     }
@@ -116,14 +84,16 @@ const navigationSources = (): NavBarsSource[] => {
 
 const initPageData = async (): Promise<PageData> => {
     const auth: Authentication = await getAuthentication();
-    const {getAsyncCall} = useXmlHttpRequest(getProvinceRequest(), auth?.accessToken, auth?.accessToken);
-    const response = await getAsyncCall<{ name: string, id: string }[]>();
-    let provinces: { name: string, id: string }[] = [];
-    if (response.statusCode < 300) {
-        provinces = response.body as { name: string, id: string }[];
+    const request: Request = getProvinceFetchRequest();
+    const {getAsyncCall} = useXmlHttpRequest(request, auth?.accessToken, auth?.accessToken);
+    const response: Response<Province[]> = await getAsyncCall<Province[]>();
+    let provinces: Province[] = [];
+    if (!response.isError) {
+        provinces = response.body as Province[];
     }
+    const {getRoles} = useRole();
     const result: PageData = {
-        roles: ['CUSTOMER', 'ADMIN', 'SEO', 'MARKETING'],
+        roles: getRoles(),
         provinces: provinces,
         wards: [],
         districts: [],
@@ -169,14 +139,14 @@ const initPageData = async (): Promise<PageData> => {
     return Promise.resolve(result);
 }
 
-const getDistrict = async (provinceId: string, page: PageType): Promise<{ name: string, id: string }[]> => {
-    const request: Request = getDistrictRequest(provinceId);
+const getDistrict = async (provinceId: string, page: PageType): Promise<District[]> => {
+    const request: Request = getDistrictFetchRequest(provinceId);
     const auth: Authentication = await getAuthentication();
     const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-    const resp: Response<{ name: string, id: string }[]> = await getAsyncCall<{ name: string, id: string }[]>();
-    if (resp.statusCode === 200) {
+    const resp: Response<District[]> = await getAsyncCall<District[]>();
+    if (!resp.isError) {
         page.isLoading = false;
-        return Promise.resolve(resp.body as { name: string, id: string }[]);
+        return Promise.resolve(resp.body as District[]);
     } else {
         page.isLoading = false;
         return Promise.resolve([]);
@@ -184,11 +154,11 @@ const getDistrict = async (provinceId: string, page: PageType): Promise<{ name: 
 }
 
 const getWard = async (districtId: string, page: PageType): Promise<{ name: string, id: string }[]> => {
-    const request: Request = getWardRequest(districtId);
+    const request: Request = getWardFetchRequest(districtId);
     const auth: Authentication = await getAuthentication();
     const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-    const resp: Response<{ name: string, id: string }[]> = await getAsyncCall<{ name: string, id: string }[]>();
-    if (resp.statusCode === 200) {
+    const resp: Response<Ward[]> = await getAsyncCall<Ward[]>();
+    if (!resp.isError) {
         page.isLoading = false;
         return Promise.resolve(resp.body as { name: string, id: string }[]);
     } else {
@@ -228,10 +198,8 @@ const validateFirstName = (validationError: PageValidationError, firstName: stri
     const firstNameLength: number = firstName.length;
     if (firstNameLength === 0) {
         validationError.firstNameError = 'First name is required !';
-    } else {
-        if (firstNameLength < 4 || firstNameLength > 32) {
-            validationError.firstNameError = 'First name length must be in range 4 - 32';
-        }
+    } else if (firstNameLength < 4 || firstNameLength > 32) {
+        validationError.firstNameError = 'First name length must be in range 4 - 32';
     }
 }
 
@@ -239,10 +207,8 @@ const validateLastName = (validationError: PageValidationError, lastName: string
     const lastNameLength: number = lastName.length;
     if (lastNameLength === 0) {
         validationError.lastNameError = 'Last name is required !';
-    } else {
-        if (lastNameLength < 4 || lastNameLength > 32) {
-            validationError.lastNameError = 'Last name length must be in range 4 - 32';
-        }
+    } else if (lastNameLength < 4 || lastNameLength > 32) {
+        validationError.lastNameError = 'Last name length must be in range 4 - 32';
     }
 }
 
@@ -256,10 +222,8 @@ const validateUsername = (validationError: PageValidationError, username: string
     const usernameLength: number = username.length;
     if (usernameLength === 0) {
         validationError.usernameError = 'Username is required !';
-    } else {
-        if (usernameLength < 4 || usernameLength > 32) {
-            validationError.usernameError = 'Username length must be in range 4 - 32';
-        }
+    } else if (usernameLength < 4 || usernameLength > 32) {
+        validationError.usernameError = 'Username length must be in range 4 - 32';
     }
 }
 
@@ -332,7 +296,7 @@ const validateHouseAddress = (validationError: PageValidationError, houseAddress
     }
 }
 
-const clearError = (pageData: PageData): PageValidationError => {
+const clearError = (): PageValidationError => {
     return {
         houseAddressError: '',
         wardError: '',
@@ -361,7 +325,7 @@ const submitData = async (page: PageType): Promise<void> => {
     const auth: Authentication = await getAuthentication();
     const {postAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
     const response: Response<CustomerCreate> = await postAsyncCall<CustomerCreate>();
-    if (response.statusCode === 200) {
+    if (!response.isError) {
         page.pageData.submitDataSuccessMsg = 'Create customer successfully';
         page.hideListInfo = false;
     } else {

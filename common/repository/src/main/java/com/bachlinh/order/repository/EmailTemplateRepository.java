@@ -14,6 +14,8 @@ public interface EmailTemplateRepository extends NativeQueryRepository {
 
     EmailTemplate getDefaultEmailTemplate(String name);
 
+    EmailTemplate getEmailTemplateForUpdate(String id, Customer owner);
+
     Collection<EmailTemplate> getEmailTemplates(Customer owner);
 
     Collection<EmailTemplate> getEmailTemplates(Collection<String> ids, Customer owner);

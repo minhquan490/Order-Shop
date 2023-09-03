@@ -13,9 +13,11 @@ import java.util.Comparator;
 import java.util.List;
 
 public class DefaultWebInterceptorChain implements WebInterceptorChain {
+
     private final List<WebInterceptor> interceptors = new ArrayList<>();
     private final DependenciesResolver dependenciesResolver;
     private final Environment environment;
+    private boolean calledInit = false;
 
     public DefaultWebInterceptorChain(DependenciesResolver dependenciesResolver, Environment environment) {
         this.dependenciesResolver = dependenciesResolver;
@@ -24,7 +26,17 @@ public class DefaultWebInterceptorChain implements WebInterceptorChain {
 
     @Override
     public boolean shouldHandle(NativeRequest<?> request, NativeResponse<?> response) {
-        return interceptors.stream().allMatch(interceptor -> interceptor.preHandle(request, response));
+        boolean result = interceptors.stream().allMatch(interceptor -> {
+            AbstractInterceptor abstractInterceptor = (AbstractInterceptor) interceptor;
+            if (!calledInit) {
+                abstractInterceptor.init();
+            }
+            return abstractInterceptor.preHandle(request, response);
+        });
+        if (!calledInit) {
+            calledInit = true;
+        }
+        return result;
     }
 
     @Override

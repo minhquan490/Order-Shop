@@ -16,12 +16,12 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Queue;
 
 @Entity
@@ -29,7 +29,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class OrderHistory extends AbstractEntity<Integer> {
 
@@ -73,6 +72,9 @@ public class OrderHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setOrderStatus(String orderStatus) {
+        if (this.orderStatus != null && !orderStatus.equals(this.orderStatus)) {
+            trackUpdatedField("ORDER_STATUS", this.orderStatus, orderStatus);
+        }
         this.orderStatus = orderStatus;
     }
 
@@ -83,11 +85,17 @@ public class OrderHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setOrderTime(Timestamp orderTime) {
+        if (this.orderTime != null && !orderTime.equals(this.orderTime)) {
+            trackUpdatedField("ORDER_TIME", this.orderTime, orderTime);
+        }
         this.orderTime = orderTime;
     }
 
     @ActiveReflection
     public void setOrder(Order order) {
+        if (this.order != null && !Objects.requireNonNull(order.getId()).equals(this.order.getId())) {
+            trackUpdatedField("ORDER_ID", this.order.getId(), order.getId());
+        }
         this.order = order;
     }
 

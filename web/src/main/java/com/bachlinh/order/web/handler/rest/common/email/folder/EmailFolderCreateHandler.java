@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.common.email.folder;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RouteProvider(name = "emailFolderCreateHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@EnableCsrf
 public class EmailFolderCreateHandler extends AbstractController<EmailFolderInfoResp, EmailFolderCreateForm> {
     private EmailFolderService emailFolderService;
     private String url;

@@ -20,7 +20,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Province extends AbstractEntity<Integer> {
 
@@ -119,7 +117,7 @@ public class Province extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -127,7 +125,7 @@ public class Province extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCode(Integer code) {
         if (this.code != null && !this.code.equals(code)) {
-            trackUpdatedField("CODE", this.code.toString());
+            trackUpdatedField("CODE", this.code, code);
         }
         this.code = code;
     }
@@ -135,7 +133,7 @@ public class Province extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setDivisionType(String divisionType) {
         if (this.divisionType != null && !this.divisionType.equals(divisionType)) {
-            trackUpdatedField("DIVISION_TYPE", this.divisionType);
+            trackUpdatedField("DIVISION_TYPE", this.divisionType, divisionType);
         }
         this.divisionType = divisionType;
     }
@@ -143,7 +141,7 @@ public class Province extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCodeName(String codeName) {
         if (this.codeName != null && !this.codeName.equals(codeName)) {
-            trackUpdatedField("CODE_NAME", this.codeName);
+            trackUpdatedField("CODE_NAME", this.codeName, codeName);
         }
         this.codeName = codeName;
     }
@@ -151,7 +149,7 @@ public class Province extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setPhoneCode(Integer phoneCode) {
         if (this.phoneCode != null && !this.phoneCode.equals(phoneCode)) {
-            trackUpdatedField("PHONE_CODE", this.phoneCode.toString());
+            trackUpdatedField("PHONE_CODE", this.phoneCode, phoneCode);
         }
         this.phoneCode = phoneCode;
     }

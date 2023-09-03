@@ -36,6 +36,7 @@ public class CustomerInfoStrategy extends AbstractDtoStrategy<CustomerInfoResp, 
         resp.setAccountNonExpired(source.isAccountNonExpired());
         resp.setAccountNonLocked(source.isAccountNonLocked());
         resp.setCredentialsNonExpired(source.isCredentialsNonExpired());
+        resp.setOrderPoint(source.getOrderPoint());
         resp.setEnabled(source.isEnabled());
         resp.setPicture(source.getPicture());
         resp.setHistories(source.getHistories()

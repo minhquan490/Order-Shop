@@ -9,8 +9,8 @@ import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.Province_;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
-import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -56,8 +56,11 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
     @Override
     public Province getAddress(String provinceId, String districtId, String wardId) {
         Select provinceIdSelect = Select.builder().column(Province_.ID).build();
+        Select provinceNameSelect = Select.builder().column(Province_.NAME).build();
         Select districtIdSelect = Select.builder().column(District_.ID).build();
+        Select districtNameSelect = Select.builder().column(District_.NAME).build();
         Select wardIdSelect = Select.builder().column(Ward_.ID).build();
+        Select wardNameSelect = Select.builder().column(Ward_.NAME).build();
         Join districtJoin = Join.builder().attribute(Province_.DISTRICTS).type(JoinType.INNER).build();
         Join wardJoin = Join.builder().attribute(District_.WARDS).type(JoinType.INNER).build();
         Where provinceIdWhere = Where.builder().attribute(Province_.ID).value(Integer.parseInt(provinceId)).operator(Operator.EQ).build();
@@ -66,9 +69,13 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Province, Integer
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Province.class);
         sqlSelect.select(provinceIdSelect)
+                .select(provinceNameSelect)
                 .select(districtIdSelect, District.class)
-                .select(wardIdSelect, Ward.class);
-        SqlJoin sqlJoin = sqlSelect.join(districtJoin).join(wardJoin, Ward.class);
+                .select(districtNameSelect, District.class)
+                .select(wardIdSelect, Ward.class)
+                .select(wardNameSelect, Ward.class);
+        SqlJoin sqlJoin = sqlSelect.join(districtJoin)
+                .join(wardJoin, District.class);
         SqlWhere sqlWhere = sqlJoin.where(provinceIdWhere)
                 .and(districtIdWhere, District.class)
                 .and(wardIdWhere, Ward.class);

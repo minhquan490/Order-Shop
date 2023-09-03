@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.common.email.trash;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -19,6 +20,7 @@ import java.util.Map;
 @ActiveReflection
 @RouteProvider(name = "deleteEmailInTrashHandler")
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@EnableCsrf
 public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Object>, DeleteEmailInTrashForm> {
     private String url;
     private EmailInTrashService emailInTrashService;

@@ -8,8 +8,8 @@ import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
-import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -24,6 +24,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,10 +64,11 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
     public boolean isEmailTemplateFolderNameExisted(String emailTemplateFolderName) {
         Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
         Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(emailTemplateFolderName).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).operator(Operator.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect);
-        SqlWhere sqlWhere = sqlSelect.where(emailTemplateFolderNameWhere);
+        SqlWhere sqlWhere = sqlSelect.where(emailTemplateFolderNameWhere).where(ownerWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return !executeNativeQuery(sql, attributes, EmailTemplateFolder.class).isEmpty();
@@ -126,6 +128,19 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
         sqlSelect.select(idSelect).select(nameSelect).select(clearTemplatePolicySelect);
         SqlJoin sqlJoin = sqlSelect.join(ownerJoin);
         SqlWhere sqlWhere = sqlJoin.where(idWhere);
+        return processNativeQuery(sqlWhere);
+    }
+
+    @Override
+    public EmailTemplateFolder getEmailTemplateFolderForUpdate(String id) {
+        Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
+        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
+        sqlSelect.select(idSelect).select(nameSelect);
+        SqlWhere sqlWhere = sqlSelect.where(idWhere).where(ownerWhere);
         return processNativeQuery(sqlWhere);
     }
 

@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -31,7 +30,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class ProductMedia extends AbstractEntity<Integer> {
 
@@ -78,7 +76,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setUrl(String url) {
         if (this.url != null && !this.url.equals(url)) {
-            trackUpdatedField("URL", this.url);
+            trackUpdatedField("URL", this.url, url);
         }
         this.url = url;
     }
@@ -86,7 +84,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setContentType(String contentType) {
         if (this.contentType != null && !this.contentType.equals(contentType)) {
-            trackUpdatedField("CONTENT_TYPE", this.contentType);
+            trackUpdatedField("CONTENT_TYPE", this.contentType, contentType);
         }
         this.contentType = contentType;
     }
@@ -94,7 +92,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setContentLength(Long contentLength) {
         if (this.contentLength != null && !this.contentLength.equals(contentLength)) {
-            trackUpdatedField("CONTENT_LENGTH", this.contentLength.toString());
+            trackUpdatedField("CONTENT_LENGTH", this.contentLength, contentLength);
         }
         this.contentLength = contentLength;
     }
@@ -102,7 +100,7 @@ public class ProductMedia extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setProduct(Product product) {
         if (this.product != null && !Objects.requireNonNull(this.product.getId()).equals(product.getId())) {
-            trackUpdatedField("PRODUCT_ID", this.product.getId());
+            trackUpdatedField("PRODUCT_ID", this.product.getId(), product.getId());
         }
         this.product = product;
     }

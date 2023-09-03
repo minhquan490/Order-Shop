@@ -43,7 +43,7 @@ export const useFileUpload = () => {
                 const request: Request = createRequest(uploadApi, file, i * maxFileSize, (i + 1) * maxFileSize, `${productId}-${file.name}-${i + 1}`, true);
                 try {
                     const response: Response<FileUploadResponse> = await doUpload(request, accessToken, refreshToken);
-                    if ((response.statusCode === 200) && ((i + 1) === range) && (partNumber - range > 0)) {
+                    if ((!response.isError) && ((i + 1) === range) && (partNumber - range > 0)) {
                         const remaining: number = partNumber - Math.floor(partNumber);
                         return uploadLittleFile(uploadApi, file, remaining, file.size, productId, serverUrl, accessToken, refreshToken);
                     }
@@ -59,7 +59,7 @@ export const useFileUpload = () => {
     const uploadMultiFile = async (fileList: FileList, productId: string, accessToken?: string, refreshToken?: string): Promise<void> => {
         for (const file: File of fileList) {
             const response: Response<FileUploadResponse> = await uploadSingleFile(file, productId, accessToken, refreshToken);
-            if (response.statusCode >= 400) {
+            if (response.isError) {
                 break;
             }
         }
@@ -68,7 +68,7 @@ export const useFileUpload = () => {
     const uploadLittleFile = async (uploadApi: string, file: File, startSize: number, endSize: number, productId: string, serverUrl: string, accessToken?: string, refreshToken?: string) => {
         const request: Request = createRequest(uploadApi, file, startSize, endSize, `${productId}-${file.name}`, false);
         const response: Response<FileUploadResponse> = await doUpload(request, accessToken, refreshToken);
-        if (response.statusCode >= 400) {
+        if (response.isError) {
             return Promise.reject<Response<FileUploadResponse>>(response);
         } else {
             return sendFlushRequest(productId, file, serverUrl, accessToken, refreshToken);
@@ -88,7 +88,7 @@ export const useFileUpload = () => {
         }
         const {postAsyncCall} = useXmlHttpRequest(flushRequest, accessToken, refreshToken);
         const response: Response<any> = await postAsyncCall<any>();
-        if (response.statusCode !== 201) {
+        if (response.isError) {
             response.body = {
                 status: response.statusCode,
                 messages: ['Can not upload file']
@@ -144,7 +144,8 @@ export const useFileUpload = () => {
             statusCode: 418,
             body: {
                 messages: ['Checking your connection and try again']
-            }
+            },
+            isError: true
         }
     }
 

@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -39,7 +38,6 @@ import java.util.Set;
 @EnableFullTextSearch
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Voucher extends AbstractEntity<String> {
 
@@ -120,7 +118,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -128,7 +126,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setDiscountPercent(Integer discountPercent) {
         if (this.discountPercent != null && !this.discountPercent.equals(discountPercent)) {
-            trackUpdatedField("DISCOUNT_PERCENT", this.discountPercent.toString());
+            trackUpdatedField("DISCOUNT_PERCENT", this.discountPercent, discountPercent);
         }
         this.discountPercent = discountPercent;
     }
@@ -136,7 +134,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setTimeStart(Timestamp timeStart) {
         if (this.timeStart != null && !this.timeStart.equals(timeStart)) {
-            trackUpdatedField("TIME_START", this.timeStart.toString());
+            trackUpdatedField("TIME_START", this.timeStart, timeStart);
         }
         this.timeStart = timeStart;
     }
@@ -144,7 +142,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setTimeExpired(Timestamp timeExpired) {
         if (this.timeExpired != null && !this.timeExpired.equals(timeExpired)) {
-            trackUpdatedField("TIME_EXPIRED", this.timeExpired.toString());
+            trackUpdatedField("TIME_EXPIRED", this.timeExpired, timeExpired);
         }
         this.timeExpired = timeExpired;
     }
@@ -152,7 +150,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setVoucherContent(String voucherContent) {
         if (this.voucherContent != null && !this.voucherContent.equals(voucherContent)) {
-            trackUpdatedField("CONTENT", this.voucherContent);
+            trackUpdatedField("CONTENT", this.voucherContent, voucherContent);
         }
         this.voucherContent = voucherContent;
     }
@@ -160,7 +158,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setVoucherCost(Integer voucherCost) {
         if (this.voucherCost != null && !this.voucherCost.equals(voucherCost)) {
-            trackUpdatedField("COST", this.voucherCost.toString());
+            trackUpdatedField("COST", this.voucherCost, voucherCost);
         }
         this.voucherCost = voucherCost;
     }
@@ -168,7 +166,7 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setActive(boolean isEnable) {
         if (this.active != isEnable) {
-            trackUpdatedField("ENABLED", String.valueOf(this.active));
+            trackUpdatedField("ENABLED", this.active, active);
         }
         this.active = isEnable;
     }

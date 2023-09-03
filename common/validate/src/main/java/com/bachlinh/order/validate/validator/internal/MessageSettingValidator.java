@@ -35,19 +35,34 @@ public class MessageSettingValidator extends AbstractValidator<MessageSetting> {
     protected ValidateResult doValidate(MessageSetting entity) {
         Result result = new Result();
 
-        if (messageSettingRepository.messageValueExisted(entity.getValue())) {
+        if (entity.isNew()) {
+            validateMessageValue(entity.getValue(), result);
+            validateMessageValueLength(entity.getValue(), result);
+        } else {
+            MessageSetting old = messageSettingRepository.getMessageById(entity.getId());
+            if (!old.getValue().equals(entity.getValue())) {
+                validateMessageValue(entity.getValue(), result);
+                validateMessageValueLength(entity.getValue(), result);
+            }
+        }
+        
+        return result;
+    }
+
+    private void validateMessageValue(String value, ValidateResult result) {
+        if (messageSettingRepository.messageValueExisted(value)) {
             MessageSetting messageSetting = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
-            String errorContent = MessageFormat.format(messageSetting.getValue(), "Message value");
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Message oldValue");
             result.addMessageError(errorContent);
         }
+    }
 
-        int messageValueLength = entity.getValue().length();
+    private void validateMessageValueLength(String value, ValidateResult result) {
+        int messageValueLength = value.length();
         if (messageValueLength > 200) {
             MessageSetting messageSetting = messageSettingRepository.getMessageById(LENGTH_MESSAGE_ID);
-            String errorContent = MessageFormat.format(messageSetting.getValue(), "message value", "200");
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "message oldValue", "200");
             result.addMessageError(errorContent);
         }
-
-        return result;
     }
 }

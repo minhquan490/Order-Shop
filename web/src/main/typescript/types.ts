@@ -23,7 +23,8 @@ export type Request = {
 
 export type Response<T> = {
     statusCode: number,
-    body?: ErrorResponse | T
+    body?: ErrorResponse | T,
+    isError: boolean
 }
 
 export type ErrorResponse = {
@@ -103,4 +104,19 @@ export type BasicCustomerInfo = {
     lastName: string,
     role: string,
     avatarUrl: string
+}
+
+export type Province = {
+    id: string,
+    name: string
+}
+
+export type District = {
+    id: string,
+    name: string
+}
+
+export type Ward = {
+    id: string,
+    name: string
 }

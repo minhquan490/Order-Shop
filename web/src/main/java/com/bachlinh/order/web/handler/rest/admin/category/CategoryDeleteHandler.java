@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.admin.category;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -19,6 +20,7 @@ import java.util.Map;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Permit(roles = Role.ADMIN)
+@EnableCsrf
 public class CategoryDeleteHandler extends AbstractController<Map<String, Object>, CategoryDeleteForm> {
     private CategoryService categoryService;
     private String url;
