@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -30,7 +29,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class OrderDetail extends AbstractEntity<Integer> {
 
@@ -77,7 +75,7 @@ public class OrderDetail extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setAmount(Integer amount) {
         if (this.amount != null && !this.amount.equals(amount)) {
-            trackUpdatedField("AMOUNT", this.amount.toString());
+            trackUpdatedField("AMOUNT", this.amount, amount);
         }
         this.amount = amount;
     }
@@ -85,7 +83,7 @@ public class OrderDetail extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setProduct(Product product) {
         if (this.product != null && !Objects.requireNonNull(this.product.getId()).equals(product.getId())) {
-            trackUpdatedField("PRODUCT_ID", product.getId());
+            trackUpdatedField("PRODUCT_ID", product.getId(), product.getId());
         }
         this.product = product;
     }
@@ -93,7 +91,7 @@ public class OrderDetail extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setOrder(Order order) {
         if (this.order != null && !Objects.requireNonNull(this.order.getId()).equals(order.getId())) {
-            trackUpdatedField("ORDER_ID", this.order.getId());
+            trackUpdatedField("ORDER_ID", this.order.getId(), order.getId());
         }
         this.order = order;
     }

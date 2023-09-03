@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.admin.order;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -19,6 +20,7 @@ import java.util.Map;
 @RouteProvider(name = "orderChangeStatusHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Permit(roles = Role.ADMIN)
+@EnableCsrf
 public class OrderChangeStatusHandler extends AbstractController<Map<String, Object>, OrderChangeStatusForm> {
     private String url;
     private OrderChangeStatusService statusService;

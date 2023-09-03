@@ -23,7 +23,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -46,7 +45,6 @@ import java.util.Set;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Order extends AbstractEntity<String> {
 
@@ -128,7 +126,7 @@ public class Order extends AbstractEntity<String> {
     @ActiveReflection
     public void setTimeOrder(Timestamp timeOrder) {
         if (this.timeOrder != null && !this.timeOrder.equals(timeOrder)) {
-            trackUpdatedField("ORDER_TIME", this.timeOrder.toString());
+            trackUpdatedField("ORDER_TIME", this.timeOrder, timeOrder);
         }
         this.timeOrder = timeOrder;
     }
@@ -136,7 +134,7 @@ public class Order extends AbstractEntity<String> {
     @ActiveReflection
     public void setOrderStatus(OrderStatus orderStatus) {
         if (this.orderStatus != null && !Objects.requireNonNull(this.orderStatus.getId()).equals(orderStatus.getId())) {
-            trackUpdatedField("ORDER_STATUS_ID", Objects.requireNonNull(this.orderStatus.getId()).toString());
+            trackUpdatedField("ORDER_STATUS_ID", this.orderStatus.getId(), orderStatus.getId());
         }
         this.orderStatus = orderStatus;
     }
@@ -144,7 +142,7 @@ public class Order extends AbstractEntity<String> {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
     }
@@ -157,7 +155,7 @@ public class Order extends AbstractEntity<String> {
     @ActiveReflection
     public void setBankTransactionCode(String bankTransactionCode) {
         if (this.bankTransactionCode != null && !this.bankTransactionCode.equals(bankTransactionCode)) {
-            trackUpdatedField("BANK_TRANSACTION_CODE", this.bankTransactionCode);
+            trackUpdatedField("BANK_TRANSACTION_CODE", this.bankTransactionCode, bankTransactionCode);
         }
         this.bankTransactionCode = bankTransactionCode;
     }

@@ -13,4 +13,6 @@ public interface AddressRepository extends NativeQueryRepository {
     boolean deleteAddress(Address address);
 
     void bulkSave(Collection<Address> addresses);
+
+    Address getAddressForUpdate(String id);
 }

@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -32,7 +31,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class CartDetail extends AbstractEntity<Integer> {
 
@@ -80,7 +78,7 @@ public class CartDetail extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setAmount(@NonNull Integer amount) {
         if (this.amount != null && !this.amount.equals(amount)) {
-            trackUpdatedField("AMOUNT", this.amount.toString());
+            trackUpdatedField("AMOUNT", this.amount, amount);
         }
         this.amount = amount;
     }
@@ -88,7 +86,7 @@ public class CartDetail extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setProduct(@NonNull Product product) {
         if (this.product != null && !Objects.requireNonNull(this.product.getId()).equals(product.getId())) {
-            trackUpdatedField("PRODUCT_ID", this.product.getId());
+            trackUpdatedField("PRODUCT_ID", this.product.getId(), product.getId());
         }
         this.product = product;
     }
@@ -96,7 +94,7 @@ public class CartDetail extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCart(@NonNull Cart cart) {
         if (this.cart != null && !Objects.requireNonNull(this.cart.getId()).equals(cart.getId())) {
-            trackUpdatedField("CART_ID", this.cart.getId());
+            trackUpdatedField("CART_ID", this.cart.getId(), cart.getId());
         }
         this.cart = cart;
     }

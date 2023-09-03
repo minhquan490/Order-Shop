@@ -36,6 +36,9 @@ public class CustomerInfoResp {
     @JsonProperty("username")
     private String username;
 
+    @JsonProperty("order_point")
+    private Integer orderPoint;
+
     @JsonProperty("address")
     private Collection<String> address;
 

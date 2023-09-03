@@ -1,10 +1,13 @@
 package com.bachlinh.order.web.handler.rest.admin.files;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.MultipartRequest;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.service.business.FileUploadService;
@@ -15,6 +18,8 @@ import java.io.IOException;
 @RouteProvider
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@EnableCsrf
+@Permit(roles = Role.ADMIN)
 public class AdminFileUploadHandler extends AbstractController<Void, MultipartRequest> {
     private static final Void RETURN_OBJECT = initReturnObject();
 

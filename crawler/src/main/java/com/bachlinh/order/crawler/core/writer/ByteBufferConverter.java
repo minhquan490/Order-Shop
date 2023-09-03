@@ -1,9 +1,9 @@
 package com.bachlinh.order.crawler.core.writer;
 
-import org.openqa.selenium.WebElement;
 import com.bachlinh.order.core.http.converter.spi.Converter;
 import com.bachlinh.order.crawler.core.visitor.InnerElementVisitor;
 import com.bachlinh.order.utils.JacksonUtils;
+import org.openqa.selenium.WebElement;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -34,7 +34,7 @@ class ByteBufferConverter implements Converter<ByteBuffer, InnerElementVisitor> 
 
         Element(InnerElementVisitor visitor) {
             tagName = visitor.getElementTagName();
-            value = visitor.getValue("value");
+            value = visitor.getValue("oldValue");
             if (value == null) {
                 value = visitor.getValue("src");
             }

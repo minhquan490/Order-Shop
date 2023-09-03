@@ -2,6 +2,7 @@ import {Authentication, CarouselItem, NavBarsSource, Request, Response, TableHea
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
 import {checkResponseStatus} from "~/utils/ResponseUtils";
 import infoPage from "~/pages/admin/customer/info.vue";
+import {onUnAuthorize} from "~/utils/NavigationUtils";
 
 type AccessHistory = {
     path_request: string,
@@ -45,6 +46,7 @@ type CustomerInfoResp = {
     role: string,
     username: string,
     address: Array<string>,
+    order_point: number,
     is_activated: boolean,
     is_account_non_expired: boolean,
     is_account_non_locked: boolean,
@@ -184,19 +186,18 @@ const getAuth = async (): Promise<Authentication | undefined> => {
 }
 
 const getCustomerInfo = async (customerId: string): Promise<CustomerInfoResp> => {
-    const request: Request = getCustomerInfoRequest(customerId);
     const auth: Authentication | undefined = await getAuth();
     if (!auth) {
-        const navigate = useNavigation().value;
-        navigate('/403');
-        return;
+        onUnAuthorize();
+    } else {
+        const request: Request = getCustomerInfoRequest(customerId);
+        const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+        const response: Response<CustomerInfoResp> = await getAsyncCall<CustomerInfoResp>();
+        if (response.isError) {
+            checkResponseStatus(response);
+        }
+        return response.body as CustomerInfoResp;
     }
-    const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-    const response: Response<CustomerInfoResp> = await getAsyncCall<CustomerInfoResp>();
-    if (response.statusCode >= 400) {
-        checkResponseStatus(response);
-    }
-    return response.body as CustomerInfoResp;
 }
 
 const createCarouselItems = (picUrl: string): CarouselItem[] => {
@@ -229,6 +230,7 @@ const assignData = (page: Page, customerInfo: CustomerInfoResp): void => {
     page.customerInfo.is_credentials_non_expired = customerInfo.is_credentials_non_expired;
     page.customerInfo.is_enabled = customerInfo.is_enabled;
     page.customerInfo.picture = customerInfo.picture;
+    page.customerInfo.order_point = customerInfo.order_point;
 }
 
 export {
@@ -247,5 +249,6 @@ export {
     checkCustomerIdQueryParam,
     getCustomerInfo,
     createCarouselItems,
-    assignData
+    assignData,
+    CustomerInfoResp
 }

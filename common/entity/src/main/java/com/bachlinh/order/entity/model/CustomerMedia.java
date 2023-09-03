@@ -15,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -27,7 +26,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class CustomerMedia extends AbstractEntity<String> {
 
@@ -56,7 +54,7 @@ public class CustomerMedia extends AbstractEntity<String> {
     @ActiveReflection
     public void setContentLength(long contentLength) {
         if (this.contentLength != null && !this.contentLength.equals(contentLength)) {
-            trackUpdatedField("CONTENT_LENGTH", this.contentLength.toString());
+            trackUpdatedField("CONTENT_LENGTH", this.contentLength, contentLength);
         }
         this.contentLength = contentLength;
     }
@@ -64,7 +62,7 @@ public class CustomerMedia extends AbstractEntity<String> {
     @ActiveReflection
     public void setUrl(String url) {
         if (this.url != null && !this.url.equals(url)) {
-            trackUpdatedField("URL", this.url);
+            trackUpdatedField("URL", this.url, url);
         }
         this.url = url;
     }
@@ -72,7 +70,7 @@ public class CustomerMedia extends AbstractEntity<String> {
     @ActiveReflection
     public void setContentType(String contentType) {
         if (this.contentType != null && !this.contentType.equals(contentType)) {
-            trackUpdatedField("CONTENT_TYPE", this.contentType);
+            trackUpdatedField("CONTENT_TYPE", this.contentType, contentType);
         }
         this.contentType = contentType;
     }

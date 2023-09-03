@@ -60,7 +60,7 @@ const login = async (page: LoginPageType, loginUrl: string): Promise<void> => {
     }
     const {postAsyncCall} = useXmlHttpRequest(request);
     const resp: Response<LoginResp> = await postAsyncCall<LoginResp>()
-    if (resp.statusCode >= 400) {
+    if (resp.isError) {
         page.loginErrorMsg = (resp.body as ErrorResponse).messages;
         page.hide = false;
     } else {

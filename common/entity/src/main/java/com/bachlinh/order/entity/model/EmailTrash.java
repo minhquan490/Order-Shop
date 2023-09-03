@@ -18,7 +18,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -37,7 +36,6 @@ import java.util.Set;
 @Table(name = "EMAIL_TRASH", indexes = @Index(name = "inx_email_trash_customer", columnList = "CUSTOMER_ID"))
 @Getter
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class EmailTrash extends AbstractEntity<Integer> {
 
@@ -62,7 +60,7 @@ public class EmailTrash extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
     }

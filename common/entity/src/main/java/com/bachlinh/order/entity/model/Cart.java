@@ -21,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -41,7 +40,6 @@ import java.util.Set;
 @Label("CRT-")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class Cart extends AbstractEntity<String> {
@@ -113,7 +111,7 @@ public class Cart extends AbstractEntity<String> {
     @ActiveReflection
     public void setCustomer(@NonNull Customer customer) {
         if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId());
+            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
     }

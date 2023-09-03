@@ -43,6 +43,7 @@ public class CreateCustomerDefaultDataTrigger extends AbstractTrigger<Customer> 
         entity.setAccountNonExpired(true);
         entity.setAccountNonLocked(true);
         entity.setCredentialsNonExpired(true);
+        entity.setEnabled(true);
     }
 
     @Override

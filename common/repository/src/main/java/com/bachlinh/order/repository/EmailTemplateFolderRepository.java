@@ -22,5 +22,7 @@ public interface EmailTemplateFolderRepository extends NativeQueryRepository {
 
     EmailTemplateFolder getEmailTemplateFolderHasCustomer(String id);
 
+    EmailTemplateFolder getEmailTemplateFolderForUpdate(String id);
+
     Collection<EmailTemplateFolder> getEmailTemplateFolders(String customerId);
 }

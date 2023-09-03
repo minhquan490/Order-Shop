@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.customer.cart;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -15,7 +16,8 @@ import lombok.NoArgsConstructor;
 @RouteProvider(name = "cartUpdateHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-@Permit(roles = Role.CUSTOMER)
+@Permit(roles = {Role.CUSTOMER, Role.ADMIN})
+@EnableCsrf
 public class CartUpdateHandler extends AbstractController<CartResp, CartForm> {
     private CartService cartService;
     private String url;

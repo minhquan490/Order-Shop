@@ -3,6 +3,7 @@ package com.bachlinh.order.validate.validator.internal;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
+import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -52,68 +53,105 @@ public class CustomerValidator extends AbstractValidator<Customer> {
         MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
         MessageSetting genderInvalid = messageSettingRepository.getMessageById(GENDER_INVALID);
 
-        if (!StringUtils.hasText(entity.getUsername())) {
-            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Username"));
-        } else {
-            if (entity.getUsername().length() > 24) {
-                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "username", "24"));
-            }
-            if (customerRepository.isUsernameExisted(entity.getUsername())) {
-                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Username"));
-            }
-        }
-
-        String messageFormatArg = "Email";
-
-        if (!StringUtils.hasText(entity.getEmail())) {
-            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), messageFormatArg));
-        } else {
-            if (entity.getEmail().length() > 32) {
-                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "email", "32"));
-            }
-            if (!ValidateUtils.isEmailValidUsingRfc2822(entity.getEmail())) {
-                result.addMessageError(MessageFormat.format(invalidMessage.getValue(), messageFormatArg));
-            }
-            if (customerRepository.isEmailExisted(entity.getEmail())) {
-                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Email"));
-            }
-        }
-
         if (entity.isNew()) {
-            return result;
-        }
-
-        if (entity.getGender().isEmpty()) {
-            result.addMessageError(genderInvalid.getValue());
-        }
-
-        if (!StringUtils.hasText(entity.getFirstName())) {
-            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "First name"));
+            validateUsername(result, entity.getUsername(), nonEmptyMessage, lengthInvalidMessage, existedMessage);
+            validateEmail(result, entity.getEmail(), nonEmptyMessage, lengthInvalidMessage, existedMessage, invalidMessage);
         } else {
-            if (entity.getFirstName().length() > 36) {
-                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "first name", "36"));
+            Customer targetCustomer = customerRepository.getCustomerUpdatableInfo(entity.getId());
+            if (!targetCustomer.getUsername().equals(entity.getUsername())) {
+                validateUsername(result, entity.getUsername(), nonEmptyMessage, lengthInvalidMessage, existedMessage);
             }
-        }
-
-        if (!StringUtils.hasText(entity.getLastName())) {
-
-            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Last name"));
-        } else {
-            if (entity.getLastName().length() > 36) {
-                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "last name", "36"));
+            if (!targetCustomer.getEmail().equals(entity.getEmail())) {
+                validateEmail(result, entity.getEmail(), nonEmptyMessage, lengthInvalidMessage, existedMessage, invalidMessage);
             }
-        }
-
-        if (!StringUtils.hasText(entity.getPhoneNumber())) {
-            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Phone number"));
-        } else {
-            if (entity.getPhoneNumber().length() != 10) {
-                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "phone number", "10"));
+            if (!targetCustomer.getGender().equals(entity.getGender())) {
+                validateGender(result, entity.getGender(), genderInvalid, invalidMessage);
             }
-            if (customerRepository.isPhoneNumberExisted(entity.getPhoneNumber())) {
-                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Phone number"));
+            if (!targetCustomer.getFirstName().equals(entity.getFirstName())) {
+                validateFirstName(result, entity.getFirstName(), nonEmptyMessage, lengthInvalidMessage);
+            }
+            if (!targetCustomer.getLastName().equals(entity.getLastName())) {
+                validateLastName(result, entity.getLastName(), nonEmptyMessage, lengthInvalidMessage);
+            }
+            if (!targetCustomer.getPhoneNumber().equals(entity.getPhoneNumber())) {
+                validatePhoneNumber(result, entity.getPhoneNumber(), nonEmptyMessage, lengthInvalidMessage, existedMessage);
             }
         }
         return result;
+    }
+
+    private void validateUsername(ValidateResult result, String username, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage, MessageSetting existedMessage) {
+        if (!StringUtils.hasText(username)) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Username"));
+        } else {
+            if (username.length() > 24) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "username", "24"));
+            }
+            if (customerRepository.isUsernameExisted(username)) {
+                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Username"));
+            }
+        }
+    }
+
+    private void validateEmail(ValidateResult result, String email, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage, MessageSetting existedMessage, MessageSetting invalidMessage) {
+        String messageFormatArg = "Email";
+        if (!StringUtils.hasText(email)) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), messageFormatArg));
+        } else {
+            if (email.length() > 80) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "email", "32"));
+            }
+            if (!ValidateUtils.isEmailValidUsingRfc2822(email)) {
+                result.addMessageError(MessageFormat.format(invalidMessage.getValue(), messageFormatArg));
+            }
+            if (customerRepository.isEmailExisted(email)) {
+                result.addMessageError(MessageFormat.format(existedMessage.getValue(), messageFormatArg));
+            }
+        }
+    }
+
+    private void validateGender(ValidateResult result, String gender, MessageSetting genderInvalid, MessageSetting invalidMessage) {
+        if (gender.isEmpty()) {
+            result.addMessageError(genderInvalid.getValue());
+        } else {
+            Gender g = Gender.of(gender);
+            if (g == null) {
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Gender");
+                result.addMessageError(errorContent);
+            }
+        }
+    }
+
+    private void validateFirstName(ValidateResult result, String firstName, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage) {
+        if (!StringUtils.hasText(firstName)) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "First name"));
+        } else {
+            if (firstName.length() > 36) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "first name", "36"));
+            }
+        }
+    }
+
+    private void validateLastName(ValidateResult result, String lastName, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage) {
+        if (!StringUtils.hasText(lastName)) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Last name"));
+        } else {
+            if (lastName.length() > 36) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "last name", "36"));
+            }
+        }
+    }
+
+    private void validatePhoneNumber(ValidateResult result, String phoneNumber, MessageSetting nonEmptyMessage, MessageSetting lengthInvalidMessage, MessageSetting existedMessage) {
+        if (!StringUtils.hasText(phoneNumber)) {
+            result.addMessageError(MessageFormat.format(nonEmptyMessage.getValue(), "Phone number"));
+        } else {
+            if (phoneNumber.length() != 10) {
+                result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), "phone number", "10"));
+            }
+            if (customerRepository.isPhoneNumberExisted(phoneNumber)) {
+                result.addMessageError(MessageFormat.format(existedMessage.getValue(), "Phone number"));
+            }
+        }
     }
 }

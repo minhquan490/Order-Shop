@@ -4,6 +4,7 @@ export const useAuthInformation = () => {
     const databaseName: string = 'Order-Shop';
     const collectionName: string = 'auth';
     const authKey: string = 'user';
+    const csrfKey: string = "_csrf";
     const versionNumber: number = 1;
 
     const openConnection = async (): Promise<IDBDatabase> => {
@@ -22,9 +23,9 @@ export const useAuthInformation = () => {
     }
 
     const resolveReadAuth = (data: IDBRequest<Authentication>): Promise<Authentication | undefined> => {
-        return new Promise<Authentication | undefined>((resolve, reject) => {
+        return new Promise<Authentication | undefined>((resolve) => {
             data.onsuccess = () => resolve(data.result);
-            data.onerror = () => reject(undefined);
+            data.onerror = () => resolve(undefined);
         });
     }
 
@@ -47,7 +48,7 @@ export const useAuthInformation = () => {
             return Promise.resolve(true);
         } catch (error) {
             database.close();
-            return Promise.reject(false);
+            return Promise.resolve(false);
         }
     }
 
@@ -59,7 +60,7 @@ export const useAuthInformation = () => {
             return Promise.resolve(true);
         } catch (error) {
             database.close();
-            return Promise.reject(false);
+            return Promise.resolve(false);
         }
     }
 
@@ -69,7 +70,7 @@ export const useAuthInformation = () => {
         if (auth) {
             if (auth.accessToken !== newAuth.accessToken && auth.refreshToken !== newAuth.refreshToken) {
                 const objectStore: IDBObjectStore = database.transaction(collectionName, "readwrite").objectStore(collectionName);
-                const result: boolean = await resolveUpdate(objectStore, newAuth);
+                const result: boolean = await resolveAuthUpdate(objectStore, newAuth);
                 return Promise.resolve(result);
             }
         } else {
@@ -78,18 +79,85 @@ export const useAuthInformation = () => {
         }
     }
 
-    const resolveUpdate = async (objectStore: IDBObjectStore, newAuth: Authentication): Promise<boolean> => {
-        return new Promise<boolean>((resolve, reject) => {
+    const resolveAuthUpdate = async (objectStore: IDBObjectStore, newAuth: Authentication): Promise<boolean> => {
+        return new Promise<boolean>((resolve) => {
             const request: IDBRequest<IDBValidKey> = objectStore.put(newAuth, authKey);
             request.onsuccess = () => resolve(true);
-            request.onerror = () => reject(false);
+            request.onerror = () => resolve(false);
         });
+    }
+
+    const storeCsrf = async (csrfToken: string): Promise<boolean> => {
+        const database: IDBDatabase = await openConnection();
+        try {
+            database.transaction(collectionName, "readwrite").objectStore(collectionName).add(csrfToken, csrfKey);
+            database.close();
+            return Promise.resolve(true);
+        } catch (error) {
+            database.close();
+            return Promise.resolve(false);
+        }
+    }
+
+    const readCsrf = async (): Promise<string | undefined> => {
+        const database: IDBDatabase = await openConnection();
+        try {
+            const data: IDBRequest<string> = database.transaction(collectionName, "readonly").objectStore(collectionName).get(csrfKey);
+            const result: string | undefined = await resolveReadCsrf(data);
+            return Promise.resolve(result);
+        } catch (error) {
+            return Promise.resolve(undefined);
+        }
+    }
+
+    const updateCsrf = async (newCsrfToken: string): Promise<boolean> => {
+        const database: IDBDatabase = await openConnection();
+        const csrfToken: string | undefined = await readCsrf();
+        if (csrfToken) {
+            const objectStore: IDBObjectStore = database.transaction(collectionName, "readwrite").objectStore(collectionName);
+            const result: boolean = await resolveCsrfUpdate(objectStore, newCsrfToken);
+            return Promise.resolve(result);
+        } else {
+            const result: boolean = await storeCsrf(newCsrfToken);
+            return Promise.resolve(result);
+        }
+    }
+
+    const resolveCsrfUpdate = (objectStore: IDBObjectStore, newCsrfToken: string): Promise<boolean> => {
+        return new Promise<boolean>((resolve) => {
+            const request: IDBRequest<IDBValidKey> = objectStore.put(newCsrfToken, csrfKey);
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => resolve(false);
+        });
+    }
+
+    const resolveReadCsrf = (data: IDBRequest<string>): Promise<string | undefined> => {
+        return new Promise<string>(resolve => {
+            data.onsuccess = () => resolve(data.result);
+            data.onerror = () => resolve(undefined);
+        });
+    }
+
+    const removeCsrf = async (): Promise<boolean> => {
+        const database: IDBDatabase = await openConnection();
+        try {
+            database.transaction(collectionName, "readwrite").objectStore(collectionName).delete(csrfKey);
+            database.close();
+            return Promise.resolve(true);
+        } catch (error) {
+            database.close();
+            return Promise.resolve(false);
+        }
     }
 
     return {
         readAuth,
         storeAuth,
         removeAuth,
-        updateAuth
+        updateAuth,
+        storeCsrf,
+        readCsrf,
+        updateCsrf,
+        removeCsrf
     }
 }

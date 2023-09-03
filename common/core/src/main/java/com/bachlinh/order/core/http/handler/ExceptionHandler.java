@@ -3,12 +3,8 @@ package com.bachlinh.order.core.http.handler;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
-import com.google.common.base.Objects;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
-import java.io.Serializable;
-import java.util.Arrays;
 
 public abstract class ExceptionHandler implements ThrowableHandler<Exception, NativeResponse<byte[]>> {
 
@@ -32,28 +28,4 @@ public abstract class ExceptionHandler implements ThrowableHandler<Exception, Na
     protected abstract String[] message(Exception exception);
 
     protected abstract void doOnException(Exception exception);
-
-    private record ExceptionReturn(int status, String[] messages) implements Serializable {
-
-        @Override
-        public String toString() {
-            return "ExceptionReturn{" +
-                    "status=" + status +
-                    ", messages=" + Arrays.toString(messages) +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ExceptionReturn that = (ExceptionReturn) o;
-            return status == that.status && Objects.equal(messages, that.messages);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(status, messages);
-        }
-    }
 }

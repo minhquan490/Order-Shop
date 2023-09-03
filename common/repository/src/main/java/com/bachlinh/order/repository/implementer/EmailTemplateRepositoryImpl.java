@@ -6,9 +6,10 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailTemplate;
+import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
-import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -100,6 +101,34 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
                 .select(totalArgumentSelect)
                 .select(paramsSelect);
         SqlWhere sqlWhere = sqlSelect.where(idWhere).and(ownerNull).and(folderNull);
+        return getEmailTemplate(sqlWhere);
+    }
+
+    @Override
+    public EmailTemplate getEmailTemplateForUpdate(String id, Customer owner) {
+        Select idSelect = Select.builder().column(EmailTemplate_.ID).build();
+        Select nameSelect = Select.builder().column(EmailTemplate_.NAME).build();
+        Select titleSelect = Select.builder().column(EmailTemplate_.TITLE).build();
+        Select contentSelect = Select.builder().column(EmailTemplate_.CONTENT).build();
+        Select expiryPolicySelect = Select.builder().column(EmailTemplate_.EXPIRY_POLICY).build();
+        Select totalArgumentSelect = Select.builder().column(EmailTemplate_.TOTAL_ARGUMENT).build();
+        Select paramsSelect = Select.builder().column(EmailTemplate_.PARAMS).build();
+        Select folderIdSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
+        Join folderJoin = Join.builder().attribute(EmailTemplate_.FOLDER).type(JoinType.INNER).build();
+        Where idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner.getId()).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(EmailTemplate.class);
+        sqlSelect.select(idSelect)
+                .select(nameSelect)
+                .select(titleSelect)
+                .select(contentSelect)
+                .select(expiryPolicySelect)
+                .select(totalArgumentSelect)
+                .select(paramsSelect)
+                .select(folderIdSelect);
+        SqlJoin sqlJoin = sqlSelect.join(folderJoin);
+        SqlWhere sqlWhere = sqlJoin.where(idWhere).where(ownerWhere);
         return getEmailTemplate(sqlWhere);
     }
 

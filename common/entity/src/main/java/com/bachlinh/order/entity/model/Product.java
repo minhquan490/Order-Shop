@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +49,6 @@ import java.util.Set;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 @Formula(processor = ProductEnableFormula.class)
 public class Product extends AbstractEntity<String> {
@@ -146,7 +144,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -154,7 +152,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setPrice(Integer price) {
         if (this.price != null && !this.price.equals(price)) {
-            trackUpdatedField("PRICE", this.price.toString());
+            trackUpdatedField("PRICE", this.price, price);
         }
         this.price = price;
     }
@@ -162,7 +160,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setSize(String size) {
         if (this.size != null && !this.size.equals(size)) {
-            trackUpdatedField("SIZE", this.size);
+            trackUpdatedField("SIZE", this.size, size);
         }
         this.size = size;
     }
@@ -170,7 +168,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setColor(String color) {
         if (this.color != null && !this.color.equals(color)) {
-            trackUpdatedField("COLOR", this.color);
+            trackUpdatedField("COLOR", this.color, color);
         }
         this.color = color;
     }
@@ -178,7 +176,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setTaobaoUrl(String taobaoUrl) {
         if (this.taobaoUrl != null && !this.taobaoUrl.equals(taobaoUrl)) {
-            trackUpdatedField("TAO_BAO_URL", this.taobaoUrl);
+            trackUpdatedField("TAO_BAO_URL", this.taobaoUrl, taobaoUrl);
         }
         this.taobaoUrl = taobaoUrl;
     }
@@ -186,7 +184,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setDescription(String description) {
         if (this.description != null && !this.description.equals(description)) {
-            trackUpdatedField("DESCRIPTION", this.description);
+            trackUpdatedField("DESCRIPTION", this.description, description);
         }
         this.description = description;
     }
@@ -194,7 +192,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setOrderPoint(Integer orderPoint) {
         if (this.orderPoint != null && !this.orderPoint.equals(orderPoint)) {
-            trackUpdatedField("ORDER_POINT", this.orderPoint.toString());
+            trackUpdatedField("ORDER_POINT", this.orderPoint, orderPoint);
         }
         this.orderPoint = orderPoint;
     }
@@ -202,7 +200,7 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setEnabled(boolean enabled) {
         if (this.enabled != enabled) {
-            trackUpdatedField("ENABLED", String.valueOf(enabled));
+            trackUpdatedField("ENABLED", this.enabled, enabled);
         }
         this.enabled = enabled;
     }

@@ -1,5 +1,6 @@
 import registerPage from '~/pages/register.vue';
-import { ErrorResponse, Request, Response } from "~/types";
+import {ErrorResponse, Request, Response} from "~/types";
+import {onUnLogin} from "~/utils/NavigationUtils";
 
 type RegisterPageType = InstanceType<typeof registerPage>
 type RegisterReq = {
@@ -77,14 +78,13 @@ const register = (page: RegisterPageType, registerUrl: string): void => {
     const {postAsyncCall} = useXmlHttpRequest(request);
     const resp: Promise<Response<RegisterResp>> = postAsyncCall<RegisterResp>();
     resp.then(res => {
-        if (res.statusCode >= 400) {
+        if (res.isError) {
             page.registerErrorMsg = (res.body as ErrorResponse).messages;
             page.hide = false;
         } else {
             const registerResp: RegisterResp = res.body as RegisterResp;
             console.log(registerResp.message);
-            const navigate = useNavigation().value;
-            navigate('/login');
+            onUnLogin();
         }
         applyCallbackRequestCall(page);
     }).catch(err => {

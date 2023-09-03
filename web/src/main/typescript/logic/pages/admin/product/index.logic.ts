@@ -71,7 +71,7 @@ const deleteProduct = (data: TableData, component: AdminProductIndexPage): void 
         const {deleteAsyncCall} = useXmlHttpRequest(request, accessToken ?? undefined, refreshToken ?? undefined);
         try {
             const resp: Response<DeleteResp> = await deleteAsyncCall<DeleteResp>();
-            if (resp.statusCode === 202) {
+            if (!resp.isError) {
                 component.tableData = component.tableData.filter(v => v !== data);
                 component.isLoading = false;
             }

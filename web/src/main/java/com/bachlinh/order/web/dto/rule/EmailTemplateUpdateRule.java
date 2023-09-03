@@ -2,21 +2,27 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateUpdateForm;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @ActiveReflection
 @DtoValidationRule
@@ -26,6 +32,7 @@ public class EmailTemplateUpdateRule extends AbstractRule<EmailTemplateUpdateFor
     private static final String NOT_EXISTED_MESSAGE_ID = "MSG-000017";
 
     private EmailTemplateFolderRepository emailTemplateFolderRepository;
+    private EmailTemplateRepository emailTemplateRepository;
     private MessageSettingRepository messageSettingRepository;
 
     @ActiveReflection
@@ -36,53 +43,42 @@ public class EmailTemplateUpdateRule extends AbstractRule<EmailTemplateUpdateFor
     @Override
     protected ValidatedDto.ValidateResult doValidate(EmailTemplateUpdateForm dto) {
         var validateResult = new HashMap<String, List<String>>();
-
-        MessageSetting emptyMessage = messageSettingRepository.getMessageById(EMPTY_MESSAGE_ID);
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (!StringUtils.hasText(dto.getId())) {
             var key = "id";
-            MessageSetting messageSetting = messageSettingRepository.getMessageById(CAN_NOT_IDENTITY_MESSAGE_ID);
-            String errorContent = MessageFormat.format(messageSetting.getValue(), "email template", "", "update");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            computedError(key, CAN_NOT_IDENTITY_MESSAGE_ID, validateResult, "email template", "", "update");
             return createResult(validateResult);
-        }
-
-        if (!StringUtils.hasText(dto.getName())) {
-            var key = "name";
-            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Name of email template");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        }
-
-        if (!StringUtils.hasText(dto.getTitle())) {
-            var key = "title";
-            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Title of email template");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        }
-
-        if (!StringUtils.hasText(dto.getContent())) {
-            var key = "content";
-            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Content of email template");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
-        }
-
-        if (!StringUtils.hasText(dto.getFolderId())) {
-            var key = "folder_id";
-            String errorContent = MessageFormat.format(emptyMessage.getValue(), "Email template folder");
-            RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         } else {
-            var isExist = emailTemplateFolderRepository.isEmailTemplateFolderIdExisted(dto.getFolderId());
-            if (isExist) {
-                var key = "folder_id";
-                MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_EXISTED_MESSAGE_ID);
-                String errorContent = MessageFormat.format(messageSetting.getValue(), "Folder");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+            if (emailTemplateRepository.isEmailTemplateExisted(dto.getId(), customer)) {
+                var key = "id";
+                computedError(key, NOT_EXISTED_MESSAGE_ID, validateResult, "Id of email template");
+                return createResult(validateResult);
             }
         }
 
-        if (dto.getParams() == null || dto.getParams().length == 0) {
-            var key = "params";
-            RuntimeUtils.computeMultiValueMap(key, "Email template must have at least 1 param", validateResult);
+        EmailTemplate emailTemplate = emailTemplateRepository.getEmailTemplateForUpdate(dto.getId(), customer);
+
+        if (!emailTemplate.getName().equals(dto.getName())) {
+            validateName(dto.getName(), validateResult);
         }
+
+        if (!emailTemplate.getTitle().equals(dto.getTitle())) {
+            validateTitle(dto.getTitle(), validateResult);
+        }
+
+        if (!emailTemplate.getContent().equals(dto.getContent())) {
+            validateContent(dto.getContent(), validateResult);
+        }
+
+        if (!Objects.requireNonNull(emailTemplate.getFolder().getId()).equals(dto.getFolderId())) {
+            validateFolderId(dto.getFolderId(), validateResult);
+        }
+
+        if (!Arrays.equals(emailTemplate.getParams().split(","), dto.getParams())) {
+            validateParams(dto.getParams(), validateResult);
+        }
+
         return createResult(validateResult);
     }
 
@@ -93,6 +89,9 @@ public class EmailTemplateUpdateRule extends AbstractRule<EmailTemplateUpdateFor
         }
         if (messageSettingRepository == null) {
             messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
+        if (emailTemplateRepository == null) {
+            emailTemplateRepository = getResolver().resolveDependencies(EmailTemplateRepository.class);
         }
     }
 
@@ -113,5 +112,51 @@ public class EmailTemplateUpdateRule extends AbstractRule<EmailTemplateUpdateFor
                 return validationResult.isEmpty();
             }
         };
+    }
+
+    private void computedError(String key, String messageId, Map<String, List<String>> validateResult, Object... contents) {
+        MessageSetting messageSetting = messageSettingRepository.getMessageById(messageId);
+        String errorContent = MessageFormat.format(messageSetting.getValue(), contents);
+        RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
+    }
+
+    private void validateName(String name, Map<String, List<String>> validateResult) {
+        if (!StringUtils.hasText(name)) {
+            var key = "name";
+            computedError(key, EMPTY_MESSAGE_ID, validateResult, "Name of email template");
+        }
+    }
+
+    private void validateTitle(String title, Map<String, List<String>> validateResult) {
+        if (!StringUtils.hasText(title)) {
+            var key = "title";
+            computedError(key, EMPTY_MESSAGE_ID, validateResult, "Title of email template");
+        }
+    }
+
+    private void validateContent(String content, Map<String, List<String>> validateResult) {
+        if (!StringUtils.hasText(content)) {
+            var key = "content";
+            computedError(key, EMPTY_MESSAGE_ID, validateResult, "Content of email template");
+        }
+    }
+
+    private void validateFolderId(String folderId, Map<String, List<String>> validateResult) {
+        var key = "folder_id";
+        if (!StringUtils.hasText(folderId)) {
+            computedError(key, EMPTY_MESSAGE_ID, validateResult, "Email template folder");
+        } else {
+            var isExist = emailTemplateFolderRepository.isEmailTemplateFolderIdExisted(folderId);
+            if (isExist) {
+                computedError(key, NOT_EXISTED_MESSAGE_ID, validateResult, "Folder");
+            }
+        }
+    }
+
+    private void validateParams(String[] params, Map<String, List<String>> validateResult) {
+        if (params == null || params.length == 0) {
+            var key = "params";
+            computedError(key, "MSG-000015", validateResult, "Email template");
+        }
     }
 }

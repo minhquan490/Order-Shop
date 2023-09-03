@@ -16,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -27,7 +26,6 @@ import java.util.Queue;
 @Getter
 @ActiveReflection
 @Label("TPT-")
-@DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
 @EqualsAndHashCode(callSuper = true)
 public class TemporaryToken extends AbstractEntity<Integer> {
@@ -71,7 +69,7 @@ public class TemporaryToken extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setValue(String value) {
         if (this.value != null && !this.value.equals(value)) {
-            trackUpdatedField("VALUE", this.value);
+            trackUpdatedField("VALUE", this.value, value);
         }
         this.value = value;
     }
@@ -79,7 +77,7 @@ public class TemporaryToken extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setExpiryTime(Timestamp expiryTime) {
         if (this.expiryTime != null && !this.expiryTime.equals(expiryTime)) {
-            trackUpdatedField("EXPIRY_TIME", this.expiryTime.toString());
+            trackUpdatedField("EXPIRY_TIME", this.expiryTime, expiryTime);
         }
         this.expiryTime = expiryTime;
     }

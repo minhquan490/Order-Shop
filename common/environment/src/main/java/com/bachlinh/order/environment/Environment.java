@@ -4,6 +4,7 @@ import com.bachlinh.order.environment.parser.ClasspathParser;
 import com.bachlinh.order.environment.strategies.PropertiesStrategy;
 import com.bachlinh.order.exception.system.environment.EnvironmentException;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
@@ -28,6 +29,10 @@ public final class Environment {
     public static final ResourceLoader SINGLETON_LOADER = new DefaultResourceLoader();
     private static final Map<String, Environment> environments = new ConcurrentHashMap<>();
     private static final PropertiesStrategy STRATEGY = new PropertiesStrategy(new ClasspathParser(SINGLETON_LOADER));
+    @Getter
+    private static String mainEnvironmentName = null;
+
+    @Getter
     private final String environmentName;
     private final Properties properties;
 
@@ -51,9 +56,10 @@ public final class Environment {
         if (name == null) {
             return null;
         }
-        if (!environments.containsKey(name)) {
-            environments.put(name, new Environment(name));
+        if (mainEnvironmentName == null && (name.equals("local") || name.equals("prod"))) {
+            mainEnvironmentName = name;
         }
+        environments.computeIfAbsent(name, s -> new Environment(name));
         return environments.get(name);
     }
 
@@ -65,15 +71,6 @@ public final class Environment {
      */
     public String getProperty(String propertyName) {
         return properties.getProperty(propertyName, propertyName);
-    }
-
-    /**
-     * Return all environment names available in cache.
-     *
-     * @return All environment names.
-     */
-    public String getEnvironmentName() {
-        return environmentName;
     }
 
     /**

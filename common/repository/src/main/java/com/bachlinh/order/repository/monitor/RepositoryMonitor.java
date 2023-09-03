@@ -24,11 +24,11 @@ public class RepositoryMonitor {
     public Object monitorRepository(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         String methodExecuteName = proceedingJoinPoint.getSignature().toShortString();
         StopWatch watch = new StopWatch();
-        log.info("Begin execute repository method name: {}", methodExecuteName);
+        log.info("Begin execute repository method name: [{}]", methodExecuteName);
         watch.start();
         Object result = proceedingJoinPoint.proceed();
         watch.stop();
-        log.info("Finish process repository method in {} ms", watch.getTotalTimeMillis());
+        log.info("Finish process repository method [{}] in [{} ms]", methodExecuteName, watch.getTotalTimeMillis());
         return result;
     }
 }

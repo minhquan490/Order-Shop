@@ -19,7 +19,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -39,7 +38,6 @@ import java.util.Set;
 @ActiveReflection
 @NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class EmailTemplateFolder extends AbstractEntity<String> {
 
@@ -47,7 +45,7 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @Column(name = "ID", nullable = false, updatable = false, unique = true, columnDefinition = "varchar(32)")
     private String id;
 
-    @Column(name = "NAME", columnDefinition = "nvarchar(300)", unique = true)
+    @Column(name = "NAME", columnDefinition = "nvarchar(300)")
     private String name;
 
     @Column(name = "CLEAR_EMAIL_TEMPLATE_POLICY")
@@ -107,7 +105,7 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -115,7 +113,7 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @ActiveReflection
     public void setClearTemplatePolicy(Integer clearTemplatePolicy) {
         if (this.clearTemplatePolicy != null && !this.clearTemplatePolicy.equals(clearTemplatePolicy)) {
-            trackUpdatedField("CLEAR_EMAIL_TEMPLATE_POLICY", this.clearTemplatePolicy.toString());
+            trackUpdatedField("CLEAR_EMAIL_TEMPLATE_POLICY", this.clearTemplatePolicy, clearTemplatePolicy);
         }
         this.clearTemplatePolicy = clearTemplatePolicy;
     }
@@ -123,7 +121,7 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @ActiveReflection
     public void setOwner(Customer owner) {
         if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
-            trackUpdatedField("OWNER_ID", this.owner.getId());
+            trackUpdatedField("OWNER_ID", this.owner.getId(), owner.getId());
         }
         this.owner = owner;
     }
@@ -186,8 +184,8 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
         @Override
         public boolean canMap(Collection<MappingObject> testTarget) {
             return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("EMAIL_TEMPLATE_FOLDER");
+                String columnName = mappingObject.columnName();
+                return columnName.split("\\.")[0].equals("EMAIL_TEMPLATE_FOLDER");
             });
         }
 

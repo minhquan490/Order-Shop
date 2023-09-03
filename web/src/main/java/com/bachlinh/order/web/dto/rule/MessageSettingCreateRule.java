@@ -37,13 +37,13 @@ public class MessageSettingCreateRule extends AbstractRule<MessageSettingCreateF
         if (!StringUtils.hasText(dto.getValue())) {
             MessageSetting messageSetting = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
             String errorContent = MessageFormat.format(messageSetting.getValue(), "Value of message setting");
-            RuntimeUtils.computeMultiValueMap("value", errorContent, validationResult);
+            RuntimeUtils.computeMultiValueMap("oldValue", errorContent, validationResult);
         } else {
             var valueExisted = messageSettingRepository.messageValueExisted(dto.getValue());
             if (valueExisted) {
                 MessageSetting messageSetting = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
                 String errorContent = MessageFormat.format(messageSetting.getValue(), "Value of message setting");
-                RuntimeUtils.computeMultiValueMap("value", errorContent, validationResult);
+                RuntimeUtils.computeMultiValueMap("oldValue", errorContent, validationResult);
             }
         }
 

@@ -19,6 +19,8 @@ public interface VoucherRepository extends NativeQueryRepository {
 
     Voucher getVoucherById(@NonNull Collection<Select> selects, String id);
 
+    Voucher getVoucherForUpdate(String id);
+
     boolean isVoucherNameExist(String voucherName);
 
     boolean isVoucherIdExist(String voucherId);

@@ -22,7 +22,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -45,7 +44,6 @@ import java.util.Queue;
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
 @EnableFullTextSearch
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Ward extends AbstractEntity<Integer> {
 
@@ -96,7 +94,7 @@ public class Ward extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setName(String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
@@ -104,7 +102,7 @@ public class Ward extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCode(Integer code) {
         if (this.code != null && !this.code.equals(code)) {
-            trackUpdatedField("CODE", this.code.toString());
+            trackUpdatedField("CODE", this.code, code);
         }
         this.code = code;
     }
@@ -112,7 +110,7 @@ public class Ward extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCodeName(String codeName) {
         if (this.codeName != null && !this.codeName.equals(codeName)) {
-            trackUpdatedField("CODE_NAME", this.codeName);
+            trackUpdatedField("CODE_NAME", this.codeName, codeName);
         }
         this.codeName = codeName;
     }
@@ -120,7 +118,7 @@ public class Ward extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setDivisionType(String divisionType) {
         if (this.divisionType != null && !this.divisionType.equals(divisionType)) {
-            trackUpdatedField("DIVISION_TYPE", this.divisionType);
+            trackUpdatedField("DIVISION_TYPE", this.divisionType, divisionType);
         }
         this.divisionType = divisionType;
     }
@@ -128,7 +126,7 @@ public class Ward extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setDistrict(District district) {
         if (this.district != null && !Objects.requireNonNull(this.district.getId()).equals(district.getId())) {
-            trackUpdatedField("DISTRICT_ID", Objects.requireNonNull(this.district.getId()).toString());
+            trackUpdatedField("DISTRICT_ID", this.district.getId(), district.getId());
         }
         this.district = district;
     }

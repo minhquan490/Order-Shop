@@ -6,6 +6,7 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
+import com.bachlinh.order.web.dto.form.common.CustomerBasicInfoForm;
 import com.bachlinh.order.web.dto.resp.CustomerBasicInformationResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 import lombok.NoArgsConstructor;
@@ -14,15 +15,15 @@ import org.springframework.util.StringUtils;
 @ActiveReflection
 @RouteProvider
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
-public class BasicCustomerInformationHandler extends AbstractController<CustomerBasicInformationResp, Void> {
+public class BasicCustomerInformationHandler extends AbstractController<CustomerBasicInformationResp, CustomerBasicInfoForm> {
 
     private CustomerService customerService;
     private String url;
 
     @Override
     @ActiveReflection
-    protected CustomerBasicInformationResp internalHandler(Payload<Void> request) {
-        String accessToken = getNativeRequest().getUrlQueryParam().getFirst("token");
+    protected CustomerBasicInformationResp internalHandler(Payload<CustomerBasicInfoForm> request) {
+        String accessToken = request.data().getToken();
         if (!StringUtils.hasText(accessToken)) {
             throw new ResourceNotFoundException("Not found", getPath());
         }
@@ -47,6 +48,6 @@ public class BasicCustomerInformationHandler extends AbstractController<Customer
 
     @Override
     public RequestMethod getRequestMethod() {
-        return RequestMethod.GET;
+        return RequestMethod.POST;
     }
 }

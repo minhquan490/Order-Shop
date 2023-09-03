@@ -7,7 +7,7 @@ import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
-import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
+import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 @ActiveReflection
 @ApplyOn(entity = Customer.class)
-public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<CustomerInfoChangeHistory> {
-    private CustomerInfoChangerHistoryRepository repository;
+public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<Customer> {
+    private CustomerInfoChangeHistoryRepository repository;
     private EntityFactory entityFactory;
 
     @ActiveReflection
@@ -37,14 +37,14 @@ public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<CustomerIn
     }
 
     @Override
-    protected void doExecute(CustomerInfoChangeHistory entity) {
+    protected void doExecute(Customer entity) {
         var histories = new ArrayList<CustomerInfoChangeHistory>();
         var updatedFields = entity.getUpdatedFields();
         for (var field : updatedFields) {
             var history = entityFactory.getEntity(CustomerInfoChangeHistory.class);
-            history.setCustomer(entity.getCustomer());
+            history.setCustomer(entity);
             history.setFieldName(field.fieldName());
-            history.setOldValue(field.value());
+            history.setOldValue(String.valueOf(field.oldValue()));
             history.setTimeUpdate(Timestamp.from(Instant.now()));
             histories.add(history);
         }
@@ -56,7 +56,7 @@ public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<CustomerIn
     @Override
     protected void inject() {
         if (repository == null) {
-            repository = getDependenciesResolver().resolveDependencies(CustomerInfoChangerHistoryRepository.class);
+            repository = getDependenciesResolver().resolveDependencies(CustomerInfoChangeHistoryRepository.class);
         }
         if (entityFactory == null) {
             entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);

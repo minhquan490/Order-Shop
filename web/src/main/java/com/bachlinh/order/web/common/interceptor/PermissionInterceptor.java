@@ -32,7 +32,6 @@ public class PermissionInterceptor extends AbstractInterceptor {
 
     @Override
     public boolean preHandle(NativeRequest<?> request, NativeResponse<?> response) {
-        configDependencies();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var controllerClass = controllerContextHolder.getContext().getController(request.getUrl(), request.getRequestMethod()).getClass();
         if (!controllerClass.isAnnotationPresent(Permit.class)) {
@@ -49,6 +48,11 @@ public class PermissionInterceptor extends AbstractInterceptor {
             throw createAccessDeniedException(request);
         }
         return super.preHandle(request, response);
+    }
+
+    @Override
+    public void init() {
+        configDependencies();
     }
 
     @Override

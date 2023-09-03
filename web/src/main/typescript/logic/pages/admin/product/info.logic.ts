@@ -10,6 +10,7 @@ import {
     Response
 } from "~/types";
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
+import {onNotFound, onUnAuthorize} from "~/utils/NavigationUtils";
 
 type AdminProductInfoPage = InstanceType<typeof adminProductInfoPage>
 type CategoryResp = {
@@ -77,8 +78,7 @@ const getProduct = async (productId: string, component: AdminProductInfoPage): P
 
     } catch (error) {
         component.isLoading = false;
-        const navigate = useNavigation().value;
-        navigate('/404');
+        onNotFound();
     }
 }
 
@@ -178,7 +178,7 @@ const deletePicture = (component: AdminProductInfoPage): void => {
     const {deleteAsyncCall} = useXmlHttpRequest(request);
     const response: Promise<Response<undefined>> = deleteAsyncCall<undefined>();
     response.then((res: Response<undefined>): void => {
-        if (res.statusCode === 200) {
+        if (!res.isError) {
             component.hideConfirmAlert = true;
             component.pictureSelected = '';
             component.isLoading = false;
@@ -191,16 +191,15 @@ const deletePicture = (component: AdminProductInfoPage): void => {
 }
 
 const uploadFile = async (event: Event): Promise<void> => {
-    const {uploadMultiFile} = useFileUpload();
-    const inputElement: HTMLInputElement = event.target as HTMLInputElement;
     const {readAuth} = useAuthInformation();
     const auth: Authentication | undefined = await readAuth();
     if (!auth) {
-        const navigate = useNavigation().value;
-        navigate('/403');
-        return;
+        onUnAuthorize();
+    } else {
+        const {uploadMultiFile} = useFileUpload();
+        const inputElement: HTMLInputElement = event.target as HTMLInputElement;
+        return uploadMultiFile(inputElement.files, this.product.id, auth.accessToken, auth.refreshToken);
     }
-    return uploadMultiFile(inputElement.files, this.product.id, auth.accessToken, auth.refreshToken);
 }
 
 export {

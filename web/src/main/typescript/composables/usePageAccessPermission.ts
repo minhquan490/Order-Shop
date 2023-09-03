@@ -1,4 +1,5 @@
 import {Authentication, BasicCustomerInfo, Request, Response} from "~/types";
+import {onUnLogin} from "~/utils/NavigationUtils";
 
 export const usePageAccessPermission = () => {
 
@@ -10,24 +11,25 @@ export const usePageAccessPermission = () => {
     const canAccess = async (): Promise<Response<BasicCustomerInfo> | undefined> => {
         const auth: Authentication | undefined = await indexedDb.readAuth();
         if (!auth) {
-            return Promise.resolve(undefined);
-        }
-        const basicInfoUrl: string = `${serverUrl}${basicInfoPath}`;
-        const request: Request = {
-            apiUrl: basicInfoUrl,
-            queryParams: [{name: 'token', value: auth.accessToken}]
-        };
-        const {getAsyncCall} = makeRequest(request, auth.accessToken, auth.refreshToken);
-        try {
-            const resp: Response<BasicCustomerInfo> = await getAsyncCall<BasicCustomerInfo>();
-            if (resp.statusCode >= 400) {
+            onUnLogin();
+        } else {
+            const basicInfoUrl: string = `${serverUrl}${basicInfoPath}`;
+            const request: Request = {
+                apiUrl: basicInfoUrl,
+                body: {token: auth.accessToken}
+            };
+            const {postAsyncCall} = makeRequest(request, auth.accessToken, auth.refreshToken);
+            try {
+                const resp: Response<BasicCustomerInfo> = await postAsyncCall<BasicCustomerInfo>();
+                if (resp.isError) {
+                    return Promise.resolve(undefined);
+                } else {
+                    return Promise.resolve(resp);
+                }
+            } catch (error) {
+                console.log(error);
                 return Promise.resolve(undefined);
-            } else {
-                return Promise.resolve(resp);
             }
-        } catch (error) {
-            console.log(error);
-            return Promise.resolve(undefined);
         }
     }
 

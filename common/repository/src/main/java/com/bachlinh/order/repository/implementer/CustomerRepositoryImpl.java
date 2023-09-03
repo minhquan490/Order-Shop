@@ -17,8 +17,8 @@ import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
@@ -184,11 +184,12 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         Select phoneNumberSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
         Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
         Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select roleSelect = Select.builder().column(Customer_.ROLE).build();
         Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
         Select addressValueSelect = Select.builder().column(Address_.VALUE).build();
         Select addressCitySelect = Select.builder().column(Address_.CITY).build();
         Select addressCountrySelect = Select.builder().column(Address_.COUNTRY).build();
-        Join addressJoin = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.INNER).build();
+        Join addressJoin = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.LEFT).build();
         Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
@@ -199,6 +200,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
                 .select(phoneNumberSelect)
                 .select(emailSelect)
                 .select(genderSelect)
+                .select(roleSelect)
                 .select(orderPointSelect)
                 .select(addressValueSelect, Address.class)
                 .select(addressCitySelect, Address.class)
@@ -217,6 +219,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         Select phoneNumberSelect = Select.builder().column(Customer_.PHONE_NUMBER).build();
         Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
         Select genderSelect = Select.builder().column(Customer_.GENDER).build();
+        Select roleSelect = Select.builder().column(Customer_.ROLE).build();
         Select orderPointSelect = Select.builder().column(Customer_.ORDER_POINT).build();
         Select activatedSelect = Select.builder().column(Customer_.ACTIVATED).build();
         Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
@@ -233,6 +236,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
                 .select(phoneNumberSelect)
                 .select(emailSelect)
                 .select(genderSelect)
+                .select(roleSelect)
                 .select(orderPointSelect)
                 .select(activatedSelect)
                 .select(accountNonExpiredSelect)
@@ -269,6 +273,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
         Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
         Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
+        Select enabledSelect = Select.builder().column(Customer_.ENABLED).build();
         Select customerMediaIdSelect = Select.builder().column(CustomerMedia_.ID).build();
         Select customerMediaUrlSelect = Select.builder().column(CustomerMedia_.URL).build();
         Select customerMediaContentTypeSelect = Select.builder().column(CustomerMedia_.CONTENT_TYPE).build();
@@ -308,7 +313,8 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
                 .select(accountNonExpiredSelect)
                 .select(accountNonLockedSelect)
                 .select(credentialsNonExpiredSelect)
-                .select(customerMediaIdSelect)
+                .select(enabledSelect)
+                .select(customerMediaIdSelect, CustomerMedia.class)
                 .select(customerMediaUrlSelect, CustomerMedia.class)
                 .select(customerMediaContentTypeSelect, CustomerMedia.class)
                 .select(customerMediaContentLengthSelect, CustomerMedia.class)
@@ -409,6 +415,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         Select accountNonExpiredSelect = Select.builder().column(Customer_.ACCOUNT_NON_EXPIRED).build();
         Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
         Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
+        Select enabledSelect = Select.builder().column(Customer_.ENABLED).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect)
@@ -423,7 +430,8 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
                 .select(activatedSelect)
                 .select(accountNonExpiredSelect)
                 .select(accountNonLockedSelect)
-                .select(credentialsNonExpiredSelect);
+                .select(credentialsNonExpiredSelect)
+                .select(enabledSelect);
         if (pageable == null && orderByCollection.isEmpty()) {
             String sql = sqlSelect.getNativeQuery();
             List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);

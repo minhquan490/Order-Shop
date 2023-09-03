@@ -10,7 +10,7 @@ import java.util.Map;
 public interface JwtEncoder {
 
     /**
-     * Add attribute with key value into jwt token.
+     * Add attribute with key oldValue into jwt token.
      */
     void encode(String key, Object value);
 
@@ -20,9 +20,9 @@ public interface JwtEncoder {
     void encode(Map<String, Object> payload);
 
     /**
-     * Encode attribute and return value of it.
+     * Encode attribute and return oldValue of it.
      *
-     * @return value of jwt as string.
+     * @return oldValue of jwt as string.
      */
     String getTokenValue();
 }

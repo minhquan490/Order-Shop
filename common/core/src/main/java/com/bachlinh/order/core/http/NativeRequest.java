@@ -33,6 +33,8 @@ public abstract class NativeRequest<T> {
 
     public abstract void cleanUp();
 
+    public abstract String getCsrfToken();
+
     @SuppressWarnings("unchecked")
     public static NativeRequest<?> buildNativeFromServletRequest(HttpServletRequest servletRequest) {
         if (!converterMap.containsKey(HttpServletRequest.class)) {

@@ -20,7 +20,7 @@ import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.NoTransactionException;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.JoinMetadata;
 import com.bachlinh.order.repository.query.JoinMetadataHolder;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -139,7 +139,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
             try {
                 this.previousId = configLastId();
             } catch (Exception e) {
-                throw new PersistenceException(String.format("Can not get next id of entity [%s]", entityType.getName()));
+                throw new PersistenceException(String.format("Can not get next id of entity [%s]", entityType.getName()), e);
             }
         }
         if (this.createIdTime < 0) {

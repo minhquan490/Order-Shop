@@ -20,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.http.MediaType;
@@ -45,7 +44,6 @@ import java.util.Queue;
 @EnableFullTextSearch
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Email extends AbstractEntity<String> {
 
@@ -127,7 +125,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setContent(String content) {
         if (this.content != null && !this.content.equals(content)) {
-            trackUpdatedField("CONTENT", this.content);
+            trackUpdatedField("CONTENT", this.content, content);
         }
         this.content = content;
     }
@@ -135,7 +133,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setReceivedTime(Timestamp receivedTime) {
         if (this.receivedTime != null && !this.receivedTime.equals(receivedTime)) {
-            trackUpdatedField("RECEIVED_TIME", this.receivedTime.toString());
+            trackUpdatedField("RECEIVED_TIME", this.receivedTime, receivedTime);
         }
         this.receivedTime = receivedTime;
     }
@@ -143,7 +141,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setTimeSent(Timestamp timeSent) {
         if (this.timeSent != null && !this.timeSent.equals(timeSent)) {
-            trackUpdatedField("SENT_TIME", this.timeSent.toString());
+            trackUpdatedField("SENT_TIME", this.timeSent, timeSent);
         }
         this.timeSent = timeSent;
     }
@@ -151,7 +149,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setTitle(String title) {
         if (this.title != null && !this.title.equals(title)) {
-            trackUpdatedField("TITLE", this.title);
+            trackUpdatedField("TITLE", this.title, title);
         }
         this.title = title;
     }
@@ -164,7 +162,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setSent(boolean sent) {
         if (this.sent != sent) {
-            trackUpdatedField("SENT", String.valueOf(this.sent));
+            trackUpdatedField("SENT", this.sent, sent);
         }
         this.sent = sent;
     }
@@ -172,7 +170,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setMediaType(String mediaType) {
         if (this.mediaType != null && !this.mediaType.equals(mediaType)) {
-            trackUpdatedField("MEDIA_TYPE", this.mediaType);
+            trackUpdatedField("MEDIA_TYPE", this.mediaType, mediaType);
         }
         this.mediaType = mediaType;
     }
@@ -180,7 +178,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setFromCustomer(Customer fromCustomer) {
         if (this.fromCustomer != null && !this.fromCustomer.getId().equals(fromCustomer.getId())) {
-            trackUpdatedField("FROM_CUSTOMER_ID", this.fromCustomer.getId());
+            trackUpdatedField("FROM_CUSTOMER_ID", this.fromCustomer.getId(), fromCustomer.getId());
         }
         this.fromCustomer = fromCustomer;
     }
@@ -188,7 +186,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setToCustomer(Customer toCustomer) {
         if (this.toCustomer != null && !this.toCustomer.getId().equals(toCustomer.getId())) {
-            trackUpdatedField("TO_CUSTOMER", this.toCustomer.getId());
+            trackUpdatedField("TO_CUSTOMER", this.toCustomer.getId(), toCustomer.getId());
         }
         this.toCustomer = toCustomer;
     }
@@ -196,7 +194,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setFolder(EmailFolders folder) {
         if (this.folder != null && Objects.requireNonNull(this.folder.getId()).equals(folder.getId())) {
-            trackUpdatedField("FOLDER_ID", this.folder.getId());
+            trackUpdatedField("FOLDER_ID", this.folder.getId(), folder.getId());
         }
         this.folder = folder;
     }
@@ -204,7 +202,7 @@ public class Email extends AbstractEntity<String> {
     @ActiveReflection
     public void setEmailTrash(EmailTrash emailTrash) {
         if (this.emailTrash != null && this.emailTrash.getId() != null && !Objects.requireNonNull(this.emailTrash.getId()).equals(emailTrash.getId())) {
-            trackUpdatedField("EMAIL_TRASH_ID", Objects.requireNonNull(this.emailTrash.getId()).toString());
+            trackUpdatedField("EMAIL_TRASH_ID", this.emailTrash.getId(), emailTrash.getId());
         }
         this.emailTrash = emailTrash;
     }

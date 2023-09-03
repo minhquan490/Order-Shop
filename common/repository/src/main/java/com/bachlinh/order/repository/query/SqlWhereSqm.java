@@ -6,7 +6,7 @@ import com.bachlinh.order.entity.formula.WhereFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import lombok.Getter;
-import org.springframework.lang.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 
 import java.text.MessageFormat;
@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
@@ -145,12 +146,12 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
             var last = this.additionsWhere.pollLast();
             var first = this.additionsWhere.pollFirst();
             if (this.additionsWhere.isEmpty()) {
-                first = new AdditionWhere(first.operator(), first.attribute(), first.value, first.tableName(), last.conditionOperator());
+                first = new AdditionWhere(Objects.requireNonNull(first).getOperator(), first.getAttribute(), first.value, first.getTableName(), last.getConditionOperator());
             } else {
-                first = new AdditionWhere(first.operator(), first.attribute(), first.value, first.tableName(), this.additionsWhere.peekFirst().conditionOperator());
+                first = new AdditionWhere(Objects.requireNonNull(first).getOperator(), first.getAttribute(), first.value, first.getTableName(), this.additionsWhere.peekFirst().getConditionOperator());
             }
             this.additionsWhere.addFirst(first);
-            last = new AdditionWhere(last.operator(), last.attribute(), last.value(), last.tableName(), ConditionOperator.NONE);
+            last = new AdditionWhere(last.getOperator(), last.getAttribute(), last.getValue(), last.getTableName(), ConditionOperator.NONE);
             this.additionsWhere.addLast(last);
         }
         while (!additionsWhere.isEmpty() && this.root != null) {
@@ -187,6 +188,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processedIn(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} IN :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
@@ -202,6 +204,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processNotEquals(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} != :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
@@ -217,6 +220,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processLessEquals(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} <= :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
@@ -232,6 +236,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processLessThan(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} < :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
@@ -247,6 +252,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processGreaterThan(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} > :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
@@ -262,6 +268,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processGreaterEquals(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} >= :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
@@ -277,32 +284,28 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private String processEquals(String tableName, String colName, String attribute) {
         String whereColPattern = "{0}.{1} = :{2}";
+        attribute = processAttribute(tableName, attribute);
         return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
     }
 
     private void processEQ(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.EQ)) {
+            if (additionWhere.getOperator().equals(Operator.EQ)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryEquals(additionWhere.tableName(), additionWhere.attribute(), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryEquals(additionWhere.getTableName(), additionWhere.getAttribute(), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectEquals(additionWhere.tableName(), additionWhere.attribute(), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectEquals(additionWhere.getTableName(), additionWhere.getAttribute(), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
-                String processed = processEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                if (additionWhere.value() instanceof BaseEntity<?> entity) {
-                    this.queryBindings.add(new QueryBinding(additionWhere.attribute(), entity.getId()));
-                } else {
-                    this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
-                }
+                String processed = processEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
     }
@@ -310,24 +313,23 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void processGE(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.GE)) {
+            if (additionWhere.getOperator().equals(Operator.GE)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryGreaterEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryGreaterEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
 
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectGreaterEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectGreaterEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
 
-                String processed = processGreaterEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
+                String processed = processGreaterEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
 
@@ -336,23 +338,22 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void processGT(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.GT)) {
+            if (additionWhere.getOperator().equals(Operator.GT)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryGreaterThan(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryGreaterThan(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectGreaterThan(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectGreaterThan(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
 
-                String processed = processGreaterThan(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
+                String processed = processGreaterThan(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
     }
@@ -360,24 +361,23 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void processLE(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.LE)) {
+            if (additionWhere.getOperator().equals(Operator.LE)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryLessEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryLessEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
 
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectLessEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectLessEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
 
-                String processed = processLessEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
+                String processed = processLessEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
     }
@@ -385,24 +385,23 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void processLT(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.LT)) {
+            if (additionWhere.getOperator().equals(Operator.LT)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryLessThan(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryLessThan(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
 
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectLessThan(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectLessThan(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
 
-                String processed = processLessThan(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
+                String processed = processLessThan(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
     }
@@ -410,28 +409,23 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void processNEQ(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.NEQ)) {
+            if (additionWhere.getOperator().equals(Operator.NEQ)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryNotEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryNotEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
 
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectNotEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectNotEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
 
-                String processed = processNotEquals(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                if (additionWhere.value() instanceof BaseEntity<?> entity) {
-                    this.queryBindings.add(new QueryBinding(additionWhere.attribute(), entity.getId()));
-                } else {
-                    this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
-                }
+                String processed = processNotEquals(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
     }
@@ -440,10 +434,10 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         String isNullPattern = "{0}.{1} IS NULL";
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.NULL)) {
+            if (additionWhere.getOperator().equals(Operator.NULL)) {
                 additionWhere = this.additionsWhere.poll();
-                String processed = MessageFormat.format(isNullPattern, additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()));
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                String processed = MessageFormat.format(isNullPattern, additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()));
+                processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
             }
         }
     }
@@ -452,10 +446,10 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         String isNonNullPattern = "{0}.{1} IS NOT NULL";
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.NON_NULL)) {
+            if (additionWhere.getOperator().equals(Operator.NON_NULL)) {
                 additionWhere = this.additionsWhere.poll();
-                String processed = MessageFormat.format(isNonNullPattern, additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()));
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                String processed = MessageFormat.format(isNonNullPattern, additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()));
+                processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
             }
         }
     }
@@ -463,47 +457,75 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void processIN(List<String> processedWheres) {
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.IN)) {
+            if (additionWhere.getOperator().equals(Operator.IN)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof SqlWhere operation) {
-                    String processed = processSubQueryIn(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), operation);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlWhere operation) {
+                    String processed = processSubQueryIn(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), operation);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     this.queryBindings.addAll(operation.getQueryBindings());
                     continue;
                 }
 
-                if (additionWhere.value() instanceof SqlSelect sqlSelect) {
-                    String processed = processSubSelectIn(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), sqlSelect);
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
+                if (additionWhere.getValue() instanceof SqlSelect sqlSelect) {
+                    String processed = processSubSelectIn(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), sqlSelect);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
                     continue;
                 }
 
-                String processed = processedIn(additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()), additionWhere.attribute());
-                processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                this.queryBindings.add(new QueryBinding(additionWhere.attribute(), additionWhere.value()));
+                String processed = processedIn(additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), additionWhere.getAttribute());
+                processBinding(processedWheres, processed, additionWhere);
             }
         }
     }
 
     private void processBetween(List<String> processedWheres) {
-        String betweenPattern = "{0}.{1} BETWEEN :bt1 AND :bt2";
+        String betweenPattern = "{0}.{1} BETWEEN {2} AND {3}";
+        int leftIndex = 0;
+        int rightIndex = 0;
         while (!this.additionsWhere.isEmpty()) {
             var additionWhere = this.additionsWhere.peek();
-            if (additionWhere.operator().equals(Operator.BETWEEN)) {
+            if (additionWhere.getOperator().equals(Operator.BETWEEN)) {
                 additionWhere = this.additionsWhere.poll();
-                if (additionWhere.value() instanceof Object[] casted) {
-                    String processed = MessageFormat.format(betweenPattern, additionWhere.tableName(), this.metadataHolder.getColumn(additionWhere.attribute()));
-                    processedWheres.add(processed + additionWhere.conditionOperator().getValue());
-                    this.queryBindings.add(new QueryBinding("bt1", casted[0]));
-                    this.queryBindings.add(new QueryBinding("bt2", casted[1]));
+                if (additionWhere.getValue() instanceof Object[] casted) {
+                    String leftParam = ":betweenP" + leftIndex;
+                    String rightParam = ":betweenR" + rightIndex;
+                    String processed = MessageFormat.format(betweenPattern, additionWhere.getTableName(), this.metadataHolder.getColumn(additionWhere.getAttribute()), leftParam, rightParam);
+                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+                    this.queryBindings.add(new QueryBinding(leftParam, casted[0]));
+                    this.queryBindings.add(new QueryBinding(rightParam, casted[1]));
                 }
             }
+            leftIndex++;
+            rightIndex++;
         }
     }
 
-    private record AdditionWhere(@NonNull Operator operator, String attribute, Object value, String tableName,
-                                 @NonNull ConditionOperator conditionOperator) {
+    @SuppressWarnings("unchecked")
+    private void processBinding(List<String> processedWheres, String processed, SqlWhereSqm.AdditionWhere additionWhere) {
+        processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+        String attribute = processAttribute(additionWhere.getTableName(), additionWhere.getAttribute());
+        if (additionWhere.getValue() instanceof BaseEntity<?> entity) {
+            this.queryBindings.add(new QueryBinding(attribute, entity.getId()));
+        } else if (additionWhere.getValue() instanceof Collection<?> objects && objects.stream().allMatch(o -> o instanceof BaseEntity<?>)) {
+            Collection<BaseEntity<?>> entities = (Collection<BaseEntity<?>>) additionWhere.getValue();
+            this.queryBindings.add(new QueryBinding(attribute, entities.stream().map(BaseEntity::getId).toList()));
+        } else {
+            this.queryBindings.add(new QueryBinding(attribute, additionWhere.getValue()));
+        }
+    }
 
+    private String processAttribute(String tableName, String attribute) {
+        return tableName.toLowerCase() + "_" + attribute;
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    private static class AdditionWhere {
+        private final Operator operator;
+        private final String attribute;
+        private final Object value;
+        private final String tableName;
+        private final ConditionOperator conditionOperator;
     }
 
     @Getter

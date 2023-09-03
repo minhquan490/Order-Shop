@@ -17,7 +17,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -31,7 +30,6 @@ import java.util.Queue;
 @Label("MSG-")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "messageSetting")
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class MessageSetting extends AbstractEntity<String> {
 
@@ -67,7 +65,7 @@ public class MessageSetting extends AbstractEntity<String> {
     @ActiveReflection
     public void setValue(String value) {
         if (this.value != null && !this.value.equals(value)) {
-            trackUpdatedField("VALUE", this.value);
+            trackUpdatedField("VALUE", this.value, value);
         }
         this.value = value;
     }

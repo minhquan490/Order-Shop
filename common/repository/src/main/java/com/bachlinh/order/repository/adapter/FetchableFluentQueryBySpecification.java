@@ -97,7 +97,7 @@ class FetchableFluentQueryBySpecification<S, R> extends FluentQuerySupport<S, R>
     public R firstValue() {
 
         List<?> results = createSortedAndProjectedQuery() //
-                .setMaxResults(1) // Never need more than 1 value
+                .setMaxResults(1) // Never need more than 1 oldValue
                 .getResultList();
 
         return results.isEmpty() ? null : getConversionFunction().apply(results.get(0));

@@ -2,6 +2,7 @@ package com.bachlinh.order.handler.router;
 
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.core.http.handler.ExceptionReturn;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.handler.controller.Controller;
@@ -11,6 +12,7 @@ import com.bachlinh.order.handler.strategy.ResponseStrategy;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter(AccessLevel.PROTECTED)
 public abstract class AbstractRouter<T, U> implements Router<T, U> {
@@ -39,7 +41,7 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
             if (webInterceptorChain.shouldHandle(nativeReq, defaultResp)) {
                 nativeResp = internalHandle(nativeReq);
             } else {
-                nativeResp = defaultResp;
+                nativeResp = createUnPassedInterceptorResponse(defaultResp);
             }
             webInterceptorChain.afterHandle(nativeReq, nativeResp);
             getStrategy().apply(nativeResp, response);
@@ -83,5 +85,22 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
                 .map(Controller::getPath)
                 .toList();
         return factory.createNode(paths);
+    }
+
+    /**
+     * Unknown reason make request can not pass interceptor. Create default one
+     */
+    private NativeResponse<?> createUnPassedInterceptorResponse(NativeResponse<?> defaultResponse) {
+        Object responseData = defaultResponse.getBody();
+        int status = HttpStatus.UNAUTHORIZED.value();
+        if (responseData == null) {
+            String[] messages = new String[]{"Fail to process request, you need to login for continue"};
+            responseData = new ExceptionReturn(status, messages);
+        }
+        return NativeResponse.builder()
+                .statusCode(status)
+                .headers(defaultResponse.getHeaders())
+                .body(responseData)
+                .build();
     }
 }

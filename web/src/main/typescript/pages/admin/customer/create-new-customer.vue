@@ -92,7 +92,7 @@ export default {
       event.preventDefault();
       const validationResult: boolean = validateInput(this.pageData);
       if (!validationResult) {
-        setTimeout(() => this.pageData.validationError = clearError(this.pageData), 3000);
+        setTimeout(() => this.pageData.validationError = clearError(), 3000);
       } else {
         submitData(this);
       }

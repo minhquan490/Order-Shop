@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CategoryRepository;
@@ -52,20 +53,10 @@ public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
             }
         }
 
-        String nameOfCategory = "Name of category";
-        if (!StringUtils.hasText(dto.name())) {
-            MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
-            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(nonEmptyMessage.getValue(), nameOfCategory), r);
-        } else {
-            if (dto.name().length() < 4 || dto.name().length() > 32) {
-                MessageSetting rangeInvalidMessage = messageSettingRepository.getMessageById(RANGE_INVALID_MESSAGE_ID);
-                RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(rangeInvalidMessage.getValue(), nameOfCategory, "4", "32"), r);
-            }
+        Category targetCategory = categoryRepository.getCategoryById(dto.id());
 
-            if (categoryRepository.isCategoryNameExisted(dto.name())) {
-                MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
-                RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(existedMessage.getValue(), nameOfCategory), r);
-            }
+        if (!targetCategory.getName().equals(dto.name())) {
+            validateName(dto.name(), r);
         }
         return createError(r);
     }
@@ -97,5 +88,23 @@ public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
                 return validationResult.isEmpty();
             }
         };
+    }
+
+    private void validateName(String name, Map<String, List<String>> validateResult) {
+        String nameOfCategory = "Name of category";
+        if (!StringUtils.hasText(name)) {
+            MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
+            RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(nonEmptyMessage.getValue(), nameOfCategory), validateResult);
+        } else {
+            if (name.length() < 4 || name.length() > 32) {
+                MessageSetting rangeInvalidMessage = messageSettingRepository.getMessageById(RANGE_INVALID_MESSAGE_ID);
+                RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(rangeInvalidMessage.getValue(), nameOfCategory, "4", "32"), validateResult);
+            }
+
+            if (categoryRepository.isCategoryNameExisted(name)) {
+                MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
+                RuntimeUtils.computeMultiValueMap(CATEGORY_NAME_KEY, MessageFormat.format(existedMessage.getValue(), nameOfCategory), validateResult);
+            }
+        }
     }
 }

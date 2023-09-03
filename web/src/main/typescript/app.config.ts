@@ -1,6 +1,7 @@
 export default defineAppConfig({
     authorization: 'Authorization',
     refreshToken: 'Refresh',
+    csrfToken: 'X-XSRF-TOKEN',
     logged: 'logged',
     serverUrl: 'https://localhost:8443',
     customerDataTableCurrentPage: 'customerCurrentPage',

@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.dto.form.admin.email.sending;
 
+import com.bachlinh.order.validate.base.ValidatedDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.bachlinh.order.validate.base.ValidatedDto;
 
 @Getter
 @Setter
@@ -28,7 +28,7 @@ public class TemplateMailSendingForm implements ValidatedDto {
         @JsonAlias("name")
         private String name;
 
-        @JsonAlias("value")
+        @JsonAlias("oldValue")
         private String value;
     }
 }

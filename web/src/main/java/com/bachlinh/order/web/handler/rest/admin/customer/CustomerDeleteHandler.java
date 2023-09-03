@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.handler.rest.admin.customer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @RouteProvider(name = "customerDeleteHandler")
 @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
 @Permit(roles = Role.ADMIN)
+@EnableCsrf
 public class CustomerDeleteHandler extends AbstractController<CustomerResp, CustomerDeleteForm> {
     private String url;
     private CustomerService customerService;

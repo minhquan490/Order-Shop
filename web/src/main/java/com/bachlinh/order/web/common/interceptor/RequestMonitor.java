@@ -51,14 +51,18 @@ public final class RequestMonitor extends AbstractInterceptor {
     }
 
     @Override
+    public void init() {
+        if (tokenManager == null) {
+            this.tokenManager = getResolver().resolveDependencies(TokenManager.class);
+        }
+    }
+
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE;
     }
 
     private String getUsername(NativeRequest<?> request) {
-        if (tokenManager == null) {
-            this.tokenManager = getResolver().resolveDependencies(TokenManager.class);
-        }
         String accessTokenHeader = HeaderUtils.getAuthorizeHeader();
         String accessToken = request.getHeaders().getFirst(accessTokenHeader);
         Map<String, Object> claim = tokenManager.getClaimsFromToken(accessToken);

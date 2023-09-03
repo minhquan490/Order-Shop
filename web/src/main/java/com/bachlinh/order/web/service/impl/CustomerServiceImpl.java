@@ -11,6 +11,7 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.FieldUpdated;
 import com.bachlinh.order.entity.enums.Gender;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
@@ -31,7 +32,7 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.repository.AddressRepository;
-import com.bachlinh.order.repository.CustomerInfoChangerHistoryRepository;
+import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
@@ -42,6 +43,7 @@ import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
+import com.bachlinh.order.utils.DateTimeUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.ResourceUtils;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
@@ -94,7 +96,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @ServiceComponent
@@ -122,7 +126,7 @@ public class CustomerServiceImpl implements CustomerService,
     private final TemporaryTokenGenerator tokenGenerator;
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailFolderService emailFolderService;
-    private final CustomerInfoChangerHistoryRepository customerInfoChangerHistoryRepository;
+    private final CustomerInfoChangeHistoryRepository customerInfoChangeHistoryRepository;
     private final TemporaryTokenRepository temporaryTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final ProvinceRepository provinceRepository;
@@ -182,7 +186,7 @@ public class CustomerServiceImpl implements CustomerService,
         customer.setPhoneNumber(customerUpdateInfoForm.getPhoneNumber());
         customer.setEmail(customerUpdateInfoForm.getEmail());
         customer.setGender(customerUpdateInfoForm.getGender());
-        customer.setRole(customerUpdateInfoForm.getRole());
+        customer.setRole(Objects.requireNonNull(Role.of(customerUpdateInfoForm.getRole())).name());
         customer.setOrderPoint(customerUpdateInfoForm.getOrderPoint());
         customer.setActivated(customerUpdateInfoForm.getActivated());
         customer.setAccountNonExpired(customerUpdateInfoForm.getAccountNonExpired());
@@ -222,13 +226,13 @@ public class CustomerServiceImpl implements CustomerService,
     public CustomerInfoResp getCustomerInfo(String customerId) {
         var customer = customerRepository.getFullInformation(customerId);
         var histories = loginHistoryRepository.getHistories(customer, 3);
-        var changeHistories = customerInfoChangerHistoryRepository.getHistoriesChangeOfCustomer(customer, 3);
+        var changeHistories = customerInfoChangeHistoryRepository.getHistoriesChangeOfCustomer(customer, 3);
         var result = dtoMapper.map(customer, CustomerInfoResp.class);
         result.setLoginHistories(histories.stream()
                 .map(loginHistory -> {
                     var historyResp = new CustomerInfoResp.LoginHistory();
                     historyResp.setId(loginHistory.getId().toString());
-                    historyResp.setLastLoginTime(loginHistory.getLastLoginTime().toString());
+                    historyResp.setLastLoginTime(DateTimeUtils.convertOutputDateTime(loginHistory.getLastLoginTime()));
                     historyResp.setLoginIp(loginHistory.getLoginIp());
                     historyResp.setSuccess(loginHistory.getSuccess());
                     return historyResp;
@@ -240,7 +244,7 @@ public class CustomerServiceImpl implements CustomerService,
                     var infoChangeHistory = new CustomerInfoResp.InfoChangeHistory();
                     infoChangeHistory.setId(customerInfoChangeHistory.getId());
                     infoChangeHistory.setFieldName(customerInfoChangeHistory.getFieldName());
-                    infoChangeHistory.setTimeUpdate(customerInfoChangeHistory.getTimeUpdate().toString());
+                    infoChangeHistory.setTimeUpdate(DateTimeUtils.convertOutputDateTime(customerInfoChangeHistory.getTimeUpdate()));
                     infoChangeHistory.setOldValue(customerInfoChangeHistory.getOldValue());
                     return infoChangeHistory;
                 })
@@ -371,22 +375,22 @@ public class CustomerServiceImpl implements CustomerService,
         customerRepository.updateCustomer(customer);
     }
 
-    private Collection<FieldUpdated> findUpdatedFields(Customer oldCustomer, Customer newCustomer) {
+    private List<FieldUpdated> findUpdatedFields(Customer oldCustomer, Customer newCustomer) {
         var fields = new ArrayList<FieldUpdated>();
         if (!oldCustomer.getPhoneNumber().equals(newCustomer.getPhoneNumber())) {
-            fields.add(new FieldUpdated("PHONE_NUMBER", oldCustomer.getPhoneNumber()));
+            fields.add(new FieldUpdated("PHONE_NUMBER", oldCustomer.getPhoneNumber(), newCustomer::getPhoneNumber));
         }
         if (!oldCustomer.getEmail().equals(newCustomer.getEmail())) {
-            fields.add(new FieldUpdated("EMAIL", oldCustomer.getEmail()));
+            fields.add(new FieldUpdated("EMAIL", oldCustomer.getEmail(), newCustomer::getEmail));
         }
         if (!oldCustomer.getRole().equals(newCustomer.getRole())) {
-            fields.add(new FieldUpdated("ROLE", oldCustomer.getRole()));
+            fields.add(new FieldUpdated("ROLE", oldCustomer.getRole(), newCustomer::getRole));
         }
         if (!oldCustomer.getOrderPoint().equals(newCustomer.getOrderPoint())) {
-            fields.add(new FieldUpdated("ORDER_POINT", oldCustomer.getOrderPoint().toString()));
+            fields.add(new FieldUpdated("ORDER_POINT", oldCustomer.getOrderPoint(), newCustomer::getOrderPoint));
         }
         if (oldCustomer.isActivated() != newCustomer.isActivated()) {
-            fields.add(new FieldUpdated("ENABLED", String.valueOf(oldCustomer.isActivated())));
+            fields.add(new FieldUpdated("ENABLED", oldCustomer.isActivated(), newCustomer::isActivated));
         }
         return fields;
     }

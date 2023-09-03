@@ -10,12 +10,14 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.context.IdContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.exception.HttpException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.http.ValidationFailureException;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlUpdate;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityManager;
@@ -69,6 +71,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -83,13 +86,12 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.applyAndB
 import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
 import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
 
-public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> {
+public abstract sealed class RepositoryAdapter<T extends BaseEntity<U>, U> implements HintDecorator, EntityManagerHolder, JpaRepositoryImplementation<T, U> permits AbstractRepository {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String ENTITY_NULL_MESSAGE = "Entity must not be null";
     private final Class<T> domainClass;
-    private final EntityManager asyncEntityManager;
     private JpaEntityInformation<T, ?> entityInformation;
     private PersistenceProvider provider;
     private @Nullable CrudMethodMetadata metadata;
@@ -106,7 +108,6 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
         this.sessionFactory = resolver.resolveDependencies(SessionFactory.class);
         this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
         this.useCache = getDomainClass().isAnnotationPresent(Cacheable.class) && getDomainClass().isAnnotationPresent(Cache.class);
-        this.asyncEntityManager = resolver.resolveDependencies(EntityManager.class);
         this.triggerExecution = new InternalTriggerExecution(entityFactory);
         this.sqlBuilder = resolver.resolveDependencies(SqlBuilder.class);
     }
@@ -137,11 +138,6 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
     @Override
     public void setEscapeCharacter(@NonNull EscapeCharacter escapeCharacter) {
         this.escapeCharacter = escapeCharacter;
-    }
-
-    @Nullable
-    protected CrudMethodMetadata getRepositoryMethodMetadata() {
-        return metadata;
     }
 
     protected Class<T> getDomainClass() {
@@ -190,10 +186,12 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
             }
             boolean springActualTransactionActive = entityFactory.getTransactionManager().isActualTransactionActive();
             if (!springActualTransactionActive) {
-                asyncEntityManager.getTransaction().begin();
-                asyncEntityManager.remove(asyncEntityManager.contains(entity) ? entity : asyncEntityManager.merge(entity));
-                asyncEntityManager.getTransaction().commit();
-                return entity;
+                try (EntityManager entityManager = sessionFactory.createEntityManager()) {
+                    entityManager.getTransaction().begin();
+                    entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
+                    entityManager.getTransaction().commit();
+                    return entity;
+                }
             }
             em.remove(em.contains(entity) ? entity : em.merge(entity));
             return entity;
@@ -226,7 +224,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
             deleteAllInBatch(entities);
         } else {
 
-            String queryString = String.format(DELETE_ALL_QUERY_BY_ID_STRING, entityInformation.getEntityName(), entityInformation.getIdAttribute().getName());
+            String queryString = String.format(DELETE_ALL_QUERY_BY_ID_STRING, entityInformation.getEntityName(), Objects.requireNonNull(entityInformation.getIdAttribute()).getName());
 
             Query query = em.createQuery(queryString);
             if (ids instanceof Collection<U>) {
@@ -299,7 +297,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
 
         metadata.getComment();
         if (provider.getCommentHintKey() != null) {
-            hints.put(provider.getCommentHintKey(), provider.getCommentHintValue(metadata.getComment()));
+            hints.put(provider.getCommentHintKey(), provider.getCommentHintValue(Objects.requireNonNull(metadata.getComment())));
         }
 
         return Optional.ofNullable(type == null ? em.find(domainType, id, hints) : em.find(domainType, id, type, hints));
@@ -346,7 +344,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
         if (metadata != null) {
             String comment = metadata.getComment();
             if (provider.getCommentHintKey() != null) {
-                hints.put(provider.getCommentHintKey(), provider.getCommentHintValue(comment));
+                hints.put(provider.getCommentHintKey(), provider.getCommentHintValue(Objects.requireNonNull(comment)));
             }
         }
 
@@ -605,15 +603,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
     @Override
     public <S extends T> S saveAndFlush(@NonNull S entity) {
 
-        Assert.notNull(entity, ENTITY_NULL_MESSAGE);
-
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            return saveAsync(entity);
-        } else {
-            S result = saveSync(entity);
-            flush();
-            return result;
-        }
+        return save(entity);
     }
 
     @NonNull
@@ -634,10 +624,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
     @Override
     public <S extends T> List<S> saveAllAndFlush(@NonNull Iterable<S> entities) {
 
-        List<S> result = saveAll(entities);
-        flush();
-
-        return result;
+        return saveAll(entities);
     }
 
     @Transactional
@@ -712,17 +699,29 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
     }
 
     private <S extends T> S saveAsync(@NonNull S entity) {
-        asyncEntityManager.getTransaction().begin();
-        if (entityInformation.isNew(entity)) {
-            asyncEntityManager.persist(entity);
-            asyncEntityManager.getTransaction().commit();
-            return entity;
+        EntityManager entityManager = sessionFactory.createEntityManager();
+        var transaction = entityManager.getTransaction();
+        if (!transaction.isActive()) {
+            transaction.begin();
         }
-        sessionFactory.getCache().evict(entity.getClass(), entity.getId());
-        //FIXME use native query to update for improved performance
-        S result = asyncEntityManager.merge(entity);
-        asyncEntityManager.getTransaction().commit();
-        return result;
+        try {
+            if (entityInformation.isNew(entity)) {
+                entityManager.persist(entity);
+                transaction.commit();
+                return entity;
+            }
+            sessionFactory.getCache().evict(entity.getClass(), entity.getId());
+            update(entity, entityManager);
+            if (transaction.isActive()) {
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            log.error("Problem when execute save async", e);
+            transaction.rollback();
+        } finally {
+            entityManager.close();
+        }
+        return entity;
     }
 
     private <S extends T> S saveSync(@NonNull S entity) {
@@ -731,8 +730,20 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
             return entity;
         }
         sessionFactory.getCache().evict(entity.getClass(), entity.getId());
-        //FIXME use native query to update for improved performance
-        return em.merge(entity);
+        update(entity, em);
+
+        return entity;
+    }
+
+    private <S extends T> void update(S entity, EntityManager em) {
+        @SuppressWarnings("unchecked")
+        Class<? extends AbstractEntity<?>> tableType = (Class<? extends AbstractEntity<?>>) getDomainClass();
+        SqlUpdate sqlUpdate = sqlBuilder.updateQueryFor(tableType);
+        sqlUpdate.update((AbstractEntity<?>) entity);
+        var query = em.createNativeQuery(sqlUpdate.getNativeQuery());
+        Map<String, Object> params = com.bachlinh.order.repository.utils.QueryUtils.parse(sqlUpdate.getQueryBindings());
+        params.forEach(query::setParameter);
+        query.executeUpdate();
     }
 
     private <S, X extends T> Root<X> applySpecificationToCriteria(@Nullable Specification<X> spec, Class<X> domainClass, CriteriaQuery<S> query) {
@@ -781,7 +792,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
 
         metadata.getComment();
         if (provider.getCommentHintKey() != null) {
-            query.setHint(provider.getCommentHintKey(), provider.getCommentHintValue(metadata.getComment()));
+            query.setHint(provider.getCommentHintKey(), provider.getCommentHintValue(Objects.requireNonNull(metadata.getComment())));
         }
     }
 
@@ -806,7 +817,7 @@ public abstract class RepositoryAdapter<T extends BaseEntity<U>, U> implements H
 
         metadata.getComment();
         if (provider.getCommentHintKey() != null) {
-            query.setHint(provider.getCommentHintKey(), provider.getCommentHintValue(metadata.getComment()));
+            query.setHint(provider.getCommentHintKey(), provider.getCommentHintValue(Objects.requireNonNull(metadata.getComment())));
         }
     }
 

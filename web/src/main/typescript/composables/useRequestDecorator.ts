@@ -19,8 +19,21 @@ export const useRequestDecorator = () => {
         }
     }
 
+    const applyCsrfHeader = async (request: Request): Promise<void> => {
+        if (!request.headers) {
+            request.headers = [];
+        }
+        const csrfHeader = useAppConfig().csrfToken;
+        const {readCsrf} = useAuthInformation()
+        const csrf: string | undefined = await readCsrf();
+        if (csrf) {
+            request.headers.push({name: csrfHeader, value: csrf});
+        }
+    }
+
     return {
         applyCommonHeader,
-        applyAuthenticationHeader
+        applyAuthenticationHeader,
+        applyCsrfHeader
     };
 }

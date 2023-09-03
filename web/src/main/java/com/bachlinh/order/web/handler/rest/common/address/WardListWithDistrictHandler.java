@@ -8,6 +8,7 @@ import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.resp.WardResp;
 import com.bachlinh.order.web.service.common.WardService;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,10 @@ public class WardListWithDistrictHandler extends AbstractController<Collection<W
             MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_EMPTY_MESSAGE_ID);
             String errorContent = MessageFormat.format(messageSetting.getValue(), "ID of district");
             throw new BadVariableException(errorContent, getPath());
+        }
+        if (!ValidateUtils.isNumber(districtId)) {
+            MessageSetting notANumberMessage = messageSettingRepository.getMessageById("MSG-000018");
+            throw new BadVariableException(MessageFormat.format(notANumberMessage.getValue(), "Id of district"));
         }
         return wardService.getWardsByDistrict(districtId);
     }

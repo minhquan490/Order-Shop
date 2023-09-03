@@ -54,7 +54,8 @@ public class EmailTemplateFolderValidator extends AbstractValidator<EmailTemplat
             if (entity.getName().length() > 300) {
                 result.addMessageError(MessageFormat.format(lengthInvalidMessage.getValue(), emailTemplateFolderName, "300"));
             }
-            if (emailTemplateFolderRepository.isEmailTemplateFolderNameExisted(entity.getName())) {
+            EmailTemplateFolder old = emailTemplateFolderRepository.getEmailTemplateFolderForUpdate(entity.getId());
+            if (!old.getName().equals(entity.getName()) && emailTemplateFolderRepository.isEmailTemplateFolderNameExisted(entity.getName())) {
                 result.addMessageError(MessageFormat.format(existedMessage.getValue(), emailTemplateFolderName));
             }
         }

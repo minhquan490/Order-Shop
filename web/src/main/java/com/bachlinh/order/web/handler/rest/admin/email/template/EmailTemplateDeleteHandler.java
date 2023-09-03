@@ -1,9 +1,12 @@
 package com.bachlinh.order.web.handler.rest.admin.email.template;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.annotation.EnableCsrf;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateDeleteForm;
@@ -18,6 +21,8 @@ import java.util.Map;
 @RouteProvider(name = "emailTemplateDeleteHandler")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@EnableCsrf
+@Permit(roles = {Role.ADMIN, Role.SEO, Role.MARKETING})
 public class EmailTemplateDeleteHandler extends AbstractController<Map<String, Object>, EmailTemplateDeleteForm> {
     private String url;
     private EmailTemplateService emailTemplateService;

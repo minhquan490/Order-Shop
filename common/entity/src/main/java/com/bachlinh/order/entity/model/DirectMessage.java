@@ -16,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -37,7 +36,6 @@ import java.util.Queue;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class DirectMessage extends AbstractEntity<Integer> {
 
@@ -88,7 +86,7 @@ public class DirectMessage extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setContent(@NonNull String content) {
         if (this.content != null && !this.content.equals(content)) {
-            trackUpdatedField("CONTENT", this.content);
+            trackUpdatedField("CONTENT", this.content, content);
         }
         this.content = content;
     }
@@ -96,7 +94,7 @@ public class DirectMessage extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setTimeSent(@NonNull Timestamp timeSent) {
         if (this.timeSent != null && !this.timeSent.equals(timeSent)) {
-            trackUpdatedField("SENT_TIME", this.timeSent.toString());
+            trackUpdatedField("SENT_TIME", this.timeSent, timeSent);
         }
         this.timeSent = timeSent;
     }
@@ -104,7 +102,7 @@ public class DirectMessage extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setFromCustomer(@NonNull Customer fromCustomer) {
         if (this.fromCustomer != null && !this.fromCustomer.getId().equals(fromCustomer.getId())) {
-            trackUpdatedField("FROM_CUSTOMER_ID", this.fromCustomer.getId());
+            trackUpdatedField("FROM_CUSTOMER_ID", this.fromCustomer.getId(), fromCustomer.getId());
         }
         this.fromCustomer = fromCustomer;
     }
@@ -112,7 +110,7 @@ public class DirectMessage extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setToCustomer(@NonNull Customer toCustomer) {
         if (this.toCustomer != null && !this.toCustomer.getId().equals(toCustomer.getId())) {
-            trackUpdatedField("TO_CUSTOMER", this.toCustomer.getId());
+            trackUpdatedField("TO_CUSTOMER", this.toCustomer.getId(), toCustomer.getId());
         }
         this.toCustomer = toCustomer;
     }

@@ -6,8 +6,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.VoucherRepository;
+import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -71,6 +71,38 @@ public class VoucherRepositoryImpl extends AbstractRepository<Voucher, String> i
     public Voucher getVoucherById(@NonNull Collection<Select> selects, String id) {
         var idWhere = Where.builder().attribute(Voucher_.ID).value(id).operator(Operator.EQ).build();
         return getVoucher(selects, Collections.emptyList(), Collections.singletonList(idWhere));
+    }
+
+    @Override
+    public Voucher getVoucherForUpdate(String id) {
+        Select idSelect = Select.builder().column(Voucher_.ID).build();
+        Select nameSelect = Select.builder().column(Voucher_.NAME).build();
+        Select discountPercentSelect = Select.builder().column(Voucher_.DISCOUNT_PERCENT).build();
+        Select timeStartSelect = Select.builder().column(Voucher_.TIME_START).build();
+        Select timeExpiredSelect = Select.builder().column(Voucher_.TIME_EXPIRED).build();
+        Select contentSelect = Select.builder().column(Voucher_.VOUCHER_CONTENT).build();
+        Select costSelect = Select.builder().column(Voucher_.VOUCHER_COST).build();
+        Select activeSelect = Select.builder().column(Voucher_.ACTIVE).build();
+        Where idWhere = Where.builder().attribute(Voucher_.ID).value(id).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Voucher.class);
+        sqlSelect.select(idSelect)
+                .select(nameSelect)
+                .select(discountPercentSelect)
+                .select(timeStartSelect)
+                .select(timeExpiredSelect)
+                .select(contentSelect)
+                .select(costSelect)
+                .select(activeSelect);
+        SqlWhere sqlWhere = sqlSelect.where(idWhere);
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = executeNativeQuery(query, attributes, getDomainClass());
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
     }
 
     @Override

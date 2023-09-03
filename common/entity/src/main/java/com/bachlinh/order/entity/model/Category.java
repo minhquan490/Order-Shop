@@ -23,7 +23,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
@@ -44,7 +43,6 @@ import java.util.Set;
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
-@DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
 public class Category extends AbstractEntity<String> {
 
@@ -109,7 +107,7 @@ public class Category extends AbstractEntity<String> {
     @ActiveReflection
     public void setName(@NonNull String name) {
         if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name);
+            trackUpdatedField("NAME", this.name, name);
         }
         this.name = name;
     }
