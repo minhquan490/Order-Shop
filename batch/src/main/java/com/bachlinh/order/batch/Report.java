@@ -1,8 +1,11 @@
 package com.bachlinh.order.batch;
 
+import lombok.Getter;
+
 import java.util.Collection;
 import java.util.LinkedList;
 
+@Getter
 public final class Report {
     private boolean hasError = false;
     private final Collection<Exception> error;
@@ -20,15 +23,5 @@ public final class Report {
         this.error.add(error);
     }
 
-    public Collection<Exception> getError() {
-        return error;
-    }
-
-    public boolean isHasError() {
-        return hasError;
-    }
-
-    public String getJobName() {
-        return jobName;
-    }
 }
+
