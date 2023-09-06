@@ -120,3 +120,8 @@ export type Ward = {
     id: string,
     name: string
 }
+
+export type NextPage = {
+    page: number,
+    itemsPerPage: number
+}

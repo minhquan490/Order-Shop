@@ -23,12 +23,12 @@ const props = defineProps({
       <caption style="display: none">Table data read only</caption>
       <thead class="text-xs text-gray-700 uppercase bg-gray-50">
       <tr>
-        <th v-for="header in props.headers" :key="header" v-text="header.name" scope="col"
+        <th v-for="header in props.headers" :key="JSON.stringify(header)" v-text="header.name" scope="col"
             class="px-6 py-3 text-center"></th>
       </tr>
       </thead>
       <tbody v-if="props.data?.length !== 0">
-      <tr class="bg-white border-b" v-for="data in props.data" :key="data">
+      <tr class="bg-white border-b" v-for="data in props.data" :key="JSON.stringify(data)">
         <td v-for="header in props.headers"
             :key="data[header.dataPropertyName]"
             v-text="data[header.dataPropertyName]"

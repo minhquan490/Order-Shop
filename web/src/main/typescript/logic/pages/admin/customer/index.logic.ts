@@ -1,7 +1,7 @@
-import {Authentication, NavBarsSource, Request, Response, TableHeader} from "~/types";
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
-import {checkResponseStatus} from "~/utils/ResponseUtils";
+import {Authentication, NavBarsSource, Request, Response, TableHeader} from "~/types";
 import {onUnLogin} from "~/utils/NavigationUtils";
+import {checkResponseStatus} from "~/utils/ResponseUtils";
 
 type CustomerInfo = {
     id: string,
@@ -61,14 +61,15 @@ const getAuth = async (): Promise<Authentication | undefined> => {
     return Promise.resolve(auth);
 }
 
-const getCustomersInfo = async (): Promise<Array<CustomerInfo>> => {
+const getCustomersInfo = async (): Promise<Array<CustomerInfo> | undefined> => {
     const auth: Authentication | undefined = await getAuth();
     if (!auth) {
         onUnLogin();
+        return Promise.resolve(undefined);
     } else {
         const request: Request = getCustomersInfoRequest();
         const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-        const response: Response<CustomerInfo> = await getAsyncCall<CustomerInfo>();
+        const response: Response<CustomerInfo[]> = await getAsyncCall<CustomerInfo[]>();
         if (response.isError) {
             checkResponseStatus(response);
             return Promise.resolve([]);
@@ -104,10 +105,10 @@ const navigateToCustomerInfoPage = (customerId: string): void => {
 }
 
 export {
-    navigationSources,
-    tableHeaders,
-    navigateToNewCustomerPage,
-    getDefaultCustomerInfo,
     getCustomersInfo,
-    navigateToCustomerInfoPage
-}
+    getDefaultCustomerInfo,
+    navigateToCustomerInfoPage,
+    navigateToNewCustomerPage,
+    navigationSources,
+    tableHeaders
+};

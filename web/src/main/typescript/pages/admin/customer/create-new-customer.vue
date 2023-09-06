@@ -1,5 +1,4 @@
 <script lang="ts">
-import {NavBarsSource} from "~/types";
 import {
   clearError,
   getDistrict,
@@ -10,6 +9,7 @@ import {
   submitData,
   validateInput
 } from "~/logic/pages/admin/customer/create-new-customer.logic";
+import {NavBarsSource} from "~/types";
 
 export default {
   setup() {
@@ -119,12 +119,9 @@ export default {
               <icon name="tdesign:user-add" width="48" height="48"/>
             </h3>
             <div class="relative z-0 w-full mb-6 group col-span-1">
-              <input type="text"
-                     name="firstName"
-                     id="firstName"
+              <input type="text" name="firstName" id="firstName"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.customerCreateData.first_name"/>
+                     placeholder=" " v-model="pageData.customerCreateData.first_name"/>
               <label for="firstName"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 First name
@@ -134,12 +131,9 @@ export default {
               </p>
             </div>
             <div class="relative z-0 w-full mb-6 group col-span-1">
-              <input type="text"
-                     name="lastName"
-                     id="lastName"
+              <input type="text" name="lastName" id="lastName"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.customerCreateData.last_name"/>
+                     placeholder=" " v-model="pageData.customerCreateData.last_name"/>
               <label for="lastName"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Last name
@@ -149,12 +143,9 @@ export default {
               </p>
             </div>
             <div class="relative z-0 w-full mb-6 group col-span-1">
-              <input type="tel"
-                     name="phone"
-                     id="phone"
+              <input type="tel" name="phone" id="phone"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.customerCreateData.phone"/>
+                     placeholder=" " v-model="pageData.customerCreateData.phone"/>
               <label for="phone"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Phone number
@@ -164,12 +155,9 @@ export default {
               </p>
             </div>
             <div class="relative z-0 w-full mb-6 group col-span-1">
-              <input type="email"
-                     name="email"
-                     id="email"
+              <input type="email" name="email" id="email"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.customerCreateData.email"/>
+                     placeholder=" " v-model="pageData.customerCreateData.email"/>
               <label for="email"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Email address
@@ -182,21 +170,13 @@ export default {
               <span class="mb-1 block text-gray-500 text-sm font-medium hover:cursor-default">Gender</span>
               <div class="flex h-[75%]">
                 <div class="pr-4 flex items-center justify-center">
-                  <input class="peer/male"
-                         id="gender_male"
-                         type="radio"
-                         name="gender"
-                         value="male"
+                  <input class="peer/male" id="gender_male" type="radio" name="gender" value="male"
                          v-model="pageData.customerCreateData.gender">
                   <label class="pl-2 text-sm text-gray-500 peer-checked/male:text-sky-700"
                          for="gender_male">Male</label>
                 </div>
                 <div class="flex items-center justify-center">
-                  <input class="peer/female"
-                         id="gender_female"
-                         type="radio"
-                         name="gender"
-                         value="female"
+                  <input class="peer/female" id="gender_female" type="radio" name="gender" value="female"
                          v-model="pageData.customerCreateData.gender">
                   <label class="pl-2 text-sm text-gray-500 peer-checked/female:text-sky-700"
                          for="gender_female">Female</label>
@@ -221,12 +201,9 @@ export default {
               </p>
             </div>
             <div class="relative z-0 w-full mb-6 group col-span-1">
-              <input type="text"
-                     name="username"
-                     id="username"
+              <input type="text" name="username" id="username"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.customerCreateData.username"/>
+                     placeholder=" " v-model="pageData.customerCreateData.username"/>
               <label for="username"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Username
@@ -236,12 +213,9 @@ export default {
               </p>
             </div>
             <div class="relative z-0 w-full mb-6 group col-span-1">
-              <input type="password"
-                     name="password"
-                     id="password"
+              <input type="password" name="password" id="password"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.customerCreateData.password"/>
+                     placeholder=" " v-model="pageData.customerCreateData.password"/>
               <label for="password"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Password
@@ -260,10 +234,8 @@ export default {
                         v-model="pageData.selectedData.provinceId"
                         @change="getDistrict(pageData.selectedData.provinceId)">
                   <option selected disabled value="">Choose a province</option>
-                  <option v-for="province in pageData.provinces"
-                          :key="province"
-                          :value="province.id"
-                          v-text="province.name "></option>
+                  <option v-for="province in pageData.provinces" :key="JSON.stringify(province)" :value="province.id"
+                          v-text="province.name"></option>
                 </select>
                 <p v-if="pageData.validationError.provinceError.length !== 0"
                    class="mt-2 text-sm text-red-600 relative">
@@ -276,12 +248,9 @@ export default {
                 </label>
                 <select id="district"
                         class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                        v-model="pageData.selectedData.districtId"
-                        @change="getWard(pageData.selectedData.districtId)">
+                        v-model="pageData.selectedData.districtId" @change="getWard(pageData.selectedData.districtId)">
                   <option selected disabled value="">Choose a district</option>
-                  <option v-for="district in pageData.districts"
-                          :key="district"
-                          :value="district.id"
+                  <option v-for="district in pageData.districts" :key="JSON.stringify(district)" :value="district.id"
                           v-text="district.name"></option>
                 </select>
                 <p v-if="pageData.validationError.districtError.length !== 0"
@@ -297,9 +266,7 @@ export default {
                         class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                         v-model="pageData.selectedData.wardId">
                   <option selected disabled value="">Choose a ward</option>
-                  <option v-for="ward in pageData.wards"
-                          :key="ward"
-                          :value="ward.id"
+                  <option v-for="ward in pageData.wards" :key="JSON.stringify(ward)" :value="ward.id"
                           v-text="ward.name"></option>
                 </select>
                 <p v-if="pageData.validationError.wardError.length !== 0" class="mt-2 text-sm text-red-600 relative">
@@ -308,12 +275,9 @@ export default {
               </div>
             </div>
             <div class="relative z-0 w-full mb-6 group col-span-2">
-              <input type="text"
-                     name="house_number"
-                     id="house_number"
+              <input type="text" name="house_number" id="house_number"
                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                     placeholder=" "
-                     v-model="pageData.selectedData.houseAddress"/>
+                     placeholder=" " v-model="pageData.selectedData.houseAddress"/>
               <label for="house_number"
                      class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 House address
@@ -334,14 +298,10 @@ export default {
         </div>
       </admin-content-area>
       <div class="absolute top-[8%] right-0">
-        <alert-list-info :hide="hideListInfo"
-                         :title="'Create customer'"
-                         :error-messages="[pageData.submitDataSuccessMsg]"
-                         @hidden="hideInfoAlert"/>
-        <alert-list-error :hidden="hideListError"
-                          :title="'Create customer'"
-                          :error-messages="pageData.submitDataFailureMsg"
-                          @hidden="hideErrorAlert"/>
+        <alert-list-info :hide="hideListInfo" :title="'Create customer'"
+                         :error-messages="[pageData.submitDataSuccessMsg]" @hidden="hideInfoAlert"/>
+        <alert-list-error :hidden="hideListError" :title="'Create customer'"
+                          :error-messages="pageData.submitDataFailureMsg" @hidden="hideErrorAlert"/>
       </div>
     </loading-block-u-i>
   </div>

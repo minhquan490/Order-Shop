@@ -1,6 +1,6 @@
-import {Category, ErrorResponse, NavBarsSource, Request} from "~/types";
-import {currentPath, navSources} from "~/logic/components/navbars.logic";
+import { currentPath, navSources } from "~/logic/components/navbars.logic";
 import productCreatePage from '~/pages/admin/product/create.vue';
+import { Category, ErrorResponse, NavBarsSource, Request } from "~/types";
 
 type ProductCreatePage = InstanceType<typeof productCreatePage>
 type RequestType = ReturnType<typeof productCreatePage.methods.initRequest>
@@ -205,7 +205,7 @@ const submitRequest = (request: RequestType, component: ProductCreatePage): void
             navigate('/admin/product');
         } catch (error) {
             component.isLoading = false;
-            component.callServerError = (error.body as ErrorResponse).messages;
+            component.callServerError = ((error as any).body as ErrorResponse).messages;
             component.hideAlert = false;
             component.isSubmitted = false;
         }
@@ -213,17 +213,7 @@ const submitRequest = (request: RequestType, component: ProductCreatePage): void
 }
 
 export {
-    navigationSources,
-    selectCategory,
-    removeCategory,
-    setProductEnabled,
-    validateBeforeSubmit,
-    validateProductName,
-    validateProductPrice,
-    validateProductSize,
-    validateCategory,
-    validateProductColor,
-    validateTaobaoUrl,
-    validateProductOrderPoint,
-    submitRequest
-}
+    navigationSources, removeCategory, selectCategory, setProductEnabled, submitRequest, validateBeforeSubmit, validateCategory,
+    validateProductColor, validateProductName, validateProductOrderPoint, validateProductPrice,
+    validateProductSize, validateTaobaoUrl
+};

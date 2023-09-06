@@ -1,8 +1,8 @@
-import {Authentication, CarouselItem, NavBarsSource, Request, Response, TableHeader} from "~/types";
-import {currentPath, navSources} from "~/logic/components/navbars.logic";
-import {checkResponseStatus} from "~/utils/ResponseUtils";
+import { currentPath, navSources } from "~/logic/components/navbars.logic";
 import infoPage from "~/pages/admin/customer/info.vue";
-import {onUnAuthorize} from "~/utils/NavigationUtils";
+import { Authentication, CarouselItem, NavBarsSource, Request, Response, TableHeader } from "~/types";
+import { onUnAuthorize } from "~/utils/NavigationUtils";
+import { checkResponseStatus } from "~/utils/ResponseUtils";
 
 type AccessHistory = {
     path_request: string,
@@ -163,7 +163,7 @@ const checkCustomerIdQueryParam = (): string => {
     const customerIdQuery = useRoute().query['customerId'];
     if (!customerIdQuery) {
         const navigate = useNavigation().value;
-        navigate('/admin');
+        navigate('/404');
     }
     if (Array.isArray(customerIdQuery)) {
         return (customerIdQuery as Array<string>)[0];
@@ -185,10 +185,11 @@ const getAuth = async (): Promise<Authentication | undefined> => {
     return useAuthInformation().readAuth();
 }
 
-const getCustomerInfo = async (customerId: string): Promise<CustomerInfoResp> => {
+const getCustomerInfo = async (customerId: string): Promise<CustomerInfoResp | undefined> => {
     const auth: Authentication | undefined = await getAuth();
     if (!auth) {
         onUnAuthorize();
+        return undefined;
     } else {
         const request: Request = getCustomerInfoRequest(customerId);
         const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
@@ -233,22 +234,58 @@ const assignData = (page: Page, customerInfo: CustomerInfoResp): void => {
     page.customerInfo.order_point = customerInfo.order_point;
 }
 
+const redirectToCustomerLoginHistoriesPage = (customerId: string): void => {
+    const url: string = `/admin/customer/login-histories?customerId=${customerId}`;
+    const navigate = useNavigation().value;
+    navigate(url);
+}
+
+const redirectToUpdatedDataHistoriesPage = (customerId: string): void => {
+    const url: string = `/admin/customer/updated-data-histories?customerId=${customerId}`;
+    const navigate = useNavigation().value;
+    navigate(url);
+}
+
+const redirectToVouchersOfCustomerPage = (customerId: string): void => {
+    const url: string = `/admin/customer/voucher-of-customer?customerId=${customerId}`;
+    const navigate = useNavigation().value;
+    navigate(url);
+}
+
+const redirectToOrdersOfCustomerPage = (customerId: string): void => {
+    const url: string = `/admin/customer/orders-of-customer?customerId=${customerId}`;
+    const navigate = useNavigation().value;
+    navigate(url);
+}
+
+const redirectToCustomerAccessHistoriesPage = (customerId: string): void => {
+    const url: string = `/admin/customer/access-histories?customerId=${customerId}`;
+    const navigate = useNavigation().value;
+    navigate(url);
+}
+
 export {
-    navigationSources,
+    CustomerInfoResp,
+    assignData,
+    checkCustomerIdQueryParam,
+    createCarouselItems,
     defaultCarouselItem,
-    getDefaultAccessHistory,
-    getDefaultAssignedVoucher,
-    getDefaultOrderOfCustomer,
-    getDefaultLoginHistory,
     getAccessHistoriesTableHeader,
     getAssignedVoucherTableHeader,
-    getOrderOfCustomerTableHeader,
-    getLoginHistoriesTableHeader,
     getChangeHistoryTableHeader,
-    getDefaultChangeHistory,
-    checkCustomerIdQueryParam,
     getCustomerInfo,
-    createCarouselItems,
-    assignData,
-    CustomerInfoResp
-}
+    getDefaultAccessHistory,
+    getDefaultAssignedVoucher,
+    getDefaultChangeHistory,
+    getDefaultLoginHistory,
+    getDefaultOrderOfCustomer,
+    getLoginHistoriesTableHeader,
+    getOrderOfCustomerTableHeader,
+    navigationSources,
+    redirectToCustomerAccessHistoriesPage,
+    redirectToCustomerLoginHistoriesPage,
+    redirectToOrdersOfCustomerPage,
+    redirectToUpdatedDataHistoriesPage,
+    redirectToVouchersOfCustomerPage
+};
+

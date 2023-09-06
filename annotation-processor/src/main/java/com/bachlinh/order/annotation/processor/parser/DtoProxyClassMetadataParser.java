@@ -24,8 +24,7 @@ class DtoProxyClassMetadataParser implements ClassMetadataParser {
         this.packageName = elements.getPackageOf(element).getQualifiedName().toString();
         this.delegateType = delegateType;
     }
-
-
+    
     @Override
     public String getPackage() {
         return packageName;
@@ -48,8 +47,7 @@ class DtoProxyClassMetadataParser implements ClassMetadataParser {
     @Override
     public String getClassName() {
         var template = "{0}.{1}{2}";
-        var entityClassName = this.element.getSimpleName();
-        return MessageFormat.format(template, getPackage(), entityClassName, "Proxy");
+        return MessageFormat.format(template, getPackage(), element.getSimpleName().toString(), "Proxy");
     }
 
     @Override

@@ -7,10 +7,10 @@ import {
   navigationSources,
   tableHeaders
 } from "~/logic/pages/admin/customer/index.logic";
-import {NavBarsSource, TableHeader, TableNewData} from "~/types";
+import { NavBarsSource, TableHeader, TableNewData } from "~/types";
 
 export default {
-  methods: {navigateToCustomerInfoPage},
+  methods: { navigateToCustomerInfoPage },
   async setup() {
     const navigationSource: NavBarsSource[] = navigationSources();
     const headers: TableHeader[] = tableHeaders();
@@ -19,7 +19,10 @@ export default {
       icon: 'ic:round-plus',
       buttonContent: 'New customer'
     }
-    let customerList: Array<CustomerInfo> = await getCustomersInfo();
+    let customerList: Array<CustomerInfo> | undefined = await getCustomersInfo();
+    if (!customerList) {
+      customerList = [];
+    }
     return {
       navigationSource,
       isLoading,
@@ -37,14 +40,10 @@ type CustomerInfo = ReturnType<typeof getDefaultCustomerInfo>;
 <template>
   <div class="relative">
     <loading-block-u-i :loading="isLoading">
-      <nav-bars-admin :sources="navigationSource"/>
-      <page-header title="Customer list" :bread-crumbs-enable="true"/>
+      <nav-bars-admin :sources="navigationSource" />
+      <page-header title="Customer list" :bread-crumbs-enable="true" />
       <admin-content-area>
-        <data-table :headers="headers"
-                    :button-new="tableNewData"
-                    @new-data="navigateToNewCustomerPage"
-                    :table-data="customerList"
-                    @info-data="data => navigateToCustomerInfoPage(data['id'])"/>
+        <data-table :headers="headers" :button-new="tableNewData" @new-data="navigateToNewCustomerPage" :table-data="customerList" @info-data="data => navigateToCustomerInfoPage(data['id'])" />
       </admin-content-area>
     </loading-block-u-i>
   </div>

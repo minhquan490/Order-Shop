@@ -9,7 +9,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div :key="props.loading" :class="props.loading ? 'block' : 'hidden'">
+  <div :key="props.loading.toString" :class="props.loading ? 'block' : 'hidden'">
     <div
         class="fixed h-full w-full flex items-center justify-center body">
       <div class="loading-container">

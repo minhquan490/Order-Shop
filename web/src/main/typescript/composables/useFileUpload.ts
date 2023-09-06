@@ -22,9 +22,9 @@ export const useFileUpload = () => {
             request.headers?.forEach((header: RequestHeader) => xhr.setRequestHeader(header.name, header.value));
             xhr.onload = (): void => {
                 if (xhr.status >= 200 && xhr.status < 400) {
-                    resolve(createResponse<FileUploadResponse>(xhr));
+                    resolve(createResponse(xhr));
                 } else {
-                    reject(createResponse<FileUploadResponse>(xhr));
+                    reject(createResponse(xhr));
                 }
             };
             xhr.onerror = () => reject(createConnectionErrorResponse());
@@ -32,7 +32,7 @@ export const useFileUpload = () => {
         });
     }
 
-    const uploadSingleFile = async (file: File, productId: string, accessToken?: string, refreshToken?: string): Promise<Response<FileUploadResponse>> => {
+    const uploadSingleFile = async (file: File, productId: string, accessToken?: string, refreshToken?: string): Promise<Response<FileUploadResponse> | undefined> => {
         const serverUrl: string = useAppConfig().serverUrl;
         const uploadApi: string = `${serverUrl}/admin/files/upload`;
         const maxFileSize: number = 100000; // 100Kb
@@ -57,9 +57,9 @@ export const useFileUpload = () => {
     }
 
     const uploadMultiFile = async (fileList: FileList, productId: string, accessToken?: string, refreshToken?: string): Promise<void> => {
-        for (const file: File of fileList) {
-            const response: Response<FileUploadResponse> = await uploadSingleFile(file, productId, accessToken, refreshToken);
-            if (response.isError) {
+        for (const file of fileList) {
+            const response: Response<FileUploadResponse> | undefined = await uploadSingleFile(file, productId, accessToken, refreshToken);
+            if (response?.isError) {
                 break;
             }
         }
@@ -108,7 +108,7 @@ export const useFileUpload = () => {
             const response: Response<FileUploadResponse> = await upload(request, accessToken, refreshToken);
             return Promise.resolve(response);
         } catch (e) {
-            const errorResponse: Response<ErrorResponse> = e;
+            const errorResponse: Response<ErrorResponse> = e as Response<ErrorResponse>;
             const uploadResponse: FileUploadResponse = {
                 status: errorResponse.statusCode,
                 messages: errorResponse.body.messages

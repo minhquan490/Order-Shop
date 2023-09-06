@@ -23,6 +23,7 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -66,6 +67,37 @@ public class LoginHistoryRepositoryImpl extends AbstractRepository<LoginHistory,
         SqlWhere sqlWhere = sqlJoin.where(ownerWhere, Customer.class);
         sqlWhere.orderBy(lastLoginTimeOrderBy, LoginHistory.class);
         sqlWhere.limit(limit);
+        return getLoginHistories(sqlWhere);
+    }
+
+    @Override
+    public Collection<LoginHistory> getHistoriesOfCustomer(String customerId, long page, long pageSize) {
+        Select idSelect = Select.builder().column(LoginHistory_.ID).build();
+        Select lastLoginTimeSelect = Select.builder().column(LoginHistory_.LAST_LOGIN_TIME).build();
+        Select loginIpSelect = Select.builder().column(LoginHistory_.LOGIN_IP).build();
+        Select successSelect = Select.builder().column(LoginHistory_.SUCCESS).build();
+        Where customerWhere = Where.builder().attribute(LoginHistory_.CUSTOMER).value(customerId).operator(Operator.EQ).build();
+        OrderBy lastLoginTimeOrderBy = OrderBy.builder().column(LoginHistory_.LAST_LOGIN_TIME).type(OrderBy.Type.DESC).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(LoginHistory.class);
+        sqlSelect.select(idSelect)
+                .select(lastLoginTimeSelect)
+                .select(loginIpSelect)
+                .select(successSelect);
+        SqlWhere sqlWhere = sqlSelect.where(customerWhere);
+        sqlWhere.orderBy(lastLoginTimeOrderBy).limit(pageSize).offset(QueryUtils.calculateOffset(page, pageSize));
+        return getLoginHistories(sqlWhere);
+    }
+
+    @Override
+    public Long countHistoriesOfCustomer(String customerId) {
+        Customer dummy = getEntityFactory().getEntity(Customer.class);
+        dummy.setId(customerId);
+        Specification<LoginHistory> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(LoginHistory_.CUSTOMER), dummy));
+        return count(spec);
+    }
+
+    private Collection<LoginHistory> getLoginHistories(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return executeNativeQuery(sql, attributes, LoginHistory.class);

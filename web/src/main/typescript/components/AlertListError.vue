@@ -28,7 +28,7 @@ export default {
 </script>
 
 <template>
-  <div :class="this.hidden ? 'relative px-3 hidden' : 'relative px-3 block'">
+  <div :class="hidden ? 'relative px-3 hidden' : 'relative px-3 block'">
     <button type="button"
             class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8 absolute right-6 top-2"
             data-dismiss-target="#alert-2"
@@ -48,13 +48,11 @@ export default {
       </svg>
       <span class="sr-only">Danger</span>
       <div>
-        <span class="font-medium" v-text="this.title"></span>
+        <span class="font-medium" v-text="title"></span>
         <ul class="mt-1.5 ml-4 list-disc list-inside">
-          <li v-for="message in this.errorMessages" :key="message" v-text="message"></li>
+          <li v-for="message in errorMessages" :key="message" v-text="message"></li>
         </ul>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped></style>

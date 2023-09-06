@@ -30,4 +30,11 @@ public final class QueryUtils {
         }
         return select;
     }
+
+    public static long calculateOffset(long pageNum, long pageSize) {
+        if (pageNum < 0 || pageSize < 0) {
+            return 0;
+        }
+        return (pageNum - 1) * pageSize;
+    }
 }
