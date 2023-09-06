@@ -10,6 +10,7 @@ import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.common.ProductSearchForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,11 +19,16 @@ import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "productSearchHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductSearchHandler extends AbstractController<Collection<ProductResp>, ProductSearchForm> {
     private String productSearchUrl;
     private ProductSearchingService searchingService;
     private Integer defaultPageSize;
+
+    @Override
+    public AbstractController<Collection<ProductResp>, ProductSearchForm> newInstance() {
+        return new ProductSearchHandler();
+    }
 
     @Override
     @ActiveReflection

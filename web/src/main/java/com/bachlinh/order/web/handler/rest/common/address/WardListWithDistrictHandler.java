@@ -11,6 +11,7 @@ import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.resp.WardResp;
 import com.bachlinh.order.web.service.common.WardService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
@@ -19,13 +20,18 @@ import java.util.Collection;
 
 @RouteProvider(name = "wardListWithDistrictHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WardListWithDistrictHandler extends AbstractController<Collection<WardResp>, Void> {
     private static final String NOT_EMPTY_MESSAGE_ID = "MSG-000001";
 
     private String url;
     private WardService wardService;
     private MessageSettingRepository messageSettingRepository;
+
+    @Override
+    public AbstractController<Collection<WardResp>, Void> newInstance() {
+        return new WardListWithDistrictHandler();
+    }
 
     @Override
     @ActiveReflection

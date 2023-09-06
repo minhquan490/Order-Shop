@@ -19,7 +19,6 @@ import com.bachlinh.order.repository.EmailRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 import java.sql.Timestamp;
@@ -40,11 +39,6 @@ public class CustomerCreateSendingConfirmEmailTrigger extends AbstractTrigger<Cu
     private TemporaryTokenGenerator tokenGenerator;
     private EmailRepository emailRepository;
     private EntityFactory entityFactory;
-
-    @ActiveReflection
-    public CustomerCreateSendingConfirmEmailTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-    }
 
     @Override
     public TriggerMode getMode() {

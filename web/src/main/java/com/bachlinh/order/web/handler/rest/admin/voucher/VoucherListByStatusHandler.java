@@ -4,10 +4,13 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.entity.Permit;
+import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.common.VoucherService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
@@ -15,11 +18,17 @@ import java.util.regex.Pattern;
 
 @ActiveReflection
 @RouteProvider(name = "voucherListByStatusHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Permit(roles = Role.ADMIN)
 public class VoucherListByStatusHandler extends AbstractController<Collection<VoucherResp>, Void> {
     private static final Pattern BOOLEAN_PATTERN = Pattern.compile("^(?>true)$|^(?>false)$");
     private VoucherService voucherService;
     private String url;
+
+    @Override
+    public AbstractController<Collection<VoucherResp>, Void> newInstance() {
+        return new VoucherListByStatusHandler();
+    }
 
     @Override
     @ActiveReflection

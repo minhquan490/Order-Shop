@@ -25,8 +25,13 @@ public class EmailSendingRule extends AbstractRule<NormalEmailSendingForm> {
 
     private MessageSettingRepository messageSettingRepository;
 
-    public EmailSendingRule(Environment environment, DependenciesResolver resolver) {
+    private EmailSendingRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<NormalEmailSendingForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new EmailSendingRule(environment, resolver);
     }
 
     @Override

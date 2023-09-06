@@ -31,9 +31,13 @@ public class TemplateMailSendingRule extends AbstractRule<TemplateMailSendingFor
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public TemplateMailSendingRule(Environment environment, DependenciesResolver resolver) {
+    private TemplateMailSendingRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<TemplateMailSendingForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new TemplateMailSendingRule(environment, resolver);
     }
 
     @Override

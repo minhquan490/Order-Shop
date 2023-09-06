@@ -22,10 +22,14 @@ public class DeleteEmailInTrashRule extends AbstractRule<DeleteEmailInTrashForm>
     private static final String AT_LEAST_MESSAGE_ID = "MSG-000015";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public DeleteEmailInTrashRule(Environment environment, DependenciesResolver resolver) {
+    
+    private DeleteEmailInTrashRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<DeleteEmailInTrashForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new DeleteEmailInTrashRule(environment, resolver);
     }
 
     @Override

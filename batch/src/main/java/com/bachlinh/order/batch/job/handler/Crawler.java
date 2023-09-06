@@ -35,10 +35,14 @@ public class Crawler extends AbstractJob {
     private CrawlResultRepository repository;
     private LocalDateTime previousExecution;
 
-    @ActiveReflection
-    public Crawler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    private Crawler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
         this.browserPath = getEnvironment().getProperty("server.browser.path");
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new Crawler(name, activeProfile, dependenciesResolver);
     }
 
     public void awake() {

@@ -10,4 +10,8 @@ public class CriticalException extends ApplicationException {
     public CriticalException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public CriticalException(Throwable cause) {
+        super(cause);
+    }
 }

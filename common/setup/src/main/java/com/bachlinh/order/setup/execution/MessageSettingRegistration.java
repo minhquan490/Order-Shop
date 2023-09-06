@@ -2,6 +2,7 @@ package com.bachlinh.order.setup.execution;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.service.container.ContainerWrapper;
@@ -19,8 +20,7 @@ public class MessageSettingRegistration extends AbstractSetup {
     private MessageSettingRepository messageSettingRepository;
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public MessageSettingRegistration(ContainerWrapper wrapper, String profile) {
+    private MessageSettingRegistration(ContainerWrapper wrapper, String profile) {
         super(wrapper, profile);
     }
 
@@ -101,5 +101,10 @@ public class MessageSettingRegistration extends AbstractSetup {
         messages.add("File size limit exceeded");
         messages.add("{0}: Not allow for update");
         return messages;
+    }
+
+    @Override
+    public Setup newInstance(ContainerWrapper wrapper, String profile) {
+        return new MessageSettingRegistration(wrapper, profile);
     }
 }

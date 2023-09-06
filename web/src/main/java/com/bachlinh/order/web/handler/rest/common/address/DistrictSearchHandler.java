@@ -8,16 +8,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.DistrictSearchForm;
 import com.bachlinh.order.web.dto.resp.DistrictResp;
 import com.bachlinh.order.web.service.business.DistrictSearchService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "districtSearchHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DistrictSearchHandler extends AbstractController<Collection<DistrictResp>, DistrictSearchForm> {
     private String url;
     private DistrictSearchService districtSearchService;
+
+    @Override
+    public AbstractController<Collection<DistrictResp>, DistrictSearchForm> newInstance() {
+        return new DistrictSearchHandler();
+    }
 
     @Override
     @ActiveReflection

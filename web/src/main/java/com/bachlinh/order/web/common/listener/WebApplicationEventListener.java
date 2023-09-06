@@ -1,6 +1,7 @@
 package com.bachlinh.order.web.common.listener;
 
 import com.bachlinh.order.core.enums.ExecuteEvent;
+import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.core.excecute.BootWrapper;
 import com.bachlinh.order.core.excecute.Executor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
@@ -8,18 +9,16 @@ import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
 import com.bachlinh.order.security.helper.RequestAccessHistoriesHolder;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.bachlinh.order.utils.UnsafeUtils;
+import lombok.SneakyThrows;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
 
 public final class WebApplicationEventListener implements ApplicationListener<ApplicationEvent> {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String STARTED_EVENT = "org.springframework.context.event.ContextStartedEvent";
     private static final String READY_EVENT = "org.springframework.boot.context.event.ApplicationReadyEvent";
@@ -100,17 +99,9 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
         });
     }
 
+    @SneakyThrows
     private Executor<?> instanceExecutor(Class<? extends Executor<?>> initiator, DependenciesContainerResolver containerResolver, String profile) {
-        try {
-            Constructor<?> constructor = initiator.getConstructor(DependenciesContainerResolver.class, String.class);
-            Executor<?> executor = (Executor<?>) constructor.newInstance(containerResolver, profile);
-            if (log.isDebugEnabled()) {
-                log.debug("Init event executor [{}]", initiator.getName());
-            }
-            return executor;
-        } catch (Exception e) {
-            log.error("Can not instance executor [{}]", initiator.getName(), e);
-            return null;
-        }
+        AbstractExecutor<?> abstractExecutor = (AbstractExecutor<?>) UnsafeUtils.allocateInstance(initiator);
+        return abstractExecutor.newInstance(containerResolver, profile);
     }
 }

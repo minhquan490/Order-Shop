@@ -9,16 +9,22 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.CustomerLoginHistoryResp;
 import com.bachlinh.order.web.service.common.LoginHistoryService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @RouteProvider
 public class CustomerLoginHistoriesListHandler extends AbstractController<CustomerLoginHistoryResp, Void> {
 
     private String path;
     private LoginHistoryService loginHistoryService;
+
+    @Override
+    public AbstractController<CustomerLoginHistoryResp, Void> newInstance() {
+        return new CustomerLoginHistoriesListHandler();
+    }
 
     @Override
     protected CustomerLoginHistoryResp internalHandler(Payload<Void> request) {

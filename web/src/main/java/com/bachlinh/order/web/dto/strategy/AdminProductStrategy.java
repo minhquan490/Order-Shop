@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
@@ -13,7 +14,7 @@ import com.bachlinh.order.web.dto.resp.AdminProductResp;
 public class AdminProductStrategy extends AbstractDtoStrategy<AdminProductResp, Product> {
 
     @ActiveReflection
-    public AdminProductStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private AdminProductStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -42,6 +43,11 @@ public class AdminProductStrategy extends AbstractDtoStrategy<AdminProductResp, 
     @Override
     protected void afterConvert(Product source, Class<AdminProductResp> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<AdminProductResp, Product> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new AdminProductStrategy(dependenciesResolver, environment);
     }
 
     @Override

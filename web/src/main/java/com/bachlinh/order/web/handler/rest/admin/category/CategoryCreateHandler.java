@@ -11,16 +11,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryCreateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "categoryCreateHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class CategoryCreateHandler extends AbstractController<CategoryResp, CategoryCreateForm> {
     private CategoryService categoryService;
     private String url;
+
+    @Override
+    public AbstractController<CategoryResp, CategoryCreateForm> newInstance() {
+        return new CategoryCreateHandler();
+    }
 
     @Override
     @ActiveReflection

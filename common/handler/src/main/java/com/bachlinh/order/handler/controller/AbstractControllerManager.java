@@ -6,16 +6,16 @@ import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
-import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.interceptor.spi.ObjectInterceptor;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.utils.UnsafeUtils;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public abstract non-sealed class AbstractControllerManager implements Controller
                 .filter(Controller.class::isAssignableFrom)
                 .filter(clazz -> clazz.isAnnotationPresent(RouteProvider.class))
                 .toList();
-        controllerClasses.forEach(clazz -> registerControllerWithDefaultConstructor(clazz, wrapper, profile));
+        controllerClasses.forEach(clazz -> registerControllerWithUnsafe(clazz, wrapper, profile));
         try {
             interceptor = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile).getDependenciesResolver().resolveDependencies(ObjectInterceptor.class);
         } catch (Exception e) {
@@ -82,17 +82,13 @@ public abstract non-sealed class AbstractControllerManager implements Controller
         return controllerContext.queryAll();
     }
 
-    private void registerControllerWithDefaultConstructor(Class<?> clazz, ContainerWrapper wrapper, String profile) {
+    @SneakyThrows
+    private void registerControllerWithUnsafe(Class<?> clazz, ContainerWrapper wrapper, String profile) {
         if (!controllerContext.contains(clazz.getName())) {
-            try {
-                Constructor<?> defaultConstructor = clazz.getConstructor();
-                AbstractController<?, ?> instance = (AbstractController<?, ?>) defaultConstructor.newInstance();
-                instance.setWrapper(wrapper, profile);
-                addController(instance);
-                logger.info("Init constructor [{}] complete", clazz.getName());
-            } catch (Exception e) {
-                throw new CriticalException("Can not load controller [" + clazz.getName() + "]", e);
-            }
+            AbstractController<?, ?> instance = (AbstractController<?, ?>) UnsafeUtils.allocateInstance(clazz);
+            var actualInstance = instance.newInstance();
+            actualInstance.setWrapper(wrapper, profile);
+            addController(actualInstance);
         }
     }
 }

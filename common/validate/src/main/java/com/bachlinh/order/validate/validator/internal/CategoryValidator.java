@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -20,11 +19,6 @@ public class CategoryValidator extends AbstractValidator<Category> {
     private static final String LENGTH_MESSAGE_ID = "MSG-000002";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public CategoryValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

@@ -15,9 +15,13 @@ public class CrawlResultCleaner extends AbstractJob {
     private CrawlResultRepository crawlResultRepository;
     private LocalDateTime previousExecution;
 
-    @ActiveReflection
-    public CrawlResultCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    private CrawlResultCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new CrawlResultCleaner(name, activeProfile, dependenciesResolver);
     }
 
     @Override

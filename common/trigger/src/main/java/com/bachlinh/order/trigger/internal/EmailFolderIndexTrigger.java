@@ -16,12 +16,6 @@ public class EmailFolderIndexTrigger extends AbstractTrigger<EmailFolders> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public EmailFolderIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     public TriggerMode getMode() {
         return TriggerMode.AFTER;
@@ -30,6 +24,12 @@ public class EmailFolderIndexTrigger extends AbstractTrigger<EmailFolders> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 
     @Override

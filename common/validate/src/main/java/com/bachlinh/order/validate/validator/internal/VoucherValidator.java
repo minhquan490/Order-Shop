@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -24,11 +23,6 @@ public class VoucherValidator extends AbstractValidator<Voucher> {
     private static final String TIME_END_MESSAGE_ID = "MSG-000024";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public VoucherValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

@@ -20,10 +20,14 @@ public class EmailTrashClearing extends AbstractJob {
     private LocalDateTime previousTimeExecution;
     private EmailRepository emailRepository;
     private EmailTrashRepository emailTrashRepository;
-
-    @ActiveReflection
-    public EmailTrashClearing(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    
+    private EmailTrashClearing(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new EmailTrashClearing(name, activeProfile, dependenciesResolver);
     }
 
     @Override

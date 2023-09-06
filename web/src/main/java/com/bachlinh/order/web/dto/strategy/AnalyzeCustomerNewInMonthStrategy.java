@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
@@ -10,7 +11,7 @@ import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
 public class AnalyzeCustomerNewInMonthStrategy extends AbstractDtoStrategy<AnalyzeCustomerNewInMonthResp, AnalyzeCustomerNewInMonthResp.ResultSet> {
 
     @ActiveReflection
-    public AnalyzeCustomerNewInMonthStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private AnalyzeCustomerNewInMonthStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -32,6 +33,11 @@ public class AnalyzeCustomerNewInMonthStrategy extends AbstractDtoStrategy<Analy
     @Override
     protected void afterConvert(AnalyzeCustomerNewInMonthResp.ResultSet source, Class<AnalyzeCustomerNewInMonthResp> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<AnalyzeCustomerNewInMonthResp, AnalyzeCustomerNewInMonthResp.ResultSet> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new AnalyzeCustomerNewInMonthStrategy(dependenciesResolver, environment);
     }
 
     @Override

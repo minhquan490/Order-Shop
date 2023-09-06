@@ -8,7 +8,6 @@ import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -27,11 +26,6 @@ public class ProductValidator extends AbstractValidator<Product> {
 
     private ProductRepository productRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public ProductValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

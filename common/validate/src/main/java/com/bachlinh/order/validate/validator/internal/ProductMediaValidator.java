@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -22,11 +21,6 @@ public class ProductMediaValidator extends AbstractValidator<ProductMedia> {
     private static final String ASSOCIATE_INVALID_MESSAGE_ID = "MSG-000032";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public ProductMediaValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

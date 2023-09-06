@@ -14,17 +14,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractTrigger<T extends BaseEntity<?>> implements EntityTrigger<T> {
-    private final DependenciesResolver dependenciesResolver;
+    private DependenciesResolver dependenciesResolver;
     private ThreadPoolManager threadPoolManager;
     private boolean runSync = false;
     private Environment environment;
     private RunnableType runnableType = RunnableType.ASYNC;
 
     protected Logger log = LoggerFactory.getLogger(getClass());
-
-    protected AbstractTrigger(DependenciesResolver dependenciesResolver) {
-        this.dependenciesResolver = dependenciesResolver;
-    }
 
     protected DependenciesResolver getDependenciesResolver() {
         return dependenciesResolver;
@@ -68,5 +64,10 @@ public abstract class AbstractTrigger<T extends BaseEntity<?>> implements Entity
     @ActiveReflection
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        this.dependenciesResolver = resolver;
     }
 }

@@ -5,7 +5,7 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
 
-public abstract class AbstractExecutor<T> implements Executor<T> {
+public abstract non-sealed class AbstractExecutor<T> implements Executor<T> {
 
     private final DependenciesContainerResolver containerResolver;
     private final Environment environment;
@@ -25,6 +25,8 @@ public abstract class AbstractExecutor<T> implements Executor<T> {
         }
         doExecute(source);
     }
+
+    public abstract AbstractExecutor<T> newInstance(DependenciesContainerResolver containerResolver, String profile);
 
     protected abstract void inject();
 

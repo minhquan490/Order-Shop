@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class ObjectReflectiveLocator implements ServiceLoader {
@@ -34,8 +35,8 @@ public class ObjectReflectiveLocator implements ServiceLoader {
     @Override
     public Collection<ClassMetadata> loadClass(String basePackage) {
         ScanResult<Collection<Class<?>>> result = classScanner.scan(Collections.singleton(basePackage));
-        if (result.isReady()) {
-            return result.result()
+        if (result != null && result.isReady()) {
+            return Objects.requireNonNull(result.result())
                     .stream()
                     .map(InternalClassMetadata::new)
                     .map(ClassMetadata.class::cast)

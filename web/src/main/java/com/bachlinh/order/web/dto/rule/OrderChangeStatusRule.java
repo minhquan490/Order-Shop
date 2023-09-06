@@ -25,10 +25,14 @@ public class OrderChangeStatusRule extends AbstractRule<OrderChangeStatusForm> {
 
     private OrderService orderService;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public OrderChangeStatusRule(Environment environment, DependenciesResolver resolver) {
+    
+    private OrderChangeStatusRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<OrderChangeStatusForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new OrderChangeStatusRule(environment, resolver);
     }
 
     @Override

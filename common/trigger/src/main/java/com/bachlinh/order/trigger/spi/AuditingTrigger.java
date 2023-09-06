@@ -22,14 +22,7 @@ import java.util.Optional;
 public class AuditingTrigger extends AbstractTrigger<AbstractEntity<?>> {
 
     private AuditorAware<Object> entityAuditor;
-    private final TriggerMode mode;
-
-    @ActiveReflection
-    public AuditingTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        this.mode = TriggerMode.BEFORE;
-        setRunSync(true);
-    }
+    private TriggerMode mode;
 
     @Override
     protected void doExecute(AbstractEntity<?> entity) {
@@ -91,5 +84,12 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity<?>> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        this.mode = TriggerMode.BEFORE;
+        setRunSync(true);
+        super.setResolver(resolver);
     }
 }

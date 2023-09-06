@@ -7,7 +7,6 @@ import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -23,11 +22,6 @@ public class EmailTemplateFolderValidator extends AbstractValidator<EmailTemplat
 
     private EmailTemplateFolderRepository emailTemplateFolderRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    protected EmailTemplateFolderValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

@@ -12,16 +12,22 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.product.ProductUpdateForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "productUpdateHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class ProductUpdateHandler extends AbstractController<ProductResp, ProductUpdateForm> {
     private String productUpdateUrl;
     private ProductService productService;
+
+    @Override
+    public AbstractController<ProductResp, ProductUpdateForm> newInstance() {
+        return new ProductUpdateHandler();
+    }
 
     @Override
     @ActiveReflection

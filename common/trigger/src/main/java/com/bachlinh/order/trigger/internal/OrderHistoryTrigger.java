@@ -9,7 +9,6 @@ import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderHistory;
 import com.bachlinh.order.entity.transaction.spi.EntitySavePointManager;
 import com.bachlinh.order.repository.OrderHistoryRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 @ActiveReflection
@@ -17,11 +16,6 @@ import com.bachlinh.order.trigger.spi.AbstractTrigger;
 public class OrderHistoryTrigger extends AbstractTrigger<Order> {
     private EntityFactory entityFactory;
     private OrderHistoryRepository orderHistoryRepository;
-
-    @ActiveReflection
-    public OrderHistoryTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-    }
 
     @Override
     protected void doExecute(Order entity) {

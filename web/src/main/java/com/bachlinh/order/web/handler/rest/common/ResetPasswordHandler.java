@@ -8,6 +8,7 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
@@ -15,10 +16,15 @@ import java.util.Map;
 
 @RouteProvider(name = "resetPasswordHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, Map<String, Object>> {
     private String url;
     private ForgotPasswordService forgotPasswordService;
+
+    @Override
+    public AbstractController<NativeResponse<?>, Map<String, Object>> newInstance() {
+        return new ResetPasswordHandler();
+    }
 
     @Override
     @ActiveReflection

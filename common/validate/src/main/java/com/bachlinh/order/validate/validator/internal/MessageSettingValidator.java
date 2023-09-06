@@ -5,7 +5,6 @@ import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 
@@ -18,11 +17,6 @@ public class MessageSettingValidator extends AbstractValidator<MessageSetting> {
     private static final String EXISTED_MESSAGE_ID = "MSG-000007";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public MessageSettingValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {
@@ -45,7 +39,7 @@ public class MessageSettingValidator extends AbstractValidator<MessageSetting> {
                 validateMessageValueLength(entity.getValue(), result);
             }
         }
-        
+
         return result;
     }
 

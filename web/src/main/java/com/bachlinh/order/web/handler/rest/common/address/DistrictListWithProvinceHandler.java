@@ -11,6 +11,7 @@ import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.resp.DistrictResp;
 import com.bachlinh.order.web.service.common.DistrictService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
@@ -19,12 +20,17 @@ import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "districtListWithProvinceHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DistrictListWithProvinceHandler extends AbstractController<Collection<DistrictResp>, Void> {
 
     private String url;
     private DistrictService districtService;
     private MessageSettingRepository messageSettingRepository;
+
+    @Override
+    public AbstractController<Collection<DistrictResp>, Void> newInstance() {
+        return new DistrictListWithProvinceHandler();
+    }
 
     @Override
     @ActiveReflection

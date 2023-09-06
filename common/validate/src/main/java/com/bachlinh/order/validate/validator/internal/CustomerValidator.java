@@ -8,7 +8,6 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
@@ -27,11 +26,6 @@ public class CustomerValidator extends AbstractValidator<Customer> {
 
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public CustomerValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

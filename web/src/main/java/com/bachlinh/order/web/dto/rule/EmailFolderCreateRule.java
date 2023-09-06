@@ -29,9 +29,13 @@ public class EmailFolderCreateRule extends AbstractRule<EmailFolderCreateForm> {
     private EmailFoldersRepository emailFoldersRepository;
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public EmailFolderCreateRule(Environment environment, DependenciesResolver resolver) {
+    private EmailFolderCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<EmailFolderCreateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new EmailFolderCreateRule(environment, resolver);
     }
 
     @Override

@@ -9,14 +9,20 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.web.dto.resp.RevokeTokenResp;
 import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "revokeAccessTokenHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RevokeAccessTokenHandler extends AbstractController<RevokeTokenResp, Void> {
     private String url;
     private RevokeAccessTokenService revokeAccessTokenService;
+
+    @Override
+    public AbstractController<RevokeTokenResp, Void> newInstance() {
+        return new RevokeAccessTokenHandler();
+    }
 
     @Override
     @ActiveReflection

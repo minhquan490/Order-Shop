@@ -10,16 +10,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.sending.NormalEmailSendingForm;
 import com.bachlinh.order.web.dto.resp.EmailSendingResp;
 import com.bachlinh.order.web.service.business.EmailSendingService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RouteProvider(name = "normalEmailSendingHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 public class NormalEmailSendingHandler extends AbstractController<EmailSendingResp, NormalEmailSendingForm> {
     private String url;
     private EmailSendingService emailSendingService;
+
+    @Override
+    public AbstractController<EmailSendingResp, NormalEmailSendingForm> newInstance() {
+        return new NormalEmailSendingHandler();
+    }
 
     @Override
     @ActiveReflection

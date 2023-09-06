@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Country;
 import com.bachlinh.order.entity.enums.Gender;
@@ -20,7 +21,7 @@ public class CustomerCreateStrategy extends AbstractDtoStrategy<Customer, Custom
     private PasswordEncoder passwordEncoder;
 
     @ActiveReflection
-    public CustomerCreateStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private CustomerCreateStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -63,6 +64,11 @@ public class CustomerCreateStrategy extends AbstractDtoStrategy<Customer, Custom
     @Override
     protected void afterConvert(CustomerCreateForm source, Class<Customer> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<Customer, CustomerCreateForm> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new CustomerCreateStrategy(dependenciesResolver, environment);
     }
 
     @Override

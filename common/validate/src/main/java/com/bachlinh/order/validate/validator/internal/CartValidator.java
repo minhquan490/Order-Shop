@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 
@@ -18,11 +17,6 @@ public class CartValidator extends AbstractValidator<Cart> {
     private static final String NON_NULL_MESSAGE_ID = "MSG-000003";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public CartValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

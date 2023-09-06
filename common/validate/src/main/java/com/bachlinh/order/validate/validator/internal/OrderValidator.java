@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 
@@ -18,11 +17,6 @@ public class OrderValidator extends AbstractValidator<Order> {
     private static final String SPECIFIC_INVALID_MESSAGE_ID = "MSG-000014";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public OrderValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

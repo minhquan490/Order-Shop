@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-@NoArgsConstructor(access = AccessLevel.PUBLIC, onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ActiveReflection
 public class CsrfInterceptor extends AbstractInterceptor {
     private static final long SEVEN_DAY_TO_SECOND = 86400L * 7L;
@@ -65,6 +65,11 @@ public class CsrfInterceptor extends AbstractInterceptor {
                 response.addHeader(environment.getProperty(CSRF_HEADER_KEY), token);
             }
         }
+    }
+
+    @Override
+    public AbstractInterceptor getInstance() {
+        return new CsrfInterceptor();
     }
 
     @Override

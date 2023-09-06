@@ -9,16 +9,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.CustomerBasicInfoForm;
 import com.bachlinh.order.web.dto.resp.CustomerBasicInformationResp;
 import com.bachlinh.order.web.service.common.CustomerService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicCustomerInformationHandler extends AbstractController<CustomerBasicInformationResp, CustomerBasicInfoForm> {
 
     private CustomerService customerService;
     private String url;
+
+    @Override
+    public AbstractController<CustomerBasicInformationResp, CustomerBasicInfoForm> newInstance() {
+        return new BasicCustomerInformationHandler();
+    }
 
     @Override
     @ActiveReflection

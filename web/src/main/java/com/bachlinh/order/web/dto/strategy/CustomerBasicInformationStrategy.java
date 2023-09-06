@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -16,7 +17,7 @@ public class CustomerBasicInformationStrategy extends AbstractDtoStrategy<Custom
     private String servingFileUrl;
 
     @ActiveReflection
-    public CustomerBasicInformationStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private CustomerBasicInformationStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -47,6 +48,11 @@ public class CustomerBasicInformationStrategy extends AbstractDtoStrategy<Custom
     @Override
     protected void afterConvert(Customer source, Class<CustomerBasicInformationResp> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<CustomerBasicInformationResp, Customer> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new CustomerBasicInformationStrategy(dependenciesResolver, environment);
     }
 
     @Override

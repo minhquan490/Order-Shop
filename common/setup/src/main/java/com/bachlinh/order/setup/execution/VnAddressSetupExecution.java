@@ -3,6 +3,7 @@ package com.bachlinh.order.setup.execution;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.Ward;
@@ -42,9 +43,8 @@ public class VnAddressSetupExecution extends AbstractSetup {
     private ProvinceRepository provinceRepository;
     private DistrictRepository districtRepository;
     private WardRepository wardRepository;
-
-    @ActiveReflection
-    public VnAddressSetupExecution(ContainerWrapper wrapper, String profile) {
+    
+    private VnAddressSetupExecution(ContainerWrapper wrapper, String profile) {
         super(wrapper, profile);
     }
 
@@ -244,5 +244,10 @@ public class VnAddressSetupExecution extends AbstractSetup {
             }
         }
         return null;
+    }
+
+    @Override
+    public Setup newInstance(ContainerWrapper wrapper, String profile) {
+        return new VnAddressSetupExecution(wrapper, profile);
     }
 }

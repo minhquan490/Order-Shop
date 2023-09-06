@@ -8,16 +8,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.ProvinceSearchForm;
 import com.bachlinh.order.web.dto.resp.ProvinceResp;
 import com.bachlinh.order.web.service.business.ProvinceSearchService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ActiveReflection
 @RouteProvider(name = "provinceSearchHandler")
 public class ProvinceSearchHandler extends AbstractController<Collection<ProvinceResp>, ProvinceSearchForm> {
     private ProvinceSearchService provinceSearchService;
     private String url;
+
+    @Override
+    public AbstractController<Collection<ProvinceResp>, ProvinceSearchForm> newInstance() {
+        return new ProvinceSearchHandler();
+    }
 
     @Override
     @ActiveReflection

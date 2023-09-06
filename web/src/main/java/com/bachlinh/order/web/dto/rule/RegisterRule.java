@@ -29,9 +29,13 @@ public class RegisterRule extends AbstractRule<RegisterForm> {
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public RegisterRule(Environment environment, DependenciesResolver resolver) {
+    private RegisterRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<RegisterForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new RegisterRule(environment, resolver);
     }
 
     @Override

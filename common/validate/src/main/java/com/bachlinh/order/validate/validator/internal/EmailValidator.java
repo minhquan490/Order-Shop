@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -20,11 +19,6 @@ public class EmailValidator extends AbstractValidator<Email> {
     private static final String LENGTH_INVALID_MESSAGE_ID = "MSG-000002";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public EmailValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

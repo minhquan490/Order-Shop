@@ -16,12 +16,6 @@ public class VoucherIndexTrigger extends AbstractTrigger<Voucher> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public VoucherIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     public TriggerMode getMode() {
         return TriggerMode.AFTER;
@@ -53,5 +47,11 @@ public class VoucherIndexTrigger extends AbstractTrigger<Voucher> {
     @Override
     public String getTriggerName() {
         return "voucherIndexTrigger";
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 }

@@ -12,16 +12,22 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider(name = "customerDeleteHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class CustomerDeleteHandler extends AbstractController<CustomerResp, CustomerDeleteForm> {
     private String url;
     private CustomerService customerService;
+
+    @Override
+    public AbstractController<CustomerResp, CustomerDeleteForm> newInstance() {
+        return new CustomerDeleteHandler();
+    }
 
     @Override
     @ActiveReflection

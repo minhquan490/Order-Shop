@@ -30,9 +30,13 @@ public class CustomerUpdateInfoRule extends AbstractRule<CustomerUpdateInfoForm>
     private MessageSettingRepository messageSettingRepository;
     private CustomerRepository customerRepository;
 
-    @ActiveReflection
-    public CustomerUpdateInfoRule(Environment environment, DependenciesResolver resolver) {
+    private CustomerUpdateInfoRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<CustomerUpdateInfoForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new CustomerUpdateInfoRule(environment, resolver);
     }
 
     @Override

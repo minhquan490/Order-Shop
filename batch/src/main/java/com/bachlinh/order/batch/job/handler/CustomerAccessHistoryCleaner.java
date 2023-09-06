@@ -17,10 +17,14 @@ public class CustomerAccessHistoryCleaner extends AbstractJob {
     private static final int REMOVAL_POLICY = 1;
     private LocalDateTime previousTimeExecution;
     private CustomerAccessHistoryRepository repository;
-
-    @ActiveReflection
-    public CustomerAccessHistoryCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    
+    private CustomerAccessHistoryCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new CustomerAccessHistoryCleaner(name, activeProfile, dependenciesResolver);
     }
 
     @Override

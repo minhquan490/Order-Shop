@@ -9,15 +9,21 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.CustomerInfoResp;
 import com.bachlinh.order.web.service.common.CustomerService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider(name = "customerInfoHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CustomerInfoHandler extends AbstractController<CustomerInfoResp, Void> {
     private String url;
     private CustomerService customerService;
+
+    @Override
+    public AbstractController<CustomerInfoResp, Void> newInstance() {
+        return new CustomerInfoHandler();
+    }
 
     @Override
     @ActiveReflection

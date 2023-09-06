@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.BatchReport;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -21,11 +20,6 @@ public class BatchReportValidator extends AbstractValidator<BatchReport> {
     private static final String NON_NULL_MESSAGE_ID = "MSG-000003";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public BatchReportValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

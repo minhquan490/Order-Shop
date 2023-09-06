@@ -9,6 +9,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.common.FileFlushForm;
 import com.bachlinh.order.web.service.business.FileUploadService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,15 @@ import java.io.IOException;
 
 @RouteProvider(name = "flushFileUploadHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlushFileUploadHandler extends AbstractController<ResponseEntity<?>, FileFlushForm> {
     private String url;
     private FileUploadService fileUploadService;
+
+    @Override
+    public AbstractController<ResponseEntity<?>, FileFlushForm> newInstance() {
+        return new FlushFileUploadHandler();
+    }
 
     @Override
     @ActiveReflection

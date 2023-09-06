@@ -22,10 +22,14 @@ public class VoucherSearchRule extends AbstractRule<VoucherSearchForm> {
     private static final String EMPTY_QUERY_MESSAGE_ID = "MSG-000026";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public VoucherSearchRule(Environment environment, DependenciesResolver resolver) {
+    
+    private VoucherSearchRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<VoucherSearchForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new VoucherSearchRule(environment, resolver);
     }
 
     @Override

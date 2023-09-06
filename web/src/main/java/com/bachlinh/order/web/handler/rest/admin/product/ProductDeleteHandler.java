@@ -12,6 +12,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteForm;
 import com.bachlinh.order.web.service.common.ProductService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +22,17 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "productDeleteHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, ProductDeleteForm> {
     private String url;
     private ProductService productService;
+
+    @Override
+    public AbstractController<ResponseEntity<Map<String, Object>>, ProductDeleteForm> newInstance() {
+        return new ProductDeleteHandler();
+    }
 
     @Override
     @ActiveReflection

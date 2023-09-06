@@ -18,12 +18,6 @@ import java.util.Collections;
 public class ProductIndexTrigger extends AbstractTrigger<Product> {
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public ProductIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     protected void doExecute(Product entity) {
         EntityContext entityContext = entityFactory.getEntityContext(entity.getClass());
@@ -50,5 +44,11 @@ public class ProductIndexTrigger extends AbstractTrigger<Product> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 }

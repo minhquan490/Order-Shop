@@ -12,7 +12,6 @@ import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.repository.CartRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 import java.sql.Timestamp;
@@ -27,11 +26,6 @@ public class CreateCustomerAssociateDataTrigger extends AbstractTrigger<Customer
     private CartRepository cartRepository;
     private EmailTrashRepository emailTrashRepository;
     private EmailFoldersRepository emailFoldersRepository;
-
-    @ActiveReflection
-    public CreateCustomerAssociateDataTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-    }
 
     @Override
     public TriggerMode getMode() {

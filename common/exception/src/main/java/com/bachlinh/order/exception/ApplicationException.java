@@ -8,4 +8,8 @@ public abstract class ApplicationException extends RuntimeException {
     protected ApplicationException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    protected ApplicationException(Throwable cause) {
+        super(cause);
+    }
 }

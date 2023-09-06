@@ -11,6 +11,7 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.service.common.CategoryService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
@@ -18,12 +19,17 @@ import java.util.Map;
 
 @RouteProvider(name = "categoryDeleteHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class CategoryDeleteHandler extends AbstractController<Map<String, Object>, CategoryDeleteForm> {
     private CategoryService categoryService;
     private String url;
+
+    @Override
+    public AbstractController<Map<String, Object>, CategoryDeleteForm> newInstance() {
+        return new CategoryDeleteHandler();
+    }
 
     @Override
     @ActiveReflection

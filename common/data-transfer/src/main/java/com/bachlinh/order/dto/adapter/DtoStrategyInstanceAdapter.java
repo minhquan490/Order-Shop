@@ -1,11 +1,13 @@
 package com.bachlinh.order.dto.adapter;
 
-import lombok.RequiredArgsConstructor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.utils.UnsafeUtils;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,9 +41,8 @@ public final class DtoStrategyInstanceAdapter {
 
     private DtoStrategy<?, ?> initStrategy(Class<DtoStrategy<?, ?>> strategyClass) {
         try {
-            var constructor = strategyClass.getDeclaredConstructor(DependenciesResolver.class, Environment.class);
-            constructor.setAccessible(true);
-            return constructor.newInstance(resolver, environment);
+            var dummyObject = UnsafeUtils.allocateInstance(strategyClass);
+            return ((AbstractDtoStrategy<?, ?>) dummyObject).getInstance(resolver, environment);
         } catch (Exception e) {
             throw new CriticalException(e.getMessage(), e);
         }

@@ -37,17 +37,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
+import lombok.SneakyThrows;
 import org.apache.lucene.store.Directory;
 import org.hibernate.annotations.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -81,13 +78,14 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     private final Map<String, JoinMetadata> joinMetadataMap;
     private final Collection<FormulaHolder> formulas;
 
+    @SuppressWarnings("unchecked")
     public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Init entity context for entity {}", entity.getSimpleName());
             }
             this.idType = queryIdType(entity);
-            this.baseEntity = (BaseEntity<?>) newInstance(entity, null, null);
+            this.baseEntity = getBaseEntityInstance((Class<? extends BaseEntity<?>>) entity);
             this.validators = getValidators(entity, dependenciesResolver);
             this.triggers = getTriggers(entity, dependenciesResolver, environment);
             this.prefix = createIdPrefix(entity);
@@ -308,11 +306,13 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
                     return applyOn.entity().equals(entity);
                 })
                 .map(validator -> {
-                    Object returnValidator = newInstance(validator, new Class[]{DependenciesResolver.class}, new Object[]{resolver});
+                    Object returnValidator = newInstance(validator);
+                    EntityValidator<?> entityValidator = (EntityValidator<?>) returnValidator;
+                    entityValidator.setResolver(resolver);
                     if (log.isDebugEnabled()) {
                         log.debug("Init validator [{}] for entity [{}]", validator.getName(), baseEntity.getClass().getName());
                     }
-                    return returnValidator;
+                    return entityValidator;
                 })
                 .map(returnObject -> (T) returnObject)
                 .toList();
@@ -346,46 +346,23 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         throw new PersistenceException("Can not find type of entity id");
     }
 
-    private Object newInstance(Class<?> initiator, @Nullable Class<?>[] paramTypes, @Nullable Object[] params) {
-        try {
-            Constructor<?> constructor;
-            if (paramTypes == null) {
-                constructor = initiator.getDeclaredConstructor();
-            } else {
-                constructor = initiator.getDeclaredConstructor(paramTypes);
-            }
-            if (!Modifier.isPublic(constructor.getModifiers())) {
-                constructor.setAccessible(true);
-            }
-            if (params == null) {
-                return constructor.newInstance();
-            } else {
-                return constructor.newInstance(params);
-            }
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                 NoSuchMethodException e) {
-            throw new CriticalException("Can not init validator [" + initiator.getName() + "]");
-        }
+    @SneakyThrows
+    private Object newInstance(Class<?> initiator) {
+        return UnsafeUtils.allocateInstance(initiator);
     }
 
-    private <T extends EntityTrigger<? extends BaseEntity<?>>> T initTrigger(Class<T> triggerClass, DependenciesResolver dependenciesResolver, Environment environment) {
-        try {
-            Constructor<T> constructor = triggerClass.getDeclaredConstructor(DependenciesResolver.class);
-            if (!Modifier.isPublic(constructor.getModifiers())) {
-                constructor.setAccessible(true);
-            }
-            AbstractTrigger<? extends BaseEntity<?>> trigger = (AbstractTrigger<? extends BaseEntity<?>>) constructor.newInstance(dependenciesResolver);
-            trigger.setEnvironment(environment);
+    @SneakyThrows
+    private BaseEntity<?> getBaseEntityInstance(Class<? extends BaseEntity<?>> baseEntityType) {
+        return UnsafeUtils.allocateInstance(baseEntityType);
+    }
 
-            return triggerClass.cast(trigger);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                 NoSuchMethodException e) {
-            throw new CriticalException("Can not init trigger [" + triggerClass.getName() + "]");
-        } finally {
-            if (log.isDebugEnabled()) {
-                log.debug("Init trigger [{}] for entity [{}]", triggerClass.getName(), baseEntity.getClass().getName());
-            }
-        }
+    @SneakyThrows
+    private <T extends EntityTrigger<? extends BaseEntity<?>>> T initTrigger(Class<T> triggerClass, DependenciesResolver dependenciesResolver, Environment environment) {
+        AbstractTrigger<? extends BaseEntity<?>> trigger = (AbstractTrigger<? extends BaseEntity<?>>) UnsafeUtils.allocateInstance(triggerClass);
+        trigger.setEnvironment(environment);
+        trigger.setResolver(dependenciesResolver);
+
+        return triggerClass.cast(trigger);
     }
 
     private int configLastId() throws ClassNotFoundException {

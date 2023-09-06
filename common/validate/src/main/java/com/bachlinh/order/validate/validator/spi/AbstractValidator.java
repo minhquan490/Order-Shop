@@ -11,11 +11,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
  * @author Hoang Minh Quan
  */
 public abstract class AbstractValidator<T extends BaseEntity<?>> implements EntityValidator<T> {
-    private final DependenciesResolver resolver;
-
-    protected AbstractValidator(DependenciesResolver resolver) {
-        this.resolver = resolver;
-    }
+    private DependenciesResolver resolver;
 
     protected DependenciesResolver getResolver() {
         return resolver;
@@ -29,5 +25,10 @@ public abstract class AbstractValidator<T extends BaseEntity<?>> implements Enti
     public final ValidateResult validate(T entity) {
         inject();
         return doValidate(entity);
+    }
+
+    @Override
+    public final void setResolver(DependenciesResolver resolver) {
+        this.resolver = resolver;
     }
 }

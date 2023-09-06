@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity;
 
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 public interface EntityValidator<T extends BaseEntity<?>> {
     /**
@@ -10,4 +11,6 @@ public interface EntityValidator<T extends BaseEntity<?>> {
      * @return result after validate entity.
      */
     ValidateResult validate(T entity);
+
+    void setResolver(DependenciesResolver resolver);
 }

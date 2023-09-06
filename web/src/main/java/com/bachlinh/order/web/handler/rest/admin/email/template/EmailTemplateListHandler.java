@@ -8,6 +8,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -15,10 +16,15 @@ import java.util.Collection;
 
 @RouteProvider(name = "emailTemplateListHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailTemplateListHandler extends AbstractController<Collection<EmailTemplateInfoResp>, Void> {
     private String url;
     private EmailTemplateService emailTemplateService;
+
+    @Override
+    public AbstractController<Collection<EmailTemplateInfoResp>, Void> newInstance() {
+        return new EmailTemplateListHandler();
+    }
 
     @Override
     @ActiveReflection

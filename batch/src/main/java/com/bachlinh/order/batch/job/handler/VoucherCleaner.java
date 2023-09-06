@@ -28,9 +28,13 @@ public class VoucherCleaner extends AbstractJob {
     private CustomerRepository customerRepository;
     private LocalDateTime previousTimeExecution;
 
-    @ActiveReflection
-    public VoucherCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    private VoucherCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new VoucherCleaner(name, activeProfile, dependenciesResolver);
     }
 
     @Override

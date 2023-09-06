@@ -9,15 +9,21 @@ import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderInfoResp;
 import com.bachlinh.order.web.service.common.EmailTemplateFolderService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RouteProvider(name = "emailTemplateFolderInfoHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailTemplateFolderInfoHandler extends AbstractController<EmailTemplateFolderInfoResp, Void> {
     private EmailTemplateFolderService emailTemplateFolderService;
     private String url;
+
+    @Override
+    public AbstractController<EmailTemplateFolderInfoResp, Void> newInstance() {
+        return new EmailTemplateFolderInfoHandler();
+    }
 
     @Override
     @ActiveReflection

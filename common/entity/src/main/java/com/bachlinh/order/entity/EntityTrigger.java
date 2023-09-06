@@ -3,6 +3,7 @@ package com.bachlinh.order.entity;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.service.container.DependenciesResolver;
 
 public interface EntityTrigger<T extends BaseEntity<?>> {
     /**
@@ -23,4 +24,6 @@ public interface EntityTrigger<T extends BaseEntity<?>> {
     TriggerExecution[] getExecuteOn();
 
     String getTriggerName();
+
+    void setResolver(DependenciesResolver resolver);
 }

@@ -11,17 +11,23 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingUpdateForm;
 import com.bachlinh.order.web.dto.resp.MessageSettingResp;
 import com.bachlinh.order.web.service.common.MessageSettingService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider(name = "messageSettingUpdateHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class MessageSettingUpdateHandler extends AbstractController<MessageSettingResp, MessageSettingUpdateForm> {
 
     private String url;
     private MessageSettingService messageSettingService;
+
+    @Override
+    public AbstractController<MessageSettingResp, MessageSettingUpdateForm> newInstance() {
+        return new MessageSettingUpdateHandler();
+    }
 
     @Override
     @ActiveReflection
