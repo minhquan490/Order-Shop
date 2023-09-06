@@ -29,10 +29,14 @@ public class CartFormRule extends AbstractRule<CartForm> {
 
     private ProductRepository productRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public CartFormRule(Environment environment, DependenciesResolver resolver) {
+    
+    private CartFormRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<CartForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new CartFormRule(environment, resolver);
     }
 
     @Override

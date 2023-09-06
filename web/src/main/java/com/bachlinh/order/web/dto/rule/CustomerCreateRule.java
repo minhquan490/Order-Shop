@@ -33,10 +33,14 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
 
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public CustomerCreateRule(Environment environment, DependenciesResolver resolver) {
+    
+    private CustomerCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<CustomerCreateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new CustomerCreateRule(environment, resolver);
     }
 
     @Override

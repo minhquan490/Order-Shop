@@ -15,10 +15,14 @@ public class CustomerInfoChangeCleaner extends AbstractJob {
     private static final int REMOVAL_POLICY = 1;
     private LocalDateTime previousTimeExecution;
     private CustomerInfoChangeHistoryRepository repository;
-
-    @ActiveReflection
-    public CustomerInfoChangeCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    
+    private CustomerInfoChangeCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new CustomerInfoChangeCleaner(name, activeProfile, dependenciesResolver);
     }
 
     @Override

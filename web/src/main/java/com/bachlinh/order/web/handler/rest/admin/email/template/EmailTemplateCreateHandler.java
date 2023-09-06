@@ -12,17 +12,23 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateCreateForm;
 import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RouteProvider(name = "emailTemplateCreateHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 @Permit(roles = {Role.ADMIN, Role.SEO, Role.MARKETING})
 public class EmailTemplateCreateHandler extends AbstractController<EmailTemplateInfoResp, EmailTemplateCreateForm> {
     private String url;
     private EmailTemplateService emailTemplateService;
+
+    @Override
+    public AbstractController<EmailTemplateInfoResp, EmailTemplateCreateForm> newInstance() {
+        return new EmailTemplateCreateHandler();
+    }
 
     @Override
     @ActiveReflection

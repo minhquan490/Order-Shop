@@ -11,16 +11,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherCreateForm;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.common.VoucherService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider(name = "voucherCreateHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class VoucherCreateHandler extends AbstractController<VoucherResp, VoucherCreateForm> {
     private String url;
     private VoucherService voucherService;
+
+    @Override
+    public AbstractController<VoucherResp, VoucherCreateForm> newInstance() {
+        return new VoucherCreateHandler();
+    }
 
     @Override
     @ActiveReflection

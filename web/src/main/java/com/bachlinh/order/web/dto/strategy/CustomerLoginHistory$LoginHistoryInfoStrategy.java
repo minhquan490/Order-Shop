@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -12,7 +13,7 @@ import com.bachlinh.order.web.dto.resp.CustomerLoginHistoryResp;
 public class CustomerLoginHistory$LoginHistoryInfoStrategy extends AbstractDtoStrategy<CustomerLoginHistoryResp.LoginHistoryInfo, LoginHistory> {
 
     @ActiveReflection
-    public CustomerLoginHistory$LoginHistoryInfoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private CustomerLoginHistory$LoginHistoryInfoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -35,6 +36,11 @@ public class CustomerLoginHistory$LoginHistoryInfoStrategy extends AbstractDtoSt
     @Override
     protected void afterConvert(LoginHistory source, Class<CustomerLoginHistoryResp.LoginHistoryInfo> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<CustomerLoginHistoryResp.LoginHistoryInfo, LoginHistory> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new CustomerLoginHistory$LoginHistoryInfoStrategy(dependenciesResolver, environment);
     }
 
     @Override

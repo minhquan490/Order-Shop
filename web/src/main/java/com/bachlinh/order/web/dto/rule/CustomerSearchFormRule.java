@@ -24,14 +24,19 @@ public class CustomerSearchFormRule extends AbstractRule<CustomerSearchForm> {
 
     private MessageSettingRepository messageSettingRepository;
 
-    public CustomerSearchFormRule(Environment environment, DependenciesResolver resolver) {
+    private CustomerSearchFormRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<CustomerSearchForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new CustomerSearchFormRule(environment, resolver);
     }
 
     @Override
     protected ValidatedDto.ValidateResult doValidate(CustomerSearchForm dto) {
         var validationResult = new HashMap<String, List<String>>(1);
-        
+
         if (!StringUtils.hasText(dto.getQuery())) {
             var key = "query";
             MessageSetting canNotSearchMessage = messageSettingRepository.getMessageById(CAN_NOT_SEARCH_MESSAGE_ID);

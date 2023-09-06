@@ -18,12 +18,6 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity<?>> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public IdGenTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        setRunSync(true);
-    }
-
     @Override
     protected void doExecute(BaseEntity<?> entity) {
         EntityContext entityContext = entityFactory.getEntityContext(entity.getClass());
@@ -54,5 +48,11 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity<?>> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        setRunSync(true);
+        super.setResolver(resolver);
     }
 }

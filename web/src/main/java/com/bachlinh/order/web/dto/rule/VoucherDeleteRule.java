@@ -26,10 +26,14 @@ public class VoucherDeleteRule extends AbstractRule<VoucherDeleteForm> {
 
     private VoucherRepository voucherRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public VoucherDeleteRule(Environment environment, DependenciesResolver resolver) {
+    
+    private VoucherDeleteRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<VoucherDeleteForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new VoucherDeleteRule(environment, resolver);
     }
 
     @Override

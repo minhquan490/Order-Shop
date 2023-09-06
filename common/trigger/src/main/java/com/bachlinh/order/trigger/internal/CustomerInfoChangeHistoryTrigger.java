@@ -8,7 +8,6 @@ import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 import java.sql.Timestamp;
@@ -20,11 +19,6 @@ import java.util.ArrayList;
 public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<Customer> {
     private CustomerInfoChangeHistoryRepository repository;
     private EntityFactory entityFactory;
-
-    @ActiveReflection
-    public CustomerInfoChangeHistoryTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-    }
 
     @Override
     public TriggerMode getMode() {

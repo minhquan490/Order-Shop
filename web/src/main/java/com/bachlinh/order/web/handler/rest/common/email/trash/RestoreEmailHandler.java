@@ -9,6 +9,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.RestoreEmailForm;
 import com.bachlinh.order.web.dto.resp.EmailTrashResp;
 import com.bachlinh.order.web.service.business.EmailInTrashService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -16,10 +17,15 @@ import java.util.Arrays;
 
 @ActiveReflection
 @RouteProvider(name = "restoreEmailHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RestoreEmailHandler extends AbstractController<EmailTrashResp, RestoreEmailForm> {
     private String url;
     private EmailInTrashService emailInTrashService;
+
+    @Override
+    public AbstractController<EmailTrashResp, RestoreEmailForm> newInstance() {
+        return new RestoreEmailHandler();
+    }
 
     @Override
     @ActiveReflection

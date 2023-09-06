@@ -5,5 +5,3 @@
     Page: foo
   </div>
 </template>
-
-<style scoped></style>

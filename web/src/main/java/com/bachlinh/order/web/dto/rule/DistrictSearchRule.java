@@ -22,9 +22,13 @@ public class DistrictSearchRule extends AbstractRule<DistrictSearchForm> {
     private MessageSettingRepository messageSettingRepository;
     private static final String SEARCH_WITH_EMPTY_KEYWORD_MESSAGE_ID = "MSG-000026";
 
-    @ActiveReflection
-    public DistrictSearchRule(Environment environment, DependenciesResolver resolver) {
+    private DistrictSearchRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<DistrictSearchForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new DistrictSearchRule(environment, resolver);
     }
 
     @Override

@@ -16,12 +16,6 @@ public class DirectMessageIndexTrigger extends AbstractTrigger<DirectMessage> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public DirectMessageIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     public TriggerMode getMode() {
         return TriggerMode.AFTER;
@@ -30,6 +24,12 @@ public class DirectMessageIndexTrigger extends AbstractTrigger<DirectMessage> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 
     @Override

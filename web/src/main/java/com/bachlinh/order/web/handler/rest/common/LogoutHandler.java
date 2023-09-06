@@ -9,6 +9,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.service.business.LogoutService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,11 +19,16 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "logoutHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogoutHandler extends AbstractController<NativeResponse<Map<String, Object>>, Object> {
     private static final String STATUS = "status";
     private String url;
     private LogoutService logoutService;
+
+    @Override
+    public AbstractController<NativeResponse<Map<String, Object>>, Object> newInstance() {
+        return new LogoutHandler();
+    }
 
     @Override
     @ActiveReflection

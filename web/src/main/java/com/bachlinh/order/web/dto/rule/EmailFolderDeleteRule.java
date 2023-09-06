@@ -29,9 +29,13 @@ public class EmailFolderDeleteRule extends AbstractRule<EmailFolderDeleteForm> {
     private EmailFoldersRepository emailFoldersRepository;
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public EmailFolderDeleteRule(Environment environment, DependenciesResolver resolver) {
+    private EmailFolderDeleteRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<EmailFolderDeleteForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new EmailFolderDeleteRule(environment, resolver);
     }
 
     @Override

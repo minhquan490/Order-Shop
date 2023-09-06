@@ -1,16 +1,16 @@
 package com.bachlinh.order.web.common.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.interceptor.internal.DefaultWebInterceptorChain;
+import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.utils.UnsafeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 public class WebInterceptorConfigurer {
@@ -27,17 +27,14 @@ public class WebInterceptorConfigurer {
                 .stream()
                 .filter(WebInterceptor.class::isAssignableFrom)
                 .map(interceptorClass -> {
+                    AbstractInterceptor abstractInterceptor;
                     try {
-                        @SuppressWarnings("unchecked")
-                        Constructor<WebInterceptor> constructor = (Constructor<WebInterceptor>) interceptorClass.getDeclaredConstructor();
-                        if (!Modifier.isPublic(constructor.getModifiers())) {
-                            constructor.setAccessible(true);
-                        }
-                        return constructor.newInstance();
-                    } catch (Exception e) {
-                        logger.error("Fail to instance [{}]", interceptorClass.getName(), e);
+                        abstractInterceptor = (AbstractInterceptor) UnsafeUtils.allocateInstance(interceptorClass);
+                    } catch (InstantiationException e) {
+                        logger.error("Can not init interceptor [{}]", interceptorClass.getName(), e);
                         return null;
                     }
+                    return abstractInterceptor.getInstance();
                 })
                 .filter(Objects::nonNull)
                 .toList();

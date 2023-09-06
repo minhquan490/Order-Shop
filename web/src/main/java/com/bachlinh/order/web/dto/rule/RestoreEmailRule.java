@@ -20,10 +20,14 @@ import java.util.Map;
 public class RestoreEmailRule extends AbstractRule<RestoreEmailForm> {
     private static final String CAN_NOT_STORE_EMAIL_MESSAGE_ID = "MSG-000029";
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public RestoreEmailRule(Environment environment, DependenciesResolver resolver) {
+    
+    private RestoreEmailRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<RestoreEmailForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new RestoreEmailRule(environment, resolver);
     }
 
     @Override

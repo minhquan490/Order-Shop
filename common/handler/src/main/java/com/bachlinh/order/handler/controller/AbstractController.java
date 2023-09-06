@@ -12,6 +12,8 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.RuleManager;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 
@@ -21,7 +23,11 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
     private final NativeMethodHandleRequestMetadataReader reader = NativeMethodHandleRequestMetadataReader.getInstance();
     private NativeRequest<U> request;
     private NativeResponse<T> response;
+    @Getter
+    @Setter
     private DependenciesContainerResolver containerResolver;
+    @Getter
+    @Setter
     private Environment environment;
     private RuleManager ruleManager;
     private String name;
@@ -92,17 +98,11 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
         return name;
     }
 
+    public abstract AbstractController<T, U> newInstance();
+
     protected abstract T internalHandler(Payload<U> request);
 
     protected abstract void inject();
-
-    protected DependenciesContainerResolver getContainerResolver() {
-        return containerResolver;
-    }
-
-    protected Environment getEnvironment() {
-        return environment;
-    }
 
     private void resolveValidator() {
         var resolver = containerResolver.getDependenciesResolver();

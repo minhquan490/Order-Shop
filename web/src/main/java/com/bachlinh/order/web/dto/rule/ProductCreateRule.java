@@ -38,10 +38,14 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
     private CategoryRepository categoryRepository;
     private EntityFactory entityFactory;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public ProductCreateRule(Environment environment, DependenciesResolver resolver) {
+    
+    private ProductCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<ProductCreateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new ProductCreateRule(environment, resolver);
     }
 
     @Override

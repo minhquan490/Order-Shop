@@ -1,19 +1,23 @@
 package com.bachlinh.order.core.scanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ActiveReflection
 public class ScannerResourceReleaseExecution extends AbstractExecutor<Void> {
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @ActiveReflection
-    public ScannerResourceReleaseExecution(DependenciesContainerResolver containerResolver, String profile) {
+    
+    private ScannerResourceReleaseExecution(DependenciesContainerResolver containerResolver, String profile) {
         super(containerResolver, profile);
+    }
+
+    @Override
+    public AbstractExecutor<Void> newInstance(DependenciesContainerResolver containerResolver, String profile) {
+        return new ScannerResourceReleaseExecution(containerResolver, profile);
     }
 
     @Override

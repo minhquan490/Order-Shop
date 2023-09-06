@@ -5,6 +5,7 @@ import {
   CustomerLoginHistory,
   getCustomerLoginHistoriesData,
   getViewDataTableHeaders,
+  LoginHistory,
   navigationSources
 } from '~/logic/pages/admin/customer/login-histories.logic';
 
@@ -13,20 +14,21 @@ const navigationSource = ref(navigationSources());
 const tableHeaders = ref(getViewDataTableHeaders());
 const isLoading = ref(true);
 const itemsPerPage = ref(5);
-const data = await getCustomerLoginHistoriesData(customerIdQueryParam.value) as CustomerLoginHistory;
-const customerLoginHistory = ref(data);
+const customerLoginHistory = ref<CustomerLoginHistory | null>(null);
 
 async function getNextPageData(nextPage: NextPage) {
   const value = await getCustomerLoginHistoriesData(customerIdQueryParam.value, nextPage.page, nextPage.itemsPerPage);
   if (value) {
-    customerLoginHistory.value.login_histories = customerLoginHistory.value.login_histories.concat(value.login_histories);
-    customerLoginHistory.value.page = value.page;
-    customerLoginHistory.value.page_size = value.page_size;
-    customerLoginHistory.value.total_histories = value.total_histories;
+    const oldData = customerLoginHistory.value?.login_histories as LoginHistory[];
+    value.login_histories = oldData?.concat(value.login_histories);
+    customerLoginHistory.value = value;
   }
 }
 
-onMounted(() => isLoading.value = false);
+onMounted(async () => {
+  isLoading.value = false;
+  customerLoginHistory.value = await getCustomerLoginHistoriesData(customerIdQueryParam.value) as CustomerLoginHistory
+});
 </script>
 
 <template>

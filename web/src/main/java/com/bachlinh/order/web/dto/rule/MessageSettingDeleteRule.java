@@ -22,10 +22,14 @@ public class MessageSettingDeleteRule extends AbstractRule<MessageSettingDeleteF
     private static final String NON_EXISTED_MESSAGE_ID = "MSG-000017";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public MessageSettingDeleteRule(Environment environment, DependenciesResolver resolver) {
+    
+    private MessageSettingDeleteRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<MessageSettingDeleteForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new MessageSettingDeleteRule(environment, resolver);
     }
 
     @Override

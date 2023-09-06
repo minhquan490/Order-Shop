@@ -11,17 +11,23 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.customer.CartDetailRemoveForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider(name = "cartProductRemoveHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = {Role.CUSTOMER, Role.ADMIN})
 @EnableCsrf
 public class CartProductRemoveHandler extends AbstractController<CartResp, CartDetailRemoveForm> {
 
     private CartService cartService;
     private String url;
+
+    @Override
+    public AbstractController<CartResp, CartDetailRemoveForm> newInstance() {
+        return new CartProductRemoveHandler();
+    }
 
     @Override
     @ActiveReflection

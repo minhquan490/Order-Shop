@@ -11,6 +11,8 @@ import com.bachlinh.order.exception.http.AccessDeniedException;
 import com.bachlinh.order.handler.controller.ControllerContextHolder;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.repository.MessageSettingRepository;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -19,16 +21,12 @@ import java.util.Arrays;
 
 
 @ActiveReflection
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PermissionInterceptor extends AbstractInterceptor {
     private static final String NOT_PERMISSION_MESSAGE_ID = "MSG-000033";
 
     private ControllerContextHolder controllerContextHolder;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public PermissionInterceptor() {
-        super();
-    }
 
     @Override
     public boolean preHandle(NativeRequest<?> request, NativeResponse<?> response) {
@@ -48,6 +46,11 @@ public class PermissionInterceptor extends AbstractInterceptor {
             throw createAccessDeniedException(request);
         }
         return super.preHandle(request, response);
+    }
+
+    @Override
+    public AbstractInterceptor getInstance() {
+        return new PermissionInterceptor();
     }
 
     @Override

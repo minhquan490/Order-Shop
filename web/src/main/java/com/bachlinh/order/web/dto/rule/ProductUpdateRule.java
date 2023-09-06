@@ -39,10 +39,14 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
     private CategoryRepository categoryRepository;
     private EntityFactory entityFactory;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public ProductUpdateRule(Environment environment, DependenciesResolver resolver) {
+    
+    private ProductUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<ProductUpdateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new ProductUpdateRule(environment, resolver);
     }
 
     @Override

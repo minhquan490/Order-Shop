@@ -28,10 +28,14 @@ public class EmailTemplateFolderUpdateRule extends AbstractRule<EmailTemplateFol
 
     private MessageSettingRepository messageSettingRepository;
     private EmailTemplateRepository emailTemplateRepository;
-
-    @ActiveReflection
-    public EmailTemplateFolderUpdateRule(Environment environment, DependenciesResolver resolver) {
+    
+    private EmailTemplateFolderUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<EmailTemplateFolderUpdateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new EmailTemplateFolderUpdateRule(environment, resolver);
     }
 
     @Override

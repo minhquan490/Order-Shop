@@ -29,9 +29,13 @@ public class CategoryCreateRule extends AbstractRule<CategoryCreateForm> {
     private CategoryRepository categoryRepository;
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public CategoryCreateRule(Environment environment, DependenciesResolver resolver) {
+    private CategoryCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<CategoryCreateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new CategoryCreateRule(environment, resolver);
     }
 
     @Override

@@ -25,10 +25,14 @@ public class MessageSettingUpdateRule extends AbstractRule<MessageSettingUpdateF
     private static final String CAN_NOT_IDENTITY_MESSAGE_ID = "MSG-000011";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public MessageSettingUpdateRule(Environment environment, DependenciesResolver resolver) {
+    
+    private MessageSettingUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<MessageSettingUpdateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new MessageSettingUpdateRule(environment, resolver);
     }
 
     @Override
@@ -46,7 +50,7 @@ public class MessageSettingUpdateRule extends AbstractRule<MessageSettingUpdateF
         if (!messageSetting.getValue().equals(dto.getValue())) {
             validateValue(dto.getValue(), validationResult);
         }
-        
+
         return createResult(validationResult);
     }
 

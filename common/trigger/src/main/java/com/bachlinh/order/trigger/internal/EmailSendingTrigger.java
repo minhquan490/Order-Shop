@@ -10,7 +10,6 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.mail.MailException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.ResourceUtils;
@@ -24,11 +23,6 @@ public class EmailSendingTrigger extends AbstractTrigger<Email> {
 
     private GmailSendingService gmailSendingService;
     private String botEmail;
-
-    @ActiveReflection
-    public EmailSendingTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-    }
 
     @Override
     public TriggerMode getMode() {

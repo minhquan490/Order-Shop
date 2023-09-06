@@ -16,12 +16,6 @@ public class CreateCustomerDefaultDataTrigger extends AbstractTrigger<Customer> 
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public CreateCustomerDefaultDataTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        setRunSync(true);
-    }
-
     @Override
     public TriggerMode getMode() {
         return TriggerMode.BEFORE;
@@ -30,6 +24,12 @@ public class CreateCustomerDefaultDataTrigger extends AbstractTrigger<Customer> 
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        setRunSync(true);
+        super.setResolver(resolver);
     }
 
     @Override

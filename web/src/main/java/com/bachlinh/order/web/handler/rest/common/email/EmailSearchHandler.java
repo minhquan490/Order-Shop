@@ -8,16 +8,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.EmailSearchForm;
 import com.bachlinh.order.web.dto.resp.EmailInfoResp;
 import com.bachlinh.order.web.service.business.EmailSearchingService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "emailSearchHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailSearchHandler extends AbstractController<Collection<EmailInfoResp>, EmailSearchForm> {
     private String url;
     private EmailSearchingService emailService;
+
+    @Override
+    public AbstractController<Collection<EmailInfoResp>, EmailSearchForm> newInstance() {
+        return new EmailSearchHandler();
+    }
 
     @Override
     @ActiveReflection

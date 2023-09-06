@@ -7,14 +7,20 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.AnalyzeProductPostedInMonthResp;
 import com.bachlinh.order.web.service.business.ProductAnalyzeService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider(name = "productPostedInMonthHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductPostedInMonthHandler extends AbstractController<AnalyzeProductPostedInMonthResp, Void> {
     private ProductAnalyzeService productAnalyzeService;
     private String url;
+
+    @Override
+    public AbstractController<AnalyzeProductPostedInMonthResp, Void> newInstance() {
+        return new ProductPostedInMonthHandler();
+    }
 
     @Override
     @ActiveReflection

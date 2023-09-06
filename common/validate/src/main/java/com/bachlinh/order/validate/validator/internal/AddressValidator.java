@@ -8,7 +8,6 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.AddressRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -22,11 +21,6 @@ public class AddressValidator extends AbstractValidator<Address> {
 
     private MessageSettingRepository messageSettingRepository;
     private AddressRepository addressRepository;
-
-    @ActiveReflection
-    public AddressValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

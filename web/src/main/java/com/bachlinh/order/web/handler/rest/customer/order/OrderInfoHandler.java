@@ -10,16 +10,22 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.OrderInfoResp;
 import com.bachlinh.order.web.service.common.OrderService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 @ActiveReflection
 @RouteProvider(name = "orderInfoHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = {Role.CUSTOMER, Role.ADMIN})
 public class OrderInfoHandler extends AbstractController<OrderInfoResp, Void> {
     private OrderService orderService;
     private String url;
+
+    @Override
+    public AbstractController<OrderInfoResp, Void> newInstance() {
+        return new OrderInfoHandler();
+    }
 
     @Override
     @ActiveReflection

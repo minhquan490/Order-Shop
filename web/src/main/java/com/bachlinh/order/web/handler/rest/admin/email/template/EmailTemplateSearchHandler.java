@@ -9,6 +9,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateSearchForm;
 import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
 import com.bachlinh.order.web.service.business.EmailTemplateSearchService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -16,10 +17,15 @@ import java.util.Collection;
 
 @RouteProvider(name = "emailTemplateSearchHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailTemplateSearchHandler extends AbstractController<Collection<EmailTemplateInfoResp>, EmailTemplateSearchForm> {
     private String url;
     private EmailTemplateSearchService emailTemplateSearchService;
+
+    @Override
+    public AbstractController<Collection<EmailTemplateInfoResp>, EmailTemplateSearchForm> newInstance() {
+        return new EmailTemplateSearchHandler();
+    }
 
     @Override
     @ActiveReflection

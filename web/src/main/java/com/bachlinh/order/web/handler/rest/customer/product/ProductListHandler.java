@@ -9,6 +9,7 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,11 +19,16 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider(name = "productListHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductListHandler extends AbstractController<Collection<ProductResp>, Object> {
 
     private ProductService productService;
     private String productListUrl;
+
+    @Override
+    public AbstractController<Collection<ProductResp>, Object> newInstance() {
+        return new ProductListHandler();
+    }
 
     @Override
     @ActiveReflection

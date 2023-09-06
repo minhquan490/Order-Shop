@@ -26,10 +26,14 @@ public class VoucherInvalidateHandler extends AbstractJob {
     private VoucherRepository voucherRepository;
     private CustomerRepository customerRepository;
     private LocalDateTime previousTimeExecution;
-
-    @ActiveReflection
-    public VoucherInvalidateHandler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+    
+    private VoucherInvalidateHandler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
+    }
+
+    @Override
+    public AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
+        return new VoucherInvalidateHandler(name, activeProfile, dependenciesResolver);
     }
 
     @Override

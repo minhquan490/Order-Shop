@@ -1,7 +1,5 @@
 package com.bachlinh.order.setup;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
@@ -10,6 +8,8 @@ import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.setup.internal.SetupManagerFactoryProvider;
 import com.bachlinh.order.setup.spi.SetupManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Executor for execute all setup available in classpath. This class is listener
@@ -25,12 +25,16 @@ public class SetupExecutor extends AbstractExecutor<Void> {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private SetupManager manager;
-    private String profile;
+    private final String profile;
 
-    @ActiveReflection
-    public SetupExecutor(DependenciesContainerResolver containerResolver, String profile) {
+    private SetupExecutor(DependenciesContainerResolver containerResolver, String profile) {
         super(containerResolver, profile);
         this.profile = profile;
+    }
+
+    @Override
+    public AbstractExecutor<Void> newInstance(DependenciesContainerResolver containerResolver, String profile) {
+        return new SetupExecutor(containerResolver, profile);
     }
 
     private SetupManager buildSetupManager(ContainerWrapper context) {

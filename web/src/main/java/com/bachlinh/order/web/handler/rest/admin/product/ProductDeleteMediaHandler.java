@@ -10,11 +10,12 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteMediaForm;
 import com.bachlinh.order.web.service.common.ProductMediaService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @ActiveReflection
 @RouteProvider
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class ProductDeleteMediaHandler extends AbstractController<Void, ProductDeleteMediaForm> {
@@ -22,6 +23,11 @@ public class ProductDeleteMediaHandler extends AbstractController<Void, ProductD
 
     private String url;
     private ProductMediaService productMediaService;
+
+    @Override
+    public AbstractController<Void, ProductDeleteMediaForm> newInstance() {
+        return new ProductDeleteMediaHandler();
+    }
 
     @Override
     @ActiveReflection

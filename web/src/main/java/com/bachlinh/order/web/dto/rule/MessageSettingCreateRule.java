@@ -25,9 +25,13 @@ public class MessageSettingCreateRule extends AbstractRule<MessageSettingCreateF
 
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public MessageSettingCreateRule(Environment environment, DependenciesResolver resolver) {
+    private MessageSettingCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<MessageSettingCreateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new MessageSettingCreateRule(environment, resolver);
     }
 
     @Override

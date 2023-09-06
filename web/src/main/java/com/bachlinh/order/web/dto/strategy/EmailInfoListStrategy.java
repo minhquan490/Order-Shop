@@ -1,18 +1,19 @@
 package com.bachlinh.order.web.dto.strategy;
 
-import org.checkerframework.checker.units.qual.Acceleration;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.EmailInfoInFolderListResp;
+import org.checkerframework.checker.units.qual.Acceleration;
 
 @ActiveReflection
 public class EmailInfoListStrategy extends AbstractDtoStrategy<EmailInfoInFolderListResp, EmailFolders> {
 
     @Acceleration
-    public EmailInfoListStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private EmailInfoListStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -47,6 +48,11 @@ public class EmailInfoListStrategy extends AbstractDtoStrategy<EmailInfoInFolder
     @Override
     protected void afterConvert(EmailFolders source, Class<EmailInfoInFolderListResp> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<EmailInfoInFolderListResp, EmailFolders> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new EmailInfoListStrategy(dependenciesResolver, environment);
     }
 
     @Override

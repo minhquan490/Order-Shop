@@ -22,9 +22,13 @@ public class EmailSearchRule extends AbstractRule<EmailSearchForm> {
     private static final String EMPTY_QUERY_MESSAGE_ID = "MSG-000026";
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public EmailSearchRule(Environment environment, DependenciesResolver resolver) {
+    private EmailSearchRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<EmailSearchForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new EmailSearchRule(environment, resolver);
     }
 
     @Override

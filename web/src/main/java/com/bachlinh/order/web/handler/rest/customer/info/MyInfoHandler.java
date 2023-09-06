@@ -9,15 +9,21 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.MyInfoResp;
 import com.bachlinh.order.web.service.common.CustomerService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RouteProvider(name = "myInfoHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MyInfoHandler extends AbstractController<MyInfoResp, Object> {
     private String url;
     private CustomerService customerService;
+
+    @Override
+    public AbstractController<MyInfoResp, Object> newInstance() {
+        return new MyInfoHandler();
+    }
 
     @Override
     @ActiveReflection

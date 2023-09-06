@@ -10,6 +10,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.OrderHistoryResp;
 import com.bachlinh.order.web.service.common.OrderHistoryService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -17,11 +18,16 @@ import java.util.Collection;
 
 @RouteProvider(name = "orderHistoriesHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = {Role.CUSTOMER, Role.ADMIN})
 public class OrderHistoriesHandler extends AbstractController<Collection<OrderHistoryResp>, Void> {
     private String url;
     private OrderHistoryService orderHistoryService;
+
+    @Override
+    public AbstractController<Collection<OrderHistoryResp>, Void> newInstance() {
+        return new OrderHistoriesHandler();
+    }
 
     @Override
     @ActiveReflection

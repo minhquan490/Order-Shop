@@ -9,16 +9,22 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailInfoResp;
 import com.bachlinh.order.web.service.common.EmailService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
 @RouteProvider(name = "emailInfoHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailInfoHandler extends AbstractController<EmailInfoResp, Void> {
     private String url;
     private EmailService emailService;
+
+    @Override
+    public AbstractController<EmailInfoResp, Void> newInstance() {
+        return new EmailInfoHandler();
+    }
 
     @Override
     @ActiveReflection

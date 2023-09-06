@@ -7,6 +7,8 @@ import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.utils.HeaderUtils;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
@@ -14,18 +16,13 @@ import org.springframework.util.StopWatch;
 import java.util.Map;
 
 @ActiveReflection
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RequestMonitor extends AbstractInterceptor {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ThreadLocal<StopWatch> clock = new ThreadLocal<>();
     private TokenManager tokenManager;
-
-    @ActiveReflection
-    public RequestMonitor() {
-        super();
-    }
-
-
+    
     @Override
     public boolean preHandle(NativeRequest<?> request, NativeResponse<?> response) {
         StopWatch stopWatch = new StopWatch();
@@ -48,6 +45,11 @@ public final class RequestMonitor extends AbstractInterceptor {
         clock.remove();
         var username = getUsername(request);
         log.info("Completion handle request for customer [{}]", username);
+    }
+
+    @Override
+    public AbstractInterceptor getInstance() {
+        return new RequestMonitor();
     }
 
     @Override

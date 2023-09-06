@@ -9,6 +9,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.sending.TemplateMailSendingForm;
 import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,11 +19,16 @@ import java.util.Map;
 
 @RouteProvider(name = "templateMailSendingHandler")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 public class TemplateMailSendingHandler extends AbstractController<Map<String, Object>, TemplateMailSendingForm> {
     private String url;
     private EmailTemplateSendingService emailTemplateSendingService;
+
+    @Override
+    public AbstractController<Map<String, Object>, TemplateMailSendingForm> newInstance() {
+        return new TemplateMailSendingHandler();
+    }
 
     @Override
     @ActiveReflection

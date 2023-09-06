@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -11,7 +12,7 @@ import com.bachlinh.order.web.dto.resp.OrderInfoResp;
 public class OrderInfoStrategy extends AbstractDtoStrategy<OrderInfoResp, Order> {
 
     @ActiveReflection
-    public OrderInfoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private OrderInfoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -50,6 +51,11 @@ public class OrderInfoStrategy extends AbstractDtoStrategy<OrderInfoResp, Order>
     @Override
     protected void afterConvert(Order source, Class<OrderInfoResp> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<OrderInfoResp, Order> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new OrderInfoStrategy(dependenciesResolver, environment);
     }
 
     @Override

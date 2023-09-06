@@ -62,6 +62,8 @@ public abstract non-sealed class AbstractJob implements Job {
         return doGetPreviousExecutionTime();
     }
 
+    public abstract AbstractJob newInstance(String name, String activeProfile, DependenciesResolver dependenciesResolver);
+
     protected void addException(Exception exception) {
         this.report.addError(exception);
     }

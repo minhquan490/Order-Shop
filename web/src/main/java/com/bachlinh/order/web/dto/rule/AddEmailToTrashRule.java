@@ -1,7 +1,6 @@
 package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DtoValidationRule;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.MessageSettingRepository;
@@ -9,47 +8,46 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
-import com.bachlinh.order.web.dto.form.common.WardSearchForm;
-import org.springframework.util.StringUtils;
+import com.bachlinh.order.web.dto.form.common.AddEmailToTrashForm;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @ActiveReflection
-@DtoValidationRule
-public class WardSearchRule extends AbstractRule<WardSearchForm> {
-    private static final String EMPTY_QUERY_MESSAGE_ID = "MSG-000026";
+public class AddEmailToTrashRule extends AbstractRule<AddEmailToTrashForm> {
+    private static final String UNKNOWN_ADD_MESSAGE_ID = "MSG-000025";
 
     private MessageSettingRepository messageSettingRepository;
     
-    private WardSearchRule(Environment environment, DependenciesResolver resolver) {
+    private AddEmailToTrashRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }
 
     @Override
-    public AbstractRule<WardSearchForm> getInstance(Environment environment, DependenciesResolver resolver) {
-        return new WardSearchRule(environment, resolver);
+    public AbstractRule<AddEmailToTrashForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new AddEmailToTrashRule(environment, resolver);
     }
 
     @Override
-    protected ValidatedDto.ValidateResult doValidate(WardSearchForm dto) {
-        var validationResult = new HashMap<String, List<String>>(1);
+    protected ValidatedDto.ValidateResult doValidate(AddEmailToTrashForm dto) {
+        var validateResult = new HashMap<String, List<String>>();
 
-        if (!StringUtils.hasText(dto.getQuery())) {
-            MessageSetting messageSetting = messageSettingRepository.getMessageById(EMPTY_QUERY_MESSAGE_ID);
-            RuntimeUtils.computeMultiValueMap("query", messageSetting.getValue(), validationResult);
+        MessageSetting unknownAddMessage = messageSettingRepository.getMessageById(UNKNOWN_ADD_MESSAGE_ID);
+
+        if (dto.getEmailIds().length == 0) {
+            var key = "email_ids";
+            RuntimeUtils.computeMultiValueMap(key, unknownAddMessage.getValue(), validateResult);
         }
-
         return new ValidatedDto.ValidateResult() {
             @Override
             public Map<String, Object> getErrorResult() {
-                return new HashMap<>(validationResult);
+                return new HashMap<>(validateResult);
             }
 
             @Override
             public boolean shouldHandle() {
-                return validationResult.isEmpty();
+                return validateResult.isEmpty();
             }
         };
     }
@@ -62,7 +60,7 @@ public class WardSearchRule extends AbstractRule<WardSearchForm> {
     }
 
     @Override
-    public Class<WardSearchForm> applyOnType() {
-        return WardSearchForm.class;
+    public Class<AddEmailToTrashForm> applyOnType() {
+        return AddEmailToTrashForm.class;
     }
 }

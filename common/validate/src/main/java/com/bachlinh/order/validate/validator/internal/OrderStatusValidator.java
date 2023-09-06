@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.OrderStatus;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
 import org.springframework.util.StringUtils;
@@ -20,11 +19,6 @@ public class OrderStatusValidator extends AbstractValidator<OrderStatus> {
     private static final String ASSOCIATE_INVALID_MESSAGE_ID = "MSG-000032";
 
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public OrderStatusValidator(DependenciesResolver resolver) {
-        super(resolver);
-    }
 
     @Override
     protected void inject() {

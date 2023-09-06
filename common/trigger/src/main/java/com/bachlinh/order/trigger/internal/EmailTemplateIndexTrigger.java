@@ -16,12 +16,6 @@ public class EmailTemplateIndexTrigger extends AbstractTrigger<EmailTemplate> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public EmailTemplateIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     public TriggerMode getMode() {
         return TriggerMode.AFTER;
@@ -30,6 +24,12 @@ public class EmailTemplateIndexTrigger extends AbstractTrigger<EmailTemplate> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_UPDATE, TriggerExecution.ON_INSERT};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 
     @Override

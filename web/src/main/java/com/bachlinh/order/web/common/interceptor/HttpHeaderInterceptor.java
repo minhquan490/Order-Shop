@@ -4,19 +4,17 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.eclipse.jetty.http.HttpHeader;
 
 import java.text.MessageFormat;
 
 @ActiveReflection
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpHeaderInterceptor extends AbstractInterceptor {
     private Boolean enableHttp3;
     private Integer h3Port;
-
-    @ActiveReflection
-    public HttpHeaderInterceptor() {
-        super();
-    }
 
     @Override
     public void postHandle(NativeRequest<?> request, NativeResponse<?> response) {
@@ -24,6 +22,11 @@ public class HttpHeaderInterceptor extends AbstractInterceptor {
         if (isEnableHttp3) {
             response.addHeader(HttpHeader.ALT_SVC.asString(), MessageFormat.format("h3=\":{0}\"; ma=2592000", h3Port).replace(",", ""));
         }
+    }
+
+    @Override
+    public AbstractInterceptor getInstance() {
+        return new HttpHeaderInterceptor();
     }
 
     @Override

@@ -17,12 +17,6 @@ import java.util.Collections;
 public class IndexEmailContentTrigger extends AbstractTrigger<Email> {
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public IndexEmailContentTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     public String getTriggerName() {
         return "indexEmailContentTrigger";
@@ -36,6 +30,12 @@ public class IndexEmailContentTrigger extends AbstractTrigger<Email> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 
     @Override

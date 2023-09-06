@@ -23,12 +23,6 @@ public class WardIndexTrigger extends AbstractTrigger<Ward> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public WardIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     protected void doExecute(Ward entity) {
         EntityContext entityContext = entityFactory.getEntityContext(Ward.class);
@@ -65,5 +59,11 @@ public class WardIndexTrigger extends AbstractTrigger<Ward> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 }

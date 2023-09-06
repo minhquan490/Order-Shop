@@ -10,6 +10,7 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingDeleteForm;
 import com.bachlinh.order.web.service.common.MessageSettingService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
@@ -18,13 +19,18 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "messageSettingDeleteHandler")
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class MessageSettingDeleteHandler extends AbstractController<Map<String, Object>, MessageSettingDeleteForm> {
 
     private String url;
     private MessageSettingService messageSettingService;
+
+    @Override
+    public AbstractController<Map<String, Object>, MessageSettingDeleteForm> newInstance() {
+        return new MessageSettingDeleteHandler();
+    }
 
     @Override
     @ActiveReflection

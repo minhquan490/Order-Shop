@@ -23,12 +23,6 @@ public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public ProvinceIndexTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     protected void doExecute(Province entity) {
         EntityContext entityContext = entityFactory.getEntityContext(Province.class);
@@ -65,5 +59,11 @@ public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_UPDATE, TriggerExecution.ON_INSERT};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 }

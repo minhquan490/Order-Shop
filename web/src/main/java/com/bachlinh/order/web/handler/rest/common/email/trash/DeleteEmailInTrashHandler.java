@@ -9,6 +9,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.DeleteEmailInTrashForm;
 import com.bachlinh.order.web.service.business.EmailInTrashService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,11 +20,16 @@ import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "deleteEmailInTrashHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Object>, DeleteEmailInTrashForm> {
     private String url;
     private EmailInTrashService emailInTrashService;
+
+    @Override
+    public AbstractController<Map<String, Object>, DeleteEmailInTrashForm> newInstance() {
+        return new DeleteEmailInTrashHandler();
+    }
 
     @Override
     @ActiveReflection

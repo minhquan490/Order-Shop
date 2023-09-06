@@ -1,11 +1,12 @@
 package com.bachlinh.order.batch.job.internal;
 
 import com.bachlinh.order.annotation.BatchJob;
+import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.exception.system.batch.JobBuilderException;
 import com.bachlinh.order.service.container.DependenciesResolver;
-
-import java.lang.reflect.Constructor;
+import com.bachlinh.order.utils.UnsafeUtils;
+import lombok.SneakyThrows;
 
 final class JobInstanceStrategy {
     private final Class<? extends Job> jobType;
@@ -21,13 +22,10 @@ final class JobInstanceStrategy {
         this.dependenciesResolver = dependenciesResolver;
     }
 
+    @SneakyThrows
     public Job newInstance() {
         BatchJob batchJob = jobType.getAnnotation(BatchJob.class);
-        try {
-            Constructor<? extends Job> constructor = jobType.getConstructor(String.class, String.class, DependenciesResolver.class);
-            return constructor.newInstance(batchJob.name(), profile, dependenciesResolver);
-        } catch (Exception e) {
-            throw new JobBuilderException("Can not build Job", e);
-        }
+        AbstractJob abstractJob = (AbstractJob) UnsafeUtils.allocateInstance(jobType);
+        return abstractJob.newInstance(batchJob.name(), profile, dependenciesResolver);
     }
 }

@@ -6,7 +6,6 @@ import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.trigger.spi.AbstractTrigger;
 
 import java.io.IOException;
@@ -18,11 +17,6 @@ import java.util.Map;
 public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
 
     private WebSocketSessionManager webSocketSessionManager;
-
-    @ActiveReflection
-    public NewOrderPushingTrigger(DependenciesResolver dependenciesResolver) {
-        super(dependenciesResolver);
-    }
 
     @Override
     public String getTriggerName() {

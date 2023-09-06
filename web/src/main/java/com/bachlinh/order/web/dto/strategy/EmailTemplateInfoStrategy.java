@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -11,7 +12,7 @@ import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
 public class EmailTemplateInfoStrategy extends AbstractDtoStrategy<EmailTemplateInfoResp, EmailTemplate> {
 
     @ActiveReflection
-    public EmailTemplateInfoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private EmailTemplateInfoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -36,6 +37,11 @@ public class EmailTemplateInfoStrategy extends AbstractDtoStrategy<EmailTemplate
     @Override
     protected void afterConvert(EmailTemplate source, Class<EmailTemplateInfoResp> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<EmailTemplateInfoResp, EmailTemplate> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new EmailTemplateInfoStrategy(dependenciesResolver, environment);
     }
 
     @Override

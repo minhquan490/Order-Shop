@@ -29,10 +29,14 @@ public class VoucherCreateRule extends AbstractRule<VoucherCreateForm> {
 
     private VoucherRepository voucherRepository;
     private MessageSettingRepository messageSettingRepository;
-
-    @ActiveReflection
-    public VoucherCreateRule(Environment environment, DependenciesResolver resolver) {
+    
+    private VoucherCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<VoucherCreateForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new VoucherCreateRule(environment, resolver);
     }
 
     @Override

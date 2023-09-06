@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.strategy;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
+import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
@@ -12,13 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ActiveReflection
 public class CustomerRegisterStrategy extends AbstractDtoStrategy<Customer, RegisterForm> {
-    private static final String EMPTY_STRING = "";
 
     private EntityFactory entityFactory;
     private PasswordEncoder passwordEncoder;
 
     @ActiveReflection
-    public CustomerRegisterStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+    private CustomerRegisterStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
         super(dependenciesResolver, environment);
     }
 
@@ -46,6 +46,11 @@ public class CustomerRegisterStrategy extends AbstractDtoStrategy<Customer, Regi
     @Override
     protected void afterConvert(RegisterForm source, Class<Customer> type) {
         // Do nothing
+    }
+
+    @Override
+    protected DtoStrategy<Customer, RegisterForm> createNew(DependenciesResolver dependenciesResolver, Environment environment) {
+        return new CustomerRegisterStrategy(dependenciesResolver, environment);
     }
 
     @Override

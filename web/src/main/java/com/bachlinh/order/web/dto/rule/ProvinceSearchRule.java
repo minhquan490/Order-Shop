@@ -22,9 +22,13 @@ public class ProvinceSearchRule extends AbstractRule<ProvinceSearchForm> {
     private static final String EMPTY_QUERY_MESSAGE_ID = "MSG-000026";
     private MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public ProvinceSearchRule(Environment environment, DependenciesResolver resolver) {
+    private ProvinceSearchRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
+    }
+
+    @Override
+    public AbstractRule<ProvinceSearchForm> getInstance(Environment environment, DependenciesResolver resolver) {
+        return new ProvinceSearchRule(environment, resolver);
     }
 
     @Override

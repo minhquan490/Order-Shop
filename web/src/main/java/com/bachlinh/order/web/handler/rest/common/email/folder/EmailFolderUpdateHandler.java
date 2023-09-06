@@ -10,16 +10,22 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.EmailFolderUpdateForm;
 import com.bachlinh.order.web.dto.resp.EmailFolderInfoResp;
 import com.bachlinh.order.web.service.common.EmailFolderService;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ActiveReflection
 @RouteProvider(name = "emailFolderUpdateHandler")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 public class EmailFolderUpdateHandler extends AbstractController<EmailFolderInfoResp, EmailFolderUpdateForm> {
     private EmailFolderService emailFolderService;
     private String url;
+
+    @Override
+    public AbstractController<EmailFolderInfoResp, EmailFolderUpdateForm> newInstance() {
+        return new EmailFolderUpdateHandler();
+    }
 
     @Override
     @ActiveReflection
