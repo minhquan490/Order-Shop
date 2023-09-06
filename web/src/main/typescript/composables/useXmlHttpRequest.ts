@@ -1,4 +1,4 @@
-import {Authentication, ErrorResponse, QueryParam, Request, RequestHeader, Response} from "~/types";
+import { Authentication, ErrorResponse, QueryParam, Request, RequestHeader, Response } from "~/types";
 
 export const useXmlHttpRequest = (request: Request, accessToken?: string, refreshToken?: string) => {
 
@@ -13,7 +13,7 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
 
     const updateAccessToken = async (xmlRequest: XMLHttpRequest): Promise<void> => {
         const accessTokenHeader = useAppConfig().authorization;
-        const accessToken: string = xmlRequest.getResponseHeader(accessTokenHeader);
+        const accessToken: string | null = xmlRequest.getResponseHeader(accessTokenHeader);
         if (accessToken) {
             const {readAuth, updateAuth} = useAuthInformation();
             const auth: Authentication | undefined = await readAuth();
@@ -30,7 +30,7 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
 
     const updateCsrfToken = async (xmlRequest: XMLHttpRequest): Promise<void> => {
         const csrfTokenHeader = useAppConfig().csrfToken;
-        const csrf: string = xmlRequest.getResponseHeader(csrfTokenHeader);
+        const csrf: string | null = xmlRequest.getResponseHeader(csrfTokenHeader);
         if (csrf) {
             const {readCsrf, updateCsrf} = useAuthInformation();
             const csrfToken: string | undefined = await readCsrf();
@@ -84,7 +84,7 @@ export const useXmlHttpRequest = (request: Request, accessToken?: string, refres
         } else {
             xhr.send(JSON.stringify(request.body));
         }
-        return new Promise<Response<T>>((resolve): void => {
+        return new Promise<Response<any>>((resolve): void => {
             xhr.onload = (): void => {
                 if (xhr.status >= 200 && xhr.status < 400) {
                     resolve(createResponse<T>(xhr));

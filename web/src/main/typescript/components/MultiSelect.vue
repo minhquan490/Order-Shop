@@ -62,7 +62,7 @@ export default {
         :class="listHide ? 'select-box max-h-[5rem] overflow-scroll hidden' : 'select-box max-h-[5rem] overflow-scroll block absolute w-[96%]'">
       <div @click="selectOption(option)"
            v-for="option in options"
-           :key="option"
+           :key="JSON.stringify(option)"
            class="py-1 px-3 text-sm hover:bg-gray-300 hover:cursor-pointer flex items-center justify-between w-full border rounded">
         <span v-text="option[renderedKey]"></span>
         <Icon v-if="selectedOptions.indexOf(option) >= 0"
@@ -76,7 +76,7 @@ export default {
     </label>
     <div class="absolute top-3 w-full overflow-hidden z-20">
       <span v-for="option in selectedOptions"
-            :key="option"
+            :key="JSON.stringify(option)"
             class="inline-flex items-center rounded-md bg-gray-50 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
         <span class="pl-2 border-r-2 border-gray-300 pr-2 hover:cursor-default py-1"
               v-text="option[renderedKey]"></span>
@@ -86,5 +86,3 @@ export default {
     </div>
   </div>
 </template>
-
-<style scoped></style>

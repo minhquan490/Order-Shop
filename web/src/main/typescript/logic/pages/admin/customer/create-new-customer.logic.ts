@@ -1,6 +1,6 @@
-import {Authentication, District, ErrorResponse, NavBarsSource, Province, Request, Response, Ward} from "~/types";
 import {currentPath, navSources} from "~/logic/components/navbars.logic";
 import createNewCustomer from "~/pages/admin/customer/create-new-customer.vue";
+import {Authentication, District, ErrorResponse, NavBarsSource, Province, Request, Response, Ward} from "~/types";
 import {onUnLogin} from "~/utils/NavigationUtils";
 import {getDistrictFetchRequest, getProvinceFetchRequest, getWardFetchRequest} from "~/utils/RequestUtils";
 
@@ -66,10 +66,11 @@ const getCustomerCreateRequest = (): Request => {
     }
 }
 
-const getAuthentication = async (): Promise<Authentication> => {
+const getAuthentication = async (): Promise<Authentication | undefined> => {
     const auth: Authentication | undefined = await useAuthInformation().readAuth();
     if (!auth) {
         onUnLogin();
+        return Promise.resolve(undefined);
     } else {
         return Promise.resolve(auth);
     }
@@ -83,7 +84,7 @@ const navigationSources = (): NavBarsSource[] => {
 }
 
 const initPageData = async (): Promise<PageData> => {
-    const auth: Authentication = await getAuthentication();
+    const auth: Authentication | undefined = await getAuthentication();
     const request: Request = getProvinceFetchRequest();
     const {getAsyncCall} = useXmlHttpRequest(request, auth?.accessToken, auth?.accessToken);
     const response: Response<Province[]> = await getAsyncCall<Province[]>();
@@ -141,8 +142,8 @@ const initPageData = async (): Promise<PageData> => {
 
 const getDistrict = async (provinceId: string, page: PageType): Promise<District[]> => {
     const request: Request = getDistrictFetchRequest(provinceId);
-    const auth: Authentication = await getAuthentication();
-    const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+    const auth: Authentication | undefined = await getAuthentication();
+    const {getAsyncCall} = useXmlHttpRequest(request, auth?.accessToken, auth?.refreshToken);
     const resp: Response<District[]> = await getAsyncCall<District[]>();
     if (!resp.isError) {
         page.isLoading = false;
@@ -155,8 +156,8 @@ const getDistrict = async (provinceId: string, page: PageType): Promise<District
 
 const getWard = async (districtId: string, page: PageType): Promise<{ name: string, id: string }[]> => {
     const request: Request = getWardFetchRequest(districtId);
-    const auth: Authentication = await getAuthentication();
-    const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+    const auth: Authentication | undefined = await getAuthentication();
+    const {getAsyncCall} = useXmlHttpRequest(request, auth?.accessToken, auth?.refreshToken);
     const resp: Response<Ward[]> = await getAsyncCall<Ward[]>();
     if (!resp.isError) {
         page.isLoading = false;
@@ -322,8 +323,8 @@ const submitData = async (page: PageType): Promise<void> => {
     customerCreateData.address.district = selectedData.districtId;
 
     const request: Request = getCustomerCreateRequest();
-    const auth: Authentication = await getAuthentication();
-    const {postAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
+    const auth: Authentication | undefined = await getAuthentication();
+    const {postAsyncCall} = useXmlHttpRequest(request, auth?.accessToken, auth?.refreshToken);
     const response: Response<CustomerCreate> = await postAsyncCall<CustomerCreate>();
     if (!response.isError) {
         page.pageData.submitDataSuccessMsg = 'Create customer successfully';
@@ -336,13 +337,13 @@ const submitData = async (page: PageType): Promise<void> => {
 }
 
 export {
-    navigationSources,
     CustomerCreate,
     PageData,
-    initPageData,
+    clearError,
     getDistrict,
     getWard,
-    validateInput,
-    clearError,
-    submitData
-}
+    initPageData,
+    navigationSources,
+    submitData,
+    validateInput
+};

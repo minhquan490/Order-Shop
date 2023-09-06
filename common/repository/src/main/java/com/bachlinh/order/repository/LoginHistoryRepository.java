@@ -9,4 +9,8 @@ public interface LoginHistoryRepository extends NativeQueryRepository {
     LoginHistory saveHistory(LoginHistory loginHistory);
 
     Collection<LoginHistory> getHistories(Customer owner, long limit);
+
+    Collection<LoginHistory> getHistoriesOfCustomer(String customerId, long page, long pageSize);
+
+    Long countHistoriesOfCustomer(String customerId);
 }

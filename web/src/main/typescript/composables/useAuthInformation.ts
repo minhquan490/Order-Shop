@@ -1,4 +1,4 @@
-import {Authentication} from "~/types";
+import { Authentication } from "~/types";
 
 export const useAuthInformation = () => {
     const databaseName: string = 'Order-Shop';
@@ -64,7 +64,7 @@ export const useAuthInformation = () => {
         }
     }
 
-    const updateAuth = async (newAuth: Authentication): Promise<boolean> => {
+    const updateAuth = async (newAuth: Authentication): Promise<boolean | undefined> => {
         const database: IDBDatabase = await openConnection();
         const auth: Authentication | undefined = await readAuth();
         if (auth) {
@@ -132,7 +132,7 @@ export const useAuthInformation = () => {
     }
 
     const resolveReadCsrf = (data: IDBRequest<string>): Promise<string | undefined> => {
-        return new Promise<string>(resolve => {
+        return new Promise<string | undefined>(resolve => {
             data.onsuccess = () => resolve(data.result);
             data.onerror = () => resolve(undefined);
         });

@@ -15,30 +15,51 @@ public final class ValidateUtils {
     private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{4}[-]?\\d{1,2}[-]?\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}[.]?\\d{1,6}$");
 
     public static boolean isEmailValidUsingRfc2822(String email) {
+        if (email == null) {
+            return false;
+        }
         return Rfc2822.validate(email);
     }
 
     public static boolean isEmailValidUsingRfc5322(String email) {
+        if (email == null) {
+            return false;
+        }
         return Rfc5322.validate(email);
     }
 
     public static boolean isPhoneValid(String phone) {
+        if (phone == null) {
+            return false;
+        }
         return PATTERN.matcher(phone).matches();
     }
 
     public static boolean isUrlValid(String url) {
+        if (url == null) {
+            return false;
+        }
         return URL_PATTERN.matcher(url).matches();
     }
 
     public static boolean isSizeValid(String productSize) {
+        if (productSize == null) {
+            return false;
+        }
         return PRODUCT_SIZE_PATTERN.matcher(productSize).matches();
     }
 
     public static boolean isValidDate(String testString) {
+        if (testString == null) {
+            return false;
+        }
         return DATE_PATTERN.matcher(testString).matches();
     }
 
     public static boolean isNumber(String number) {
+        if (number == null) {
+            return false;
+        }
         return NUMBER_PATTERN.matcher(number).matches();
     }
 

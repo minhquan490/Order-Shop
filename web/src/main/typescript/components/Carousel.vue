@@ -1,6 +1,6 @@
 <script lang="ts">
-import {CarouselItem} from "~/types";
 import {goNext, goPrevious} from "~/logic/components/carousel.logic";
+import {CarouselItem} from "~/types";
 
 export default {
   emits: ['item-selected'],
@@ -35,7 +35,7 @@ export default {
 <template>
   <div id="controls-carousel" class="relative w-full">
     <div class="relative overflow-hidden rounded-lg md:h-96">
-      <div v-for="item in items" :key="item"
+      <div v-for="item in items" :key="JSON.stringify(item)"
            :class="item.current ? 'duration-700 ease-in-out' : 'hidden duration-700 ease-in-out'"
            @click="fireItemSelected(item)">
         <img :src="item.pictureUrl"

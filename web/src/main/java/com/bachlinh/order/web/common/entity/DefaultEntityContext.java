@@ -206,7 +206,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         }
         String databaseColumnName = this.mappedFieldColumns.get(entityFieldName);
         if (!StringUtils.hasText(databaseColumnName)) {
-            throw new PersistenceException(String.format("No mapped column for field [%s]", entityFieldName));
+            throw new PersistenceException(String.format("No mapped column for field [%s] in table [%s]", entityFieldName, tableName));
         }
         return databaseColumnName;
     }

@@ -1,8 +1,8 @@
-import {Authentication, District, ErrorResponse, Province, Request, Response, Ward} from "~/types";
-import {onUnAuthorize} from "~/utils/NavigationUtils";
-import {getDistrictFetchRequest, getProvinceFetchRequest, getWardFetchRequest} from "~/utils/RequestUtils";
+import { CustomerInfoResp, assignData } from "~/logic/pages/admin/customer/info.logic";
 import infoPage from "~/pages/admin/customer/info.vue";
-import {assignData, CustomerInfoResp} from "~/logic/pages/admin/customer/info.logic";
+import { Authentication, District, ErrorResponse, Province, Request, Response, Ward } from "~/types";
+import { onUnAuthorize } from "~/utils/NavigationUtils";
+import { getDistrictFetchRequest, getProvinceFetchRequest, getWardFetchRequest } from "~/utils/RequestUtils";
 
 type Page = InstanceType<typeof infoPage>;
 type CustomerInfo = {
@@ -64,10 +64,11 @@ const getProvinces = async (): Promise<Array<Province>> => {
     const auth: Authentication | undefined = await readAuth();
     if (!auth) {
         onUnAuthorize();
+        return Promise.resolve([]);
     } else {
         const request: Request = getProvinceFetchRequest();
         const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-        const response: Response<Province> = await getAsyncCall<Province>();
+        const response: Response<Province[]> = await getAsyncCall<Province[]>();
         if (response.isError) {
             return Promise.resolve([]);
         } else {
@@ -81,10 +82,11 @@ const getDistricts = async (provinceId: string): Promise<Array<District>> => {
     const auth: Authentication | undefined = await readAuth();
     if (!auth) {
         onUnAuthorize();
+        return Promise.resolve([]);
     } else {
         const request: Request = getDistrictFetchRequest(provinceId);
         const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-        const response: Response<District> = await getAsyncCall<District>();
+        const response: Response<District[]> = await getAsyncCall<District[]>();
         if (response.isError) {
             return Promise.resolve([]);
         } else {
@@ -98,10 +100,11 @@ const getWards = async (districtId: string): Promise<Array<Ward>> => {
     const auth: Authentication | undefined = await readAuth();
     if (!auth) {
         onUnAuthorize();
+        return Promise.resolve([]);
     } else {
         const request: Request = getWardFetchRequest(districtId);
         const {getAsyncCall} = useXmlHttpRequest(request, auth.accessToken, auth.refreshToken);
-        const response: Response<Ward> = await getAsyncCall<Ward>();
+        const response: Response<Ward[]> = await getAsyncCall<Ward[]>();
         if (response.isError) {
             return Promise.resolve([]);
         } else {
@@ -179,19 +182,19 @@ const createDefaultCustomerInfo = (): CustomerInfo => {
 }
 
 const clear = async (page: Page): Promise<void> => {
-    page.$refs['province'].value = '';
-    page.$refs['district'].value = '';
-    page.$refs['ward'].value = '';
-    page.$refs['houseNumber'].value = '';
+    (page.$refs['province'] as HTMLSelectElement).value = '';
+    (page.$refs['district'] as HTMLSelectElement).value = '';
+    (page.$refs['ward'] as HTMLSelectElement).value = '';
+    (page.$refs['houseNumber'] as HTMLInputElement).value = '';
     return Promise.resolve();
 }
 
 const addAddress = (page: Page): void => {
     const address: SelectedAddress = {
-        house_number: page.$refs['houseNumber'].value,
-        district: JSON.parse(page.$refs['district'].value),
-        ward: JSON.parse(page.$refs['ward'].value),
-        province: JSON.parse(page.$refs['province'].value)
+        house_number: (page.$refs['houseNumber'] as HTMLInputElement).value,
+        district: JSON.parse((page.$refs['district'] as HTMLSelectElement).value),
+        ward: JSON.parse((page.$refs['ward'] as HTMLSelectElement).value),
+        province: JSON.parse((page.$refs['province'] as HTMLSelectElement).value)
     };
     page.selectedAddresses.push(address);
 }
@@ -218,6 +221,11 @@ const updateCustomer = async (updateCustomerInfo: CustomerUpdateInfo, page: Page
             page.alertErrorContents = error.messages;
         } else {
             assignData(page, response.body as CustomerInfoResp);
+            if (page.selectedAddresses.length !== 0) {
+                page.selectedAddresses = [];
+            }
+            page.alertInfoContents.push('Customer info is updated.');
+            page.mode = 'view';
         }
     }
     page.isLoading = false;
@@ -225,17 +233,17 @@ const updateCustomer = async (updateCustomerInfo: CustomerUpdateInfo, page: Page
 }
 
 export {
-    getGenderCheckboxValues,
-    getProvinces,
-    getDistricts,
-    getWards,
     CustomerInfo,
     CustomerUpdateInfo,
     SelectedAddress,
-    createDefaultCustomerUpdateInfo,
-    createDefaultCustomerInfo,
+    addAddress,
     assignUpdatedData,
     clear,
-    addAddress,
+    createDefaultCustomerInfo,
+    createDefaultCustomerUpdateInfo,
+    getDistricts,
+    getGenderCheckboxValues,
+    getProvinces,
+    getWards,
     updateCustomer
-}
+};
