@@ -19,17 +19,22 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
-public abstract class AbstractController<T, U> implements Controller<T, U> {
+public abstract non-sealed class AbstractController<T, U> implements Controller<T, U> {
     private final NativeMethodHandleRequestMetadataReader reader = NativeMethodHandleRequestMetadataReader.getInstance();
     private NativeRequest<U> request;
     private NativeResponse<T> response;
+
     @Getter
     @Setter
     private DependenciesContainerResolver containerResolver;
+
     @Getter
     @Setter
     private Environment environment;
+
+    @Setter
     private RuleManager ruleManager;
+
     private String name;
 
     public boolean isController() {
@@ -96,6 +101,13 @@ public abstract class AbstractController<T, U> implements Controller<T, U> {
             }
         }
         return name;
+    }
+
+    public RuleManager getRuleManager() {
+        if (ruleManager == null) {
+            ruleManager = containerResolver.getDependenciesResolver().resolveDependencies(RuleManager.class);
+        }
+        return ruleManager;
     }
 
     public abstract AbstractController<T, U> newInstance();

@@ -9,17 +9,14 @@ To working with this project. I recommend set up your workspace follow these ste
 - [ ] [Download](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) Java 17 and set up
   your environment.
     - After download jdk set up JAVA_HOME following command:
-        - Window:
-          ```
-          setx JAVA_HOME -m "Path/to/downloaded/jdk"
-          echo %JAVA_HOME%
-          ```
+        -
+        Window: [Set up java home](https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html)
         - Linux:
-          ```
-          export JAVA_HOME=/path/to/downloaded/jdk
-          export PATH=${PATH}:${JAVA_HOME}/bin
-          java -version
-          ```
+            ```
+            export JAVA_HOME=/path/to/downloaded/jdk
+            source /etc/environment
+            java -version
+            ``` 
 - [ ] Install git. If you use linux, git is already installed in your computer.
 - [ ] Clone repo. Open terminal and run command.
     - Window: ```cd /d path/to/your/folder```

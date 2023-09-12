@@ -9,6 +9,7 @@ import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
@@ -27,6 +28,7 @@ import com.bachlinh.order.validate.rule.RuleFactory;
 import com.bachlinh.order.validate.rule.RuleManager;
 import com.bachlinh.order.validate.rule.ValidationRule;
 import com.bachlinh.order.web.common.entity.DefaultEntityFactory;
+import com.bachlinh.order.web.common.entity.DefaultEntityMapperFactory;
 import com.bachlinh.order.web.common.interceptor.WebInterceptorConfigurer;
 import com.bachlinh.order.web.common.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.common.servlet.WebServlet;
@@ -104,7 +106,7 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
 
     @Bean
     ControllerManager controllerManager(@Value("${active.profile}") String profile, ApplicationContext applicationContext) {
-        return ControllerManager.getInstance(null, profile, ContainerWrapper.wrap(applicationContext));
+        return ControllerManager.getInstance(profile, ContainerWrapper.wrap(applicationContext));
     }
 
     @Bean
@@ -180,6 +182,11 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
         var seed = entityFactory.getAllContexts();
         SqlBuilderFactory sqlBuilderFactory = SqlBuilderFactory.defaultInstance(seed.values());
         return sqlBuilderFactory.getQueryBuilder();
+    }
+
+    @Bean
+    EntityMapperFactory entityMapperFactory(EntityFactory entityFactory) {
+        return new DefaultEntityMapperFactory(entityFactory);
     }
 
     @Override

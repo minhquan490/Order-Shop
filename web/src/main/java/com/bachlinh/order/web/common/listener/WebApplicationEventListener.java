@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.common.listener;
 
+import com.bachlinh.order.core.concurrent.ThreadPoolManager;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.core.excecute.BootWrapper;
@@ -11,6 +12,8 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.UnsafeUtils;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -24,9 +27,11 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
     private static final String READY_EVENT = "org.springframework.boot.context.event.ApplicationReadyEvent";
     private static final String REFRESH_EVENT = "org.springframework.context.event.ContextRefreshedEvent";
     private static final String CLOSE_EVENT = "org.springframework.context.event.ContextClosedEvent";
+    private static final String STOP_EVENT = "org.springframework.context.event.ContextStoppedEvent";
 
     private final Collection<Executor<?>> eventExecutors = new LinkedList<>();
     private final DependenciesResolver resolver;
+    private final Logger log;
 
     @SuppressWarnings("unchecked")
     public WebApplicationEventListener(DependenciesContainerResolver dependenciesContainerResolver, String profile) {
@@ -39,11 +44,13 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
                 .filter(Objects::nonNull)
                 .toList());
         this.resolver = dependenciesContainerResolver.getDependenciesResolver();
+        this.log = LoggerFactory.getLogger(getClass());
     }
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        switch (event.getClass().getName()) {
+        String eventName = event.getClass().getName();
+        switch (eventName) {
             case STARTED_EVENT -> {
                 Collection<Executor<?>> startupExecutors = eventExecutors
                         .stream()
@@ -65,13 +72,13 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
                         .toList();
                 onApplicationRefresh(applicationRefreshExecutors);
             }
-            case CLOSE_EVENT -> {
+            case STOP_EVENT -> {
                 var repository = resolver.resolveDependencies(CustomerAccessHistoryRepository.class);
-                RequestAccessHistoriesHolder.flushAllHistories(repository);
+                var threadPoolManager = resolver.resolveDependencies(ThreadPoolManager.class);
+                threadPoolManager.execute(() -> RequestAccessHistoriesHolder.flushAllHistories(repository));
             }
-            default -> {
-                // Do nothing
-            }
+            case CLOSE_EVENT -> log.info("Close application");
+            default -> {/* Do nothing */}
         }
     }
 

@@ -13,6 +13,7 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 
 @Getter(AccessLevel.PROTECTED)
 public abstract class AbstractRouter<T, U> implements Router<T, U> {
@@ -56,14 +57,14 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
             if (nativeReq != null && nativeResp != null) {
                 webInterceptorChain.onCompletion(nativeReq, nativeResp);
             }
-            if (nativeReq != null && nativeReq.isMultipart()) {
-                nativeReq.cleanUp();
-            }
+            getRootNode().release();
+            cleanUpRequest(request, nativeReq);
         }
     }
 
     protected abstract NativeResponse<?> internalHandle(NativeRequest<?> request);
 
+    @NonNull
     protected abstract NativeRequest<?> registerReq(T request);
 
     protected abstract NativeResponse<?> createDefault();
@@ -75,6 +76,8 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
     protected abstract void onErrorBeforeHandle(Throwable throwable, U response);
 
     protected abstract void configResponse(NativeResponse<?> nativeResponse, U actualResponse);
+
+    protected abstract void cleanUpRequest(T actualRequest, NativeRequest<?> transferredRequest);
 
     private Node configRootNode() {
         var factory = new NodeFactory(resolver);

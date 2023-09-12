@@ -3,14 +3,13 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.context.FieldUpdated;
-import com.bachlinh.order.entity.formula.internal.CommonFieldSelectFormula;
+import com.bachlinh.order.entity.formula.CommonFieldSelectFormula;
+import com.bachlinh.order.entity.formula.IdFieldFormula;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Transient;
-import jakarta.persistence.Tuple;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
@@ -18,7 +17,6 @@ import org.springframework.lang.NonNull;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 /**
  * Abstract entity, super class of all entity object available in system.
@@ -29,7 +27,7 @@ import java.util.Queue;
 @MappedSuperclass
 @Getter
 @EqualsAndHashCode
-@Formula(processor = CommonFieldSelectFormula.class)
+@Formula(processors = {CommonFieldSelectFormula.class, IdFieldFormula.class})
 public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Column(name = "CREATED_BY", updatable = false)
@@ -115,14 +113,5 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     protected void trackUpdatedField(String fieldName, Object oldValue, Object newValue) {
         FieldUpdated fieldUpdated = new FieldUpdated(fieldName, oldValue, () -> newValue);
         setUpdatedField(fieldUpdated);
-    }
-
-    protected Queue<EntityMapper.MappingObject> parseTuple(Tuple target) {
-        Queue<EntityMapper.MappingObject> mappingObjectQueue = new LinkedList<>();
-        for (var ele : target.getElements()) {
-            var mappedObject = new EntityMapper.MappingObject(ele.getAlias(), target.get(ele.getAlias(), ele.getJavaType()));
-            mappingObjectQueue.add(mappedObject);
-        }
-        return mappingObjectQueue;
     }
 }

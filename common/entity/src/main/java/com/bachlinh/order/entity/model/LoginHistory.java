@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.entity.EntityMapper;
+import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +21,6 @@ import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Queue;
 
 @Entity
 @Table(name = "LOGIN_HISTORY", indexes = @Index(name = "idx_login_history_customer", columnList = "CUSTOMER_ID"))
@@ -62,19 +60,13 @@ public class LoginHistory extends AbstractEntity<Integer> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
         return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
     public void setLastLoginTime(Timestamp lastLoginTime) {
-        if (this.lastLoginTime != null && !lastLoginTime.equals(this.lastLoginTime)) {
+        if (this.lastLoginTime != null && !Objects.equal(lastLoginTime, this.lastLoginTime)) {
             trackUpdatedField("LAST_LOGIN_TIME", this.lastLoginTime, lastLoginTime);
         }
         this.lastLoginTime = lastLoginTime;
@@ -82,7 +74,7 @@ public class LoginHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setLoginIp(String loginIp) {
-        if (this.loginIp != null && !loginIp.equals(this.loginIp)) {
+        if (this.loginIp != null && !Objects.equal(loginIp, this.loginIp)) {
             trackUpdatedField("LOGIN_IP", this.loginIp, loginIp);
         }
         this.loginIp = loginIp;
@@ -90,7 +82,7 @@ public class LoginHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setSuccess(Boolean success) {
-        if (this.success != null && !success.equals(this.success)) {
+        if (this.success != null && !Objects.equal(success, this.success)) {
             trackUpdatedField("SUCCESS", this.success, success);
         }
         this.success = success;
@@ -98,68 +90,6 @@ public class LoginHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
-        if (this.customer != null && !customer.getId().equals(this.customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
-        }
         this.customer = customer;
-    }
-
-    public static EntityMapper<LoginHistory> getMapper() {
-        return new LoginHistoryMapper();
-    }
-
-    private static class LoginHistoryMapper implements EntityMapper<LoginHistory> {
-
-        @Override
-        public LoginHistory map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new LoginHistory().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public LoginHistory map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            LoginHistory result = new LoginHistory();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("LOGIN_HISTORY")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                var customer = mapper.map(resultSet);
-                result.setCustomer(customer);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("LOGIN_HISTORY");
-            });
-        }
-
-        private void setData(LoginHistory target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "LOGIN_HISTORY.ID" -> target.setId(mappingObject.value());
-                case "LOGIN_HISTORY.LAST_LOGIN_TIME" -> target.setLastLoginTime((Timestamp) mappingObject.value());
-                case "LOGIN_HISTORY.LOGIN_IP" -> target.setLoginIp((String) mappingObject.value());
-                case "LOGIN_HISTORY.SUCCESS" -> target.setSuccess((Boolean) mappingObject.value());
-                case "LOGIN_HISTORY.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "LOGIN_HISTORY.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "LOGIN_HISTORY.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "LOGIN_HISTORY.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

@@ -1,5 +1,7 @@
 package com.bachlinh.order.repository.query;
 
+import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,12 +9,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T> {
+public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T>, NativeQueryHolder {
 
     private final Queue<String> orderByStatements = new LinkedList<>();
     private final Queue<OtherOrderBy> otherOrderByStatements = new LinkedList<>();
     private long limit = -1;
     private long offset = -1;
+
+    @Override
+    public final String getNativeQuery() {
+        String processedQuery = createQuery();
+        var processors = getNativeQueryProcessor();
+        for (var processor : processors) {
+            processedQuery = processor.process(processedQuery);
+        }
+        return processedQuery;
+    }
 
     protected void internalLimit(long limit) {
         this.limit = limit;
@@ -85,6 +97,10 @@ public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T>
         }
         return processedOrder;
     }
+
+    protected abstract String createQuery();
+
+    protected abstract Collection<FormulaProcessor> getNativeQueryProcessor();
 
     protected record OtherOrderBy(String tableName, String columnName, String type) {
     }

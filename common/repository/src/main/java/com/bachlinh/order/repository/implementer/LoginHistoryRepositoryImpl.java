@@ -7,8 +7,8 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.LoginHistory_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
@@ -23,7 +23,6 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -34,7 +33,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class LoginHistoryRepositoryImpl extends AbstractRepository<LoginHistory, Integer> implements LoginHistoryRepository {
+public class LoginHistoryRepositoryImpl extends AbstractRepository<Integer, LoginHistory> implements LoginHistoryRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -91,16 +90,14 @@ public class LoginHistoryRepositoryImpl extends AbstractRepository<LoginHistory,
 
     @Override
     public Long countHistoriesOfCustomer(String customerId) {
-        Customer dummy = getEntityFactory().getEntity(Customer.class);
-        dummy.setId(customerId);
-        Specification<LoginHistory> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(LoginHistory_.CUSTOMER), dummy));
-        return count(spec);
+        Where ownerWhere = Where.builder().attribute(LoginHistory_.CUSTOMER).value(customerId).build();
+        return count(ownerWhere);
     }
 
     private Collection<LoginHistory> getLoginHistories(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, LoginHistory.class);
+        return this.getResultList(sql, attributes, LoginHistory.class);
     }
 
     @Override

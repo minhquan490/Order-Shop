@@ -23,12 +23,6 @@ public class DistrictIndexTrigger extends AbstractTrigger<District> {
 
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public DistrictIndexTrigger(DependenciesResolver resolver) {
-        super(resolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     protected void doExecute(District entity) {
         EntityContext entityContext = entityFactory.getEntityContext(District.class);
@@ -65,5 +59,11 @@ public class DistrictIndexTrigger extends AbstractTrigger<District> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 }

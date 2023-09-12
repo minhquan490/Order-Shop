@@ -2,8 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.entity.EntityMapper;
-import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,13 +14,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -31,16 +26,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
 
 @Entity
 @Table(name = "ORDERS", indexes = @Index(name = "idx_order_customer", columnList = "CUSTOMER_ID"))
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "order")
 @Label("ODR-")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
@@ -90,12 +80,6 @@ public class Order extends AbstractEntity<String> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
         if (entities.isEmpty()) {
             return Collections.emptyList();
@@ -107,6 +91,7 @@ public class Order extends AbstractEntity<String> {
                     first = (Order) entity;
                 } else {
                     Order casted = (Order) entity;
+
                     if (casted.getOrderDetails().isEmpty()) {
                         results.add(first);
                     } else {
@@ -163,93 +148,5 @@ public class Order extends AbstractEntity<String> {
     @ActiveReflection
     public void setOrderHistory(OrderHistory orderHistory) {
         this.orderHistory = orderHistory;
-    }
-
-    public static EntityMapper<Order> getMapper() {
-        return new OrderMapper();
-    }
-
-    private static class OrderMapper implements EntityMapper<Order> {
-
-        @Override
-        public Order map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new Order().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public Order map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            Order result = new Order();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("ORDERS")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = OrderStatus.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var orderStatus = mapper.map(resultSet);
-                    orderStatus.setOrder(result);
-                    result.setOrderStatus(orderStatus);
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = OrderHistory.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var orderHistory = mapper.map(resultSet);
-                    orderHistory.setOrder(result);
-                    result.setOrderHistory(orderHistory);
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var customer = mapper.map(resultSet);
-                    customer.getOrders().add(result);
-                    result.setCustomer(customer);
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = OrderDetail.getMapper();
-                Set<OrderDetail> orderDetailSet = new LinkedHashSet<>();
-                while (!resultSet.isEmpty()) {
-                    hook = resultSet.peek();
-                    if (hook.columnName().split("\\.")[0].equals("ORDER_DETAIL")) {
-                        var orderDetails = mapper.map(resultSet);
-                        orderDetails.setOrder(result);
-                        orderDetailSet.add(orderDetails);
-                    } else {
-                        break;
-                    }
-                }
-                result.setOrderDetails(orderDetailSet);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("ORDERS");
-            });
-        }
-
-        private void setData(Order target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "ORDERS.ID" -> target.setId(mappingObject.value());
-                case "ORDERS.ORDER_TIME" -> target.setTimeOrder((Timestamp) mappingObject.value());
-                case "ORDERS.BANK_TRANSACTION_CODE" -> target.setBankTransactionCode((String) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

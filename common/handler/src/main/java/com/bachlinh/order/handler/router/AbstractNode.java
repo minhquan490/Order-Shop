@@ -70,4 +70,9 @@ public abstract class AbstractNode implements Node, NodeHolder {
     protected ControllerManager getControllerManager() {
         return controllerManager;
     }
+
+    @Override
+    public void release() {
+        controllerManager.release();
+    }
 }

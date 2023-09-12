@@ -1,7 +1,6 @@
 package com.bachlinh.order.entity.bean.spring;
 
 import com.bachlinh.order.entity.EntityProxyFactory;
-import com.bachlinh.order.entity.cache.HibernateL2CachingRegionFactory;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.environment.Environment;
@@ -11,6 +10,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.JdbcSettings;
+import org.hibernate.cfg.SchemaToolingSettings;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.SQLServerDialect;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,6 @@ public class DataSourceBean {
         factoryBean.setDataSource(dataSource());
         factoryBean.setPackagesToScan(BaseEntity.class.getPackage().getName());
         factoryBean.setHibernateProperties(hibernateProperties());
-        factoryBean.setCacheRegionFactory(new HibernateL2CachingRegionFactory(dependenciesResolver));
         return factoryBean;
     }
 
@@ -73,13 +73,11 @@ public class DataSourceBean {
 
     private Properties hibernateProperties() {
         Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty(AvailableSettings.HBM2DDL_AUTO, "update");
-        hibernateProperties.setProperty(AvailableSettings.SHOW_SQL, "true");
-        hibernateProperties.setProperty(AvailableSettings.FORMAT_SQL, "false");
+        hibernateProperties.setProperty(SchemaToolingSettings.HBM2DDL_AUTO, "update");
+        hibernateProperties.setProperty(JdbcSettings.SHOW_SQL, "true");
+        hibernateProperties.setProperty(JdbcSettings.FORMAT_SQL, "false");
         hibernateProperties.setProperty(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-        hibernateProperties.setProperty(AvailableSettings.DIALECT, sqlDialect(useDatabase));
-        hibernateProperties.setProperty(AvailableSettings.USE_SECOND_LEVEL_CACHE, "true");
-        hibernateProperties.setProperty(AvailableSettings.USE_QUERY_CACHE, "true");
+        hibernateProperties.setProperty(JdbcSettings.DIALECT, sqlDialect(useDatabase));
         return hibernateProperties;
     }
 

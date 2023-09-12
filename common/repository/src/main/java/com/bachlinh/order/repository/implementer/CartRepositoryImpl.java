@@ -10,8 +10,8 @@ import com.bachlinh.order.entity.model.Cart_;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CartRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
@@ -36,7 +36,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CartRepositoryImpl extends AbstractRepository<Cart, String> implements CartRepository {
+public class CartRepositoryImpl extends AbstractRepository<String, Cart> implements CartRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -97,11 +97,6 @@ public class CartRepositoryImpl extends AbstractRepository<Cart, String> impleme
     private Cart getCart(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, Cart.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, Cart.class);
     }
 }

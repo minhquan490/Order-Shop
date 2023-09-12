@@ -5,8 +5,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.District_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.DistrictRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.Select;
@@ -21,6 +21,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -28,7 +29,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class DistrictRepositoryImpl extends AbstractRepository<District, Integer> implements DistrictRepository {
+public class DistrictRepositoryImpl extends AbstractRepository<Integer, District> implements DistrictRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -44,12 +45,7 @@ public class DistrictRepositoryImpl extends AbstractRepository<District, Integer
         SqlWhere sqlWhere = sqlSelect.where(districtIdWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, District.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, District.class);
     }
 
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
@@ -65,12 +61,21 @@ public class DistrictRepositoryImpl extends AbstractRepository<District, Integer
 
     @Override
     public Collection<District> getAllDistrict() {
-        return findAll();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(District.class);
+        String query = sqlSelect.getNativeQuery();
+        return getResultList(query, Collections.emptyMap(), getDomainClass());
     }
 
     @Override
     public Collection<District> getDistricts(Collection<String> ids) {
-        return findAllById(ids.stream().map(Integer::parseInt).toList());
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(District.class);
+        Where idsWhere = Where.builder().attribute(District_.ID).value(ids).operator(Operator.IN).build();
+        SqlWhere sqlWhere = sqlSelect.where(idsWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return getResultList(sql, attributes, getDomainClass());
     }
 
     @Override
@@ -87,7 +92,7 @@ public class DistrictRepositoryImpl extends AbstractRepository<District, Integer
         sqlWhere.orderBy(nameOrderBy);
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> params = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(query, params, District.class);
+        return this.getResultList(query, params, District.class);
     }
 
     @Override

@@ -10,8 +10,8 @@ import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.entity.model.EmailTrash_;
 import com.bachlinh.order.entity.model.Email_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
@@ -38,7 +38,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class EmailRepositoryImpl extends AbstractRepository<Email, String> implements EmailRepository {
+public class EmailRepositoryImpl extends AbstractRepository<String, Email> implements EmailRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -188,7 +188,7 @@ public class EmailRepositoryImpl extends AbstractRepository<Email, String> imple
     private List<Email> getEmails(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, Email.class);
+        return this.getResultList(sql, attributes, Email.class);
     }
 
     @Nullable

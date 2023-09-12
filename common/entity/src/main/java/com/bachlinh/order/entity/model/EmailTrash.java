@@ -1,7 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,14 +19,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 
 @ActiveReflection
@@ -59,9 +54,6 @@ public class EmailTrash extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
-        if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
-        }
         this.customer = customer;
     }
 
@@ -73,12 +65,6 @@ public class EmailTrash extends AbstractEntity<Integer> {
         } else {
             throw new PersistenceException("Id of EmailTrash must be int");
         }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
     }
 
     @Override
@@ -103,80 +89,6 @@ public class EmailTrash extends AbstractEntity<Integer> {
             }
             results.addFirst(first);
             return (Collection<U>) results;
-        }
-    }
-
-    public static EntityMapper<EmailTrash> getMapper() {
-        return new EmailTrashMapper();
-    }
-
-    private static class EmailTrashMapper implements EntityMapper<EmailTrash> {
-
-        @Override
-        public EmailTrash map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new EmailTrash().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public EmailTrash map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            EmailTrash result = new EmailTrash();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("EMAIL_TRASH")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Email.getMapper();
-                Set<Email> emailSet = new LinkedHashSet<>();
-                while (!resultSet.isEmpty()) {
-                    hook = resultSet.peek();
-                    if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
-                        var email = mapper.map(resultSet);
-                        email.setEmailTrash(result);
-                        emailSet.add(email);
-                    } else {
-                        break;
-                    }
-                }
-                result.setEmails(emailSet);
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var customer = mapper.map(resultSet);
-                    customer.setEmailTrash(result);
-                    result.setCustomer(customer);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("EMAIL_TRASH");
-            });
-        }
-
-        private void setData(EmailTrash target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "EMAIL_TRASH.ID" -> target.setId(mappingObject.value());
-                case "EMAIL_TRASH.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "EMAIL_TRASH.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "EMAIL_TRASH.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "EMAIL_TRASH.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
         }
     }
 }

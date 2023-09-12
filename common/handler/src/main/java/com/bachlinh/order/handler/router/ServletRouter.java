@@ -11,9 +11,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.util.WebUtils;
 
 public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServletResponse> {
     private final ServletResponseStrategy strategy = ServletResponseStrategy.defaultStrategy();
+    private final MultipartResolver multipartResolver = new StandardServletMultipartResolver();
 
     public ServletRouter(DependenciesResolver resolver) {
         super(resolver);
@@ -21,20 +28,15 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
 
     @Override
     protected NativeResponse<?> internalHandle(NativeRequest<?> request) {
-        try {
-            return getRootNode().handleRequest(request, request.getUrl(), request.getRequestMethod());
-        } catch (Throwable throwable) {
-            if (throwable instanceof Exception exception) {
-                return getRootNode().translateException(exception);
-            } else {
-                return getRootNode().translateError((Error) throwable);
-            }
-        }
+        return getRootNode().handleRequest(request, request.getUrl(), request.getRequestMethod());
     }
 
+    @NonNull
     @Override
     protected NativeRequest<?> registerReq(HttpServletRequest request) {
-        return NativeRequest.buildNativeFromServletRequest(request);
+        HttpServletRequest processedRequest;
+        processedRequest = checkMultipart(request);
+        return NativeRequest.buildNativeFromServletRequest(processedRequest);
     }
 
     @Override
@@ -64,11 +66,7 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
         } else {
             nativeResponse = getRootNode().translateError((Error) throwable);
         }
-        MessageWriter messageWriter = MessageWriter.httpMessageWriter(response);
-        messageWriter.writeCookies(nativeResponse.getCookies());
-        messageWriter.writeHeader(nativeResponse.getHeaders());
-        messageWriter.writeHttpStatus(nativeResponse.getStatusCode());
-        messageWriter.writeMessage(nativeResponse.getBody());
+        writeResponse(nativeResponse, response);
     }
 
     @Override
@@ -83,6 +81,29 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
             for (var cookie : nativeResponse.getCookies()) {
                 actualResponse.addCookie(cookie.toServletCookie());
             }
+        }
+    }
+
+    @Override
+    protected void cleanUpRequest(HttpServletRequest actualRequest, NativeRequest<?> transferredRequest) {
+        if (transferredRequest != null && transferredRequest.isMultipart()) {
+            transferredRequest.cleanUp();
+            cleanupMultipart(actualRequest);
+        }
+    }
+
+    private HttpServletRequest checkMultipart(HttpServletRequest request) throws MultipartException {
+        if (this.multipartResolver.isMultipart(request)) {
+            return this.multipartResolver.resolveMultipart(request);
+        }
+        return request;
+    }
+
+    private void cleanupMultipart(HttpServletRequest request) {
+        MultipartHttpServletRequest multipartRequest =
+                WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class);
+        if (multipartRequest != null) {
+            this.multipartResolver.cleanupMultipart(multipartRequest);
         }
     }
 }

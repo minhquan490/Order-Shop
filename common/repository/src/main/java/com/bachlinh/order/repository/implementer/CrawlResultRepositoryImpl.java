@@ -5,17 +5,18 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.CrawlResult;
 import com.bachlinh.order.entity.model.CrawlResult_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CrawlResultRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
 import com.bachlinh.order.repository.query.SqlSelect;
 import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -32,7 +33,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CrawlResultRepositoryImpl extends AbstractRepository<CrawlResult, Integer> implements CrawlResultRepository {
+public class CrawlResultRepositoryImpl extends AbstractRepository<Integer, CrawlResult> implements CrawlResultRepository {
     private static final LocalTime MID_NIGHT = LocalTime.of(0, 0);
 
     @DependenciesInitialize
@@ -50,8 +51,16 @@ public class CrawlResultRepositoryImpl extends AbstractRepository<CrawlResult, I
     @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteCrawlResults(LocalDateTime localDateTime) {
-        Specification<CrawlResult> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(root.get(CrawlResult_.TIME_FINISH), localDateTime));
-        delete(spec);
+        Select idSelect = Select.builder().column(CrawlResult_.ID).build();
+        Where timeFinishWhere = Where.builder().attribute(CrawlResult_.TIME_FINISH).value(localDateTime).operator(Operator.LE).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(CrawlResult.class);
+        sqlSelect.select(idSelect);
+        SqlWhere sqlWhere = sqlSelect.where(timeFinishWhere);
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        var results = getResultList(sql, attributes, getDomainClass());
+        deleteAll(results);
     }
 
     @Override
@@ -65,7 +74,7 @@ public class CrawlResultRepositoryImpl extends AbstractRepository<CrawlResult, I
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = new HashMap<>();
         sqlWhere.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
-        return executeNativeQuery(query, attributes, CrawlResult.class);
+        return this.getResultList(query, attributes, CrawlResult.class);
     }
 
     @Override

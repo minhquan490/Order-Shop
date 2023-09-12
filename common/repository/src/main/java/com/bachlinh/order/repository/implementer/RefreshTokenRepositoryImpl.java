@@ -7,8 +7,8 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.RefreshToken_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -22,7 +22,6 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -34,7 +33,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken, String> implements RefreshTokenRepository {
+public class RefreshTokenRepositoryImpl extends AbstractRepository<String, RefreshToken> implements RefreshTokenRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -102,8 +101,8 @@ public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken,
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public boolean deleteRefreshToken(RefreshToken refreshToken) {
         if (StringUtils.hasText((CharSequence) refreshToken.getId())) {
-            long numRowDeleted = this.delete(Specification.where((root, query, builder) -> builder.equal(root.get("id"), refreshToken.getId())));
-            return numRowDeleted != 0;
+            deleteById(refreshToken.getId());
+            return true;
         } else {
             return false;
         }
@@ -120,11 +119,6 @@ public class RefreshTokenRepositoryImpl extends AbstractRepository<RefreshToken,
     private RefreshToken getRefreshToken(SqlWhere where) {
         String sql = where.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(where.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, RefreshToken.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, RefreshToken.class);
     }
 }

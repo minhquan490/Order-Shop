@@ -18,9 +18,9 @@ public abstract class AbstractTrigger<T extends BaseEntity<?>> implements Entity
     private ThreadPoolManager threadPoolManager;
     private boolean runSync = false;
     private Environment environment;
-    private RunnableType runnableType = RunnableType.ASYNC;
+    private RunnableType runnableType;
 
-    protected Logger log = LoggerFactory.getLogger(getClass());
+    protected Logger log;
 
     protected DependenciesResolver getDependenciesResolver() {
         return dependenciesResolver;
@@ -68,6 +68,12 @@ public abstract class AbstractTrigger<T extends BaseEntity<?>> implements Entity
 
     @Override
     public void setResolver(DependenciesResolver resolver) {
+        if (this.runnableType == null) {
+            this.runnableType = RunnableType.ASYNC;
+        }
+        if (this.log == null) {
+            log = LoggerFactory.getLogger(getClass());
+        }
         this.dependenciesResolver = resolver;
     }
 }

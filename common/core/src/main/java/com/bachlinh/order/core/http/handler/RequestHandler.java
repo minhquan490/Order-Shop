@@ -15,4 +15,6 @@ public interface RequestHandler {
     <T> NativeResponse<T> getNativeResponse();
 
     <T, U> NativeResponse<T> handleRequest(NativeRequest<U> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException;
+
+    void release();
 }

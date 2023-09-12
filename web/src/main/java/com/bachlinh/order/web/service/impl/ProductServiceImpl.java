@@ -214,7 +214,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         attributes.put("fourthEnd", fifthParam);
         attributes.put("lastStart", fifthParam);
         attributes.put("lastEnd", Timestamp.valueOf(now));
-        var resultSet = productRepository.executeNativeQuery(query, attributes, AnalyzeProductPostedInMonthResp.ResultSet.class).get(0);
+        var resultSet = productRepository.getResultList(query, attributes, AnalyzeProductPostedInMonthResp.ResultSet.class).get(0);
         return dtoMapper.map(resultSet, AnalyzeProductPostedInMonthResp.class);
     }
 }

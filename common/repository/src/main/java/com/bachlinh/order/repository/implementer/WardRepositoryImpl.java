@@ -6,8 +6,8 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.WardRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.Select;
@@ -22,6 +22,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -29,7 +30,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implements WardRepository {
+public class WardRepositoryImpl extends AbstractRepository<Integer, Ward> implements WardRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -50,7 +51,9 @@ public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implem
 
     @Override
     public Collection<Ward> getAllWards() {
-        return findAll();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Ward.class);
+        return getResultList(sqlSelect.getNativeQuery(), Collections.emptyMap(), getDomainClass());
     }
 
     @Override
@@ -61,7 +64,7 @@ public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implem
         SqlWhere sqlWhere = sqlSelect.where(idsWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, Ward.class);
+        return this.getResultList(sql, attributes, Ward.class);
     }
 
     @Override
@@ -77,7 +80,7 @@ public class WardRepositoryImpl extends AbstractRepository<Ward, Integer> implem
         sqlWhere.orderBy(nameOrderBy);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, Ward.class);
+        return this.getResultList(sql, attributes, Ward.class);
     }
 
     @Override

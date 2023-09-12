@@ -2,12 +2,13 @@ package com.bachlinh.order.repository.query;
 
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
-import com.bachlinh.order.entity.formula.WhereFormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.WhereFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,13 +32,14 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private final Deque<AdditionWhere> additionsWhere = new LinkedList<>();
     private final Set<WhereFormulaProcessor> whereFormulaProcessors = new HashSet<>();
 
-    SqlWhereSqm(Collection<String> orderByStatements, TableMetadataHolder metadataHolder, String previousQuery, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata, @Nullable Where root) {
+    SqlWhereSqm(Collection<String> orderByStatements, TableMetadataHolder metadataHolder, String previousQuery, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata, @NonNull Where root) {
         this.metadataHolder = metadataHolder;
         orderByStatements.forEach(this::addOrderByStatement);
         this.queryBuilder.append(previousQuery);
         this.tableMetadata = tableMetadata;
         this.root = root;
         this.formulaMetadata = (FormulaMetadata) metadataHolder;
+        this.whereFormulaProcessors.addAll(formulaMetadata.getColumnWhereProcessors(root.getAttribute(), metadataHolder, tableMetadata));
     }
 
     @Override
@@ -107,22 +109,6 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     }
 
     @Override
-    public String getNativeQuery() {
-        this.queryBuilder.append(processWhere());
-        String order = orderStatement();
-        this.queryBuilder.append(order);
-        if (!order.isEmpty()) {
-            this.queryBuilder.append(processLimitOffset());
-        }
-        String query = this.queryBuilder.toString();
-        var processors = formulaMetadata.getTableProcessors(metadataHolder, tableMetadata);
-        for (var processor : processors) {
-            query = processor.process(query);
-        }
-        return query;
-    }
-
-    @Override
     public SqlWhere limit(long limit) {
         super.internalLimit(limit);
         return this;
@@ -132,6 +118,22 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     public SqlWhere offset(long offset) {
         super.internalOffset(offset);
         return this;
+    }
+
+    @Override
+    protected String createQuery() {
+        this.queryBuilder.append(processWhere());
+        String order = orderStatement();
+        this.queryBuilder.append(order);
+        if (!order.isEmpty()) {
+            this.queryBuilder.append(processLimitOffset());
+        }
+        return this.queryBuilder.toString();
+    }
+
+    @Override
+    protected Collection<FormulaProcessor> getNativeQueryProcessor() {
+        return formulaMetadata.getNativeQueryProcessor(metadataHolder, tableMetadata);
     }
 
     private String processWhere() {
@@ -171,9 +173,15 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
         String wherePostFix = String.join(" ", processedWheres.toArray(new String[0]));
         for (var processor : whereFormulaProcessors) {
-            wherePostFix = processor.processWhere(wherePostFix, metadataHolder, tableMetadata);
+            wherePostFix = processor.processWhere(wherePostFix);
         }
-        return MessageFormat.format(wherePattern, wherePostFix);
+        String processedSql = MessageFormat.format(wherePattern, wherePostFix);
+
+        var whereTableFormulas = formulaMetadata.getTableWhereProcessors(metadataHolder, tableMetadata);
+        for (var processor : whereTableFormulas) {
+            processedSql = processor.processWhere(processedSql);
+        }
+        return processedSql;
     }
 
     private String processSubSelectIn(String tableName, String colName, SqlSelect sqlSelect) {

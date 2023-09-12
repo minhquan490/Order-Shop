@@ -6,8 +6,8 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.Select;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<CustomerInfoChangeHistory, String> implements CustomerInfoChangeHistoryRepository {
+public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<String, CustomerInfoChangeHistory> implements CustomerInfoChangeHistoryRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -96,6 +96,6 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
         }
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, CustomerInfoChangeHistory.class);
+        return this.getResultList(sql, attributes, CustomerInfoChangeHistory.class);
     }
 }

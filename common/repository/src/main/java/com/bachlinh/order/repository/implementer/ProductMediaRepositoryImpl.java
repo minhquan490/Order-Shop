@@ -4,8 +4,15 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.ProductMedia;
+import com.bachlinh.order.entity.model.ProductMedia_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProductMediaRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
+import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlSelect;
+import com.bachlinh.order.repository.query.SqlWhere;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,12 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class ProductMediaRepositoryImpl extends AbstractRepository<ProductMedia, Integer> implements ProductMediaRepository {
+public class ProductMediaRepositoryImpl extends AbstractRepository<Integer, ProductMedia> implements ProductMediaRepository {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -30,7 +39,13 @@ public class ProductMediaRepositoryImpl extends AbstractRepository<ProductMedia,
 
     @Override
     public ProductMedia loadMedia(int id) {
-        return findById(id).orElse(null);
+        Where idWhere = Where.builder().attribute(ProductMedia_.ID).value(id).operator(Operator.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(idWhere);
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return getSingleResult(query, attributes, getDomainClass());
     }
 
     @Override

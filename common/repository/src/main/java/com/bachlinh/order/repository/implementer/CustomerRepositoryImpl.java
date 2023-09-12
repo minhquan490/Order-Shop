@@ -17,8 +17,8 @@ import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
@@ -36,7 +36,6 @@ import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +52,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerRepositoryImpl extends AbstractRepository<Customer, String> implements CustomerRepository {
+public class CustomerRepositoryImpl extends AbstractRepository<String, Customer> implements CustomerRepository {
     private final AtomicLong customerCount = new AtomicLong(0);
 
     @DependenciesInitialize
@@ -70,7 +69,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(query, attributes, Customer.class);
+        return this.getResultList(query, attributes, Customer.class);
     }
 
     @Override
@@ -140,14 +139,13 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @Override
     public Customer getCustomerForLogin(String username) {
         var usernameCondition = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
-        var enableCondition = Where.builder().attribute(Customer_.ENABLED).value(true).operator(Operator.EQ).build();
         var idSelect = Select.builder().column(Customer_.ID).build();
         var usernameSelect = Select.builder().column(Customer_.USERNAME).build();
         var passwordSelect = Select.builder().column(Customer_.PASSWORD).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect).select(usernameSelect).select(passwordSelect);
-        SqlWhere sqlWhere = sqlSelect.where(usernameCondition).and(enableCondition);
+        SqlWhere sqlWhere = sqlSelect.where(usernameCondition);
         return getCustomer(sqlWhere);
     }
 
@@ -155,11 +153,10 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     public Customer getCustomerForResetPassword(String email) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
         Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
-        Where enabledWhere = Where.builder().attribute(Customer_.ENABLED).value(true).operator(Operator.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect);
-        SqlWhere sqlWhere = sqlSelect.where(emailWhere).and(enabledWhere);
+        SqlWhere sqlWhere = sqlSelect.where(emailWhere);
         return getCustomer(sqlWhere);
     }
 
@@ -346,8 +343,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     @ActiveReflection
     public void deleteCustomer(@NonNull Customer customer) {
         if (StringUtils.hasText((CharSequence) customer.getId())) {
-            long numRowDeleted = this.delete(Specification.where((root, query, builder) -> builder.equal(root.get(Customer_.ID), customer.getId())));
-            customerCount.set((int) (customerCount.get() - numRowDeleted));
+            deleteById(customer.getId());
         }
     }
 
@@ -434,7 +430,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
                 .select(enabledSelect);
         if (pageable == null && orderByCollection.isEmpty()) {
             String sql = sqlSelect.getNativeQuery();
-            List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
+            List<Customer> results = this.getResultList(sql, Collections.emptyMap(), Customer.class);
             return new PageImpl<>(results, Pageable.unpaged(), results.size());
         }
         if (pageable != null && orderByCollection.isEmpty()) {
@@ -442,13 +438,13 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
             long limit = pageable.getPageSize();
             sqlSelect.limit(limit).offset(offset);
             String sql = sqlSelect.getNativeQuery();
-            List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
+            List<Customer> results = this.getResultList(sql, Collections.emptyMap(), Customer.class);
             return new PageImpl<>(results, Pageable.unpaged(), results.size());
         }
         if (pageable == null) {
             orderByCollection.forEach(sqlSelect::orderBy);
             String sql = sqlSelect.getNativeQuery();
-            List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
+            List<Customer> results = this.getResultList(sql, Collections.emptyMap(), Customer.class);
             return new PageImpl<>(results, Pageable.unpaged(), results.size());
         }
         long offset = pageable.getOffset();
@@ -456,7 +452,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         sqlSelect.limit(limit).offset(offset);
         orderByCollection.forEach(sqlSelect::orderBy);
         String sql = sqlSelect.getNativeQuery();
-        List<Customer> results = executeNativeQuery(sql, Collections.emptyMap(), Customer.class);
+        List<Customer> results = this.getResultList(sql, Collections.emptyMap(), Customer.class);
         return new PageImpl<>(results, Pageable.unpaged(), results.size());
     }
 
@@ -471,12 +467,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
     private Customer getCustomer(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, Customer.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, Customer.class);
     }
 
     private boolean isColumnValueExisted(Select idSelect, Where where) {
@@ -486,6 +477,6 @@ public class CustomerRepositoryImpl extends AbstractRepository<Customer, String>
         SqlWhere sqlWhere = sqlSelect.where(where);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return !executeNativeQuery(sql, attributes, Customer.class).isEmpty();
+        return !this.getResultList(sql, attributes, Customer.class).isEmpty();
     }
 }

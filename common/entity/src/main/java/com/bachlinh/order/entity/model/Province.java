@@ -3,8 +3,7 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.entity.EntityMapper;
-import jakarta.persistence.Cacheable;
+import com.bachlinh.order.annotation.QueryCache;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,22 +12,17 @@ import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 @Entity
 @Table(
@@ -38,13 +32,12 @@ import java.util.Queue;
                 @Index(name = "idx_province_code", columnList = "CODE", unique = true)
         }
 )
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "province")
 @EnableFullTextSearch
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode(callSuper = true)
+@QueryCache
 public class Province extends AbstractEntity<Integer> {
 
     @Id
@@ -81,12 +74,6 @@ public class Province extends AbstractEntity<Integer> {
             throw new PersistenceException("Id of province must be integer");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
     }
 
     @Override
@@ -157,76 +144,5 @@ public class Province extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setDistricts(List<District> districts) {
         this.districts = districts;
-    }
-
-    public static EntityMapper<Province> getMapper() {
-        return new ProvinceMapper();
-    }
-
-    private static class ProvinceMapper implements EntityMapper<Province> {
-
-        @Override
-        public Province map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new Province().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public Province map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            Province result = new Province();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("PROVINCE")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = District.getMapper();
-                List<District> districtSet = new LinkedList<>();
-                while (!resultSet.isEmpty()) {
-                    hook = resultSet.peek();
-                    if (hook.columnName().split("\\.")[0].equals("DISTRICT")) {
-                        var district = mapper.map(resultSet);
-                        district.setProvince(result);
-                        districtSet.add(district);
-                    } else {
-                        break;
-                    }
-                }
-                result.setDistricts(districtSet);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("PROVINCE");
-            });
-        }
-
-        private void setData(Province target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "PROVINCE.ID" -> target.setId(mappingObject.value());
-                case "PROVINCE.NAME" -> target.setName((String) mappingObject.value());
-                case "PROVINCE.CODE" -> target.setCode((Integer) mappingObject.value());
-                case "PROVINCE.DIVISION_TYPE" -> target.setDivisionType((String) mappingObject.value());
-                case "PROVINCE.CODE_NAME" -> target.setCodeName((String) mappingObject.value());
-                case "PROVINCE.PHONE_CODE" -> target.setPhoneCode((Integer) mappingObject.value());
-                case "PROVINCE.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "PROVINCE.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "PROVINCE.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "PROVINCE.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

@@ -6,8 +6,8 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.entity.model.TemporaryToken_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -29,7 +29,7 @@ import java.util.Map;
 
 @ActiveReflection
 @RepositoryComponent
-public class TemporaryTokenRepositoryImpl extends AbstractRepository<TemporaryToken, Integer> implements TemporaryTokenRepository {
+public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, TemporaryToken> implements TemporaryTokenRepository {
 
     @ActiveReflection
     public TemporaryTokenRepositoryImpl(DependenciesResolver dependenciesResolver) {
@@ -73,11 +73,6 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<TemporaryTo
     private TemporaryToken getTemporaryToken(SqlWhere where, Where customerWhere, SqlSelect sqlSelect) {
         String query = where.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(where.getQueryBindings());
-        var results = executeNativeQuery(query, attributes, TemporaryToken.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(query, attributes, TemporaryToken.class);
     }
 }

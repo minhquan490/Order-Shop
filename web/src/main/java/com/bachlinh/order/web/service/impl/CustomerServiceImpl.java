@@ -114,8 +114,6 @@ public class CustomerServiceImpl implements CustomerService,
                                             RevokeAccessTokenService,
                                             CustomerSearchingService,
                                             ConfirmEmailService { // @formatter:on
-    private static final String CUSTOMER_ID_KEY = "customerId";
-    private static final String USERNAME_KEY = "username";
 
     private final PasswordEncoder passwordEncoder;
     private final EntityFactory entityFactory;
@@ -170,7 +168,7 @@ public class CustomerServiceImpl implements CustomerService,
         customer.setLastName(customerUpdateForm.getLastName());
         customer.setPhoneNumber(customerUpdateForm.getPhone());
         customer.setEmail(customerUpdateForm.getEmail());
-        customer.setGender(Gender.of(customerUpdateForm.getGender()).name());
+        customer.setGender(Objects.requireNonNull(Gender.of(customerUpdateForm.getGender())).name());
         customer.setUsername(customerUpdateForm.getUsername());
         customer.setUpdatedFields(findUpdatedFields((Customer) oldCustomer, customer));
         customer = customerRepository.updateCustomer(customer);
@@ -231,7 +229,7 @@ public class CustomerServiceImpl implements CustomerService,
         result.setLoginHistories(histories.stream()
                 .map(loginHistory -> {
                     var historyResp = new CustomerInfoResp.LoginHistory();
-                    historyResp.setId(loginHistory.getId().toString());
+                    historyResp.setId(Objects.requireNonNull(loginHistory.getId()).toString());
                     historyResp.setLastLoginTime(DateTimeUtils.convertOutputDateTime(loginHistory.getLastLoginTime()));
                     historyResp.setLoginIp(loginHistory.getLoginIp());
                     historyResp.setSuccess(loginHistory.getSuccess());
@@ -259,7 +257,7 @@ public class CustomerServiceImpl implements CustomerService,
         if (tokenClaims.isEmpty()) {
             throw new UnAuthorizationException("Invalid token", "");
         }
-        String customerId = (String) tokenClaims.get(CUSTOMER_ID_KEY);
+        String customerId = (String) tokenClaims.get(Customer_.ID);
         Customer customer = customerRepository.getCustomerBasicInformation(customerId);
         if (customer == null) {
             throw new UnAuthorizationException("Invalid token", "");
@@ -281,8 +279,8 @@ public class CustomerServiceImpl implements CustomerService,
             saveHistory(customer, request, false);
             throw new UnAuthorizationException("Wrong username or password", "");
         }
-        tokenManager.encode(CUSTOMER_ID_KEY, customer.getId());
-        tokenManager.encode(USERNAME_KEY, customer.getUsername());
+        tokenManager.encode(Customer_.ID, customer.getId());
+        tokenManager.encode(Customer_.USERNAME, customer.getUsername());
         String accessToken = tokenManager.getTokenValue();
         RefreshToken refreshToken = refreshTokenRepository.getRefreshTokenByCustomer(customer);
         if (refreshToken == null) {
@@ -420,7 +418,7 @@ public class CustomerServiceImpl implements CustomerService,
         attributes.put("fourthEnd", fifthParam);
         attributes.put("lastStart", fifthParam);
         attributes.put("lastEnd", Timestamp.valueOf(now));
-        var result = customerRepository.executeNativeQuery(query, attributes, AnalyzeCustomerNewInMonthResp.ResultSet.class).get(0);
+        var result = customerRepository.getResultList(query, attributes, AnalyzeCustomerNewInMonthResp.ResultSet.class).get(0);
         return dtoMapper.map(result, AnalyzeCustomerNewInMonthResp.class);
     }
 

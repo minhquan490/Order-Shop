@@ -5,9 +5,7 @@ import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.entity.EntityMapper;
-import com.bachlinh.order.entity.formula.internal.ProductEnableFormula;
-import jakarta.persistence.Cacheable;
+import com.bachlinh.order.entity.formula.ProductEnableFormula;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,21 +15,16 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 
 @Entity
@@ -43,14 +36,12 @@ import java.util.Set;
         }
 )
 @Label("PRD-")
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "product")
 @EnableFullTextSearch
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode(callSuper = true)
-@Formula(processor = ProductEnableFormula.class)
+@Formula(processors = ProductEnableFormula.class)
 public class Product extends AbstractEntity<String> {
 
     @Id
@@ -85,7 +76,7 @@ public class Product extends AbstractEntity<String> {
     private Integer orderPoint;
 
     @Column(name = "ENABLED", columnDefinition = "bit", nullable = false)
-    private boolean enabled = true;
+    private Boolean enabled;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
     @EqualsAndHashCode.Exclude
@@ -99,6 +90,10 @@ public class Product extends AbstractEntity<String> {
     @EqualsAndHashCode.Exclude
     private Collection<Cart> carts = new HashSet<>();
 
+    public boolean isEnabled() {
+        return getEnabled();
+    }
+
     @Override
     @ActiveReflection
     public void setId(Object id) {
@@ -106,12 +101,6 @@ public class Product extends AbstractEntity<String> {
             throw new PersistenceException("Id of product must be string");
         }
         this.id = (String) id;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
     }
 
     @Override
@@ -198,8 +187,8 @@ public class Product extends AbstractEntity<String> {
     }
 
     @ActiveReflection
-    public void setEnabled(boolean enabled) {
-        if (this.enabled != enabled) {
+    public void setEnabled(Boolean enabled) {
+        if (this.enabled != null && this.enabled.equals(enabled)) {
             trackUpdatedField("ENABLED", this.enabled, enabled);
         }
         this.enabled = enabled;
@@ -218,113 +207,5 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setCarts(Set<Cart> carts) {
         this.carts = carts;
-    }
-
-    public static EntityMapper<Product> getMapper() {
-        return new ProductMapper();
-    }
-
-    private static class ProductMapper implements EntityMapper<Product> {
-
-        @Override
-        public Product map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new Product().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public Product map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            Product result = new Product();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("PRODUCT")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                assignMedias(resultSet, result);
-            }
-            if (!resultSet.isEmpty()) {
-                assignCategories(resultSet, result);
-            }
-            if (!resultSet.isEmpty()) {
-                assignCarts(resultSet, result);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("PRODUCT");
-            });
-        }
-
-        private void setData(Product target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "PRODUCT.ID" -> target.setId(mappingObject.value());
-                case "PRODUCT.NAME" -> target.setName((String) mappingObject.value());
-                case "PRODUCT.PRICE" -> target.setPrice((Integer) mappingObject.value());
-                case "PRODUCT.SIZE" -> target.setSize((String) mappingObject.value());
-                case "PRODUCT.COLOR" -> target.setColor((String) mappingObject.value());
-                case "PRODUCT.TAO_BAO_URL" -> target.setTaobaoUrl((String) mappingObject.value());
-                case "PRODUCT.DESCRIPTION" -> target.setDescription((String) mappingObject.value());
-                case "PRODUCT.ORDER_POINT" -> target.setOrderPoint((Integer) mappingObject.value());
-                case "PRODUCT.ENABLED" -> target.setEnabled((Boolean) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
-
-        private void assignMedias(Queue<MappingObject> resultSet, Product result) {
-            var mapper = ProductMedia.getMapper();
-            Set<ProductMedia> productMediaSet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                MappingObject hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("PRODUCT_MEDIA")) {
-                    var productMedia = mapper.map(resultSet);
-                    productMedia.setProduct(result);
-                    productMediaSet.add(productMedia);
-                } else {
-                    break;
-                }
-            }
-            result.setMedias(productMediaSet);
-        }
-
-        private void assignCategories(Queue<MappingObject> resultSet, Product result) {
-            var mapper = Category.getMapper();
-            Set<Category> categorySet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                MappingObject hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("CATEGORY")) {
-                    var category = mapper.map(resultSet);
-                    category.getProducts().add(result);
-                    categorySet.add(category);
-                }
-            }
-            result.setCategories(categorySet);
-        }
-
-        private void assignCarts(Queue<MappingObject> resultSet, Product result) {
-            var mapper = Cart.getMapper();
-            Set<Cart> cartSet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                MappingObject hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("CART")) {
-                    var cart = mapper.map(resultSet);
-                    cart.getProducts().add(result);
-                    cartSet.add(cart);
-                }
-            }
-            result.setCarts(cartSet);
-        }
     }
 }

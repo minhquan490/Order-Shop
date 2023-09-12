@@ -5,8 +5,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Category_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CategoryRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -32,7 +32,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CategoryRepositoryImpl extends AbstractRepository<Category, String> implements CategoryRepository {
+public class CategoryRepositoryImpl extends AbstractRepository<String, Category> implements CategoryRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -72,7 +72,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
 
     @Override
     public boolean isExits(String id) {
-        return existsById(id);
+        return exists(id);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
         SqlWhere sqlWhere = sqlSelect.where(namesWhere);
         String query = sqlSelect.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(query, attributes, Category.class);
+        return this.getResultList(query, attributes, Category.class);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
         SqlSelect sqlSelect = sqlBuilder.from(Category.class);
         sqlSelect.select(idSelect).select(nameSelect);
         String query = sqlSelect.getNativeQuery();
-        var results = executeNativeQuery(query, Collections.emptyMap(), Category.class);
+        var results = this.getResultList(query, Collections.emptyMap(), Category.class);
         return new PageImpl<>(results);
     }
 
@@ -124,10 +124,6 @@ public class CategoryRepositoryImpl extends AbstractRepository<Category, String>
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = new HashMap<>();
         sqlWhere.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
-        var results = executeNativeQuery(query, attributes, Category.class);
-        if (results.isEmpty()) {
-            return null;
-        }
-        return results.get(0);
+        return getSingleResult(query, attributes, Category.class);
     }
 }

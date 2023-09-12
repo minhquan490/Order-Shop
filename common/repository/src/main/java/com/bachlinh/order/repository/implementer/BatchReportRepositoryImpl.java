@@ -5,8 +5,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.BatchReport;
 import com.bachlinh.order.entity.model.BatchReport_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.BatchReportRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -14,8 +14,6 @@ import com.bachlinh.order.repository.query.SqlSelect;
 import com.bachlinh.order.repository.query.SqlWhere;
 import com.bachlinh.order.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -29,7 +27,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, Integer> implements BatchReportRepository {
+public class BatchReportRepositoryImpl extends AbstractRepository<Integer, BatchReport> implements BatchReportRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -46,8 +44,7 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
     @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteReport(Collection<Integer> reportIds) {
-        Page<BatchReport> reports = unionQueryWithId(reportIds, null, Pageable.unpaged());
-        deleteAllInBatch(reports.toList());
+        deleteAllById(reportIds);
     }
 
     @Override
@@ -59,7 +56,7 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = new HashMap<>();
         sqlWhere.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
-        return executeNativeQuery(query, attributes, BatchReport.class);
+        return this.getResultList(query, attributes, getDomainClass());
     }
 
     @Override
@@ -69,6 +66,6 @@ public class BatchReportRepositoryImpl extends AbstractRepository<BatchReport, I
         SqlSelect sqlSelect = sqlBuilder.from(BatchReport.class);
         sqlSelect.orderBy(timeReportOrderBy);
         String query = sqlSelect.getNativeQuery();
-        return executeNativeQuery(query, Collections.emptyMap(), BatchReport.class);
+        return this.getResultList(query, Collections.emptyMap(), getDomainClass());
     }
 }

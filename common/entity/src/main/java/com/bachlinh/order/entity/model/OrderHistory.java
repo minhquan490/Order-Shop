@@ -1,7 +1,6 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,8 +19,6 @@ import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Objects;
-import java.util.Queue;
 
 @Entity
 @Table(name = "ORDER_HISTORY")
@@ -60,19 +56,13 @@ public class OrderHistory extends AbstractEntity<Integer> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public <U extends BaseEntity<Integer>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
         return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
     public void setOrderStatus(String orderStatus) {
-        if (this.orderStatus != null && !orderStatus.equals(this.orderStatus)) {
+        if (this.orderStatus != null && this.orderStatus.equals(orderStatus)) {
             trackUpdatedField("ORDER_STATUS", this.orderStatus, orderStatus);
         }
         this.orderStatus = orderStatus;
@@ -85,7 +75,7 @@ public class OrderHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setOrderTime(Timestamp orderTime) {
-        if (this.orderTime != null && !orderTime.equals(this.orderTime)) {
+        if (this.orderTime != null && !this.orderTime.equals(orderTime)) {
             trackUpdatedField("ORDER_TIME", this.orderTime, orderTime);
         }
         this.orderTime = orderTime;
@@ -93,70 +83,6 @@ public class OrderHistory extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setOrder(Order order) {
-        if (this.order != null && !Objects.requireNonNull(order.getId()).equals(this.order.getId())) {
-            trackUpdatedField("ORDER_ID", this.order.getId(), order.getId());
-        }
         this.order = order;
-    }
-
-    public static EntityMapper<OrderHistory> getMapper() {
-        return new OrderHistoryMapper();
-    }
-
-    private static class OrderHistoryMapper implements EntityMapper<OrderHistory> {
-
-        @Override
-        public OrderHistory map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new OrderHistory().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public OrderHistory map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            OrderHistory result = new OrderHistory();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("ORDER_HISTORY")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Order.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var order = mapper.map(resultSet);
-                    order.setOrderHistory(result);
-                    result.setOrder(order);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("ORDER_HISTORY");
-            });
-        }
-
-        private void setData(OrderHistory target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "ORDER_HISTORY.ID" -> target.setId(mappingObject.value());
-                case "ORDER_HISTORY.ORDER_TIME" -> target.setOrderTime((Timestamp) mappingObject.value());
-                case "ORDER_HISTORY.ORDER_STATUS" -> target.setOrderStatus((String) mappingObject.value());
-                case "ORDER_HISTORY.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "ORDER_HISTORY.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "ORDER_HISTORY.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "ORDER_HISTORY.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

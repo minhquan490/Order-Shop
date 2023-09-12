@@ -1,18 +1,17 @@
 package com.bachlinh.order.handler.controller;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.service.container.ContainerWrapper;
+import org.springframework.lang.NonNull;
 
 class DefaultControllerManager extends AbstractControllerManager {
 
     private NativeRequest<?> nativeRequest;
     private NativeResponse<?> nativeResponse;
 
-    DefaultControllerManager(@Nullable ControllerContext controllerContext, @NonNull String profile, @NonNull ContainerWrapper wrapper) {
-        super(controllerContext, profile, wrapper);
+    DefaultControllerManager(@NonNull String profile, @NonNull ContainerWrapper wrapper) {
+        super(profile, wrapper);
     }
 
     @Override
@@ -35,5 +34,11 @@ class DefaultControllerManager extends AbstractControllerManager {
     @SuppressWarnings("unchecked")
     public <T> NativeResponse<T> getNativeResponse() {
         return (NativeResponse<T>) nativeResponse;
+    }
+
+    @Override
+    public void release() {
+        nativeRequest = null;
+        nativeResponse = null;
     }
 }

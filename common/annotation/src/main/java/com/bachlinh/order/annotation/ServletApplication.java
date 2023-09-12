@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfigurati
 import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
@@ -34,7 +33,6 @@ import java.lang.annotation.Target;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableAsync(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @EnableScheduling
-@EnableCaching(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @EnableTransactionManagement(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @ImportRuntimeHints(value = {})
 @Import(value = {})

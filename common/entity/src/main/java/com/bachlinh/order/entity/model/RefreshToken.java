@@ -2,7 +2,7 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.entity.EntityMapper;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +21,6 @@ import org.hibernate.annotations.FetchMode;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Queue;
 
 @Entity
 @Table(name = "REFRESH_TOKEN", indexes = @Index(name = "idx_token_value", columnList = "VALUE"))
@@ -63,19 +61,13 @@ public class RefreshToken extends AbstractEntity<String> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
         return entities.stream().map(entity -> (U) entity).toList();
     }
 
     @ActiveReflection
     public void setTimeCreated(Timestamp timeCreated) {
-        if (this.timeCreated != null && !timeCreated.equals(this.timeCreated)) {
+        if (this.timeCreated != null && !Objects.equal(this.timeCreated, timeCreated)) {
             trackUpdatedField("TIME_CREATED", this.timeCreated, timeCreated);
         }
         this.timeCreated = timeCreated;
@@ -83,7 +75,7 @@ public class RefreshToken extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setTimeExpired(Timestamp timeExpired) {
-        if (this.timeExpired != null && !timeExpired.equals(this.timeExpired)) {
+        if (this.timeExpired != null && !Objects.equal(this.timeExpired, timeExpired)) {
             trackUpdatedField("TIME_EXPIRED", this.timeExpired, timeExpired);
         }
         this.timeExpired = timeExpired;
@@ -91,7 +83,7 @@ public class RefreshToken extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setRefreshTokenValue(String refreshTokenValue) {
-        if (this.refreshTokenValue != null && !refreshTokenValue.equals(this.refreshTokenValue)) {
+        if (this.refreshTokenValue != null && !this.refreshTokenValue.equals(refreshTokenValue)) {
             trackUpdatedField("VALUE", this.refreshTokenValue, refreshTokenValue);
         }
         this.refreshTokenValue = refreshTokenValue;
@@ -99,71 +91,6 @@ public class RefreshToken extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
-        if (this.customer != null && !customer.getId().equals(this.customer.getId())) {
-            trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
-        }
         this.customer = customer;
-    }
-
-    public static EntityMapper<RefreshToken> getMapper() {
-        return new RefreshTokenMapper();
-    }
-
-    private static class RefreshTokenMapper implements EntityMapper<RefreshToken> {
-
-        @Override
-        public RefreshToken map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new RefreshToken().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public RefreshToken map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            RefreshToken result = new RefreshToken();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("REFRESH_TOKEN")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var customer = mapper.map(resultSet);
-                    customer.setRefreshToken(result);
-                    result.setCustomer(customer);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("REFRESH_TOKEN");
-            });
-        }
-
-        private void setData(RefreshToken target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "REFRESH_TOKEN.ID" -> target.setId(mappingObject.value());
-                case "REFRESH_TOKEN.TIME_CREATED" -> target.setTimeCreated((Timestamp) mappingObject.value());
-                case "REFRESH_TOKEN.TIME_EXPIRED" -> target.setTimeExpired((Timestamp) mappingObject.value());
-                case "REFRESH_TOKEN.VALUE" -> target.setRefreshTokenValue((String) mappingObject.value());
-                case "REFRESH_TOKEN.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "REFRESH_TOKEN.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "REFRESH_TOKEN.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "REFRESH_TOKEN.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }
