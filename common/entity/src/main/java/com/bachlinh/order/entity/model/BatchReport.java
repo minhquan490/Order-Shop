@@ -1,22 +1,18 @@
 package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Queue;
 
 @Entity
 @Table(name = "BATCH_REPORT")
@@ -34,7 +30,7 @@ public class BatchReport extends AbstractEntity<Integer> {
     private String batchName;
 
     @Column(name = "HAS_ERROR", nullable = false, columnDefinition = "bit", updatable = false)
-    private boolean hasError = false;
+    private Boolean hasError = false;
 
     @Column(name = "ERROR_DETAIL", length = 500, updatable = false)
     private String errorDetail;
@@ -42,19 +38,18 @@ public class BatchReport extends AbstractEntity<Integer> {
     @Column(name = "TIME_REPORT", nullable = false, updatable = false)
     private Timestamp timeReport;
 
-    @Override
-    @ActiveReflection
-    public void setId(@NonNull Object id) {
-        if (id instanceof Integer casted) {
-            this.id = casted;
-        }
-        throw new PersistenceException("Id of BatchReport must be int");
+    public boolean isHasError() {
+        return getHasError();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
+    @ActiveReflection
+    public void setId(Object id) {
+        if (id instanceof Integer casted) {
+            this.id = casted;
+            return;
+        }
+        throw new PersistenceException("Id of BatchReport must be int");
     }
 
     @Override
@@ -64,7 +59,7 @@ public class BatchReport extends AbstractEntity<Integer> {
     }
 
     @ActiveReflection
-    public void setBatchName(@NonNull String batchName) {
+    public void setBatchName(String batchName) {
         if (this.batchName != null && this.batchName.equals(batchName)) {
             trackUpdatedField("BATCH_NAME", this.batchName, batchName);
         }
@@ -73,14 +68,14 @@ public class BatchReport extends AbstractEntity<Integer> {
 
     @ActiveReflection
     public void setHasError(boolean hasError) {
-        if (this.hasError != hasError) {
+        if (this.hasError != null && this.hasError != hasError) {
             trackUpdatedField("HAS_ERROR", this.hasError, hasError);
         }
         this.hasError = hasError;
     }
 
     @ActiveReflection
-    public void setErrorDetail(@NonNull String errorDetail) {
+    public void setErrorDetail(String errorDetail) {
         if (this.errorDetail != null && this.errorDetail.equals(errorDetail)) {
             trackUpdatedField("ERROR_DETAIL", this.errorDetail, errorDetail);
         }
@@ -88,65 +83,10 @@ public class BatchReport extends AbstractEntity<Integer> {
     }
 
     @ActiveReflection
-    public void setTimeReport(@NonNull Timestamp timeReport) {
+    public void setTimeReport(Timestamp timeReport) {
         if (this.timeReport != null && this.timeReport.equals(timeReport)) {
             trackUpdatedField("TIME_REPORT", this.timeReport, timeReport);
         }
         this.timeReport = timeReport;
-    }
-
-    public static EntityMapper<BatchReport> getMapper() {
-        return new BatchReportMapper();
-    }
-
-    private static class BatchReportMapper implements EntityMapper<BatchReport> {
-
-        @Override
-        public BatchReport map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new BatchReport().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public BatchReport map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            BatchReport result = new BatchReport();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("BATCH_REPORT")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("BATCH_REPORT");
-            });
-        }
-
-        private void setData(BatchReport target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "BATCH_REPORT.ID" -> target.setId(mappingObject.value());
-                case "BATCH_REPORT.BATCH_NAME" -> target.setBatchName((String) mappingObject.value());
-                case "BATCH_REPORT.HAS_ERROR" -> target.setHasError((Boolean) mappingObject.value());
-                case "BATCH_REPORT.ERROR_DETAIL" -> target.setErrorDetail((String) mappingObject.value());
-                case "BATCH_REPORT.TIME_REPORT" -> target.setTimeReport((Timestamp) mappingObject.value());
-                case "BATCH_REPORT.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "BATCH_REPORT.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "BATCH_REPORT.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "BATCH_REPORT.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

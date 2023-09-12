@@ -4,7 +4,6 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -12,7 +11,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,9 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 
 @Entity
@@ -68,11 +64,15 @@ public class Voucher extends AbstractEntity<String> {
     private Integer voucherCost;
 
     @Column(name = "ENABLED", columnDefinition = "bit")
-    private boolean active = false;
+    private Boolean active;
 
     @ManyToMany(mappedBy = "assignedVouchers")
     @EqualsAndHashCode.Exclude
     private Set<Customer> customers = new HashSet<>();
+
+    public boolean isActive() {
+        return getActive();
+    }
 
     @Override
     @ActiveReflection
@@ -82,12 +82,6 @@ public class Voucher extends AbstractEntity<String> {
             return;
         }
         throw new PersistenceException("Id of voucher must be string");
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
     }
 
     @Override
@@ -164,8 +158,8 @@ public class Voucher extends AbstractEntity<String> {
     }
 
     @ActiveReflection
-    public void setActive(boolean isEnable) {
-        if (this.active != isEnable) {
+    public void setActive(Boolean isEnable) {
+        if (this.active != null && this.active.equals(isEnable)) {
             trackUpdatedField("ENABLED", this.active, active);
         }
         this.active = isEnable;
@@ -174,72 +168,5 @@ public class Voucher extends AbstractEntity<String> {
     @ActiveReflection
     public void setCustomers(Set<Customer> customers) {
         this.customers = customers;
-    }
-
-    public static EntityMapper<Voucher> getMapper() {
-        return new VoucherMapper();
-    }
-
-    private static class VoucherMapper implements EntityMapper<Voucher> {
-
-        @Override
-        public Voucher map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new Voucher().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public Voucher map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            Voucher result = new Voucher();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("VOUCHER")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                Set<Customer> customerSet = new LinkedHashSet<>();
-                while (!resultSet.isEmpty()) {
-                    hook = resultSet.peek();
-                    if (hook.columnName().split("\\.")[0].equals("CUSTOMER")) {
-                        var customer = mapper.map(resultSet);
-                        result.getCustomers().add(customer);
-                        customerSet.add(customer);
-                    }
-                }
-                result.setCustomers(customerSet);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("VOUCHER");
-            });
-        }
-
-        private void setData(Voucher target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "VOUCHER.ID" -> target.setId(mappingObject.value());
-                case "VOUCHER.NAME" -> target.setName((String) mappingObject.value());
-                case "VOUCHER.DISCOUNT_PERCENT" -> target.setDiscountPercent((Integer) mappingObject.value());
-                case "VOUCHER.TIME_START" -> target.setTimeStart((Timestamp) mappingObject.value());
-                case "VOUCHER.TIME_EXPIRED" -> target.setTimeExpired((Timestamp) mappingObject.value());
-                case "VOUCHER.CONTENT" -> target.setVoucherContent((String) mappingObject.value());
-                case "VOUCHER.COST" -> target.setVoucherCost((Integer) mappingObject.value());
-                case "VOUCHER.ENABLED" -> target.setActive((Boolean) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

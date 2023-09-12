@@ -2,7 +2,8 @@ package com.bachlinh.order.repository.query;
 
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
-import com.bachlinh.order.entity.formula.JoinFormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.JoinFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -64,22 +65,6 @@ class SqlJoinSqm extends AbstractSql<SqlJoin> implements SqlJoin {
     }
 
     @Override
-    public String getNativeQuery() {
-        queryBuilder.append(combineQuery());
-        String order = orderStatement();
-        queryBuilder.append(order);
-        if (!order.isEmpty()) {
-            queryBuilder.append(processLimitOffset());
-        }
-        String query = queryBuilder.toString();
-        var processors = formulaMetadata.getTableProcessors(targetMetadata, tableMetadata);
-        for (var processor : processors) {
-            query = processor.process(query);
-        }
-        return query;
-    }
-
-    @Override
     public Collection<QueryBinding> getQueryBindings() {
         return this.subQueryParam;
     }
@@ -113,14 +98,30 @@ class SqlJoinSqm extends AbstractSql<SqlJoin> implements SqlJoin {
         return this;
     }
 
+    @Override
+    protected String createQuery() {
+        queryBuilder.append(combineQuery());
+        String order = orderStatement();
+        queryBuilder.append(order);
+        if (!order.isEmpty()) {
+            queryBuilder.append(processLimitOffset());
+        }
+        return queryBuilder.toString();
+    }
+
+    @Override
+    protected Collection<FormulaProcessor> getNativeQueryProcessor() {
+        return formulaMetadata.getNativeQueryProcessor(targetMetadata, tableMetadata);
+    }
+
     private String combineQuery() {
         String combinedJoin = String.join(" ", joinStatements.toArray(new String[0]));
         for (var processor : joinFormulaProcessors) {
-            combinedJoin = processor.processJoin(combinedJoin, targetMetadata, tableMetadata);
+            combinedJoin = processor.processJoin(combinedJoin);
         }
         var tableFormula = formulaMetadata.getTableJoinProcessors(targetMetadata, tableMetadata);
         for (var processor : tableFormula) {
-            combinedJoin = processor.processJoin(combinedJoin, targetMetadata, tableMetadata);
+            combinedJoin = processor.processJoin(combinedJoin);
         }
         return String.join(" ", selectQuery, combinedJoin);
     }

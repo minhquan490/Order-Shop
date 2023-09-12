@@ -26,7 +26,12 @@ public final class QueryUtils {
 
     public static Select resolveSelectAlias(Select select, TableMetadataHolder targetMetadata) {
         if (!StringUtils.hasText(select.getAlias())) {
-            select = Select.builder().column(select.getColumn()).alias(targetMetadata.getTableName().concat(".").concat(targetMetadata.getColumn(select.getColumn()))).build();
+            select = Select.builder()
+                    .column(select.getColumn())
+                    .alias(targetMetadata.getTableName()
+                            .concat(".")
+                            .concat(targetMetadata.getColumn(select.getColumn())))
+                    .build();
         }
         return select;
     }
@@ -36,5 +41,24 @@ public final class QueryUtils {
             return 0;
         }
         return (pageNum - 1) * pageSize;
+    }
+
+    public static String parseQueryToEntitySimpleName(String query) {
+        if (!query.contains("FROM")) {
+            return "";
+        }
+        String[] parts = query.split("FROM")[1].split(" ")[1].toLowerCase().split("_");
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            result.append(org.apache.commons.lang3.StringUtils.capitalize(part));
+        }
+        return result.toString();
+    }
+
+    public static String bindAttributes(String query, Map<String, Object> attributes) {
+        for (var entry : attributes.entrySet()) {
+            query = query.replace(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+        }
+        return query;
     }
 }

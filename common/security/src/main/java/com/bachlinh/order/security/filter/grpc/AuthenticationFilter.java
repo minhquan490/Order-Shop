@@ -1,6 +1,7 @@
 package com.bachlinh.order.security.filter.grpc;
 
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.PrincipalHolder;
@@ -48,7 +49,7 @@ public class AuthenticationFilter extends GrpcWebFilter {
             authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Missing token, login is required", request.getRequestURI()));
             return;
         }
-        Customer customer = customerRepository.getCustomerForAuthentication((String) claims.get("customerId"));
+        Customer customer = customerRepository.getCustomerForAuthentication((String) claims.get(Customer_.ID));
         if (customer == null) {
             authenticationFailureHandler.onAuthenticationFailure(response, new UnAuthorizationException("Invalid credential", request.getRequestURI()));
             return;

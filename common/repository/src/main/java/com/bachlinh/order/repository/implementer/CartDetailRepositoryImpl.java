@@ -4,8 +4,8 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.CartDetail;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CartDetailRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -15,7 +15,7 @@ import java.util.Collection;
 
 @RepositoryComponent
 @ActiveReflection
-public class CartDetailRepositoryImpl extends AbstractRepository<CartDetail, Integer> implements CartDetailRepository {
+public class CartDetailRepositoryImpl extends AbstractRepository<Integer, CartDetail> implements CartDetailRepository {
 
     @DependenciesInitialize
     @ActiveReflection

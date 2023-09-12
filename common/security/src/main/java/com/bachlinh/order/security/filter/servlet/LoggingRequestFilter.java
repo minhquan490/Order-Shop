@@ -27,11 +27,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.util.PathMatcher;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -50,17 +53,19 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     private ThreadPoolManager threadPoolManager;
     private TokenManager tokenManager;
     private EntityFactory entityFactory;
-    private final String websocketUrl;
+    private final Collection<String> excludePaths;
+    private final PathMatcher pathMatcher;// Use AntMatcher
 
-    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String profile) {
+    public LoggingRequestFilter(DependenciesContainerResolver containerResolver, String profile, Collection<String> excludePaths, PathMatcher pathMatcher) {
         super(containerResolver.getDependenciesResolver());
         this.environment = Environment.getInstance(profile);
-        this.websocketUrl = environment.getProperty("shop.url.websocket");
+        this.excludePaths = excludePaths;
+        this.pathMatcher = pathMatcher;
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith(websocketUrl);
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+        return excludePaths.stream().anyMatch(path -> pathMatcher.match(path, request.getRequestURI()));
     }
 
     @Override

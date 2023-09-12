@@ -10,8 +10,8 @@ import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.EmailTrash_;
 import com.bachlinh.order.entity.model.Email_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 @ActiveReflection
 @RepositoryComponent
-public class EmailTrashRepositoryImpl extends AbstractRepository<EmailTrash, Integer> implements EmailTrashRepository {
+public class EmailTrashRepositoryImpl extends AbstractRepository<Integer, EmailTrash> implements EmailTrashRepository {
 
     @ActiveReflection
     @DependenciesInitialize
@@ -75,12 +75,7 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<EmailTrash, Int
         SqlWhere sqlWhere = sqlJoin.where(ownerWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, EmailTrash.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, EmailTrash.class);
     }
 
     @Override
@@ -100,7 +95,7 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<EmailTrash, Int
         SqlWhere sqlWhere = sqlSelect.where(modifiedDateWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, EmailTrash.class);
+        return this.getResultList(sql, attributes, EmailTrash.class);
     }
 
     @Override

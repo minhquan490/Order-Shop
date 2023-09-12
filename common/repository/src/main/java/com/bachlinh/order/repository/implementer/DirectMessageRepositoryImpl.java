@@ -5,8 +5,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.DirectMessage;
 import com.bachlinh.order.entity.model.DirectMessage_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.DirectMessageRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -28,7 +28,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class DirectMessageRepositoryImpl extends AbstractRepository<DirectMessage, Integer> implements DirectMessageRepository {
+public class DirectMessageRepositoryImpl extends AbstractRepository<Integer, DirectMessage> implements DirectMessageRepository {
     private static final Integer REMOVAL_POLICY = -3;
 
     @ActiveReflection
@@ -47,7 +47,7 @@ public class DirectMessageRepositoryImpl extends AbstractRepository<DirectMessag
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteMessage(Collection<DirectMessage> directMessages) {
         getEntityManager().flush();
-        deleteAllByIdInBatch(directMessages.stream().map(DirectMessage::getId).toList());
+        deleteAll(directMessages);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class DirectMessageRepositoryImpl extends AbstractRepository<DirectMessag
         SqlWhere sqlWhere = sqlSelect.where(removeTimeWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, DirectMessage.class);
+        return this.getResultList(sql, attributes, DirectMessage.class);
     }
 
     @Override

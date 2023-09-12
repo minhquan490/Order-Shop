@@ -6,8 +6,8 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -29,7 +29,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders, String> implements EmailFoldersRepository {
+public class EmailFoldersRepositoryImpl extends AbstractRepository<String, EmailFolders> implements EmailFoldersRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -86,7 +86,7 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
         SqlWhere sqlWhere = sqlSelect.where(ownerWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, EmailFolders.class);
+        return this.getResultList(sql, attributes, EmailFolders.class);
     }
 
     @Override
@@ -108,11 +108,6 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<EmailFolders,
         SqlWhere sqlWhere = sqlSelect.where(folderIdWhere).and(ownerWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, EmailFolders.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, EmailFolders.class);
     }
 }

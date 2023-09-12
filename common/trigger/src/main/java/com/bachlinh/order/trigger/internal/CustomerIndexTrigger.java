@@ -16,12 +16,6 @@ import com.bachlinh.order.trigger.spi.AbstractTrigger;
 public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     private EntityFactory entityFactory;
 
-    @ActiveReflection
-    public CustomerIndexTrigger(DependenciesResolver resolver) {
-        super(resolver);
-        changeConcurrentType(RunnableType.INDEX);
-    }
-
     @Override
     protected void doExecute(Customer entity) {
         EntityContext context = entityFactory.getEntityContext(Customer.class);
@@ -48,5 +42,11 @@ public class CustomerIndexTrigger extends AbstractTrigger<Customer> {
     @Override
     public TriggerExecution[] getExecuteOn() {
         return new TriggerExecution[]{TriggerExecution.ON_INSERT, TriggerExecution.ON_UPDATE};
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        changeConcurrentType(RunnableType.INDEX);
+        super.setResolver(resolver);
     }
 }

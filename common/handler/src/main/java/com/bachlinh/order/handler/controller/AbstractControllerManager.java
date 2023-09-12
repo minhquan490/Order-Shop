@@ -9,23 +9,16 @@ import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.handler.interceptor.spi.ObjectInterceptor;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.SneakyThrows;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.util.Collection;
-import java.util.Objects;
 
 public abstract non-sealed class AbstractControllerManager implements ControllerManager {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final ControllerContext controllerContext;
+    private final ControllerFactory controllerFactory;
     private ObjectInterceptor interceptor;
 
-    protected AbstractControllerManager(@Nullable ControllerContext controllerContext, @NonNull String profile, @NonNull ContainerWrapper wrapper) {
-        this.controllerContext = Objects.requireNonNullElseGet(controllerContext, DefaultControllerContext::new);
+    protected AbstractControllerManager(@NonNull String profile, @NonNull ContainerWrapper wrapper) {
+        this.controllerFactory = new DefaultControllerFactory();
         ApplicationScanner scanner = new ApplicationScanner();
         Collection<Class<?>> controllerClasses = scanner
                 .findComponents()
@@ -33,18 +26,20 @@ public abstract non-sealed class AbstractControllerManager implements Controller
                 .filter(Controller.class::isAssignableFrom)
                 .filter(clazz -> clazz.isAnnotationPresent(RouteProvider.class))
                 .toList();
-        controllerClasses.forEach(clazz -> registerControllerWithUnsafe(clazz, wrapper, profile));
+        controllerClasses.forEach(clazz -> {
+            DefaultControllerFactory defaultControllerFactory = (DefaultControllerFactory) controllerFactory;
+            defaultControllerFactory.registerControllerWithUnsafe(clazz, wrapper, profile);
+        });
         try {
             interceptor = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile).getDependenciesResolver().resolveDependencies(ObjectInterceptor.class);
         } catch (Exception e) {
-            logger.info("No interceptor available");
             interceptor = null;
         }
     }
 
     @Override
     public <T, U> NativeResponse<T> handleRequest(NativeRequest<U> request, String controllerPath, RequestMethod method) throws HttpRequestMethodNotSupportedException {
-        Controller<T, U> controller = controllerContext.getController(controllerPath, method);
+        Controller<T, U> controller = controllerFactory.createController(controllerPath, method);
         controller.setNativeRequest(getNativeRequest());
         controller.setNativeResponse(getNativeResponse());
         NativeResponse<T> nativeResponse = null;
@@ -64,31 +59,7 @@ public abstract non-sealed class AbstractControllerManager implements Controller
     }
 
     @Override
-    public <T, U> void addController(Controller<T, U> controller) {
-        controllerContext.addController(controller);
-    }
-
-    @Override
-    public <T, U> void removeController(Controller<T, U> controller) {
-        controllerContext.removeController(controller);
-    }
-
-    @Override
     public ControllerContext getContext() {
-        return controllerContext;
-    }
-
-    public Collection<Controller<?, ?>> getAllController() {
-        return controllerContext.queryAll();
-    }
-
-    @SneakyThrows
-    private void registerControllerWithUnsafe(Class<?> clazz, ContainerWrapper wrapper, String profile) {
-        if (!controllerContext.contains(clazz.getName())) {
-            AbstractController<?, ?> instance = (AbstractController<?, ?>) UnsafeUtils.allocateInstance(clazz);
-            var actualInstance = instance.newInstance();
-            actualInstance.setWrapper(wrapper, profile);
-            addController(actualInstance);
-        }
+        return ((DefaultControllerFactory) controllerFactory).unwrap();
     }
 }

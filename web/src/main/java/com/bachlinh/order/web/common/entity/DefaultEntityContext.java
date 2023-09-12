@@ -4,23 +4,26 @@ import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.annotation.Label;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.entity.EntityMapper;
+import com.bachlinh.order.entity.EntityMapperFactory;
+import com.bachlinh.order.entity.EntityMapperHolder;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.FormulaApplyOn;
-import com.bachlinh.order.entity.formula.FormulaProcessor;
-import com.bachlinh.order.entity.formula.JoinFormulaProcessor;
-import com.bachlinh.order.entity.formula.SelectFormulaProcessor;
-import com.bachlinh.order.entity.formula.WhereFormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.JoinFormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.SelectFormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.WhereFormulaProcessor;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.NoTransactionException;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.query.JoinMetadata;
 import com.bachlinh.order.repository.query.JoinMetadataHolder;
 import com.bachlinh.order.service.container.DependenciesResolver;
@@ -39,7 +42,6 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 import lombok.SneakyThrows;
 import org.apache.lucene.store.Directory;
-import org.hibernate.annotations.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -59,13 +61,12 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-public class DefaultEntityContext implements EntityContext, FormulaMetadata, JoinMetadataHolder {
+public class DefaultEntityContext implements EntityContext, FormulaMetadata, JoinMetadataHolder, EntityMapperHolder {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Class<?> idType;
     private final BaseEntity<?> baseEntity;
     private final String prefix;
-    private final String cacheRegion;
     private final List<EntityValidator<? extends BaseEntity<?>>> validators;
     private final List<EntityTrigger<? extends BaseEntity<?>>> triggers;
     private final SearchManager searchManager;
@@ -77,6 +78,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     private final Map<String, String> mappedFieldColumns;
     private final Map<String, JoinMetadata> joinMetadataMap;
     private final Collection<FormulaHolder> formulas;
+    private EntityMapperFactory entityMapperFactory;
 
     @SuppressWarnings("unchecked")
     public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
@@ -89,7 +91,6 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
             this.validators = getValidators(entity, dependenciesResolver);
             this.triggers = getTriggers(entity, dependenciesResolver, environment);
             this.prefix = createIdPrefix(entity);
-            this.cacheRegion = createCacheRegion(entity);
             this.searchManager = searchManager;
             this.entityType = entity;
             this.dependenciesResolver = dependenciesResolver;
@@ -124,11 +125,6 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     @Override
     public Collection<String> search(String keyword) {
         return searchManager.search(getEntity().getClass(), keyword);
-    }
-
-    @Override
-    public String getCacheRegion() {
-        return cacheRegion;
     }
 
     @Override
@@ -210,7 +206,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     }
 
     @Override
-    public Collection<FormulaProcessor> getTableProcessors(TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
+    public Collection<FormulaProcessor> getNativeQueryProcessor(TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
         return this.formulas.stream()
                 .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
                 .map(FormulaHolder::formulaProcessor)
@@ -281,7 +277,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     @Override
     public Collection<WhereFormulaProcessor> getColumnWhereProcessors(String fieldName, TableMetadataHolder targetTable, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tables) {
         return this.formulas.stream()
-                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.TABLE))
+                .filter(formulaHolder -> formulaHolder.applyOn().equals(FormulaApplyOn.COLUMN))
                 .filter(formulaHolder -> formulaHolder.fieldName().equals(fieldName))
                 .map(FormulaHolder::formulaProcessor)
                 .filter(formulaProcessor -> WhereFormulaProcessor.class.isAssignableFrom(formulaProcessor.getClass()))
@@ -293,6 +289,14 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     @Override
     public JoinMetadata getJoin(String attribute) {
         return Optional.ofNullable(joinMetadataMap.get(attribute)).orElseThrow(() -> new PersistenceException(String.format("No join for attribute %s", attribute)));
+    }
+
+    @Override
+    public <T extends BaseEntity<?>> EntityMapper<T> getMapper(Class<T> entityType) {
+        if (entityMapperFactory == null) {
+            entityMapperFactory = dependenciesResolver.resolveDependencies(EntityMapperFactory.class);
+        }
+        return entityMapperFactory.createMapper(entityType);
     }
 
     @SuppressWarnings("unchecked")
@@ -371,7 +375,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         Class<?> repositoryClass = Class.forName(repositoryName);
         AbstractRepository<?, ?> repository = (AbstractRepository<?, ?>) dependenciesResolver.resolveDependencies(repositoryClass);
         String sql = MessageFormat.format("SELECT MAX(ID) FROM {0}", entityType.getAnnotation(Table.class).name());
-        List<?> result = repository.executeNativeQuery(sql, Collections.emptyMap(), idType);
+        List<?> result = repository.getResultList(sql, Collections.emptyMap(), idType);
         if (result.isEmpty()) {
             return 0;
         }
@@ -399,15 +403,6 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         Label label = entityType.getAnnotation(Label.class);
         if (label != null) {
             return entityType.getAnnotation(Label.class).value();
-        } else {
-            return null;
-        }
-    }
-
-    private String createCacheRegion(Class<?> entityType) {
-        Cache cache = entityType.getAnnotation(Cache.class);
-        if (cache != null) {
-            return cache.region();
         } else {
             return null;
         }
@@ -584,16 +579,15 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         List<Field> formulaFields = Stream.of(entity.getDeclaredFields()).filter(field -> field.isAnnotationPresent(Formula.class)).toList();
         for (var field : formulaFields) {
             Formula formula = field.getAnnotation(Formula.class);
-            Class<?> processor = formula.processor();
-            if (Void.class.isAssignableFrom(processor)) {
-                continue;
-            }
-            try {
-                FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
-                FormulaHolder formulaHolder = new FormulaHolder(FormulaApplyOn.COLUMN, formulaProcessor, field.getName());
-                results.add(formulaHolder);
-            } catch (InstantiationException e) {
-                throw new PersistenceException(String.format("Can not create formula [%s]", processor.getName()), e);
+            Class<?>[] processors = formula.processors();
+            for (var processor : processors) {
+                try {
+                    FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
+                    FormulaHolder formulaHolder = new FormulaHolder(FormulaApplyOn.COLUMN, formulaProcessor, field.getName());
+                    results.add(formulaHolder);
+                } catch (InstantiationException e) {
+                    throw new PersistenceException(String.format("Can not create formula [%s]", processor.getName()), e);
+                }
             }
         }
         return results;
@@ -602,8 +596,8 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     private void createFormulaTable(Class<?> entity, Collection<FormulaHolder> formulaHolders) {
         if (entity.isAnnotationPresent(Formula.class)) {
             Formula formula = entity.getAnnotation(Formula.class);
-            Class<?> processor = formula.processor();
-            if (!Void.class.isAssignableFrom(processor)) {
+            Class<?>[] processors = formula.processors();
+            for (var processor : processors) {
                 try {
                     FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
                     FormulaHolder holder = new FormulaHolder(FormulaApplyOn.TABLE, formulaProcessor, "");

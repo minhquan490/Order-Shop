@@ -9,7 +9,6 @@ import com.bachlinh.order.aot.WebsocketRuntimeHints;
 import com.bachlinh.order.batch.configuration.spring.BatchBean;
 import com.bachlinh.order.core.Application;
 import com.bachlinh.order.core.bean.spring.SpringContainerBean;
-import com.bachlinh.order.entity.bean.spring.CacheSourceBean;
 import com.bachlinh.order.entity.bean.spring.DataSourceBean;
 import com.bachlinh.order.mail.bean.spring.EmailBean;
 import com.bachlinh.order.web.configuration.AspectConfiguration;
@@ -29,7 +28,6 @@ import com.bachlinh.order.web.configuration.WebBaseConfiguration;
         beanClasses = {
                 SpringContainerBean.class,
                 DataSourceBean.class,
-                CacheSourceBean.class,
                 BatchBean.class,
                 EmailBean.class,
                 SecurityConfiguration.class,

@@ -4,7 +4,6 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,10 +21,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Queue;
 
 @Label("ETE-")
 @Entity
@@ -98,12 +94,6 @@ public class EmailTemplate extends AbstractEntity<String> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
         return entities.stream().map(entity -> (U) entity).toList();
     }
@@ -134,9 +124,6 @@ public class EmailTemplate extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setOwner(Customer owner) {
-        if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
-            trackUpdatedField("OWNER_ID", this.owner.getId(), owner.getId());
-        }
         this.owner = owner;
     }
 
@@ -170,77 +157,5 @@ public class EmailTemplate extends AbstractEntity<String> {
             trackUpdatedField("PARAMS", this.params, params);
         }
         this.params = params;
-    }
-
-    public static EntityMapper<EmailTemplate> getMapper() {
-        return new EmailTemplateMapper();
-    }
-
-    private static class EmailTemplateMapper implements EntityMapper<EmailTemplate> {
-
-        @Override
-        public EmailTemplate map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new EmailTemplate().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public EmailTemplate map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            EmailTemplate result = new EmailTemplate();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("EMAIL_TEMPLATE")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var owner = mapper.map(resultSet);
-                    result.setOwner(owner);
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = EmailTemplateFolder.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var emailTemplateFolder = mapper.map(resultSet);
-                    emailTemplateFolder.getEmailTemplates().add(result);
-                    result.setFolder(emailTemplateFolder);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("EMAIL_TEMPLATE");
-            });
-        }
-
-        private void setData(EmailTemplate target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "EMAIL_TEMPLATE.ID" -> target.setId(mappingObject.value());
-                case "EMAIL_TEMPLATE.NAME" -> target.setName((String) mappingObject.value());
-                case "EMAIL_TEMPLATE.TITLE" -> target.setTitle((String) mappingObject.value());
-                case "EMAIL_TEMPLATE.CONTENT" -> target.setContent((String) mappingObject.value());
-                case "EMAIL_TEMPLATE.EXPIRY_POLICY" -> target.setExpiryPolicy((Integer) mappingObject.value());
-                case "EMAIL_TEMPLATE.TOTAL_ARGUMENT" -> target.setTotalArgument((Integer) mappingObject.value());
-                case "EMAIL_TEMPLATE.PARAMS" -> target.setParams((String) mappingObject.value());
-                case "EMAIL_TEMPLATE.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "EMAIL_TEMPLATE.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "EMAIL_TEMPLATE.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "EMAIL_TEMPLATE.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

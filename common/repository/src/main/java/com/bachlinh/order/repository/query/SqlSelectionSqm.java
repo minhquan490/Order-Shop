@@ -2,7 +2,7 @@ package com.bachlinh.order.repository.query;
 
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
-import com.bachlinh.order.entity.formula.FormulaProcessor;
+import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.repository.utils.QueryUtils;
 import lombok.RequiredArgsConstructor;
@@ -106,7 +106,16 @@ class SqlSelectionSqm extends AbstractSql<SqlSelect> implements SqlSelect {
     }
 
     @Override
-    public String getNativeQuery() {
+    public Collection<QueryBinding> getQueryBindings() {
+        return Collections.emptyList();
+    }
+
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
+    }
+
+    @Override
+    protected String createQuery() {
         String order = orderStatement();
         String nativeQuery;
         if (!order.isEmpty()) {
@@ -117,20 +126,12 @@ class SqlSelectionSqm extends AbstractSql<SqlSelect> implements SqlSelect {
         if (nativeQuery.endsWith(", ")) {
             nativeQuery = nativeQuery.substring(0, nativeQuery.length() - 2);
         }
-        var processors = formulaMetadata.getTableProcessors(targetMetadata, tableMetadata);
-        for (var processor : processors) {
-            nativeQuery = processor.process(nativeQuery);
-        }
         return nativeQuery;
     }
 
     @Override
-    public Collection<QueryBinding> getQueryBindings() {
-        return Collections.emptyList();
-    }
-
-    public void setTableAlias(String tableAlias) {
-        this.tableAlias = tableAlias;
+    protected Collection<FormulaProcessor> getNativeQueryProcessor() {
+        return formulaMetadata.getNativeQueryProcessor(targetMetadata, tableMetadata);
     }
 
     private String selectFromQuery() {
@@ -150,7 +151,7 @@ class SqlSelectionSqm extends AbstractSql<SqlSelect> implements SqlSelect {
                 String processedCol = MessageFormat.format(columnSelectPattern, this.targetMetadata.getTableName(), select);
                 processedCols.add(processedCol);
                 var processors = formulaMetadata.getColumnSelectProcessors(selectHolder.fieldName(), this.targetMetadata, this.tableMetadata);
-                processors.forEach(selectFormulaProcessor -> formulaProcessed.add(selectFormulaProcessor.processSelect(select, this.targetMetadata, this.tableMetadata)));
+                processors.forEach(selectFormulaProcessor -> formulaProcessed.add(selectFormulaProcessor.processSelect(select)));
             }
 
             while (!this.otherSelects.isEmpty()) {
@@ -179,7 +180,7 @@ class SqlSelectionSqm extends AbstractSql<SqlSelect> implements SqlSelect {
 
         var processors = formulaMetadata.getTableSelectProcessors(targetMetadata, tableMetadata);
         for (var processor : processors) {
-            zeroPositionParam = processor.processSelect(zeroPositionParam, targetMetadata, tableMetadata);
+            zeroPositionParam = processor.processSelect(zeroPositionParam);
         }
 
         if (zeroPositionParam.trim().endsWith(",")) {

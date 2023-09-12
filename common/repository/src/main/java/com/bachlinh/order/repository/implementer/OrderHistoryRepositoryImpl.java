@@ -8,8 +8,8 @@ import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.OrderHistory;
 import com.bachlinh.order.entity.model.OrderHistory_;
 import com.bachlinh.order.entity.model.Order_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderHistoryRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -32,7 +32,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class OrderHistoryRepositoryImpl extends AbstractRepository<OrderHistory, Integer> implements OrderHistoryRepository {
+public class OrderHistoryRepositoryImpl extends AbstractRepository<Integer, OrderHistory> implements OrderHistoryRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -61,7 +61,7 @@ public class OrderHistoryRepositoryImpl extends AbstractRepository<OrderHistory,
         SqlWhere sqlWhere = sqlJoin.where(customerWhere, Customer.class);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, OrderHistory.class);
+        return this.getResultList(sql, attributes, OrderHistory.class);
     }
 
     @Override

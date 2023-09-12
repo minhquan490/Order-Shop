@@ -5,9 +5,9 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Address_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.AddressRepository;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -18,7 +18,6 @@ import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class AddressRepositoryImpl extends AbstractRepository<Address, String> implements AddressRepository {
+public class AddressRepositoryImpl extends AbstractRepository<String, Address> implements AddressRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -58,8 +57,8 @@ public class AddressRepositoryImpl extends AbstractRepository<Address, String> i
     @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public boolean deleteAddress(Address address) {
-        long numRowDeleted = this.delete(Specification.where(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Address_.ID), address.getId()))));
-        return numRowDeleted == 0;
+        delete(address);
+        return true;
     }
 
     @Override
@@ -84,12 +83,7 @@ public class AddressRepositoryImpl extends AbstractRepository<Address, String> i
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(query, attributes, getDomainClass());
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(query, attributes, getDomainClass());
     }
 
     @Override

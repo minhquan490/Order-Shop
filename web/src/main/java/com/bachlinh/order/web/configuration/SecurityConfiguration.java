@@ -53,8 +53,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    LoggingRequestFilter loggingRequestFilter(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile) {
-        return new LoggingRequestFilter(containerResolver, profile);
+    LoggingRequestFilter loggingRequestFilter(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile, PathMatcher pathMatcher) {
+        return new LoggingRequestFilter(containerResolver, profile, getExcludeUrls(profile), pathMatcher);
     }
 
     @Bean
@@ -110,7 +110,7 @@ public class SecurityConfiguration {
                 .requestCache(RequestCacheConfigurer::disable)
                 .jee(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
-                .addFilterAfter(loggingRequestFilter(containerResolver, profile), CsrfFilter.class)
+                .addFilterAfter(loggingRequestFilter(containerResolver, profile, pathMatcher), CsrfFilter.class)
                 .addFilterBefore(authenticationFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(permissionFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .build();

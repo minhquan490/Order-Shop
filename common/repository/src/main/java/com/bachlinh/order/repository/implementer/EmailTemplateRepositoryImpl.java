@@ -8,8 +8,8 @@ import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplate, String> implements EmailTemplateRepository {
+public class EmailTemplateRepositoryImpl extends AbstractRepository<String, EmailTemplate> implements EmailTemplateRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -156,7 +156,7 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
         SqlWhere sqlWhere = sqlJoin.where(ownerWhere, Customer.class);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, EmailTemplate.class);
+        return this.getResultList(sql, attributes, EmailTemplate.class);
     }
 
     @Override
@@ -184,7 +184,7 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
         SqlWhere sqlWhere = sqlJoin.where(idWhere).and(ownerWhere, Customer.class);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, EmailTemplate.class);
+        return this.getResultList(sql, attributes, EmailTemplate.class);
     }
 
     @Override
@@ -208,11 +208,6 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<EmailTemplat
     private EmailTemplate getEmailTemplate(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, EmailTemplate.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, EmailTemplate.class);
     }
 }

@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface Formula {
-    Class<?> processor() default Void.class;
+    Class<?>[] processors() default {};
 }

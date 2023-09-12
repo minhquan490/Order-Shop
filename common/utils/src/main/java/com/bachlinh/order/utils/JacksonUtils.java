@@ -39,6 +39,14 @@ public final class JacksonUtils {
         }
     }
 
+    public static Object deserialize(String json) {
+        try {
+            return SINGLETON.readValue(json, Object.class);
+        } catch (JsonProcessingException e) {
+            throw new CriticalException(e);
+        }
+    }
+
     public static ObjectMapper getSingleton() {
         return SINGLETON;
     }

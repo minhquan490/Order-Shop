@@ -14,8 +14,8 @@ import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.OrderRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -45,7 +45,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class OrderRepositoryImpl extends AbstractRepository<Order, String> implements OrderRepository {
+public class OrderRepositoryImpl extends AbstractRepository<String, Order> implements OrderRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -77,7 +77,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
 
     @Override
     public boolean isOrderExist(String orderId) {
-        return existsById(orderId);
+        return exists(orderId);
     }
 
     @Override
@@ -104,12 +104,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
         SqlWhere sqlWhere = sqlJoin.where(idWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, Order.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, Order.class);
     }
 
     @Override
@@ -137,7 +132,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
         SqlWhere sqlWhere = sqlJoin.where(timeOrderWhere).and(orderStatusWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, Order.class);
+        return this.getResultList(sql, attributes, Order.class);
     }
 
     @Override
@@ -145,7 +140,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, String> imple
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Order.class);
         String sql = sqlSelect.getNativeQuery();
-        return executeNativeQuery(sql, Collections.emptyMap(), Order.class);
+        return this.getResultList(sql, Collections.emptyMap(), Order.class);
     }
 
     @Override

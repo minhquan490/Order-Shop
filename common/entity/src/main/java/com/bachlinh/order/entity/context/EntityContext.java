@@ -43,11 +43,4 @@ public interface EntityContext extends IdContext, SearchManager, TableMetadataHo
         }
         return Collections.emptyList();
     }
-
-    /**
-     * Return the cache region of entity
-     *
-     * @return cache region
-     */
-    String getCacheRegion();
 }

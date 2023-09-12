@@ -8,8 +8,8 @@ import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
@@ -34,7 +34,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailTemplateFolder, String> implements EmailTemplateFolderRepository {
+public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String, EmailTemplateFolder> implements EmailTemplateFolderRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -71,12 +71,12 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
         SqlWhere sqlWhere = sqlSelect.where(emailTemplateFolderNameWhere).where(ownerWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return !executeNativeQuery(sql, attributes, EmailTemplateFolder.class).isEmpty();
+        return !this.getResultList(sql, attributes, EmailTemplateFolder.class).isEmpty();
     }
 
     @Override
     public boolean isEmailTemplateFolderIdExisted(String id) {
-        return existsById(id);
+        return exists(id);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
         SqlWhere sqlWhere = sqlJoin.where(ownerIdWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, EmailTemplateFolder.class);
+        return this.getResultList(sql, attributes, EmailTemplateFolder.class);
     }
 
     @Override
@@ -182,11 +182,6 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<EmailT
     private EmailTemplateFolder processNativeQuery(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, EmailTemplateFolder.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, EmailTemplateFolder.class);
     }
 }

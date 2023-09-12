@@ -5,8 +5,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import com.bachlinh.order.entity.model.CustomerAccessHistory_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -17,8 +17,6 @@ import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
@@ -31,8 +29,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<CustomerAccessHistory, Integer> implements CustomerAccessHistoryRepository {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Integer, CustomerAccessHistory> implements CustomerAccessHistoryRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -58,7 +55,7 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Cust
         if (customerAccessHistory == null) {
             return false;
         }
-        if (existsById(customerAccessHistory.getId())) {
+        if (exists(customerAccessHistory.getId())) {
             delete(customerAccessHistory);
             return true;
         } else {
@@ -69,11 +66,7 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Cust
     @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteAll(Collection<CustomerAccessHistory> histories) {
-        try {
-            this.deleteAllInBatch(histories);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
+        super.deleteAll(histories);
     }
 
     @Override
@@ -109,7 +102,7 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Cust
         SqlWhere sqlWhere = sqlSelect.where(where);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, CustomerAccessHistory.class);
+        return this.getResultList(sql, attributes, CustomerAccessHistory.class);
     }
 
 }

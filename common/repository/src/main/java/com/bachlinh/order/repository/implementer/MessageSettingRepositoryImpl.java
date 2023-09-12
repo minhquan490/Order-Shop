@@ -5,8 +5,8 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.MessageSetting_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Operator;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
@@ -22,11 +22,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSetting, String> implements MessageSettingRepository {
+public class MessageSettingRepositoryImpl extends AbstractRepository<String, MessageSetting> implements MessageSettingRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -57,12 +58,7 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSett
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, MessageSetting.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, MessageSetting.class);
     }
 
     @Override
@@ -79,7 +75,9 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSett
 
     @Override
     public Collection<MessageSetting> getMessages() {
-        return findAll();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        return getResultList(sqlSelect.getNativeQuery(), Collections.emptyMap(), getDomainClass());
     }
 
     @Override
@@ -97,7 +95,7 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<MessageSett
         SqlWhere sqlWhere = sqlSelect.where(valueWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, MessageSetting.class);
+        var results = this.getResultList(sql, attributes, MessageSetting.class);
         return !results.isEmpty();
     }
 

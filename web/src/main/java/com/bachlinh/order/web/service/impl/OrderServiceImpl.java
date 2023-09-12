@@ -271,7 +271,7 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
         attributes.put("fourthEnd", fifthParam);
         attributes.put("lastStart", fifthParam);
         attributes.put("lastEnd", Timestamp.valueOf(now));
-        var result = orderRepository.executeNativeQuery(query, attributes, AnalyzeOrderNewInMonthResp.ResultSet.class).get(0);
+        var result = orderRepository.getResultList(query, attributes, AnalyzeOrderNewInMonthResp.ResultSet.class).get(0);
         return dtoMapper.map(result, AnalyzeOrderNewInMonthResp.class);
     }
 }

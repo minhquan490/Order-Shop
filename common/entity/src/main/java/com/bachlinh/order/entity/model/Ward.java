@@ -3,8 +3,8 @@ package com.bachlinh.order.entity.model;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.EnableFullTextSearch;
 import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.entity.EntityMapper;
-import jakarta.persistence.Cacheable;
+import com.bachlinh.order.annotation.QueryCache;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,20 +15,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Queue;
 
 @Entity
 @Table(
@@ -38,13 +33,12 @@ import java.util.Queue;
                 @Index(name = "idx_ward_code", columnList = "CODE")
         }
 )
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "ward")
 @ActiveReflection
 @NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
 @Getter
 @EnableFullTextSearch
 @EqualsAndHashCode(callSuper = true)
+@QueryCache
 public class Ward extends AbstractEntity<Integer> {
 
     @Id
@@ -68,6 +62,7 @@ public class Ward extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "DISTRICT_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @JsonIgnore
     private District district;
 
     @Override
@@ -77,12 +72,6 @@ public class Ward extends AbstractEntity<Integer> {
             throw new PersistenceException("Id of ward must be int");
         }
         this.id = (Integer) id;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<Integer>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
     }
 
     @Override
@@ -129,68 +118,5 @@ public class Ward extends AbstractEntity<Integer> {
             trackUpdatedField("DISTRICT_ID", this.district.getId(), district.getId());
         }
         this.district = district;
-    }
-
-    public static EntityMapper<Ward> getMapper() {
-        return new WardMapper();
-    }
-
-    private static class WardMapper implements EntityMapper<Ward> {
-
-        @Override
-        public Ward map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new Ward().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public Ward map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            Ward result = new Ward();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("WARD")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = District.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var district = mapper.map(resultSet);
-                    district.getWards().add(result);
-                    result.setDistrict(district);
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("WARD");
-            });
-        }
-
-        private void setData(Ward target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "WARD.ID" -> target.setId(mappingObject.value());
-                case "WARD.NAME" -> target.setName((String) mappingObject.value());
-                case "WARD.CODE" -> target.setCode((Integer) mappingObject.value());
-                case "WARD.CODE_NAME" -> target.setCodeName((String) mappingObject.value());
-                case "WARD.DIVISION_TYPE" -> target.setDivisionType((String) mappingObject.value());
-                case "WARD.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "WARD.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "WARD.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "WARD.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

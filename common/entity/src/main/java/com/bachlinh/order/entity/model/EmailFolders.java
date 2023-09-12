@@ -2,7 +2,6 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.entity.EntityMapper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,9 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 
 @Label("EFR-")
@@ -75,12 +71,6 @@ public class EmailFolders extends AbstractEntity<String> {
             return;
         }
         throw new PersistenceException("Id of email folder must be string");
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <U extends BaseEntity<String>> U map(Tuple resultSet) {
-        return (U) getMapper().map(resultSet);
     }
 
     @Override
@@ -134,90 +124,11 @@ public class EmailFolders extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setOwner(Customer owner) {
-        if (this.owner != null && !this.owner.getId().equals(owner.getId())) {
-            trackUpdatedField("OWNER_ID", this.owner.getId(), owner.getId());
-        }
         this.owner = owner;
     }
 
     @ActiveReflection
     public void setEmails(Set<Email> emails) {
         this.emails = emails;
-    }
-
-    public static EntityMapper<EmailFolders> getMapper() {
-        return new EmailFoldersMapper();
-    }
-
-    private static class EmailFoldersMapper implements EntityMapper<EmailFolders> {
-
-        @Override
-        public EmailFolders map(Tuple resultSet) {
-            Queue<MappingObject> mappingObjectQueue = new EmailFolders().parseTuple(resultSet);
-            return this.map(mappingObjectQueue);
-        }
-
-        @Override
-        public EmailFolders map(Queue<MappingObject> resultSet) {
-            MappingObject hook;
-            EmailFolders result = new EmailFolders();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("EMAIL_FOLDER")) {
-                    hook = resultSet.poll();
-                    setData(result, hook);
-                } else {
-                    break;
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Customer.getMapper();
-                if (mapper.canMap(resultSet)) {
-                    var customer = mapper.map(resultSet);
-                    result.setOwner(customer);
-                }
-            }
-            if (!resultSet.isEmpty()) {
-                var mapper = Email.getMapper();
-                Set<Email> emailSet = new LinkedHashSet<>();
-                while (!resultSet.isEmpty()) {
-                    hook = resultSet.peek();
-                    if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
-                        var email = mapper.map(resultSet);
-                        email.setFolder(result);
-                        emailSet.add(email);
-                    } else {
-                        break;
-                    }
-                }
-                result.setEmails(emailSet);
-            }
-            return result;
-        }
-
-        @Override
-        public boolean canMap(Collection<MappingObject> testTarget) {
-            return testTarget.stream().anyMatch(mappingObject -> {
-                String name = mappingObject.columnName();
-                return name.split("\\.")[0].equals("EMAIL_FOLDER");
-            });
-        }
-
-        private void setData(EmailFolders target, MappingObject mappingObject) {
-            if (mappingObject.value() == null) {
-                return;
-            }
-            switch (mappingObject.columnName()) {
-                case "EMAIL_FOLDER.ID" -> target.setId(mappingObject.value());
-                case "EMAIL_FOLDER.NAME" -> target.setName((String) mappingObject.value());
-                case "EMAIL_FOLDER.TIME_CREATED" -> target.setTimeCreated((Timestamp) mappingObject.value());
-                case "EMAIL_FOLDER.EMAIL_CLEAR_POLICY" -> target.setEmailClearPolicy((Integer) mappingObject.value());
-                case "EMAIL_FOLDER.CREATED_BY" -> target.setCreatedBy((String) mappingObject.value());
-                case "EMAIL_FOLDER.MODIFIED_BY" -> target.setModifiedBy((String) mappingObject.value());
-                case "EMAIL_FOLDER.CREATED_DATE" -> target.setCreatedDate((Timestamp) mappingObject.value());
-                case "EMAIL_FOLDER.MODIFIED_DATE" -> target.setModifiedDate((Timestamp) mappingObject.value());
-                default -> {/* Do nothing */}
-            }
-        }
     }
 }

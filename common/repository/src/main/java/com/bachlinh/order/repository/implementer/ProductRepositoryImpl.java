@@ -9,10 +9,11 @@ import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.entity.model.ProductMedia_;
 import com.bachlinh.order.entity.model.Product_;
+import com.bachlinh.order.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.repository.adapter.AbstractRepository;
 import com.bachlinh.order.repository.query.Join;
 import com.bachlinh.order.repository.query.Operator;
+import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.repository.query.Select;
 import com.bachlinh.order.repository.query.SqlBuilder;
 import com.bachlinh.order.repository.query.SqlJoin;
@@ -26,6 +27,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
@@ -45,7 +47,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class ProductRepositoryImpl extends AbstractRepository<Product, String> implements ProductRepository {
+public class ProductRepositoryImpl extends AbstractRepository<String, Product> implements ProductRepository {
     private static final String LIKE_PATTERN = "%{0}%";
 
     @DependenciesInitialize
@@ -85,13 +87,13 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
         SqlWhere sqlWhere = sqlSelect.where(nameWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, Product.class);
+        var results = this.getResultList(sql, attributes, Product.class);
         return !results.isEmpty();
     }
 
     @Override
     public boolean isProductExist(String productId) {
-        return existsById(productId);
+        return exists(productId);
     }
 
     @Override
@@ -170,7 +172,7 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
         SqlWhere sqlWhere = sqlJoin.where(productIdWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, Product.class);
+        return this.getResultList(sql, attributes, Product.class);
     }
 
     @Override
@@ -183,26 +185,31 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
         SqlWhere sqlWhere = sqlSelect.where(idsWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return executeNativeQuery(sql, attributes, Product.class);
+        return this.getResultList(sql, attributes, Product.class);
     }
 
     @Override
     @Deprecated(forRemoval = true)
     public Page<Product> getProductsByCondition(Map<String, Object> conditions, Pageable pageable) {
-        Specification<Product> spec = specWithCondition(conditions);
-        return findAll(spec, pageable);
+        return new PageImpl<>(Collections.emptyList());
     }
 
     @Override
     @Deprecated(forRemoval = true)
     public Page<Product> getProductsWithUnion(Collection<String> ids, Map<String, Object> conditions, Pageable pageable) {
-        Specification<Product> spec = specWithCondition(conditions);
-        return unionQueryWithId(ids, spec, pageable);
+        return new PageImpl<>(Collections.emptyList());
     }
 
     @Override
     public Page<Product> getAllProducts(Pageable pageable) {
-        return findAll(pageable);
+        OrderBy idOrderBy = OrderBy.builder().column(Product_.ID).type(OrderBy.Type.ASC).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        sqlSelect.orderBy(idOrderBy);
+        long offset = QueryUtils.calculateOffset(pageable.getPageNumber(), pageable.getPageSize());
+        sqlSelect.offset(offset).limit(pageable.getPageSize());
+        var results = getResultList(sqlSelect.getNativeQuery(), Collections.emptyMap(), getDomainClass());
+        return new PageImpl<>(results);
     }
 
     @Override
@@ -215,7 +222,7 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
         sqlJoin.offset(pageable.getOffset());
         sqlJoin.limit(pageable.getPageSize());
         String sql = sqlJoin.getNativeQuery();
-        return executeNativeQuery(sql, Collections.emptyMap(), Product.class);
+        return this.getResultList(sql, Collections.emptyMap(), Product.class);
     }
 
     private Specification<Product> specWithCondition(Map<String, Object> conditions) {
@@ -265,11 +272,6 @@ public class ProductRepositoryImpl extends AbstractRepository<Product, String> i
     private Product getProduct(SqlWhere sqlWhere) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        var results = executeNativeQuery(sql, attributes, Product.class);
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        return getSingleResult(sql, attributes, Product.class);
     }
 }
