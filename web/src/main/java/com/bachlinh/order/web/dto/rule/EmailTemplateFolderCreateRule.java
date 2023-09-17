@@ -26,7 +26,7 @@ public class EmailTemplateFolderCreateRule extends AbstractRule<EmailTemplateFol
 
     private EmailTemplateFolderRepository emailTemplateFolderRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private EmailTemplateFolderCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

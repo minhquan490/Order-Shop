@@ -13,6 +13,7 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.utils.DateTimeUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
@@ -131,7 +132,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
         refreshToken.setCustomer(customer);
         Instant timeCreated = Instant.now();
         refreshToken.setTimeCreated(Timestamp.from(timeCreated));
-        refreshToken.setTimeExpired(Timestamp.from(Instant.ofEpochSecond(timeCreated.getEpochSecond() + 86400 * 365)));
+        refreshToken.setTimeExpired(DateTimeUtils.calculateTimeRefreshTokenExpired(timeCreated));
         refreshToken.setRefreshTokenValue(UUID.randomUUID().toString());
         return refreshToken;
     }

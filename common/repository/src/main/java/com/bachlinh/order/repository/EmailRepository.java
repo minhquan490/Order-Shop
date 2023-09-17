@@ -2,6 +2,7 @@ package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,5 +24,9 @@ public interface EmailRepository extends NativeQueryRepository {
 
     Collection<Email> getEmailForRestore(Integer emailTrashId, Iterable<String> ids);
 
+    Collection<Email> getEmailsOfCustomer(Customer owner);
+
     void deleteEmails(Collection<String> ids);
+
+    void deleteEmail(Collection<Email> emails);
 }

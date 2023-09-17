@@ -43,7 +43,7 @@ public class VnAddressSetupExecution extends AbstractSetup {
     private ProvinceRepository provinceRepository;
     private DistrictRepository districtRepository;
     private WardRepository wardRepository;
-    
+
     private VnAddressSetupExecution(ContainerWrapper wrapper, String profile) {
         super(wrapper, profile);
     }

@@ -19,7 +19,7 @@ public class AddEmailToTrashRule extends AbstractRule<AddEmailToTrashForm> {
     private static final String UNKNOWN_ADD_MESSAGE_ID = "MSG-000025";
 
     private MessageSettingRepository messageSettingRepository;
-    
+
     private AddEmailToTrashRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

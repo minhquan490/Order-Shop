@@ -31,7 +31,7 @@ public class EmailFolderUpdateRule extends AbstractRule<EmailFolderUpdateForm> {
 
     private EmailFoldersRepository emailFoldersRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private EmailFolderUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

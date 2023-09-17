@@ -22,7 +22,7 @@ public class MessageSettingDeleteRule extends AbstractRule<MessageSettingDeleteF
     private static final String NON_EXISTED_MESSAGE_ID = "MSG-000017";
 
     private MessageSettingRepository messageSettingRepository;
-    
+
     private MessageSettingDeleteRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

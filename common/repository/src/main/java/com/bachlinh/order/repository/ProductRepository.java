@@ -1,6 +1,7 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.Product;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

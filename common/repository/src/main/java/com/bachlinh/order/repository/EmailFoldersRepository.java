@@ -3,6 +3,7 @@ package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.util.Collection;
 

@@ -1,6 +1,8 @@
 package com.bachlinh.order.repository;
 
+import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.sql.Date;
 import java.util.Collection;
@@ -11,9 +13,13 @@ public interface CustomerAccessHistoryRepository extends NativeQueryRepository {
 
     void saveAllCustomerAccessHistory(Collection<CustomerAccessHistory> customerAccessHistories);
 
-    boolean deleteCustomerHistory(CustomerAccessHistory customerAccessHistory);
-
     void deleteAll(Collection<CustomerAccessHistory> histories);
 
     Collection<CustomerAccessHistory> getHistoriesExpireNow(Date now);
+
+    Collection<CustomerAccessHistory> getHistoriesOfCustomer(Customer customer);
+
+    Collection<CustomerAccessHistory> getHistoriesOfCustomer(Customer customer, long page, long pageSize);
+
+    Long countAccessHistoriesOfCustomer(String customerId);
 }

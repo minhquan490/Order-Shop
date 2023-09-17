@@ -1,25 +1,12 @@
-import {currentPath, navSources} from "~/logic/components/navbars.logic";
+import { currentPath, navSources } from "~/logic/components/navbars.logic";
 import loginHistoriesVue from "~/pages/admin/customer/login-histories.vue";
-import {Authentication, NavBarsSource, QueryParam, Request, Response, TableHeader} from "~/types";
+import { Authentication, NavBarsSource, QueryParam, Request, Response, TableHeader } from "~/types";
 
 const navigationSources = (): NavBarsSource[] => {
     return currentPath(
         navSources(),
         useRoute()
     );
-}
-
-const checkCustomerIdQueryParam = (): string | undefined => {
-    const customerIdQuery = useRoute().query['customerId'];
-    if (!customerIdQuery) {
-        const navigate = useNavigation().value;
-        navigate('/404');
-        return undefined;
-    }
-    if (Array.isArray(customerIdQuery)) {
-        return (customerIdQuery as Array<string>)[0];
-    }
-    return customerIdQuery;
 }
 
 const getViewDataTableHeaders = (): TableHeader[] => {
@@ -89,7 +76,6 @@ type LoginHistory = {
 export {
     CustomerLoginHistory,
     LoginHistory,
-    checkCustomerIdQueryParam,
     getCustomerLoginHistoriesData,
     getViewDataTableHeaders,
     navigationSources

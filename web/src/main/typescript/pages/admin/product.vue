@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import {checkAdminPermission} from "~/logic/permission.logic";
+import { checkAdminPermission } from "~/logic/permission.logic";
 
 export default {
   async beforeCreate() {

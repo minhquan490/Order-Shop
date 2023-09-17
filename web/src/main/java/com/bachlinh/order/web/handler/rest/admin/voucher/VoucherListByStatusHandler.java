@@ -37,7 +37,7 @@ public class VoucherListByStatusHandler extends AbstractController<Collection<Vo
         if (!BOOLEAN_PATTERN.matcher(status).matches()) {
             throw new ResourceNotFoundException("Not found", getPath());
         }
-        return voucherService.getVoucherSByStatus(Boolean.parseBoolean(status));
+        return voucherService.getVouchersByStatus(Boolean.parseBoolean(status));
     }
 
     @Override

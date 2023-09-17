@@ -8,9 +8,9 @@ import com.bachlinh.order.entity.model.AbstractEntity_;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.VoucherRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.criteria.JoinType;
 
@@ -49,8 +49,8 @@ public class VoucherCleaner extends AbstractJob {
 
     @Override
     protected void doExecuteInternal() {
-        Where modifiedWhere = Where.builder().attribute(AbstractEntity_.MODIFIED_DATE).value(Timestamp.valueOf(LocalDateTime.now().plusMonths(-REMOVAL_POLICY))).operator(Operator.LT).build();
-        Where enabledWhere = Where.builder().attribute(Voucher_.ACTIVE).value(false).operator(Operator.EQ).build();
+        Where modifiedWhere = Where.builder().attribute(AbstractEntity_.MODIFIED_DATE).value(Timestamp.valueOf(LocalDateTime.now().plusMonths(-REMOVAL_POLICY))).operation(Operation.LT).build();
+        Where enabledWhere = Where.builder().attribute(Voucher_.ACTIVE).value(false).operation(Operation.EQ).build();
         Join customerJoin = Join.builder().attribute(Voucher_.CUSTOMERS).type(JoinType.INNER).build();
         var vouchers = voucherRepository.getVouchers(Collections.emptyList(), Collections.singleton(customerJoin), Arrays.asList(modifiedWhere, enabledWhere));
         var customerUpdated = vouchers.stream()

@@ -10,21 +10,23 @@ import com.bachlinh.order.entity.model.Cart_;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.CartRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.repository.ProductCartRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CartRepositoryImpl extends AbstractRepository<String, Cart> implements CartRepository {
+public class CartRepositoryImpl extends AbstractRepository<String, Cart> implements CartRepository, ProductCartRepository {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -58,8 +60,8 @@ public class CartRepositoryImpl extends AbstractRepository<String, Cart> impleme
         Select cartDetailProductIdSelect = Select.builder().column(Product_.ID).build();
         Join cartDetailJoin = Join.builder().attribute(Cart_.CART_DETAILS).type(JoinType.LEFT).build();
         Join cartDetailProductJoin = Join.builder().attribute(CartDetail_.PRODUCT).type(JoinType.INNER).build();
-        Where ownerWhere = Where.builder().attribute(Cart_.CUSTOMER).value(owner).operator(Operator.EQ).build();
-        Where productIdsWhere = Where.builder().attribute(CartDetail_.PRODUCT).value(productIds).operator(Operator.IN).build();
+        Where ownerWhere = Where.builder().attribute(Cart_.CUSTOMER).value(owner).operation(Operation.EQ).build();
+        Where productIdsWhere = Where.builder().attribute(CartDetail_.PRODUCT).value(productIds).operation(Operation.IN).build();
         OrderBy productIdOrderBy = OrderBy.builder().column(CartDetail_.PRODUCT).type(OrderBy.Type.ASC).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
@@ -77,14 +79,37 @@ public class CartRepositoryImpl extends AbstractRepository<String, Cart> impleme
         Select cartIdSelect = Select.builder().column(Cart_.ID).build();
         Select cartDetailIdSelect = Select.builder().column(CartDetail_.ID).build();
         Join cartDetailJoin = Join.builder().attribute(Cart_.CART_DETAILS).type(JoinType.INNER).build();
-        Where ownerWhere = Where.builder().attribute(Cart_.CUSTOMER).value(owner).operator(Operator.EQ).build();
-        Where cartDetailIdsWhere = Where.builder().attribute(Cart_.CART_DETAILS).value(cartDetailIds).operator(Operator.IN).build();
+        Where ownerWhere = Where.builder().attribute(Cart_.CUSTOMER).value(owner).operation(Operation.EQ).build();
+        Where cartDetailIdsWhere = Where.builder().attribute(Cart_.CART_DETAILS).value(cartDetailIds).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Cart.class);
         sqlSelect.select(cartIdSelect).select(cartDetailIdSelect, CartDetail.class);
         SqlJoin sqlJoin = sqlSelect.join(cartDetailJoin);
         SqlWhere sqlWhere = sqlJoin.where(ownerWhere).and(cartDetailIdsWhere);
         return getCart(sqlWhere);
+    }
+
+    @Override
+    public Cart getCartOfCustomer(String customerId) {
+
+        Where ownerWhere = Where.builder().attribute(Cart_.CUSTOMER).value(customerId).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(ownerWhere);
+
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+        return getSingleResult(sql, attributes, getDomainClass());
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
+    public void deleteCart(Cart cart) {
+        if (cart == null) {
+            return;
+        }
+        this.delete(cart);
     }
 
     @Override
@@ -98,5 +123,37 @@ public class CartRepositoryImpl extends AbstractRepository<String, Cart> impleme
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return getSingleResult(sql, attributes, Cart.class);
+    }
+
+    @Override
+    public void deleteProductCart(Product product) {
+        EntityManager entityManager = getEntityManager();
+
+        TransactionCallback callback = () -> {
+            String sql = "DELETE PRODUCT_CART WHERE PRODUCT_ID = :productId";
+
+            Query query = entityManager.createQuery(sql);
+            query.setParameter("productId", product.getId());
+
+            query.executeUpdate();
+        };
+
+        doInTransaction(entityManager, callback);
+    }
+
+    @Override
+    public void deleteProductCart(Cart cart) {
+        EntityManager entityManager = getEntityManager();
+
+        TransactionCallback callback = () -> {
+            String sql = "DELETE PRODUCT_CART WHERE CART_ID = :cartId";
+
+            Query query = entityManager.createQuery(sql);
+            query.setParameter("cartId", cart.getId());
+
+            query.executeUpdate();
+        };
+
+        doInTransaction(entityManager, callback);
     }
 }

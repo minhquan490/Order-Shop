@@ -18,7 +18,7 @@ public class DirectMessageRemoveHandler extends AbstractJob {
     private LocalDateTime previousTimeExecution;
 
     private DirectMessageRepository directMessageRepository;
-    
+
     private DirectMessageRemoveHandler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
     }

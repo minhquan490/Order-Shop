@@ -1,12 +1,13 @@
 package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.OrderStatusValue;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderDetail;
 import com.bachlinh.order.entity.model.OrderStatus;
@@ -16,14 +17,17 @@ import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.OrderRepository;
 import com.bachlinh.order.repository.ProductRepository;
+import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.admin.order.OrderChangeStatusForm;
 import com.bachlinh.order.web.dto.form.admin.order.OrderProductForm;
 import com.bachlinh.order.web.dto.form.customer.OrderCreateForm;
 import com.bachlinh.order.web.dto.resp.AnalyzeOrderNewInMonthResp;
 import com.bachlinh.order.web.dto.resp.OrderInfoResp;
 import com.bachlinh.order.web.dto.resp.OrderListResp;
+import com.bachlinh.order.web.dto.resp.OrderOfCustomerResp;
 import com.bachlinh.order.web.dto.resp.OrderResp;
 import com.bachlinh.order.web.service.business.OrderAnalyzeService;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
@@ -36,6 +40,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -52,7 +57,7 @@ import java.util.stream.Stream;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService, OrderChangeStatusService, OrderInDateService, OrderAnalyzeService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -64,6 +69,7 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     private final CustomerRepository customerRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
+    private final MessageSettingRepository messageSettingRepository;
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -247,6 +253,24 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     }
 
     @Override
+    public OrderOfCustomerResp getOrdersOfCustomer(NativeRequest<?> request) {
+        long page = getPage(request);
+        long pageSize = getPageSize(request);
+        String customerId = getCustomerId(request, request.getUrl());
+
+        Collection<Order> orders = orderRepository.getOrdersOfCustomer(customerId, page, pageSize);
+        Collection<OrderOfCustomerResp.OrderInfo> orderInfos = dtoMapper.map(orders, OrderOfCustomerResp.OrderInfo.class);
+
+        OrderOfCustomerResp resp = new OrderOfCustomerResp();
+        resp.setOrderInfos(orderInfos);
+        Long totalOrders = orderRepository.countOrdersOfCustomer(customerId);
+        resp.setTotalOrder(totalOrders);
+        resp.setPage(page);
+        resp.setPageSize(pageSize);
+        return resp;
+    }
+
+    @Override
     public AnalyzeOrderNewInMonthResp analyzeNewOrderInMonth() {
         var template = "select t.* from (select count(o.id) as first, ({0}) as second, ({1}) as third, ({2}) as fourth, ({3}) as last from Order o where o.created_date between :firstStart and :firstEnd) as t";
         var secondStatement = "select count(o.id) from Order o where o.created_date between :secondStart and :secondEnd";
@@ -273,5 +297,33 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
         attributes.put("lastEnd", Timestamp.valueOf(now));
         var result = orderRepository.getResultList(query, attributes, AnalyzeOrderNewInMonthResp.ResultSet.class).get(0);
         return dtoMapper.map(result, AnalyzeOrderNewInMonthResp.class);
+    }
+
+    private String getCustomerId(NativeRequest<?> nativeRequest, String path) {
+        String customerId = nativeRequest.getUrlQueryParam().getFirst("customerId");
+        if (!StringUtils.hasText(customerId)) {
+            MessageSetting messageSetting = messageSettingRepository.getMessageById("MSG-000008");
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Customer");
+            throw new ResourceNotFoundException(errorContent, path);
+        }
+        return customerId;
+    }
+
+    private long getPageSize(NativeRequest<?> nativeRequest) {
+        String pageSizeRequestParam = nativeRequest.getUrlQueryParam().getFirst("pageSize");
+        if (ValidateUtils.isNumber(pageSizeRequestParam)) {
+            return Long.parseLong(pageSizeRequestParam);
+        } else {
+            return 50L;
+        }
+    }
+
+    private long getPage(NativeRequest<?> nativeRequest) {
+        String pageRequestParam = nativeRequest.getUrlQueryParam().getFirst("page");
+        if (ValidateUtils.isNumber(pageRequestParam)) {
+            return Long.parseLong(pageRequestParam);
+        } else {
+            return 1L;
+        }
     }
 }

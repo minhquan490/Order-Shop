@@ -10,18 +10,18 @@ import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.entity.model.EmailTrash_;
 import com.bachlinh.order.entity.model.Email_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.EmailRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -63,8 +63,8 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
         Select folderNameSelect = Select.builder().column(EmailFolders_.NAME).build();
         Join toCustomerJoin = Join.builder().attribute(Email_.TO_CUSTOMER).type(JoinType.INNER).build();
         Join emailFolderJoin = Join.builder().attribute(Email_.FOLDER).type(JoinType.LEFT).build();
-        Where idWhere = Where.builder().attribute(Email_.ID).value(id).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Email_.ID).value(id).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         sqlSelect.select(idSelect)
@@ -82,8 +82,8 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
     @Override
     public Email getEmailForAddToTrash(String id, Customer owner) {
         Select idSelect = Select.builder().column(Email_.ID).build();
-        Where idWhere = Where.builder().attribute(Email_.ID).value(id).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Email_.ID).value(id).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         sqlSelect.select(idSelect);
@@ -94,7 +94,7 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
     @Override
     public Collection<Email> getAllEmailByIds(Iterable<String> ids) {
         Select idSelect = Select.builder().column(Email_.ID).build();
-        Where idsWhere = Where.builder().attribute(Email_.ID).value(((Collection<String>) ids).toArray(new String[0])).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Email_.ID).value(((Collection<String>) ids).toArray(new String[0])).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         sqlSelect.select(idSelect);
@@ -107,7 +107,7 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
         Select idSelect = Select.builder().column(Email_.ID).build();
         Select contentSelect = Select.builder().column(Email_.CONTENT).build();
         Select titleSelect = Select.builder().column(Email_.TITLE).build();
-        Where idsWhere = Where.builder().attribute(Email_.ID).value(((Collection<String>) ids).toArray(new String[0])).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Email_.ID).value(((Collection<String>) ids).toArray(new String[0])).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         sqlSelect.select(idSelect).select(contentSelect).select(titleSelect);
@@ -120,8 +120,8 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
         OrderBy receivedTimeOrderBy = OrderBy.builder().column(Email_.RECEIVED_TIME).type(OrderBy.Type.DESC).build();
         Join folderJoin = Join.builder().attribute(Email_.FOLDER).type(JoinType.INNER).build();
         Join fromCustomerJoin = Join.builder().attribute(Email_.FROM_CUSTOMER).type(JoinType.INNER).build();
-        Where toCustomerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operator(Operator.EQ).build();
-        Where emailFoldersWhere = Where.builder().attribute(EmailFolders_.ID).value(folderId).operator(Operator.EQ).build();
+        Where toCustomerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operation(Operation.EQ).build();
+        Where emailFoldersWhere = Where.builder().attribute(EmailFolders_.ID).value(folderId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         SqlJoin sqlJoin = sqlSelect.join(folderJoin).join(fromCustomerJoin);
@@ -142,8 +142,8 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
         Select folderNameSelect = Select.builder().column(EmailFolders_.NAME).build();
         Join toCustomerJoin = Join.builder().attribute(Email_.TO_CUSTOMER).type(JoinType.LEFT).build();
         Join emailFolderJoin = Join.builder().attribute(Email_.FOLDER).type(JoinType.LEFT).build();
-        Where idsWhere = Where.builder().attribute(Email_.ID).value(ids).operator(Operator.IN).build();
-        Where ownerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Email_.ID).value(ids).operation(Operation.IN).build();
+        Where ownerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         sqlSelect.select(idSelect)
@@ -163,8 +163,8 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
     public Collection<Email> getEmailForRestore(Integer emailTrashId, Iterable<String> ids) {
         Select idSelect = Select.builder().column(Email_.ID).build();
         Join emailTrashJoin = Join.builder().attribute(Email_.EMAIL_TRASH).type(JoinType.RIGHT).build();
-        Where idWhere = Where.builder().attribute(Email_.ID).value(ids).operator(Operator.IN).build();
-        Where emailTrashIdWhere = Where.builder().attribute(EmailTrash_.ID).value(emailTrashId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Email_.ID).value(ids).operation(Operation.IN).build();
+        Where emailTrashIdWhere = Where.builder().attribute(EmailTrash_.ID).value(emailTrashId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Email.class);
         sqlSelect.select(idSelect);
@@ -174,9 +174,29 @@ public class EmailRepositoryImpl extends AbstractRepository<String, Email> imple
     }
 
     @Override
+    public Collection<Email> getEmailsOfCustomer(Customer owner) {
+        Where toCustomerWhere = Where.builder().attribute(Email_.TO_CUSTOMER).value(owner).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(toCustomerWhere);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getResultList(query, attributes, getDomainClass());
+    }
+
+    @Override
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteEmails(Collection<String> ids) {
         deleteAllById(ids);
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
+    public void deleteEmail(Collection<Email> emails) {
+        deleteAll(emails);
     }
 
     @Override

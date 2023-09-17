@@ -39,7 +39,7 @@ public class ProductUpdateRule extends AbstractRule<ProductUpdateForm> {
     private CategoryRepository categoryRepository;
     private EntityFactory entityFactory;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private ProductUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

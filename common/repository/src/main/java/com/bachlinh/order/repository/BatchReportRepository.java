@@ -1,6 +1,7 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.BatchReport;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.sql.Timestamp;
 import java.util.Collection;

@@ -4,23 +4,26 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.VoucherRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
@@ -69,7 +72,7 @@ public class VoucherRepositoryImpl extends AbstractRepository<String, Voucher> i
 
     @Override
     public Voucher getVoucherById(@NonNull Collection<Select> selects, String id) {
-        var idWhere = Where.builder().attribute(Voucher_.ID).value(id).operator(Operator.EQ).build();
+        var idWhere = Where.builder().attribute(Voucher_.ID).value(id).operation(Operation.EQ).build();
         return getVoucher(selects, Collections.emptyList(), Collections.singletonList(idWhere));
     }
 
@@ -83,7 +86,7 @@ public class VoucherRepositoryImpl extends AbstractRepository<String, Voucher> i
         Select contentSelect = Select.builder().column(Voucher_.VOUCHER_CONTENT).build();
         Select costSelect = Select.builder().column(Voucher_.VOUCHER_COST).build();
         Select activeSelect = Select.builder().column(Voucher_.ACTIVE).build();
-        Where idWhere = Where.builder().attribute(Voucher_.ID).value(id).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Voucher_.ID).value(id).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Voucher.class);
         sqlSelect.select(idSelect)
@@ -102,7 +105,7 @@ public class VoucherRepositoryImpl extends AbstractRepository<String, Voucher> i
 
     @Override
     public boolean isVoucherNameExist(String voucherName) {
-        var nameWhere = Where.builder().attribute(Voucher_.NAME).value(voucherName).operator(Operator.EQ).build();
+        var nameWhere = Where.builder().attribute(Voucher_.NAME).value(voucherName).operation(Operation.EQ).build();
         return getVoucher(Collections.emptyList(), Collections.emptyList(), Collections.singletonList(nameWhere)) != null;
     }
 
@@ -194,13 +197,51 @@ public class VoucherRepositoryImpl extends AbstractRepository<String, Voucher> i
 
     @Override
     public Collection<Voucher> getVouchersByIds(Collection<String> ids) {
-        Where idsWhere = Where.builder().attribute(Voucher_.ID).value(ids).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Voucher_.ID).value(ids).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
         SqlWhere sqlWhere = sqlSelect.where(idsWhere);
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return getResultList(query, attributes, getDomainClass());
+    }
+
+    @Override
+    public Collection<Voucher> getVouchersAssignToCustomer(String customer, long page, long pageSize) {
+        Join customerJoin = Join.builder().attribute(Voucher_.CUSTOMERS).type(JoinType.INNER).build();
+        Where customerWhere = Where.builder().attribute(Customer_.ID).value(customer).operation(Operation.EQ).build();
+        OrderBy timeStartOrderBy = OrderBy.builder().column(Voucher_.TIME_START).type(OrderBy.Type.ASC).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlJoin sqlJoin = sqlSelect.join(customerJoin);
+        SqlWhere sqlWhere = sqlJoin.where(customerWhere, Customer.class);
+        sqlWhere.limit(page)
+                .offset(QueryUtils.calculateOffset(page, pageSize))
+                .orderBy(timeStartOrderBy);
+
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getResultList(sql, attributes, getDomainClass());
+    }
+
+    @Override
+    public Long countVoucherAssignToCustomer(String customerId) {
+        Select idSelect = Select.builder().column(Voucher_.ID).build();
+        Join customerJoin = Join.builder().attribute(Voucher_.CUSTOMERS).type(JoinType.INNER).build();
+        Where customerWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        sqlSelect.select(idSelect, getFunctionDialect().count());
+        SqlJoin sqlJoin = sqlSelect.join(customerJoin);
+        SqlWhere sqlWhere = sqlJoin.where(customerWhere, Customer.class);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getSingleResult(query, attributes, Long.class);
     }
 
     @Override

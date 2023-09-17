@@ -7,9 +7,9 @@ import com.bachlinh.order.batch.job.JobType;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.VoucherRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.criteria.JoinType;
 
@@ -26,7 +26,7 @@ public class VoucherInvalidateHandler extends AbstractJob {
     private VoucherRepository voucherRepository;
     private CustomerRepository customerRepository;
     private LocalDateTime previousTimeExecution;
-    
+
     private VoucherInvalidateHandler(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
     }
@@ -48,8 +48,8 @@ public class VoucherInvalidateHandler extends AbstractJob {
 
     @Override
     protected void doExecuteInternal() throws Exception {
-        Where timeExpiryWhere = Where.builder().attribute(Voucher_.TIME_EXPIRED).value(Timestamp.from(Instant.now())).operator(Operator.LT).build();
-        Where enabledWhere = Where.builder().attribute(Voucher_.ACTIVE).value(true).operator(Operator.EQ).build();
+        Where timeExpiryWhere = Where.builder().attribute(Voucher_.TIME_EXPIRED).value(Timestamp.from(Instant.now())).operation(Operation.LT).build();
+        Where enabledWhere = Where.builder().attribute(Voucher_.ACTIVE).value(true).operation(Operation.EQ).build();
         Join assigneredJoin = Join.builder().attribute(Voucher_.CUSTOMERS).type(JoinType.INNER).build();
         var vouchers = voucherRepository.getVouchers(Collections.emptyList(), Collections.singletonList(assigneredJoin), Arrays.asList(timeExpiryWhere, enabledWhere));
         var updatedCustomers = vouchers.stream()

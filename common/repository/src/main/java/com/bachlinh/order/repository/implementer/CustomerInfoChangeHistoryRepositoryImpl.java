@@ -6,16 +6,16 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -46,14 +46,36 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
 
     @Override
     public Collection<CustomerInfoChangeHistory> getHistoriesInYear() {
-        Where timeUpdateWhere = Where.builder().attribute(CustomerInfoChangeHistory_.TIME_UPDATE).value(Timestamp.from(Instant.now())).operator(Operator.GE).build();
+        Where timeUpdateWhere = Where.builder().attribute(CustomerInfoChangeHistory_.TIME_UPDATE).value(Timestamp.from(Instant.now())).operation(Operation.GE).build();
         return getAccessHistories(timeUpdateWhere, -1);
     }
 
     @Override
     public Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(Customer customer, long limit) {
-        var customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customer).operator(Operator.EQ).build();
+        var customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customer).operation(Operation.EQ).build();
         return getAccessHistories(customerWhere, limit);
+    }
+
+    @Override
+    public Collection<CustomerInfoChangeHistory> getHistoriesChangeOfCustomer(String customerId, long page, long pageSize) {
+        Where customerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customerId).operation(Operation.EQ).build();
+        OrderBy timeUpdateOrderBy = OrderBy.builder().column(CustomerInfoChangeHistory_.TIME_UPDATE).type(OrderBy.Type.DESC).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(customerWhere);
+        sqlWhere.orderBy(timeUpdateOrderBy).limit(pageSize).offset(QueryUtils.calculateOffset(page, pageSize));
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getResultList(query, attributes, getDomainClass());
+    }
+
+    @Override
+    public Long countChangeHistories(String customerId) {
+        Where ownerWhere = Where.builder().attribute(CustomerInfoChangeHistory_.CUSTOMER).value(customerId).operation(Operation.EQ).build();
+        return count(ownerWhere);
     }
 
     @Override

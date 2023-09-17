@@ -5,14 +5,14 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.BatchReport;
 import com.bachlinh.order.entity.model.BatchReport_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.BatchReportRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +50,7 @@ public class BatchReportRepositoryImpl extends AbstractRepository<Integer, Batch
     @Override
     public Collection<BatchReport> getReports(Timestamp from, Timestamp to) {
         SqlBuilder sqlBuilder = getSqlBuilder();
-        Where timeReportWhere = Where.builder().attribute(BatchReport_.TIME_REPORT).value(new Object[]{from, to}).operator(Operator.BETWEEN).build();
+        Where timeReportWhere = Where.builder().attribute(BatchReport_.TIME_REPORT).value(new Object[]{from, to}).operation(Operation.BETWEEN).build();
         SqlSelect sqlSelect = sqlBuilder.from(BatchReport.class);
         SqlWhere sqlWhere = sqlSelect.where(timeReportWhere);
         String query = sqlWhere.getNativeQuery();

@@ -5,15 +5,15 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.MessageSetting_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -51,7 +51,7 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<String, Mes
     public MessageSetting getMessageById(String id) {
         Select idSelect = Select.builder().column(MessageSetting_.ID).build();
         Select valueSelect = Select.builder().column(MessageSetting_.VALUE).build();
-        Where idWhere = Where.builder().attribute(MessageSetting_.ID).value(id).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(MessageSetting_.ID).value(id).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(MessageSetting.class);
         sqlSelect.select(idSelect).select(valueSelect);
@@ -88,7 +88,7 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<String, Mes
     @Override
     public boolean messageValueExisted(String messageValue) {
         Select idsSelect = Select.builder().column(MessageSetting_.ID).build();
-        Where valueWhere = Where.builder().attribute(MessageSetting_.VALUE).value(messageValue).operator(Operator.EQ).build();
+        Where valueWhere = Where.builder().attribute(MessageSetting_.VALUE).value(messageValue).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(MessageSetting.class);
         sqlSelect.select(idsSelect);

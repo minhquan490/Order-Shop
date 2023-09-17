@@ -17,7 +17,7 @@ public class CustomerAccessHistoryCleaner extends AbstractJob {
     private static final int REMOVAL_POLICY = 1;
     private LocalDateTime previousTimeExecution;
     private CustomerAccessHistoryRepository repository;
-    
+
     private CustomerAccessHistoryCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
     }

@@ -31,7 +31,7 @@ public class CustomerUpdateRule extends AbstractRule<CustomerUpdateForm> {
 
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private CustomerUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

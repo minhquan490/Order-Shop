@@ -26,7 +26,7 @@ public class OrderCreateRule extends AbstractRule<OrderCreateForm> {
 
     private ProductRepository productRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private OrderCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

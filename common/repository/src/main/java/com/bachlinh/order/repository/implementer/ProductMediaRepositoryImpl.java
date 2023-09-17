@@ -3,16 +3,17 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.entity.model.ProductMedia_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.ProductMediaRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -39,7 +40,7 @@ public class ProductMediaRepositoryImpl extends AbstractRepository<Integer, Prod
 
     @Override
     public ProductMedia loadMedia(int id) {
-        Where idWhere = Where.builder().attribute(ProductMedia_.ID).value(id).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(ProductMedia_.ID).value(id).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
@@ -63,6 +64,23 @@ public class ProductMediaRepositoryImpl extends AbstractRepository<Integer, Prod
         } catch (NumberFormatException e) {
             log.warn("Id [{}] is not a valid id", id);
         }
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, propagation = MANDATORY)
+    public void deleteMedia(Product product) {
+        Where productWhere = Where.builder().attribute(ProductMedia_.PRODUCT).value(product).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(productWhere);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        ProductMedia productMedia = getSingleResult(query, attributes, getDomainClass());
+
+        delete(productMedia);
     }
 
     @Override

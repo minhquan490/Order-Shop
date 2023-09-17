@@ -20,7 +20,7 @@ public class EmailTrashClearing extends AbstractJob {
     private LocalDateTime previousTimeExecution;
     private EmailRepository emailRepository;
     private EmailTrashRepository emailTrashRepository;
-    
+
     private EmailTrashClearing(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
     }

@@ -6,16 +6,16 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.WardRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -58,7 +58,7 @@ public class WardRepositoryImpl extends AbstractRepository<Integer, Ward> implem
 
     @Override
     public Collection<Ward> getWards(Collection<Integer> ids) {
-        Where idsWhere = Where.builder().attribute(Ward_.ID).value(ids).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Ward_.ID).value(ids).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Ward.class);
         SqlWhere sqlWhere = sqlSelect.where(idsWhere);
@@ -71,7 +71,7 @@ public class WardRepositoryImpl extends AbstractRepository<Integer, Ward> implem
     public Collection<Ward> getWardsByDistrict(District district) {
         Select idSelect = Select.builder().column(Ward_.ID).build();
         Select nameSelect = Select.builder().column(Ward_.NAME).build();
-        Where districtWhere = Where.builder().attribute(Ward_.DISTRICT).value(district).operator(Operator.EQ).build();
+        Where districtWhere = Where.builder().attribute(Ward_.DISTRICT).value(district).operation(Operation.EQ).build();
         OrderBy nameOrderBy = OrderBy.builder().column(Ward_.NAME).type(OrderBy.Type.ASC).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Ward.class);

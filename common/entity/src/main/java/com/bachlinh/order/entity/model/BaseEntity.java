@@ -11,7 +11,7 @@ public sealed interface BaseEntity<T> extends Serializable, Comparable<BaseEntit
 
     void setId(Object id);
 
-    void setNew(boolean isNew);
+    void setNew(Boolean isNew);
 
     Object getCreatedBy();
 

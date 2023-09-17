@@ -5,15 +5,15 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.CrawlResult;
 import com.bachlinh.order.entity.model.CrawlResult_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.CrawlResultRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -52,7 +52,7 @@ public class CrawlResultRepositoryImpl extends AbstractRepository<Integer, Crawl
     @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteCrawlResults(LocalDateTime localDateTime) {
         Select idSelect = Select.builder().column(CrawlResult_.ID).build();
-        Where timeFinishWhere = Where.builder().attribute(CrawlResult_.TIME_FINISH).value(localDateTime).operator(Operator.LE).build();
+        Where timeFinishWhere = Where.builder().attribute(CrawlResult_.TIME_FINISH).value(localDateTime).operation(Operation.LE).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(CrawlResult.class);
         sqlSelect.select(idSelect);
@@ -67,7 +67,7 @@ public class CrawlResultRepositoryImpl extends AbstractRepository<Integer, Crawl
     public Collection<CrawlResult> getCrawlResultToNow() {
         Timestamp night = Timestamp.valueOf(LocalDateTime.of(LocalDate.now(), MID_NIGHT));
         Timestamp now = Timestamp.from(Instant.now());
-        Where betweenWhere = Where.builder().attribute(CrawlResult_.TIME_FINISH).operator(Operator.BETWEEN).value(new Object[]{night, now}).build();
+        Where betweenWhere = Where.builder().attribute(CrawlResult_.TIME_FINISH).operation(Operation.BETWEEN).value(new Object[]{night, now}).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(CrawlResult.class);
         SqlWhere sqlWhere = sqlSelect.where(betweenWhere);
