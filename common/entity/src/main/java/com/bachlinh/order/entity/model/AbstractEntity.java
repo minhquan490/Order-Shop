@@ -17,6 +17,7 @@ import org.springframework.lang.NonNull;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Abstract entity, super class of all entity object available in system.
@@ -46,7 +47,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     private transient List<FieldUpdated> updatedFields;
 
     @Transient
-    private transient boolean isNew = false;
+    private transient Boolean isNew;
 
     /**
      * Clone the object, because super interface {@link BaseEntity} extends {@link Cloneable} and constructor of all entities
@@ -75,21 +76,33 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @ActiveReflection
     public void setCreatedBy(@NonNull String createdBy) {
+        if (this.createdBy != null && !Objects.equals(this.createdBy, createdBy)) {
+            trackUpdatedField("CREATED_BY", this.createdBy, createdBy);
+        }
         this.createdBy = createdBy;
     }
 
     @ActiveReflection
     public void setModifiedBy(@NonNull String modifiedBy) {
+        if (this.modifiedBy != null && !Objects.equals(this.modifiedBy, modifiedBy)) {
+            trackUpdatedField("MODIFIED_BY", this.modifiedBy, modifiedBy);
+        }
         this.modifiedBy = modifiedBy;
     }
 
     @ActiveReflection
     public void setCreatedDate(@NonNull Timestamp createdDate) {
+        if (this.createdDate != null && !Objects.equals(this.createdDate, createdDate)) {
+            trackUpdatedField("CREATED_DATE", this.createdDate, createdDate);
+        }
         this.createdDate = createdDate;
     }
 
     @ActiveReflection
     public void setModifiedDate(@NonNull Timestamp modifiedDate) {
+        if (this.modifiedDate != null && !Objects.equals(this.modifiedDate, modifiedDate)) {
+            trackUpdatedField("MODIFIED_DATE", this.modifiedDate, modifiedDate);
+        }
         this.modifiedDate = modifiedDate;
     }
 
@@ -106,8 +119,13 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Override
     @ActiveReflection
-    public void setNew(boolean isNew) {
+    public void setNew(Boolean isNew) {
         this.isNew = isNew;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew == null ? getId() == null : this.isNew;
     }
 
     protected void trackUpdatedField(String fieldName, Object oldValue, Object newValue) {

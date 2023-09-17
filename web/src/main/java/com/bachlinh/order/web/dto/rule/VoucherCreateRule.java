@@ -29,7 +29,7 @@ public class VoucherCreateRule extends AbstractRule<VoucherCreateForm> {
 
     private VoucherRepository voucherRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private VoucherCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

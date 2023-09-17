@@ -1,7 +1,8 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
+import com.bachlinh.order.entity.repository.query.OrderBy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;

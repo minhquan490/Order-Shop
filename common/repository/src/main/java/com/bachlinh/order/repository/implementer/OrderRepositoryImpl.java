@@ -14,17 +14,17 @@ import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.OrderRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,7 @@ public class OrderRepositoryImpl extends AbstractRepository<String, Order> imple
         Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.INNER).build();
         Join orderDetailsJoin = Join.builder().attribute(Order_.ORDER_DETAILS).type(JoinType.INNER).build();
         Join productJoin = Join.builder().attribute(OrderDetail_.PRODUCT).type(JoinType.INNER).build();
-        Where idWhere = Where.builder().attribute(Order_.ID).value(orderId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Order_.ID).value(orderId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Order.class);
         sqlSelect.select(idSelect)
@@ -117,8 +118,8 @@ public class OrderRepositoryImpl extends AbstractRepository<String, Order> imple
         LocalDate now = LocalDate.now();
         Timestamp start = Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(0, 0, 0)));
         Timestamp end = Timestamp.valueOf(LocalDateTime.of(now, LocalTime.of(23, 59, 59)));
-        Where timeOrderWhere = Where.builder().attribute(Order_.TIME_ORDER).value(new Object[]{start, end}).operator(Operator.BETWEEN).build();
-        Where orderStatusWhere = Where.builder().attribute(OrderStatus_.STATUS).value(OrderStatusValue.UN_CONFIRMED.name()).operator(Operator.EQ).build();
+        Where timeOrderWhere = Where.builder().attribute(Order_.TIME_ORDER).value(new Object[]{start, end}).operation(Operation.BETWEEN).build();
+        Where orderStatusWhere = Where.builder().attribute(OrderStatus_.STATUS).value(OrderStatusValue.UN_CONFIRMED.name()).operation(Operation.EQ).build();
         Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.INNER).build();
         Join orderCustomerJoin = Join.builder().attribute(Order_.CUSTOMER).type(JoinType.INNER).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
@@ -141,6 +142,54 @@ public class OrderRepositoryImpl extends AbstractRepository<String, Order> imple
         SqlSelect sqlSelect = sqlBuilder.from(Order.class);
         String sql = sqlSelect.getNativeQuery();
         return this.getResultList(sql, Collections.emptyMap(), Order.class);
+    }
+
+    @Override
+    public Collection<Order> getOrdersOfCustomerForDelete(Customer owner) {
+        Where ownerWhere = Where.builder().attribute(Order_.CUSTOMER).value(owner).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Order.class);
+        SqlWhere sqlWhere = sqlSelect.where(ownerWhere);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+
+        return getResultList(query, attributes, getDomainClass());
+    }
+
+    @Override
+    public Collection<Order> getOrdersOfCustomer(String customerId, long page, long pageSize) {
+        Select orderTimeSelect = Select.builder().column(Order_.TIME_ORDER).build();
+        Select statusSelect = Select.builder().column(OrderStatus_.STATUS).build();
+
+        Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.INNER).build();
+
+        Where customerWhere = Where.builder().attribute(Order_.CUSTOMER).value(customerId).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Order.class);
+        sqlSelect.select(orderTimeSelect).select(statusSelect, OrderStatus.class);
+        SqlJoin sqlJoin = sqlSelect.join(orderStatusJoin);
+        SqlWhere sqlWhere = sqlJoin.where(customerWhere);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getResultList(query, attributes, getDomainClass());
+    }
+
+    @Override
+    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
+    public void deleteOrders(Collection<Order> orders) {
+        deleteAll(orders);
+    }
+
+    @Override
+    public Long countOrdersOfCustomer(String customerId) {
+        Where customerWhere = Where.builder().attribute(Order_.CUSTOMER).value(customerId).operation(Operation.EQ).build();
+        return count(customerWhere);
     }
 
     @Override

@@ -5,19 +5,21 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
+import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderHistory;
 import com.bachlinh.order.entity.model.OrderHistory_;
 import com.bachlinh.order.entity.model.Order_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.OrderHistoryRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -62,6 +64,26 @@ public class OrderHistoryRepositoryImpl extends AbstractRepository<Integer, Orde
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return this.getResultList(sql, attributes, OrderHistory.class);
+    }
+
+    @Override
+    public OrderHistory getHistoryOfOrder(Order order) {
+        Where orderWhere = Where.builder().attribute(OrderHistory_.ORDER).value(order).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(orderWhere);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getSingleResult(query, attributes, getDomainClass());
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, propagation = MANDATORY)
+    public void deleteOrderHistory(OrderHistory orderHistory) {
+        delete(orderHistory);
     }
 
     @Override

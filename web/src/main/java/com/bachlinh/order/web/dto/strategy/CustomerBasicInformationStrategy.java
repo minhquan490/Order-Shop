@@ -11,7 +11,6 @@ import com.bachlinh.order.web.dto.resp.CustomerBasicInformationResp;
 import java.text.MessageFormat;
 
 @ActiveReflection
-
 public class CustomerBasicInformationStrategy extends AbstractDtoStrategy<CustomerBasicInformationResp, Customer> {
 
     private String servingFileUrl;

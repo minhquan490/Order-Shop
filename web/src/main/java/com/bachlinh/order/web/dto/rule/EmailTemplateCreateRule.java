@@ -24,7 +24,7 @@ public class EmailTemplateCreateRule extends AbstractRule<EmailTemplateCreateFor
     private static final String SPECIFY_MESSAGE_ID = "MSG-000014";
 
     private MessageSettingRepository messageSettingRepository;
-    
+
     private EmailTemplateCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

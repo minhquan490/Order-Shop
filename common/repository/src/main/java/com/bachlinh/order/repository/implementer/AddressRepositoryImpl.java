@@ -5,16 +5,17 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Address_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.AddressRepository;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -73,7 +74,7 @@ public class AddressRepositoryImpl extends AbstractRepository<String, Address> i
         Select valueSelect = Select.builder().column(Address_.VALUE).build();
         Select citySelect = Select.builder().column(Address_.CITY).build();
         Select countrySelect = Select.builder().column(Address_.COUNTRY).build();
-        Where idWhere = Where.builder().attribute(Address_.ID).value(id).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Address_.ID).value(id).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Address.class);
         sqlSelect.select(idSelect)
@@ -84,6 +85,26 @@ public class AddressRepositoryImpl extends AbstractRepository<String, Address> i
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return getSingleResult(query, attributes, getDomainClass());
+    }
+
+    @Override
+    public Collection<Address> getAddressOfCustomer(Customer owner) {
+        Where ownerWhere = Where.builder().attribute(Address_.CUSTOMER).value(owner).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(getDomainClass());
+        SqlWhere sqlWhere = sqlSelect.where(ownerWhere);
+
+        String sql = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getResultList(sql, attributes, getDomainClass());
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, propagation = MANDATORY)
+    public void deleteAddresses(Collection<Address> addresses) {
+        deleteAll(addresses);
     }
 
     @Override

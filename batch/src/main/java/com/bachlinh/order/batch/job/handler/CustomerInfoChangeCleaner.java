@@ -15,7 +15,7 @@ public class CustomerInfoChangeCleaner extends AbstractJob {
     private static final int REMOVAL_POLICY = 1;
     private LocalDateTime previousTimeExecution;
     private CustomerInfoChangeHistoryRepository repository;
-    
+
     private CustomerInfoChangeCleaner(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
         super(name, activeProfile, dependenciesResolver);
     }

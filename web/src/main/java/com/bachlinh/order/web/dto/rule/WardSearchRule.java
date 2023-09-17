@@ -22,7 +22,7 @@ public class WardSearchRule extends AbstractRule<WardSearchForm> {
     private static final String EMPTY_QUERY_MESSAGE_ID = "MSG-000026";
 
     private MessageSettingRepository messageSettingRepository;
-    
+
     private WardSearchRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

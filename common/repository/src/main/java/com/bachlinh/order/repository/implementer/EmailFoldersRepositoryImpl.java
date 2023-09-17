@@ -6,15 +6,15 @@ import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -50,13 +50,13 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<String, Email
 
     @Override
     public EmailFolders getEmailFolderByName(String name, Customer owner) {
-        Where folderNameWhere = Where.builder().attribute(EmailFolders_.NAME).value(name).operator(Operator.EQ).build();
+        Where folderNameWhere = Where.builder().attribute(EmailFolders_.NAME).value(name).operation(Operation.EQ).build();
         return getEmailFolders(owner, folderNameWhere);
     }
 
     @Override
     public EmailFolders getEmailFolderById(String id, Customer owner) {
-        Where folderIdWhere = Where.builder().attribute(EmailFolders_.ID).value(id).operator(Operator.EQ).build();
+        Where folderIdWhere = Where.builder().attribute(EmailFolders_.ID).value(id).operation(Operation.EQ).build();
         return getEmailFolders(owner, folderIdWhere);
     }
 
@@ -80,7 +80,7 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<String, Email
 
     @Override
     public Collection<EmailFolders> getEmailFoldersOfCustomer(Customer owner) {
-        Where ownerWhere = Where.builder().attribute(EmailFolders_.OWNER).value(owner).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailFolders_.OWNER).value(owner).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailFolders.class);
         SqlWhere sqlWhere = sqlSelect.where(ownerWhere);
@@ -101,7 +101,7 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<String, Email
         Select nameSelect = Select.builder().column(EmailFolders_.NAME).build();
         Select timeCreatedSelect = Select.builder().column(EmailFolders_.TIME_CREATED).build();
         Select emailClearPolicySelect = Select.builder().column(EmailFolders_.EMAIL_CLEAR_POLICY).build();
-        Where ownerWhere = Where.builder().attribute(EmailFolders_.OWNER).value(owner).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailFolders_.OWNER).value(owner).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailFolders.class);
         sqlSelect.select(idSelect).select(nameSelect).select(timeCreatedSelect).select(emailClearPolicySelect);

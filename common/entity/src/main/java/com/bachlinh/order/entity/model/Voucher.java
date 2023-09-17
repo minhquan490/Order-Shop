@@ -43,7 +43,6 @@ public class Voucher extends AbstractEntity<String> {
 
     @Column(name = "NAME", nullable = false, unique = true)
     @FullTextField
-    @ActiveReflection
     private String name;
 
     @Column(name = "DISCOUNT_PERCENT", nullable = false)

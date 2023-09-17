@@ -10,17 +10,17 @@ import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailTrash;
 import com.bachlinh.order.entity.model.EmailTrash_;
 import com.bachlinh.order.entity.model.Email_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.EmailTrashRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -64,7 +64,7 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<Integer, EmailT
         Select emailTitleSelect = Select.builder().column(Email_.TITLE).build();
         Join emailsJoin = Join.builder().attribute(EmailTrash_.EMAILS).type(JoinType.LEFT).build();
         Join ownerJoin = Join.builder().attribute(EmailTrash_.CUSTOMER).type(JoinType.INNER).build();
-        Where ownerWhere = Where.builder().attribute(Customer_.ID).value(customer.getId()).operator(Operator.EQ).build();
+        Where ownerWhere = Where.builder().attribute(Customer_.ID).value(customer.getId()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTrash.class);
         sqlSelect.select(idSelect)
@@ -85,10 +85,19 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<Integer, EmailT
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
+    public void deleteTrash(EmailTrash trash) {
+        if (trash == null) {
+            return;
+        }
+        delete(trash);
+    }
+
+    @Override
     public Collection<EmailTrash> getTrashNeedClearing() {
         Select idSelect = Select.builder().column(EmailTrash_.ID).build();
         Timestamp removeTime = Timestamp.valueOf(LocalDateTime.now().plusMonths(-3));
-        Where modifiedDateWhere = Where.builder().attribute(AbstractEntity_.MODIFIED_BY).value(removeTime).operator(Operator.GE).build();
+        Where modifiedDateWhere = Where.builder().attribute(AbstractEntity_.MODIFIED_BY).value(removeTime).operation(Operation.GE).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTrash.class);
         sqlSelect.select(idSelect);

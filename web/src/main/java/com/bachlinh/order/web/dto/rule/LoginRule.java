@@ -25,7 +25,7 @@ public class LoginRule extends AbstractRule<LoginForm> {
 
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private LoginRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

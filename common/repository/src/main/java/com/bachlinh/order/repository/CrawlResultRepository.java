@@ -1,6 +1,7 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.CrawlResult;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

@@ -1,9 +1,10 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.Voucher;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.Where;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
@@ -36,4 +37,8 @@ public interface VoucherRepository extends NativeQueryRepository {
     Collection<Voucher> getVouchers(Collection<Select> selects, Collection<Join> joins, Collection<Where> wheres);
 
     Collection<Voucher> getVouchersByIds(Collection<String> ids);
+
+    Collection<Voucher> getVouchersAssignToCustomer(String customer, long page, long pageSize);
+
+    Long countVoucherAssignToCustomer(String customerId);
 }

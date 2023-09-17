@@ -8,17 +8,17 @@ import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -63,8 +63,8 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
     @Override
     public boolean isEmailTemplateFolderNameExisted(String emailTemplateFolderName) {
         Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
-        Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(emailTemplateFolderName).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).operator(Operator.EQ).build();
+        Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(emailTemplateFolderName).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect);
@@ -88,8 +88,8 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
         Select emailTemplateNameSelect = Select.builder().column(EmailTemplate_.NAME).build();
         Select emailTemplateTitleSelect = Select.builder().column(EmailTemplate_.TITLE).build();
         Join emailTemplatesJoin = Join.builder().attribute(EmailTemplateFolder_.EMAIL_TEMPLATES).type(JoinType.LEFT).build();
-        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(owner).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(owner).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect)
@@ -108,8 +108,8 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
         Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
         Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
         Select clearTemplatePolicySelect = Select.builder().column(EmailTemplateFolder_.CLEAR_TEMPLATE_POLICY).build();
-        Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(name).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(owner).operator(Operator.EQ).build();
+        Where emailTemplateFolderNameWhere = Where.builder().attribute(EmailTemplateFolder_.NAME).value(name).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(owner).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect).select(nameSelect).select(clearTemplatePolicySelect);
@@ -122,7 +122,7 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
         Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
         Select clearTemplatePolicySelect = Select.builder().column(EmailTemplateFolder_.CLEAR_TEMPLATE_POLICY).build();
         Join ownerJoin = Join.builder().attribute(EmailTemplateFolder_.OWNER).type(JoinType.INNER).build();
-        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect).select(nameSelect).select(clearTemplatePolicySelect);
@@ -135,8 +135,8 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
     public EmailTemplateFolder getEmailTemplateFolderForUpdate(String id) {
         Select idSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
         Select nameSelect = Select.builder().column(EmailTemplateFolder_.NAME).build();
-        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(EmailTemplateFolder_.ID).value(id).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect).select(nameSelect);
@@ -152,7 +152,7 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
         Select emailTemplateIdSelect = Select.builder().column(EmailTemplate_.ID).build();
         Join ownerJoin = Join.builder().attribute(EmailTemplateFolder_.OWNER).type(JoinType.INNER).build();
         Join emailTemplatesJoin = Join.builder().attribute(EmailTemplateFolder_.EMAIL_TEMPLATES).type(JoinType.LEFT).build();
-        Where ownerIdWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(customerId).operator(Operator.EQ).build();
+        Where ownerIdWhere = Where.builder().attribute(EmailTemplateFolder_.OWNER).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplateFolder.class);
         sqlSelect.select(idSelect)

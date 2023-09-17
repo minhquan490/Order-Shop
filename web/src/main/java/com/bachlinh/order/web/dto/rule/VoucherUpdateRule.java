@@ -32,7 +32,7 @@ public class VoucherUpdateRule extends AbstractRule<VoucherUpdateForm> {
 
     private VoucherRepository voucherRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private VoucherUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

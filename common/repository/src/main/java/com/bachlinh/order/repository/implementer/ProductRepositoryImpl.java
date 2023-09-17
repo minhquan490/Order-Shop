@@ -9,18 +9,18 @@ import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.entity.model.ProductMedia_;
 import com.bachlinh.order.entity.model.Product_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -81,7 +81,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
     @Override
     public boolean productNameExist(Product product) {
         Select idSelect = Select.builder().column(Product_.ID).build();
-        Where nameWhere = Where.builder().attribute(Product_.NAME).value(product.getName()).operator(Operator.EQ).build();
+        Where nameWhere = Where.builder().attribute(Product_.NAME).value(product.getName()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Product.class).select(idSelect);
         SqlWhere sqlWhere = sqlSelect.where(nameWhere);
@@ -104,7 +104,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
     @Override
     public Product getProductForFileUpload(String productId) {
         Select idSelect = Select.builder().column(Product_.ID).build();
-        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Product.class);
         sqlSelect.select(idSelect);
@@ -113,7 +113,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
 
     @Override
     public Product getProductForUpdate(String productId) {
-        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Product.class);
         return getProduct(sqlSelect.where(idWhere));
@@ -122,7 +122,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
     @Override
     public Product getProductForDelete(String productId) {
         Select idSelect = Select.builder().column(Product_.ID).build();
-        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Product.class);
         sqlSelect.select(idSelect);
@@ -154,7 +154,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
         Select categoryNameSelect = Select.builder().column(Category_.NAME).build();
         Join productMediasJoin = Join.builder().attribute(Product_.MEDIAS).type(JoinType.INNER).build();
         Join categoriesJoin = Join.builder().attribute(Product_.CATEGORIES).type(JoinType.LEFT).build();
-        Where productIdWhere = Where.builder().attribute(Product_.ID).value(productIds).operator(Operator.IN).build();
+        Where productIdWhere = Where.builder().attribute(Product_.ID).value(productIds).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Product.class);
         sqlSelect.select(idSelect)
@@ -178,7 +178,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
     @Override
     public Collection<Product> getProductsForSavingOrder(Collection<String> productIds) {
         Select idSelect = Select.builder().column(Product_.ID).build();
-        Where idsWhere = Where.builder().attribute(Product_.ID).value(productIds).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Product_.ID).value(productIds).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Product.class);
         sqlSelect.select(idSelect);

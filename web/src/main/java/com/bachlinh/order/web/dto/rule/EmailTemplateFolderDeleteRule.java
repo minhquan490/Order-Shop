@@ -26,7 +26,7 @@ public class EmailTemplateFolderDeleteRule extends AbstractRule<EmailTemplateFol
 
     private EmailTemplateFolderRepository repository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private EmailTemplateFolderDeleteRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

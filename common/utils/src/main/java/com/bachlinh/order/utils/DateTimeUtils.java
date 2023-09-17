@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,5 +39,9 @@ public final class DateTimeUtils {
 
     public static String convertOutputDate(Timestamp target) {
         return convertOutputDate(target.toLocalDateTime().toLocalDate());
+    }
+
+    public static Timestamp calculateTimeRefreshTokenExpired(Instant timeCreated) {
+        return Timestamp.from(Instant.ofEpochSecond(timeCreated.getEpochSecond() + 86400 * 365));
     }
 }

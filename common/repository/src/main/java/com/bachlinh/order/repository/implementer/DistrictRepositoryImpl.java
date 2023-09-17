@@ -5,16 +5,16 @@ import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.District_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.DistrictRepository;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -39,7 +39,7 @@ public class DistrictRepositoryImpl extends AbstractRepository<Integer, District
 
     @Override
     public District getDistrictById(String districtId) {
-        Where districtIdWhere = Where.builder().attribute(District_.ID).value(districtId).operator(Operator.EQ).build();
+        Where districtIdWhere = Where.builder().attribute(District_.ID).value(districtId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(District.class);
         SqlWhere sqlWhere = sqlSelect.where(districtIdWhere);
@@ -71,7 +71,7 @@ public class DistrictRepositoryImpl extends AbstractRepository<Integer, District
     public Collection<District> getDistricts(Collection<String> ids) {
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(District.class);
-        Where idsWhere = Where.builder().attribute(District_.ID).value(ids).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(District_.ID).value(ids).operation(Operation.IN).build();
         SqlWhere sqlWhere = sqlSelect.where(idsWhere);
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
@@ -80,7 +80,7 @@ public class DistrictRepositoryImpl extends AbstractRepository<Integer, District
 
     @Override
     public Collection<District> getDistrictsByProvince(String provinceId) {
-        Where provinceWhere = Where.builder().attribute(District_.PROVINCE).value(provinceId).operator(Operator.EQ).build();
+        Where provinceWhere = Where.builder().attribute(District_.PROVINCE).value(provinceId).operation(Operation.EQ).build();
         Select idSelect = Select.builder().column(District_.ID).build();
         Select nameSelect = Select.builder().column(District_.NAME).build();
         OrderBy nameOrderBy = OrderBy.builder().column(District_.NAME).type(OrderBy.Type.ASC).build();

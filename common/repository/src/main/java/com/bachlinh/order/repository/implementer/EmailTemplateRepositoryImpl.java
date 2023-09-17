@@ -8,17 +8,17 @@ import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -63,8 +63,8 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
         Select totalArgumentSelect = Select.builder().column(EmailTemplate_.TOTAL_ARGUMENT).build();
         Select paramsSelect = Select.builder().column(EmailTemplate_.PARAMS).build();
         Join ownerJoin = Join.builder().attribute(EmailTemplate_.OWNER).type(JoinType.INNER).build();
-        var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operator(Operator.EQ).build();
-        var ownerWhere = Where.builder().attribute(Customer_.ID).value(owner.getId()).operator(Operator.EQ).build();
+        var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operation(Operation.EQ).build();
+        var ownerWhere = Where.builder().attribute(Customer_.ID).value(owner.getId()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplate.class);
         sqlSelect.select(idSelect)
@@ -88,9 +88,9 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
         Select expiryPolicySelect = Select.builder().column(EmailTemplate_.EXPIRY_POLICY).build();
         Select totalArgumentSelect = Select.builder().column(EmailTemplate_.TOTAL_ARGUMENT).build();
         Select paramsSelect = Select.builder().column(EmailTemplate_.PARAMS).build();
-        var idWhere = Where.builder().attribute(EmailTemplate_.NAME).value(name).operator(Operator.EQ).build();
-        var ownerNull = Where.builder().attribute(EmailTemplate_.OWNER).operator(Operator.NULL).build();
-        var folderNull = Where.builder().attribute(EmailTemplate_.FOLDER).operator(Operator.NULL).build();
+        var idWhere = Where.builder().attribute(EmailTemplate_.NAME).value(name).operation(Operation.EQ).build();
+        var ownerNull = Where.builder().attribute(EmailTemplate_.OWNER).operation(Operation.NULL).build();
+        var folderNull = Where.builder().attribute(EmailTemplate_.FOLDER).operation(Operation.NULL).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplate.class);
         sqlSelect.select(idSelect)
@@ -115,8 +115,8 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
         Select paramsSelect = Select.builder().column(EmailTemplate_.PARAMS).build();
         Select folderIdSelect = Select.builder().column(EmailTemplateFolder_.ID).build();
         Join folderJoin = Join.builder().attribute(EmailTemplate_.FOLDER).type(JoinType.INNER).build();
-        Where idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operator(Operator.EQ).build();
-        Where ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner.getId()).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(EmailTemplate_.ID).value(id).operation(Operation.EQ).build();
+        Where ownerWhere = Where.builder().attribute(EmailTemplate_.OWNER).value(owner.getId()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplate.class);
         sqlSelect.select(idSelect)
@@ -142,7 +142,7 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
         Select totalArgumentSelect = Select.builder().column(EmailTemplate_.TOTAL_ARGUMENT).build();
         Select paramsSelect = Select.builder().column(EmailTemplate_.PARAMS).build();
         Join ownerJoin = Join.builder().attribute(EmailTemplate_.OWNER).type(JoinType.INNER).build();
-        var ownerWhere = Where.builder().attribute(Customer_.ID).operator(Operator.EQ).value(owner.getId()).build();
+        var ownerWhere = Where.builder().attribute(Customer_.ID).operation(Operation.EQ).value(owner.getId()).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplate.class);
         sqlSelect.select(idSelect)
@@ -169,8 +169,8 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
         Select totalArgumentSelect = Select.builder().column(EmailTemplate_.TOTAL_ARGUMENT).build();
         Select paramsSelect = Select.builder().column(EmailTemplate_.PARAMS).build();
         Join ownerJoin = Join.builder().attribute(EmailTemplate_.OWNER).type(JoinType.INNER).build();
-        var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(ids.toArray()).operator(Operator.IN).build();
-        var ownerWhere = Where.builder().attribute(Customer_.ID).value(owner.getId()).operator(Operator.EQ).build();
+        var idWhere = Where.builder().attribute(EmailTemplate_.ID).value(ids.toArray()).operation(Operation.IN).build();
+        var ownerWhere = Where.builder().attribute(Customer_.ID).value(owner.getId()).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(EmailTemplate.class);
         sqlSelect.select(idSelect)

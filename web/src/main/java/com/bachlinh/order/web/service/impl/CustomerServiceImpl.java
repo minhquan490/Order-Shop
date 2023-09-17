@@ -14,14 +14,18 @@ import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.CustomerAccessHistory;
+import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.LoginHistory;
+import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.entity.model.Ward;
+import com.bachlinh.order.entity.repository.query.OrderBy;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.InvalidTokenException;
@@ -32,20 +36,22 @@ import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.repository.AddressRepository;
+import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
 import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.LoginHistoryRepository;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
-import com.bachlinh.order.repository.query.OrderBy;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.utils.DateTimeUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.ResourceUtils;
+import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateInfoForm;
@@ -54,9 +60,11 @@ import com.bachlinh.order.web.dto.form.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.AnalyzeCustomerNewInMonthResp;
 import com.bachlinh.order.web.dto.resp.ConfirmEmailResp;
+import com.bachlinh.order.web.dto.resp.CustomerAccessHistoriesResp;
 import com.bachlinh.order.web.dto.resp.CustomerBasicInformationResp;
 import com.bachlinh.order.web.dto.resp.CustomerInfoResp;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
+import com.bachlinh.order.web.dto.resp.CustomerUpdateDataHistoriesResp;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.dto.resp.MyInfoResp;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
@@ -69,6 +77,8 @@ import com.bachlinh.order.web.service.business.LoginService;
 import com.bachlinh.order.web.service.business.LogoutService;
 import com.bachlinh.order.web.service.business.RegisterService;
 import com.bachlinh.order.web.service.business.RevokeAccessTokenService;
+import com.bachlinh.order.web.service.common.CustomerAccessHistoriesService;
+import com.bachlinh.order.web.service.common.CustomerInfoChangeService;
 import com.bachlinh.order.web.service.common.CustomerService;
 import com.bachlinh.order.web.service.common.EmailFolderService;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +92,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
@@ -113,7 +124,9 @@ public class CustomerServiceImpl implements CustomerService,
                                             CustomerAnalyzeService,
                                             RevokeAccessTokenService,
                                             CustomerSearchingService,
-                                            ConfirmEmailService { // @formatter:on
+                                            ConfirmEmailService,
+                                            CustomerAccessHistoriesService,
+                                            CustomerInfoChangeService { // @formatter:on
 
     private final PasswordEncoder passwordEncoder;
     private final EntityFactory entityFactory;
@@ -129,6 +142,8 @@ public class CustomerServiceImpl implements CustomerService,
     private final RefreshTokenRepository refreshTokenRepository;
     private final ProvinceRepository provinceRepository;
     private final AddressRepository addressRepository;
+    private final CustomerAccessHistoryRepository customerAccessHistoryRepository;
+    private final MessageSettingRepository messageSettingRepository;
     private final DtoMapper dtoMapper;
     private final ThreadPoolManager threadPoolManager;
     private String urlResetPassword;
@@ -287,6 +302,9 @@ public class CustomerServiceImpl implements CustomerService,
             refreshToken = tokenManager.getRefreshTokenGenerator().generateToken(customer.getId(), customer.getUsername());
         } else {
             String tokenValue = tokenManager.getRefreshTokenGenerator().generateToken(customer.getId(), customer.getUsername()).getRefreshTokenValue();
+            Instant timeCreated = Instant.now();
+            refreshToken.setTimeCreated(Timestamp.from(timeCreated));
+            refreshToken.setTimeExpired(DateTimeUtils.calculateTimeRefreshTokenExpired(timeCreated));
             refreshToken.setRefreshTokenValue(tokenValue);
         }
         refreshTokenRepository.saveRefreshToken(refreshToken);
@@ -311,6 +329,8 @@ public class CustomerServiceImpl implements CustomerService,
     public boolean logout(Customer customer) {
         RefreshToken refreshToken = refreshTokenRepository.getRefreshTokenByCustomer(customer);
         refreshToken.setRefreshTokenValue(null);
+        refreshToken.setTimeExpired(null);
+        refreshToken.setTimeExpired(null);
         return refreshTokenRepository.saveRefreshToken(refreshToken) != null;
     }
 
@@ -470,6 +490,71 @@ public class CustomerServiceImpl implements CustomerService,
             }
         } catch (FileNotFoundException e) {
             throw new CriticalException("Google credentials not found", e);
+        }
+    }
+
+    @Override
+    public CustomerAccessHistoriesResp getAccessHistories(NativeRequest<?> request) {
+        long page = getPage(request);
+        long pageSize = getPageSize(request);
+        String customerId = getCustomerId(request, request.getUrl());
+        Customer customer = entityFactory.getEntity(Customer.class);
+        customer.setId(customerId);
+        Collection<CustomerAccessHistory> customerAccessHistories = customerAccessHistoryRepository.getHistoriesOfCustomer(customer, page, pageSize);
+        Collection<CustomerAccessHistoriesResp.CustomerAccessHistoriesInfo> results = dtoMapper.map(customerAccessHistories, CustomerAccessHistoriesResp.CustomerAccessHistoriesInfo.class);
+        CustomerAccessHistoriesResp resp = new CustomerAccessHistoriesResp();
+        resp.setAccessHistories(results);
+        Long totalCustomerAccessHistories = customerAccessHistoryRepository.countAccessHistoriesOfCustomer(customerId);
+        resp.setTotalHistories(totalCustomerAccessHistories);
+        resp.setPage(page);
+        resp.setPageSize(pageSize);
+        return resp;
+    }
+
+    @Override
+    public CustomerUpdateDataHistoriesResp getCustomerInfoChangeHistories(NativeRequest<?> request) {
+        long page = getPage(request);
+        long pageSize = getPageSize(request);
+        String customerId = getCustomerId(request, request.getUrl());
+        Collection<CustomerInfoChangeHistory> histories = customerInfoChangeHistoryRepository.getHistoriesChangeOfCustomer(customerId, page, pageSize);
+        Collection<CustomerUpdateDataHistoriesResp.CustomerUpdateDataHistoryInfo> historyInfos = dtoMapper.map(histories, CustomerUpdateDataHistoriesResp.CustomerUpdateDataHistoryInfo.class);
+
+        CustomerUpdateDataHistoriesResp resp = new CustomerUpdateDataHistoriesResp();
+        resp.setHistoryInfos(historyInfos);
+
+        Long totalHistories = customerInfoChangeHistoryRepository.countChangeHistories(customerId);
+        resp.setTotalHistories(totalHistories);
+        resp.setPage(page);
+        resp.setPageSize(pageSize);
+
+        return resp;
+    }
+
+    private String getCustomerId(NativeRequest<?> nativeRequest, String path) {
+        String customerId = nativeRequest.getUrlQueryParam().getFirst("customerId");
+        if (!StringUtils.hasText(customerId)) {
+            MessageSetting messageSetting = messageSettingRepository.getMessageById("MSG-000008");
+            String errorContent = MessageFormat.format(messageSetting.getValue(), "Customer");
+            throw new ResourceNotFoundException(errorContent, path);
+        }
+        return customerId;
+    }
+
+    private long getPageSize(NativeRequest<?> nativeRequest) {
+        String pageSizeRequestParam = nativeRequest.getUrlQueryParam().getFirst("pageSize");
+        if (ValidateUtils.isNumber(pageSizeRequestParam)) {
+            return Long.parseLong(pageSizeRequestParam);
+        } else {
+            return 50L;
+        }
+    }
+
+    private long getPage(NativeRequest<?> nativeRequest) {
+        String pageRequestParam = nativeRequest.getUrlQueryParam().getFirst("page");
+        if (ValidateUtils.isNumber(pageRequestParam)) {
+            return Long.parseLong(pageRequestParam);
+        } else {
+            return 1L;
         }
     }
 }

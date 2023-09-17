@@ -25,7 +25,7 @@ public class MessageSettingUpdateRule extends AbstractRule<MessageSettingUpdateF
     private static final String CAN_NOT_IDENTITY_MESSAGE_ID = "MSG-000011";
 
     private MessageSettingRepository messageSettingRepository;
-    
+
     private MessageSettingUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

@@ -159,18 +159,6 @@ const getDefaultChangeHistory = (): ChangeHistory => {
     }
 }
 
-const checkCustomerIdQueryParam = (): string => {
-    const customerIdQuery = useRoute().query['customerId'];
-    if (!customerIdQuery) {
-        const navigate = useNavigation().value;
-        navigate('/404');
-    }
-    if (Array.isArray(customerIdQuery)) {
-        return (customerIdQuery as Array<string>)[0];
-    }
-    return customerIdQuery as string;
-}
-
 const getCustomerInfoRequest = (customerId: string): Request => {
     const serverUrl = useAppConfig().serverUrl;
     return {
@@ -267,7 +255,6 @@ const redirectToCustomerAccessHistoriesPage = (customerId: string): void => {
 export {
     CustomerInfoResp,
     assignData,
-    checkCustomerIdQueryParam,
     createCarouselItems,
     defaultCarouselItem,
     getAccessHistoriesTableHeader,

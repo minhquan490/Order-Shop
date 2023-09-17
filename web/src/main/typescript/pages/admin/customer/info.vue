@@ -1,43 +1,43 @@
 <script lang="ts">
 import {
-  assignData,
-  checkCustomerIdQueryParam,
-  createCarouselItems,
-  defaultCarouselItem,
-  getAccessHistoriesTableHeader,
-  getAssignedVoucherTableHeader,
-  getChangeHistoryTableHeader,
-  getCustomerInfo,
-  getDefaultAccessHistory,
-  getDefaultAssignedVoucher,
-  getDefaultChangeHistory,
-  getDefaultLoginHistory,
-  getDefaultOrderOfCustomer,
-  getLoginHistoriesTableHeader,
-  getOrderOfCustomerTableHeader,
-  navigationSources,
-  redirectToCustomerAccessHistoriesPage,
-  redirectToCustomerLoginHistoriesPage,
-  redirectToOrdersOfCustomerPage,
-  redirectToUpdatedDataHistoriesPage,
-  redirectToVouchersOfCustomerPage
+assignData,
+createCarouselItems,
+defaultCarouselItem,
+getAccessHistoriesTableHeader,
+getAssignedVoucherTableHeader,
+getChangeHistoryTableHeader,
+getCustomerInfo,
+getDefaultAccessHistory,
+getDefaultAssignedVoucher,
+getDefaultChangeHistory,
+getDefaultLoginHistory,
+getDefaultOrderOfCustomer,
+getLoginHistoriesTableHeader,
+getOrderOfCustomerTableHeader,
+navigationSources,
+redirectToCustomerAccessHistoriesPage,
+redirectToCustomerLoginHistoriesPage,
+redirectToOrdersOfCustomerPage,
+redirectToUpdatedDataHistoriesPage,
+redirectToVouchersOfCustomerPage
 } from "~/logic/pages/admin/customer/info.logic";
 import {
-  addAddress,
-  assignUpdatedData,
-  clear,
-  createDefaultCustomerInfo,
-  createDefaultCustomerUpdateInfo,
-  CustomerInfo,
-  CustomerUpdateInfo,
-  getDistricts,
-  getGenderCheckboxValues,
-  getProvinces,
-  getWards,
-  SelectedAddress,
-  updateCustomer
+CustomerInfo,
+CustomerUpdateInfo,
+SelectedAddress,
+addAddress,
+assignUpdatedData,
+clear,
+createDefaultCustomerInfo,
+createDefaultCustomerUpdateInfo,
+getDistricts,
+getGenderCheckboxValues,
+getProvinces,
+getWards,
+updateCustomer
 } from "~/logic/pages/admin/customer/update.logic";
-import {District, NavBarsSource, Province, TableHeader, Ward} from "~/types";
+import { District, NavBarsSource, Province, TableHeader, Ward } from "~/types";
+import { checkCustomerIdQueryParam } from '~/utils/RequestUtils';
 
 export default {
   setup() {
@@ -104,7 +104,7 @@ export default {
     }
   },
   async mounted() {
-    const customerInfo = await getCustomerInfo(this.customerIdQuery);
+    const customerInfo = await getCustomerInfo(this.customerIdQuery as string);
     if (customerInfo) {
       assignData(this, customerInfo);
       this.defaultCarousel = createCarouselItems(customerInfo.picture ?? '');

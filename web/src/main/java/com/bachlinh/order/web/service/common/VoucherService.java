@@ -1,8 +1,10 @@
 package com.bachlinh.order.web.service.common;
 
+import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherCreateForm;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherUpdateForm;
+import com.bachlinh.order.web.dto.resp.CustomerAssignmentVouchersResp;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 
 import java.util.Collection;
@@ -17,5 +19,7 @@ public interface VoucherService {
 
     Collection<VoucherResp> getVouchers();
 
-    Collection<VoucherResp> getVoucherSByStatus(boolean status);
+    Collection<VoucherResp> getVouchersByStatus(boolean status);
+
+    CustomerAssignmentVouchersResp getAssignVouchers(NativeRequest<?> request);
 }

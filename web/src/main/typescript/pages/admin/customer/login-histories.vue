@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import {NextPage} from '~/types';
 import {
-  checkCustomerIdQueryParam,
-  CustomerLoginHistory,
-  getCustomerLoginHistoriesData,
-  getViewDataTableHeaders,
-  LoginHistory,
-  navigationSources
+CustomerLoginHistory,
+getCustomerLoginHistoriesData,
+getViewDataTableHeaders,
+LoginHistory,
+navigationSources
 } from '~/logic/pages/admin/customer/login-histories.logic';
+import { NextPage } from '~/types';
+import { checkCustomerIdQueryParam } from '~/utils/RequestUtils';
 
 const customerIdQueryParam = ref(checkCustomerIdQueryParam() as string);
 const navigationSource = ref(navigationSources());

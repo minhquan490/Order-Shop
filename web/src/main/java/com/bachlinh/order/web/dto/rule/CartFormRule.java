@@ -29,7 +29,7 @@ public class CartFormRule extends AbstractRule<CartForm> {
 
     private ProductRepository productRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private CartFormRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

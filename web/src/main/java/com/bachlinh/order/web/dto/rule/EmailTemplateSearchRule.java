@@ -22,7 +22,7 @@ public class EmailTemplateSearchRule extends AbstractRule<EmailTemplateSearchFor
     private static final String SEARCH_KEYWORD_EMPTY_MESSAGE_ID = "MSG-000026";
 
     private MessageSettingRepository messageSettingRepository;
-    
+
     private EmailTemplateSearchRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

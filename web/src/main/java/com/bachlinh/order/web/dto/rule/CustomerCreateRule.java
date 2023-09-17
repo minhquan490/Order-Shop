@@ -33,7 +33,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
 
     private CustomerRepository customerRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private CustomerCreateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }

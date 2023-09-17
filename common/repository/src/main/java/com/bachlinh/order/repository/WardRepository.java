@@ -2,6 +2,7 @@ package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Ward;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.util.Collection;
 

@@ -9,17 +9,17 @@ import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.Province_;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -46,7 +46,7 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Integer, Province
 
     @Override
     public Province getProvinceById(String provinceId) {
-        Where idWhere = Where.builder().attribute(Province_.ID).operator(Operator.EQ).value(provinceId).build();
+        Where idWhere = Where.builder().attribute(Province_.ID).operation(Operation.EQ).value(provinceId).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Province.class);
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
@@ -63,9 +63,9 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Integer, Province
         Select wardNameSelect = Select.builder().column(Ward_.NAME).build();
         Join districtJoin = Join.builder().attribute(Province_.DISTRICTS).type(JoinType.INNER).build();
         Join wardJoin = Join.builder().attribute(District_.WARDS).type(JoinType.INNER).build();
-        Where provinceIdWhere = Where.builder().attribute(Province_.ID).value(Integer.parseInt(provinceId)).operator(Operator.EQ).build();
-        Where districtIdWhere = Where.builder().attribute(District_.ID).value(Integer.parseInt(districtId)).operator(Operator.EQ).build();
-        Where wardIdWhere = Where.builder().attribute(Ward_.ID).value(Integer.parseInt(wardId)).operator(Operator.EQ).build();
+        Where provinceIdWhere = Where.builder().attribute(Province_.ID).value(Integer.parseInt(provinceId)).operation(Operation.EQ).build();
+        Where districtIdWhere = Where.builder().attribute(District_.ID).value(Integer.parseInt(districtId)).operation(Operation.EQ).build();
+        Where wardIdWhere = Where.builder().attribute(Ward_.ID).value(Integer.parseInt(wardId)).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Province.class);
         sqlSelect.select(provinceIdSelect)
@@ -103,7 +103,7 @@ public class ProvinceRepositoryImpl extends AbstractRepository<Integer, Province
 
     @Override
     public Collection<Province> getProvincesById(Collection<String> ids) {
-        Where idsWhere = Where.builder().attribute(Province_.ID).value(ids).operator(Operator.IN).build();
+        Where idsWhere = Where.builder().attribute(Province_.ID).value(ids).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Province.class);
         SqlWhere sqlWhere = sqlSelect.where(idsWhere);

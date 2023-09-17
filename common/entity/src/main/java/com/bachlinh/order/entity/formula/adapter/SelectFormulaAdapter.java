@@ -34,6 +34,12 @@ public abstract class SelectFormulaAdapter extends AbstractFormulaProcessor impl
 
     @Override
     public final String processSelect(String sql) {
-        return doProcess(sql);
+        if (shouldApply(sql)) {
+            return process(sql);
+        } else {
+            return sql;
+        }
     }
+
+    protected abstract boolean shouldApply(String sql);
 }

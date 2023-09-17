@@ -6,16 +6,17 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.entity.model.TemporaryToken_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -43,6 +44,15 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, Te
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
+    public void deleteTemporaryToken(TemporaryToken token) {
+        if (token == null) {
+            return;
+        }
+        delete(token);
+    }
+
+    @Override
     public TemporaryToken getTemporaryToken(String tokenValue) {
         Select idSelect = Select.builder().column(TemporaryToken_.ID).build();
         Select valueSelect = Select.builder().column(TemporaryToken_.VALUE).build();
@@ -60,6 +70,22 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, Te
                 .select(customerActivated, Customer.class);
         SqlJoin sqlJoin = sqlSelect.join(customerJoin);
         return getTemporaryToken(sqlJoin.where(tokenValueWhere), tokenValueWhere, sqlSelect);
+    }
+
+    @Override
+    public TemporaryToken getTemporaryToken(Customer owner) {
+        Join customerJoin = Join.builder().attribute(TemporaryToken_.ASSIGN_CUSTOMER).type(JoinType.INNER).build();
+        Where ownerWhere = Where.builder().attribute(Customer_.ID).value(owner).operation(Operation.EQ).build();
+
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(TemporaryToken.class);
+        SqlJoin sqlJoin = sqlSelect.join(customerJoin);
+        SqlWhere sqlWhere = sqlJoin.where(ownerWhere, Customer.class);
+
+        String query = sqlWhere.getNativeQuery();
+        Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
+
+        return getSingleResult(query, attributes, getDomainClass());
     }
 
     @Override

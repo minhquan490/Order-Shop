@@ -17,21 +17,25 @@ import com.bachlinh.order.entity.model.OrderStatus_;
 import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.query.Join;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.OrderBy;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlJoin;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.query.Join;
-import com.bachlinh.order.repository.query.Operator;
-import com.bachlinh.order.repository.query.OrderBy;
-import com.bachlinh.order.repository.query.Select;
-import com.bachlinh.order.repository.query.SqlBuilder;
-import com.bachlinh.order.repository.query.SqlJoin;
-import com.bachlinh.order.repository.query.SqlSelect;
-import com.bachlinh.order.repository.query.SqlWhere;
-import com.bachlinh.order.repository.query.Where;
-import com.bachlinh.order.repository.utils.QueryUtils;
+import com.bachlinh.order.repository.UserAssignmentRepository;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -43,6 +47,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -52,7 +57,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerRepositoryImpl extends AbstractRepository<String, Customer> implements CustomerRepository {
+public class CustomerRepositoryImpl extends AbstractRepository<String, Customer> implements CustomerRepository, UserAssignmentRepository {
     private final AtomicLong customerCount = new AtomicLong(0);
 
     @DependenciesInitialize
@@ -63,7 +68,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
 
     @Override
     public Collection<Customer> getCustomerByIds(Collection<String> ids) {
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(ids.toArray()).operator(Operator.IN).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(ids.toArray()).operation(Operation.IN).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
@@ -80,23 +85,23 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         Select lastNameSelect = Select.builder().column(Customer_.LAST_NAME).build();
         Select roleSelect = Select.builder().column(Customer_.ROLE).build();
         Select mediaSelect = Select.builder().column(Customer_.CUSTOMER_MEDIA).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect).select(firstNameSelect).select(lastNameSelect).select(roleSelect).select(mediaSelect);
         SqlJoin sqlJoin = sqlSelect.join(avatarJoin);
         SqlWhere sqlWhere = sqlJoin.where(customerIdWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, false);
     }
 
     @Override
     public Customer getCustomerForRefreshTokenGeneration(String customerId) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where idWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class).select(idSelect);
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, false);
     }
 
     @Override
@@ -115,7 +120,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
         Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
         Select enabledSelect = Select.builder().column(Customer_.ENABLED).build();
-        Where idWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where idWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect)
@@ -133,12 +138,12 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
                 .select(credentialsNonExpiredSelect)
                 .select(enabledSelect);
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
     public Customer getCustomerForLogin(String username) {
-        var usernameCondition = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
+        var usernameCondition = Where.builder().attribute(Customer_.USERNAME).value(username).operation(Operation.EQ).build();
         var idSelect = Select.builder().column(Customer_.ID).build();
         var usernameSelect = Select.builder().column(Customer_.USERNAME).build();
         var passwordSelect = Select.builder().column(Customer_.PASSWORD).build();
@@ -146,30 +151,30 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect).select(usernameSelect).select(passwordSelect);
         SqlWhere sqlWhere = sqlSelect.where(usernameCondition);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
     public Customer getCustomerForResetPassword(String email) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
+        Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect);
         SqlWhere sqlWhere = sqlSelect.where(emailWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
     public Customer getCustomerForEmailSending(String customerId) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
         Select emailSelect = Select.builder().column(Customer_.EMAIL).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect).select(emailSelect);
         SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
@@ -187,7 +192,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         Select addressCitySelect = Select.builder().column(Address_.CITY).build();
         Select addressCountrySelect = Select.builder().column(Address_.COUNTRY).build();
         Join addressJoin = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.LEFT).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect)
@@ -204,7 +209,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
                 .select(addressCountrySelect, Address.class);
         SqlJoin sqlJoin = sqlSelect.join(addressJoin);
         SqlWhere sqlWhere = sqlJoin.where(customerIdWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
@@ -223,7 +228,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         Select accountNonLockedSelect = Select.builder().column(Customer_.ACCOUNT_NON_LOCKED).build();
         Select credentialsNonExpiredSelect = Select.builder().column(Customer_.CREDENTIALS_NON_EXPIRED).build();
         Select enabledSelect = Select.builder().column(Customer_.ENABLED).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect)
@@ -241,18 +246,18 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
                 .select(credentialsNonExpiredSelect)
                 .select(enabledSelect);
         SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
     public Customer getCustomerForDelete(String customerId) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect);
         SqlWhere sqlWhere = sqlSelect.where(customerIdWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, false);
     }
 
     @Override
@@ -294,7 +299,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         Join addressJoin = Join.builder().attribute(Customer_.ADDRESSES).type(JoinType.LEFT).build();
         Join mediaJoin = Join.builder().attribute(Customer_.CUSTOMER_MEDIA).type(JoinType.LEFT).build();
         Join orderStatusJoin = Join.builder().attribute(Order_.ORDER_STATUS).type(JoinType.LEFT).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         SqlBuilder sqlBuilder = getSqlBuilder();
         SqlSelect sqlSelect = sqlBuilder.from(Customer.class);
         sqlSelect.select(idSelect)
@@ -335,7 +340,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
                 .join(historyJoin)
                 .join(voucherJoin);
         SqlWhere sqlWhere = sqlJoin.where(customerIdWhere);
-        return getCustomer(sqlWhere);
+        return getCustomer(sqlWhere, true);
     }
 
     @Override
@@ -371,28 +376,28 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
     @Override
     public boolean isEmailExisted(String email) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operator(Operator.EQ).build();
+        Where emailWhere = Where.builder().attribute(Customer_.EMAIL).value(email).operation(Operation.EQ).build();
         return isColumnValueExisted(idSelect, emailWhere);
     }
 
     @Override
     public boolean isPhoneNumberExisted(String phoneNumber) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where phoneNumberWhere = Where.builder().attribute(Customer_.PHONE_NUMBER).value(phoneNumber).operator(Operator.EQ).build();
+        Where phoneNumberWhere = Where.builder().attribute(Customer_.PHONE_NUMBER).value(phoneNumber).operation(Operation.EQ).build();
         return isColumnValueExisted(idSelect, phoneNumberWhere);
     }
 
     @Override
     public boolean isUsernameExisted(String username) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where usernameWhere = Where.builder().attribute(Customer_.USERNAME).value(username).operator(Operator.EQ).build();
+        Where usernameWhere = Where.builder().attribute(Customer_.USERNAME).value(username).operation(Operation.EQ).build();
         return isColumnValueExisted(idSelect, usernameWhere);
     }
 
     @Override
     public boolean isCustomerIdExisted(String customerId) {
         Select idSelect = Select.builder().column(Customer_.ID).build();
-        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operator(Operator.EQ).build();
+        Where customerIdWhere = Where.builder().attribute(Customer_.ID).value(customerId).operation(Operation.EQ).build();
         return isColumnValueExisted(idSelect, customerIdWhere);
     }
 
@@ -452,8 +457,55 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         sqlSelect.limit(limit).offset(offset);
         orderByCollection.forEach(sqlSelect::orderBy);
         String sql = sqlSelect.getNativeQuery();
-        List<Customer> results = this.getResultList(sql, Collections.emptyMap(), Customer.class);
+        List<Customer> results = this.getResultList(sql, Collections.emptyMap(), Customer.class, true);
         return new PageImpl<>(results, Pageable.unpaged(), results.size());
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, propagation = MANDATORY)
+    public void deleteUserAssignmentOfCustomer(Customer customer) {
+        EntityTransactionManager entityTransactionManager = getEntityFactory().getTransactionManager();
+        String query = "DELETE FROM USER_ASSIGNMENT WHERE CUSTOMER_ID = :customerId";
+        EntityManager entityManager = getEntityManager();
+
+        Map<String, Object> attributes = new HashMap<>(1);
+        attributes.put("customerId", customer.getId());
+
+        if (entityTransactionManager.isActualTransactionActive()) {
+            try {
+                entityManager.getTransaction().begin();
+                doDelete(query, attributes, entityManager);
+                entityManager.getTransaction().commit();
+            } catch (Exception e) {
+                entityManager.getTransaction().rollback();
+                throw new CriticalException(e);
+            }
+        } else {
+            doDelete(query, attributes, entityManager);
+        }
+    }
+
+    @Override
+    public void deleteUserAssignment(Voucher voucher) {
+        EntityManager entityManager = getEntityManager();
+
+        TransactionCallback callback = () -> {
+            String query = "DELETE FROM USER_ASSIGNMENT WHERE VOUCHER_ID = :voucherId";
+
+            Query q = entityManager.createQuery(query);
+
+            q.setParameter("voucherId", voucher.getId());
+
+            q.executeUpdate();
+        };
+
+        doInTransaction(entityManager, callback);
+    }
+
+    private void doDelete(String query, Map<String, Object> attributes, EntityManager entityManager) {
+        Query q = entityManager.createQuery(query);
+        attributes.forEach(q::setParameter);
+        q.executeUpdate();
     }
 
     @Override
@@ -464,10 +516,10 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
     }
 
     @Nullable
-    private Customer getCustomer(SqlWhere sqlWhere) {
+    private Customer getCustomer(SqlWhere sqlWhere, boolean forceCache) {
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
-        return getSingleResult(sql, attributes, Customer.class);
+        return getSingleResult(sql, attributes, Customer.class, forceCache);
     }
 
     private boolean isColumnValueExisted(Select idSelect, Where where) {

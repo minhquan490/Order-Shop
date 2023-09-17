@@ -1,6 +1,7 @@
 package com.bachlinh.order.repository;
 
 import com.bachlinh.order.entity.model.Province;
+import com.bachlinh.order.entity.repository.NativeQueryRepository;
 
 import java.util.Collection;
 

@@ -30,7 +30,7 @@ public class CategoryUpdateRule extends AbstractRule<CategoryUpdateForm> {
     private static final String CATEGORY_NAME_KEY = "name";
     private CategoryRepository categoryRepository;
     private MessageSettingRepository messageSettingRepository;
-    
+
     private CategoryUpdateRule(Environment environment, DependenciesResolver resolver) {
         super(environment, resolver);
     }
