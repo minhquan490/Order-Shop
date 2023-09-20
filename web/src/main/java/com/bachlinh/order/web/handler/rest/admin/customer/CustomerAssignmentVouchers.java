@@ -10,17 +10,17 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CustomerAssignmentVouchersResp;
 import com.bachlinh.order.web.service.common.VoucherService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CustomerAssignmentVouchers extends AbstractController<CustomerAssignmentVouchersResp, Void> {
 
     private String url;
     private VoucherService voucherService;
+
+    private CustomerAssignmentVouchers() {
+    }
 
     @Override
     public AbstractController<CustomerAssignmentVouchersResp, Void> newInstance() {

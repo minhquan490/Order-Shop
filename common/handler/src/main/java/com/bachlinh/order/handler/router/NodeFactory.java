@@ -1,16 +1,18 @@
 package com.bachlinh.order.handler.router;
 
 import com.bachlinh.order.service.container.DependenciesResolver;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 public class NodeFactory {
     private final DependenciesResolver resolver;
+
+    public NodeFactory(DependenciesResolver resolver) {
+        this.resolver = resolver;
+    }
 
     public Node createNode(List<String> paths) {
         paths = paths.stream().map(s -> s.substring(1)).collect(Collectors.toList());

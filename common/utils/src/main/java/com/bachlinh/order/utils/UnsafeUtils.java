@@ -2,13 +2,10 @@ package com.bachlinh.order.utils;
 
 import com.bachlinh.order.annotation.Reachable;
 import com.bachlinh.order.exception.system.utils.UnsafeException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 @Reachable(onClasses = UnsafeUtils.class, fieldNames = "theUnsafe")
 public final class UnsafeUtils {
     private static final Unsafe INSTANCE;

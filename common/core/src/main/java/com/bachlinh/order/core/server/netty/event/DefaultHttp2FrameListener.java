@@ -12,16 +12,18 @@ import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Frame;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class DefaultHttp2FrameListener implements Http2FrameListener {
     private final ServletHandlerAdapter servletHandlerAdapter;
     private final FilterChainAdapter filterChainAdapter;
     private final HttpServletResponse sharedResponse = NettyServletResponseAdapter.getInstance();
     private final NettyHandlerContextStrategy strategy = NettyHandlerContextStrategy.getHttp2Strategy();
     private Http2FrameCollector frameCollector;
+
+    protected DefaultHttp2FrameListener(ServletHandlerAdapter servletHandlerAdapter, FilterChainAdapter filterChainAdapter) {
+        this.servletHandlerAdapter = servletHandlerAdapter;
+        this.filterChainAdapter = filterChainAdapter;
+    }
 
     @Override
     public <U extends Http2Frame> void onHeaderFrame(U frame, ChannelHandlerContext context) {

@@ -12,19 +12,19 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.web.dto.resp.ProductMediaResp;
 import com.bachlinh.order.web.service.common.ProductMediaService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.MimeType;
 
 @ActiveReflection
 @RouteProvider(name = "servingFileHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServingFileHandler extends AbstractController<NativeResponse<byte[]>, Object> {
     private String url;
     private String resourceTotalHeader;
     private ProductMediaService productMediaService;
+
+    private ServingFileHandler() {
+    }
 
     @Override
     public AbstractController<NativeResponse<byte[]>, Object> newInstance() {

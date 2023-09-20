@@ -16,10 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -41,9 +37,6 @@ import java.util.Objects;
 )
 @EnableFullTextSearch
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 @QueryCache
 public class District extends AbstractEntity<Integer> {
 
@@ -70,13 +63,15 @@ public class District extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROVINCE_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Province province;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
-    @EqualsAndHashCode.Exclude
     private List<Ward> wards = new ArrayList<>();
+
+    @ActiveReflection
+    protected District() {
+    }
 
     @Override
     @ActiveReflection
@@ -155,5 +150,76 @@ public class District extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setWards(List<Ward> wards) {
         this.wards = wards;
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Integer getCode() {
+        return this.code;
+    }
+
+    public String getDivisionType() {
+        return this.divisionType;
+    }
+
+    public String getCodeName() {
+        return this.codeName;
+    }
+
+    public Province getProvince() {
+        return this.province;
+    }
+
+    public List<Ward> getWards() {
+        return this.wards;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof District other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$name = this.getName();
+        final Object other$name = other.getName();
+        if (!Objects.equals(this$name, other$name)) return false;
+        final Object this$code = this.getCode();
+        final Object other$code = other.getCode();
+        if (!Objects.equals(this$code, other$code)) return false;
+        final Object this$divisionType = this.getDivisionType();
+        final Object other$divisionType = other.getDivisionType();
+        if (!Objects.equals(this$divisionType, other$divisionType))
+            return false;
+        final Object this$codeName = this.getCodeName();
+        final Object other$codeName = other.getCodeName();
+        return Objects.equals(this$codeName, other$codeName);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof District;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $name = this.getName();
+        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
+        final Object $code = this.getCode();
+        result = result * PRIME + ($code == null ? 43 : $code.hashCode());
+        final Object $divisionType = this.getDivisionType();
+        result = result * PRIME + ($divisionType == null ? 43 : $divisionType.hashCode());
+        final Object $codeName = this.getCodeName();
+        result = result * PRIME + ($codeName == null ? 43 : $codeName.hashCode());
+        return result;
     }
 }

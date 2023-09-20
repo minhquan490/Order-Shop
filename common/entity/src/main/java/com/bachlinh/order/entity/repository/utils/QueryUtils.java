@@ -4,16 +4,16 @@ import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.repository.query.FunctionDialect;
 import com.bachlinh.order.entity.repository.query.QueryBinding;
 import com.bachlinh.order.entity.repository.query.Select;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class QueryUtils {
+
+    private QueryUtils() {
+    }
 
     public static Map<String, Object> parse(Collection<QueryBinding> queryBindings) {
         Map<String, Object> results = new HashMap<>();

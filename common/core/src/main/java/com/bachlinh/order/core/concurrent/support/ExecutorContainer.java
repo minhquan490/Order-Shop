@@ -1,15 +1,15 @@
 package com.bachlinh.order.core.concurrent.support;
 
 import com.bachlinh.order.core.concurrent.ExecutorHolder;
-import lombok.RequiredArgsConstructor;
+import com.bachlinh.order.core.concurrent.ThreadPoolOption;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.concurrent.Executor;
 
-@RequiredArgsConstructor
 public class ExecutorContainer implements ExecutorHolder {
+
     private final ThreadPoolOption option;
 
     private ThreadPoolTaskExecutor entityIndexExecutor;
@@ -17,6 +17,10 @@ public class ExecutorContainer implements ExecutorHolder {
     private ThreadPoolTaskExecutor serviceExecutor;
     private ThreadPoolTaskExecutor asyncExecutor;
     private ThreadPoolTaskScheduler taskScheduler;
+
+    public ExecutorContainer(ThreadPoolOption option) {
+        this.option = option;
+    }
 
     @Override
     public Executor getEntityIndexExecutor() {
@@ -62,6 +66,7 @@ public class ExecutorContainer implements ExecutorHolder {
         var executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(coreSize);
         executor.initialize();
+        executor.setThreadFactory(this.option.getVirtualThreadFactory());
         return executor;
     }
 
@@ -69,6 +74,11 @@ public class ExecutorContainer implements ExecutorHolder {
         var scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(coreSize);
         scheduler.initialize();
+        scheduler.setThreadFactory(this.option.getVirtualThreadFactory());
         return scheduler;
+    }
+
+    public ThreadPoolOption getOption() {
+        return this.option;
     }
 }

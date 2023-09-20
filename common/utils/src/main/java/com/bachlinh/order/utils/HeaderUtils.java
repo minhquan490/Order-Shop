@@ -4,18 +4,18 @@ import com.bachlinh.order.utils.map.MultiValueMap;
 import com.bachlinh.order.utils.map.MultiValueMapAdapter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Enumeration;
 import java.util.HashMap;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HeaderUtils {
 
     private static final String AUTHORIZE_HEADER = "Authorization";
     private static final String REFRESH_HEADER = "Refresh";
     private static final String CLIENT_SECRET = "client-secret";
+
+    private HeaderUtils() {
+    }
 
     public static String getRequestHeaderValue(String headerName, HttpServletRequest request) {
         return request.getHeader(headerName);

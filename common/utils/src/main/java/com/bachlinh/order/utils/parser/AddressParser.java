@@ -1,11 +1,7 @@
 package com.bachlinh.order.utils.parser;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.text.MessageFormat;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 public final class AddressParser {
 
     public static String parseVietNamAddress(String houseAddress, String ward, String district, String province) {

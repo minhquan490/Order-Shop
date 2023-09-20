@@ -7,17 +7,17 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.ProvinceResp;
 import com.bachlinh.order.web.service.common.ProvinceService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "provinceListHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProvinceListHandler extends AbstractController<Collection<ProvinceResp>, Void> {
     private String url;
     private ProvinceService provinceService;
+
+    private ProvinceListHandler() {
+    }
 
     @Override
     public AbstractController<Collection<ProvinceResp>, Void> newInstance() {

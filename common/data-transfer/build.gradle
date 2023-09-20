@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.bachlinh.order'
-version = '1.0.0'
+version = "${libs.versions.mainProject.get()}"
 
 dependencies {
     implementation project(":common:annotation")
@@ -20,9 +20,6 @@ dependencies {
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
-
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
 }
 
 test {

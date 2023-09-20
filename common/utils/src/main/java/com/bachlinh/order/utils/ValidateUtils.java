@@ -1,11 +1,7 @@
 package com.bachlinh.order.utils;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.util.regex.Pattern;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 public final class ValidateUtils {
     private static final String PATTER = "(84|0[3|5|7|8|9])+([0-9]{8})\\b";
     private static final Pattern PATTERN = Pattern.compile(PATTER);

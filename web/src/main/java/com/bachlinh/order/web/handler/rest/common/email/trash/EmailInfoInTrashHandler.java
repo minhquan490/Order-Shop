@@ -8,16 +8,16 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailTrashResp;
 import com.bachlinh.order.web.service.business.EmailInTrashService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ActiveReflection
 @RouteProvider(name = "emailInfoInTrashHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailInfoInTrashHandler extends AbstractController<EmailTrashResp, Void> {
     private String url;
     private EmailInTrashService trashService;
+
+    private EmailInfoInTrashHandler() {
+    }
 
     @Override
     public AbstractController<EmailTrashResp, Void> newInstance() {

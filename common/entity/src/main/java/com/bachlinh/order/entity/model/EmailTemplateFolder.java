@@ -13,10 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -25,15 +21,13 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Set;
 
 @Label("ETF-")
 @Entity
 @Table(name = "EMAIL_TEMPLATE_FOLDER", indexes = @Index(name = "idx_email_template_folder_owner", columnList = "OWNER_ID"))
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class EmailTemplateFolder extends AbstractEntity<String> {
 
     @Id
@@ -49,12 +43,14 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer owner;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "folder")
-    @EqualsAndHashCode.Exclude
     private Set<EmailTemplate> emailTemplates = new HashSet<>();
+
+    @ActiveReflection
+    protected EmailTemplateFolder() {
+    }
 
     @Override
     @ActiveReflection
@@ -115,5 +111,57 @@ public class EmailTemplateFolder extends AbstractEntity<String> {
     @ActiveReflection
     public void setEmailTemplates(Set<EmailTemplate> emailTemplates) {
         this.emailTemplates = emailTemplates;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Integer getClearTemplatePolicy() {
+        return this.clearTemplatePolicy;
+    }
+
+    public Customer getOwner() {
+        return this.owner;
+    }
+
+    public Set<EmailTemplate> getEmailTemplates() {
+        return this.emailTemplates;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof EmailTemplateFolder other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$name = this.getName();
+        final Object other$name = other.getName();
+        if (!Objects.equals(this$name, other$name)) return false;
+        final Object this$clearTemplatePolicy = this.getClearTemplatePolicy();
+        final Object other$clearTemplatePolicy = other.getClearTemplatePolicy();
+        return Objects.equals(this$clearTemplatePolicy, other$clearTemplatePolicy);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof EmailTemplateFolder;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $name = this.getName();
+        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
+        final Object $clearTemplatePolicy = this.getClearTemplatePolicy();
+        result = result * PRIME + ($clearTemplatePolicy == null ? 43 : $clearTemplatePolicy.hashCode());
+        return result;
     }
 }

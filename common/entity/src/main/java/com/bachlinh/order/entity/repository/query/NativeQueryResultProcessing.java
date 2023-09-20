@@ -6,17 +6,20 @@ import com.bachlinh.order.entity.EntityMapperHolder;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.model.BaseEntity;
 import jakarta.persistence.Tuple;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-@RequiredArgsConstructor
 class NativeQueryResultProcessing implements ResultListProcessing<BaseEntity<?>, Tuple> {
     private final EntityFactory entityFactory;
     private final Class<? extends BaseEntity<?>> domainClass;
+
+    public NativeQueryResultProcessing(EntityFactory entityFactory, Class<? extends BaseEntity<?>> domainClass) {
+        this.entityFactory = entityFactory;
+        this.domainClass = domainClass;
+    }
 
     @Override
     @SuppressWarnings("unchecked")

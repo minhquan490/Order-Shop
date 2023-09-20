@@ -4,9 +4,9 @@ import com.bachlinh.order.annotation.Scope;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.SneakyThrows;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,7 +18,6 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
     private final Map<String, Class<? extends Controller<?, ?>>> referencePath = new HashMap<>(100, 0.9f);
 
     @Override
-    @SneakyThrows
     public <T, U> Controller<T, U> createController(Class<? extends Controller<T, U>> controllerType, Object... params) {
         if (params.length != 2) {
             return createControllerWithoutParams(controllerType);
@@ -51,7 +50,6 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
         return this;
     }
 
-    @SneakyThrows
     @SuppressWarnings("unchecked")
     public <T, U> void registerControllerWithUnsafe(Class<?> clazz, ContainerWrapper wrapper, String profile) {
         if (!controllerMap.containsKey(clazz)) {
@@ -80,9 +78,13 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
         return preResult;
     }
 
-    @SneakyThrows
     private <T, U> Controller<T, U> createControllerWithParams(Class<? extends Controller<T, U>> controllerType, ContainerWrapper wrapper, String profile) {
-        AbstractController<T, U> instance = (AbstractController<T, U>) UnsafeUtils.allocateInstance(controllerType);
+        AbstractController<T, U> instance;
+        try {
+            instance = (AbstractController<T, U>) UnsafeUtils.allocateInstance(controllerType);
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        }
         var actual = instance.newInstance();
         actual.setWrapper(wrapper, profile);
         return actual;

@@ -12,17 +12,17 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.customer.OrderCreateForm;
 import com.bachlinh.order.web.dto.resp.OrderResp;
 import com.bachlinh.order.web.service.common.OrderService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "orderCreateHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = {Role.CUSTOMER, Role.ADMIN})
 @EnableCsrf
 public class OrderCreateHandler extends AbstractController<OrderResp, OrderCreateForm> {
     private String url;
     private OrderService orderService;
+
+    private OrderCreateHandler() {
+    }
 
     @Override
     public AbstractController<OrderResp, OrderCreateForm> newInstance() {

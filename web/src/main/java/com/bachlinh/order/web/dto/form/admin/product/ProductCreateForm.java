@@ -1,14 +1,10 @@
 package com.bachlinh.order.web.dto.form.admin.product;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-@Getter
 public class ProductCreateForm implements ValidatedDto {
 
     @JsonAlias("product_name")
@@ -37,6 +33,10 @@ public class ProductCreateForm implements ValidatedDto {
 
     @JsonAlias("product_order_point")
     private String productOrderPoint;
+
+    @ActiveReflection
+    public ProductCreateForm() {
+    }
 
     @ActiveReflection
     public void setProductName(String productName) {
@@ -81,5 +81,41 @@ public class ProductCreateForm implements ValidatedDto {
     @ActiveReflection
     public void setProductOrderPoint(String productOrderPoint) {
         this.productOrderPoint = productOrderPoint;
+    }
+
+    public String getProductName() {
+        return this.productName;
+    }
+
+    public String getProductPrice() {
+        return this.productPrice;
+    }
+
+    public String getProductSize() {
+        return this.productSize;
+    }
+
+    public String getProductColor() {
+        return this.productColor;
+    }
+
+    public String getProductTaobaoUrl() {
+        return this.productTaobaoUrl;
+    }
+
+    public String getProductDescription() {
+        return this.productDescription;
+    }
+
+    public String getProductEnabled() {
+        return this.productEnabled;
+    }
+
+    public String[] getProductCategoriesId() {
+        return this.productCategoriesId;
+    }
+
+    public String getProductOrderPoint() {
+        return this.productOrderPoint;
     }
 }

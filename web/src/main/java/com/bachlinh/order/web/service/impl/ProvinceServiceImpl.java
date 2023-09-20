@@ -9,16 +9,20 @@ import com.bachlinh.order.web.dto.form.common.ProvinceSearchForm;
 import com.bachlinh.order.web.dto.resp.ProvinceResp;
 import com.bachlinh.order.web.service.business.ProvinceSearchService;
 import com.bachlinh.order.web.service.common.ProvinceService;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 
 @ServiceComponent
-@RequiredArgsConstructor
 public class ProvinceServiceImpl implements ProvinceSearchService, ProvinceService {
     private final ProvinceRepository provinceRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
+
+    public ProvinceServiceImpl(ProvinceRepository provinceRepository, EntityFactory entityFactory, DtoMapper dtoMapper) {
+        this.provinceRepository = provinceRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+    }
 
     @Override
     public Collection<ProvinceResp> search(ProvinceSearchForm form) {

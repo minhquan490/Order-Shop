@@ -3,18 +3,23 @@ package com.bachlinh.order.entity.repository.cache;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.repository.query.CacheableQuery;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public abstract class AbstractCacheManager<T> implements CacheManager<T>, CacheReader<String, Collection<AbstractEntity<?>>>, CacheWriter<CacheableQuery> {
 
     private final T cacheManager;
     private final CacheAllocator allocator;
     private final CacheLoader cacheLoader;
     private final CacheDestroyer cacheDestroyer;
+
+    protected AbstractCacheManager(T cacheManager, CacheAllocator allocator, CacheLoader cacheLoader, CacheDestroyer cacheDestroyer) {
+        this.cacheManager = cacheManager;
+        this.allocator = allocator;
+        this.cacheLoader = cacheLoader;
+        this.cacheDestroyer = cacheDestroyer;
+    }
 
     @Override
     public T unwrap() {

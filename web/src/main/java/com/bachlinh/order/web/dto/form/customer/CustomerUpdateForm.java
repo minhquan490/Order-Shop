@@ -3,12 +3,8 @@ package com.bachlinh.order.web.dto.form.customer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-@Getter
 public class CustomerUpdateForm implements ValidatedDto {
 
     @JsonAlias("id")
@@ -31,6 +27,10 @@ public class CustomerUpdateForm implements ValidatedDto {
 
     @JsonAlias("username")
     private String username;
+
+    @ActiveReflection
+    public CustomerUpdateForm() {
+    }
 
     @ActiveReflection
     public void setId(String id) {
@@ -65,5 +65,33 @@ public class CustomerUpdateForm implements ValidatedDto {
     @ActiveReflection
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public String getUsername() {
+        return this.username;
     }
 }

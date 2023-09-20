@@ -12,10 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -25,9 +21,6 @@ import java.util.Collection;
 @Entity
 @Table(name = "LOGIN_HISTORY", indexes = @Index(name = "idx_login_history_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class LoginHistory extends AbstractEntity<Integer> {
 
     @Id
@@ -46,8 +39,11 @@ public class LoginHistory extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
+
+    @ActiveReflection
+    protected LoginHistory() {
+    }
 
     @Override
     @ActiveReflection
@@ -91,5 +87,63 @@ public class LoginHistory extends AbstractEntity<Integer> {
     @ActiveReflection
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public Timestamp getLastLoginTime() {
+        return this.lastLoginTime;
+    }
+
+    public String getLoginIp() {
+        return this.loginIp;
+    }
+
+    public Boolean getSuccess() {
+        return this.success;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof LoginHistory other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!java.util.Objects.equals(this$id, other$id)) return false;
+        final Object this$lastLoginTime = this.getLastLoginTime();
+        final Object other$lastLoginTime = other.getLastLoginTime();
+        if (!java.util.Objects.equals(this$lastLoginTime, other$lastLoginTime))
+            return false;
+        final Object this$loginIp = this.getLoginIp();
+        final Object other$loginIp = other.getLoginIp();
+        if (!java.util.Objects.equals(this$loginIp, other$loginIp)) return false;
+        final Object this$success = this.getSuccess();
+        final Object other$success = other.getSuccess();
+        return java.util.Objects.equals(this$success, other$success);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof LoginHistory;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $lastLoginTime = this.getLastLoginTime();
+        result = result * PRIME + ($lastLoginTime == null ? 43 : $lastLoginTime.hashCode());
+        final Object $loginIp = this.getLoginIp();
+        result = result * PRIME + ($loginIp == null ? 43 : $loginIp.hashCode());
+        final Object $success = this.getSuccess();
+        result = result * PRIME + ($success == null ? 43 : $success.hashCode());
+        return result;
     }
 }

@@ -1,7 +1,5 @@
 package com.bachlinh.order.dto.adapter;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.proxy.Proxy;
 import com.bachlinh.order.exception.system.common.CriticalException;
@@ -11,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 public final class DtoProxyInstanceAdapter {
 
     public static Map<Class<?>, List<Proxy<?, ?>>> instanceProxies() {

@@ -9,18 +9,18 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.BatchReportResp;
 import com.bachlinh.order.web.service.common.BatchReportService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "batchReportListHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class BatchReportListHandler extends AbstractController<Collection<BatchReportResp>, Void> {
     private String url;
     private BatchReportService batchReportService;
+
+    private BatchReportListHandler() {
+    }
 
     @Override
     public AbstractController<Collection<BatchReportResp>, Void> newInstance() {

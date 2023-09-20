@@ -1,15 +1,9 @@
 package com.bachlinh.order.web.dto.resp;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
 @Dto(forType = "com.bachlinh.order.entity.model.Customer")
-@Getter
-@Setter
-@NoArgsConstructor
 public class CustomerResp {
 
     @MappedDtoField(targetField = "id", outputJsonField = "id")
@@ -50,4 +44,111 @@ public class CustomerResp {
 
     @MappedDtoField(targetField = "enabled", outputJsonField = "is_enabled")
     private boolean enabled;
+
+    public CustomerResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public String getRole() {
+        return this.role;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public boolean isActivated() {
+        return this.activated;
+    }
+
+    public boolean isAccountNonExpired() {
+        return this.accountNonExpired;
+    }
+
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return this.credentialsNonExpired;
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public void setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
+
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 }

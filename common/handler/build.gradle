@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.bachlinh.order'
-version = '1.0.0'
+version = "${libs.versions.mainProject.get()}"
 
 dependencies {
     implementation project(":common:annotation")
@@ -23,8 +23,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly "com.google.code.findbugs:jsr305:${libs.versions.findbugs.get()}"
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
 }
 
 test {

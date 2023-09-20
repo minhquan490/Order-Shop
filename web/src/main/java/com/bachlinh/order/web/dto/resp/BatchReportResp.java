@@ -1,14 +1,8 @@
 package com.bachlinh.order.web.dto.resp;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Dto(forType = "com.bachlinh.order.entity.model.BatchReport")
 public class BatchReportResp {
 
@@ -26,4 +20,47 @@ public class BatchReportResp {
 
     @MappedDtoField(targetField = "timeReport.toString", outputJsonField = "time_report")
     private String timeReport;
+
+    public BatchReportResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getBatchName() {
+        return this.batchName;
+    }
+
+    public boolean isHasError() {
+        return this.hasError;
+    }
+
+    public String getErrorDetail() {
+        return this.errorDetail;
+    }
+
+    public String getTimeReport() {
+        return this.timeReport;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setBatchName(String batchName) {
+        this.batchName = batchName;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
+    }
+
+    public void setErrorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    public void setTimeReport(String timeReport) {
+        this.timeReport = timeReport;
+    }
 }

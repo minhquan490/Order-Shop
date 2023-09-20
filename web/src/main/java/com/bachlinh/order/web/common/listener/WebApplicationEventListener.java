@@ -6,12 +6,12 @@ import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.core.excecute.BootWrapper;
 import com.bachlinh.order.core.excecute.Executor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
 import com.bachlinh.order.security.helper.RequestAccessHistoriesHolder;
 import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
@@ -106,9 +106,13 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
         });
     }
 
-    @SneakyThrows
     private Executor<?> instanceExecutor(Class<? extends Executor<?>> initiator, DependenciesContainerResolver containerResolver, String profile) {
-        AbstractExecutor<?> abstractExecutor = (AbstractExecutor<?>) UnsafeUtils.allocateInstance(initiator);
+        AbstractExecutor<?> abstractExecutor;
+        try {
+            abstractExecutor = (AbstractExecutor<?>) UnsafeUtils.allocateInstance(initiator);
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        }
         return abstractExecutor.newInstance(containerResolver, profile);
     }
 }

@@ -8,8 +8,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.EmailFolderDeleteForm;
 import com.bachlinh.order.web.service.common.EmailFolderService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
@@ -17,11 +15,13 @@ import java.util.Map;
 
 @RouteProvider(name = "emailFolderDeleteHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 public class EmailFolderDeleteHandler extends AbstractController<Map<String, Object>, EmailFolderDeleteForm> {
     private EmailFolderService emailFolderService;
     private String url;
+
+    private EmailFolderDeleteHandler() {
+    }
 
     @Override
     public AbstractController<Map<String, Object>, EmailFolderDeleteForm> newInstance() {

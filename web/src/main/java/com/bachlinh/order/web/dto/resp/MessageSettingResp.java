@@ -2,13 +2,7 @@ package com.bachlinh.order.web.dto.resp;
 
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @Dto(forType = "com.bachlinh.order.entity.model.MessageSetting")
 public class MessageSettingResp {
 
@@ -17,4 +11,23 @@ public class MessageSettingResp {
 
     @MappedDtoField(targetField = "value", outputJsonField = "value")
     private String value;
+
+    public MessageSettingResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 }

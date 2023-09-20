@@ -3,12 +3,11 @@ package com.bachlinh.order.environment;
 import com.bachlinh.order.environment.parser.ClasspathParser;
 import com.bachlinh.order.environment.strategies.PropertiesStrategy;
 import com.bachlinh.order.exception.system.environment.EnvironmentException;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Hoang Minh Quan
  */
-@EqualsAndHashCode
 public final class Environment {
     public static final String PREFIX = "config/application-";
     public static final String SUFFIX = ".properties";
@@ -29,10 +27,8 @@ public final class Environment {
     public static final ResourceLoader SINGLETON_LOADER = new DefaultResourceLoader();
     private static final Map<String, Environment> environments = new ConcurrentHashMap<>();
     private static final PropertiesStrategy STRATEGY = new PropertiesStrategy(new ClasspathParser(SINGLETON_LOADER));
-    @Getter
     private static String mainEnvironmentName = null;
 
-    @Getter
     private final String environmentName;
     private final Properties properties;
 
@@ -63,6 +59,10 @@ public final class Environment {
         return environments.get(name);
     }
 
+    public static String getMainEnvironmentName() {
+        return Environment.mainEnvironmentName;
+    }
+
     /**
      * Return system properties with given name or null if name is not existed in environment.
      *
@@ -88,5 +88,31 @@ public final class Environment {
             throw new EnvironmentException("Can not load properties file[" + path + "]", e);
         }
         return p;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Environment other)) return false;
+        final Object this$environmentName = this.environmentName;
+        final Object other$environmentName = other.environmentName;
+        if (!Objects.equals(this$environmentName, other$environmentName))
+            return false;
+        final Object this$properties = this.properties;
+        final Object other$properties = other.properties;
+        return Objects.equals(this$properties, other$properties);
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $environmentName = this.environmentName;
+        result = result * PRIME + ($environmentName == null ? 43 : $environmentName.hashCode());
+        final Object $properties = this.properties;
+        result = result * PRIME + ($properties == null ? 43 : $properties.hashCode());
+        return result;
+    }
+
+    public String getEnvironmentName() {
+        return this.environmentName;
     }
 }

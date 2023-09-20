@@ -2,6 +2,7 @@ package com.bachlinh.order.web.configuration;
 
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
@@ -10,14 +11,14 @@ import com.bachlinh.order.core.server.jetty.H3JettyServerCustomize;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapperFactory;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlBuilderFactory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.handler.router.ServletRouter;
 import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.entity.repository.query.SqlBuilder;
-import com.bachlinh.order.entity.repository.query.SqlBuilderFactory;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
@@ -35,6 +36,7 @@ import com.bachlinh.order.web.common.servlet.WebServlet;
 import com.bachlinh.order.web.handler.websocket.ProxyRequestUpgradeStrategy;
 import com.bachlinh.order.web.handler.websocket.SocketHandler;
 import com.bachlinh.order.web.handler.websocket.WebSocketManager;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -171,9 +173,10 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
     }
 
     @Bean
-    JettyServletWebServerFactory jettyServletWebServerFactory(ObjectProvider<JettyServerCustomizer> serverCustomizers, @Value("${server.port}") int port) {
+    JettyServletWebServerFactory jettyServletWebServerFactory(ObjectProvider<JettyServerCustomizer> serverCustomizers, @Value("${server.port}") int port, ThreadPoolOptionHolder threadPoolOptionHolder) {
         JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
         factory.getServerCustomizers().addAll(serverCustomizers.orderedStream().toList());
+        factory.setThreadPool(new QueuedThreadPool(Integer.MAX_VALUE, 15, 60000, 0, null, null, threadPoolOptionHolder.getThreadOption().getVirtualThreadFactory()));
         return factory;
     }
 

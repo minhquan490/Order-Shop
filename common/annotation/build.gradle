@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.bachlinh.order'
-version = '1.0.0'
+version = "${libs.versions.mainProject.get()}"
 
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'

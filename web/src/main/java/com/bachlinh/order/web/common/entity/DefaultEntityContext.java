@@ -23,11 +23,11 @@ import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.entity.repository.query.JoinMetadata;
 import com.bachlinh.order.entity.repository.query.JoinMetadataHolder;
+import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.NoTransactionException;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.utils.UnsafeUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +40,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.SneakyThrows;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -350,19 +349,29 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         throw new PersistenceException("Can not find type of entity id");
     }
 
-    @SneakyThrows
     private Object newInstance(Class<?> initiator) {
-        return UnsafeUtils.allocateInstance(initiator);
+        try {
+            return UnsafeUtils.allocateInstance(initiator);
+        } catch (Exception e) {
+            throw new CriticalException(e);
+        }
     }
 
-    @SneakyThrows
     private BaseEntity<?> getBaseEntityInstance(Class<? extends BaseEntity<?>> baseEntityType) {
-        return UnsafeUtils.allocateInstance(baseEntityType);
+        try {
+            return UnsafeUtils.allocateInstance(baseEntityType);
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        }
     }
 
-    @SneakyThrows
     private <T extends EntityTrigger<? extends BaseEntity<?>>> T initTrigger(Class<T> triggerClass, DependenciesResolver dependenciesResolver, Environment environment) {
-        AbstractTrigger<? extends BaseEntity<?>> trigger = (AbstractTrigger<? extends BaseEntity<?>>) UnsafeUtils.allocateInstance(triggerClass);
+        AbstractTrigger<? extends BaseEntity<?>> trigger;
+        try {
+            trigger = (AbstractTrigger<? extends BaseEntity<?>>) UnsafeUtils.allocateInstance(triggerClass);
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        }
         trigger.setEnvironment(environment);
         trigger.setResolver(dependenciesResolver);
 

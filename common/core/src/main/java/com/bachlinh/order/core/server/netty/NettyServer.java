@@ -18,16 +18,14 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.incubator.codec.http3.Http3;
 import io.netty.incubator.codec.quic.InsecureQuicTokenHandler;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-@RequiredArgsConstructor
-@Slf4j
 public final class NettyServer {
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(NettyServer.class);
     private final String certPath;
     private final String keyPath;
     private final int port;
@@ -35,6 +33,14 @@ public final class NettyServer {
     private final DependenciesResolver dependenciesResolver;
 
     private CompositeChannel compositeChannel;
+
+    public NettyServer(String certPath, String keyPath, int port, String host, DependenciesResolver dependenciesResolver) {
+        this.certPath = certPath;
+        this.keyPath = keyPath;
+        this.port = port;
+        this.host = host;
+        this.dependenciesResolver = dependenciesResolver;
+    }
 
     public NettyServer start() throws SSLException, InterruptedException {
         var executor = dependenciesResolver.resolveDependencies("threadPool");

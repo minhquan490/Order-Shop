@@ -2,15 +2,15 @@ package com.bachlinh.order.dto.strategy;
 
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter(AccessLevel.PUBLIC)
 public abstract non-sealed class AbstractDtoStrategy<T, U> implements DtoStrategy<T, U> {
     private final DependenciesResolver dependenciesResolver;
     private final Environment environment;
+
+    protected AbstractDtoStrategy(DependenciesResolver dependenciesResolver, Environment environment) {
+        this.dependenciesResolver = dependenciesResolver;
+        this.environment = environment;
+    }
 
     @Override
     public final T convert(U source, Class<T> type) {
@@ -35,4 +35,12 @@ public abstract non-sealed class AbstractDtoStrategy<T, U> implements DtoStrateg
     protected abstract void afterConvert(U source, Class<T> type);
 
     protected abstract DtoStrategy<T, U> createNew(DependenciesResolver dependenciesResolver, Environment environment);
+
+    public DependenciesResolver getDependenciesResolver() {
+        return this.dependenciesResolver;
+    }
+
+    public Environment getEnvironment() {
+        return this.environment;
+    }
 }

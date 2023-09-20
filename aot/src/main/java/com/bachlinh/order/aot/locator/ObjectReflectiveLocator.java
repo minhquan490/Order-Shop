@@ -35,7 +35,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
     @Override
     public Collection<ClassMetadata> loadClass(String basePackage) {
         ScanResult<Collection<Class<?>>> result = classScanner.scan(Collections.singleton(basePackage));
-        if (result != null && result.isReady()) {
+        if (result.isReady()) {
             return Objects.requireNonNull(result.result())
                     .stream()
                     .map(InternalClassMetadata::new)

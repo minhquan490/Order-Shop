@@ -15,10 +15,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.lang.NonNull;
@@ -34,9 +30,6 @@ import java.util.Objects;
 @Table(name = "CART", indexes = @Index(name = "idx_cart_customer", columnList = "CUSTOMER_ID"))
 @Label("CRT-")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(callSuper = true)
-@Getter
 public class Cart extends AbstractEntity<String> {
 
     @Id
@@ -46,11 +39,9 @@ public class Cart extends AbstractEntity<String> {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", unique = true, nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "cart", orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
     private Collection<CartDetail> cartDetails = new HashSet<>();
 
     @ManyToMany
@@ -61,6 +52,10 @@ public class Cart extends AbstractEntity<String> {
             indexes = @Index(name = "idx_product_cart", columnList = "CART_ID")
     )
     private Collection<Product> products = new HashSet<>();
+
+    @ActiveReflection
+    protected Cart() {
+    }
 
     @Override
     @ActiveReflection
@@ -113,5 +108,48 @@ public class Cart extends AbstractEntity<String> {
     @ActiveReflection
     public void setProducts(@NonNull Collection<Product> products) {
         this.products = products;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public Collection<CartDetail> getCartDetails() {
+        return this.cartDetails;
+    }
+
+    public Collection<Product> getProducts() {
+        return this.products;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Cart other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$products = this.getProducts();
+        final Object other$products = other.getProducts();
+        return Objects.equals(this$products, other$products);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Cart;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $products = this.getProducts();
+        result = result * PRIME + ($products == null ? 43 : $products.hashCode());
+        return result;
     }
 }

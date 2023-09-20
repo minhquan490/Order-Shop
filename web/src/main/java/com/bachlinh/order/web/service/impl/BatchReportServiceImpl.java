@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.dto.DtoMapper;
@@ -15,10 +14,15 @@ import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class BatchReportServiceImpl implements BatchReportService {
     private final BatchReportRepository batchReportRepository;
     private final DtoMapper dtoMapper;
+
+    @ActiveReflection
+    public BatchReportServiceImpl(BatchReportRepository batchReportRepository, DtoMapper dtoMapper) {
+        this.batchReportRepository = batchReportRepository;
+        this.dtoMapper = dtoMapper;
+    }
 
     @Override
     public Collection<BatchReportResp> getAllReport() {

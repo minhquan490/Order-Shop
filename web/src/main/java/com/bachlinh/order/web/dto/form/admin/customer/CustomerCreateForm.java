@@ -3,12 +3,8 @@ package com.bachlinh.order.web.dto.form.admin.customer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-@Getter
 public class CustomerCreateForm implements ValidatedDto {
 
     @JsonAlias("first_name")
@@ -37,6 +33,10 @@ public class CustomerCreateForm implements ValidatedDto {
 
     @JsonAlias("address")
     private AddressAttribute address;
+
+    @ActiveReflection
+    public CustomerCreateForm() {
+    }
 
     @ActiveReflection
     public void setFirstName(String firstName) {
@@ -83,9 +83,43 @@ public class CustomerCreateForm implements ValidatedDto {
         this.address = address;
     }
 
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public String getRole() {
+        return this.role;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public AddressAttribute getAddress() {
+        return this.address;
+    }
+
     @ActiveReflection
-    @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-    @Getter
     public static class AddressAttribute {
 
         @JsonAlias("province")
@@ -99,6 +133,10 @@ public class CustomerCreateForm implements ValidatedDto {
 
         @JsonAlias("house_address")
         private String houseAddress;
+
+        @ActiveReflection
+        public AddressAttribute() {
+        }
 
         @ActiveReflection
         public void setProvince(String province) {
@@ -118,6 +156,22 @@ public class CustomerCreateForm implements ValidatedDto {
         @ActiveReflection
         public void setHouseAddress(String houseAddress) {
             this.houseAddress = houseAddress;
+        }
+
+        public String getProvince() {
+            return this.province;
+        }
+
+        public String getDistrict() {
+            return this.district;
+        }
+
+        public String getWard() {
+            return this.ward;
+        }
+
+        public String getHouseAddress() {
+            return this.houseAddress;
         }
     }
 }

@@ -18,8 +18,6 @@ import io.netty.incubator.codec.http3.DefaultHttp3HeadersFrame;
 import io.netty.incubator.codec.http3.Http3ServerConnectionHandler;
 import io.netty.incubator.codec.quic.QuicChannel;
 import io.netty.incubator.codec.quic.QuicStreamChannel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,17 +26,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@RequiredArgsConstructor
 public class Http3ServerInitializer extends ChannelInitializer<QuicChannel> {
     private final ServletHandlerAdapter servletHandlerAdapter;
     private final FilterChainAdapter filterChainAdapter;
+
+    public Http3ServerInitializer(ServletHandlerAdapter servletHandlerAdapter, FilterChainAdapter filterChainAdapter) {
+        this.servletHandlerAdapter = servletHandlerAdapter;
+        this.filterChainAdapter = filterChainAdapter;
+    }
 
     @Override
     protected void initChannel(QuicChannel ch) {
         ch.pipeline().addLast(new Http3ServerConnectionHandler(
                 new ChannelInitializer<QuicStreamChannel>() {
                     @Override
-                    protected void initChannel(@NonNull QuicStreamChannel ch) {
+                    protected void initChannel(QuicStreamChannel ch) {
                         ch.pipeline().addLast(new ReadTimeoutHandler(10, TimeUnit.SECONDS));
                         ch.pipeline().addLast(new Http3Handler(servletHandlerAdapter, filterChainAdapter));
                     }

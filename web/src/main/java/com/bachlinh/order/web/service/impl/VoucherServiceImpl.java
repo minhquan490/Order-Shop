@@ -22,7 +22,6 @@ import com.bachlinh.order.web.dto.resp.CustomerAssignmentVouchersResp;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.business.VoucherSearchService;
 import com.bachlinh.order.web.service.common.VoucherService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -40,12 +39,19 @@ import java.util.Map;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class VoucherServiceImpl implements VoucherService, VoucherSearchService {
     private final VoucherRepository voucherRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
+
+    @ActiveReflection
+    public VoucherServiceImpl(VoucherRepository voucherRepository, EntityFactory entityFactory, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
+        this.voucherRepository = voucherRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+        this.messageSettingRepository = messageSettingRepository;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)

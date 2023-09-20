@@ -28,7 +28,6 @@ import com.bachlinh.order.web.dto.resp.EmailTemplateInfoResp;
 import com.bachlinh.order.web.service.business.EmailTemplateSearchService;
 import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,7 +40,6 @@ import java.util.Collection;
 
 @ActiveReflection
 @ServiceComponent
-@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemplateSendingService, EmailTemplateSearchService {
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTemplateFolderRepository emailTemplateFolderRepository;
@@ -51,6 +49,19 @@ public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemp
     private final CustomerRepository customerRepository;
     private final EmailFoldersRepository emailFoldersRepository;
     private final EmailRepository emailRepository;
+
+    @ActiveReflection
+    @DependenciesInitialize
+    public EmailTemplateServiceImpl(EmailTemplateRepository emailTemplateRepository, EmailTemplateFolderRepository emailTemplateFolderRepository, EntityFactory entityFactory, DtoMapper dtoMapper, EmailTemplateProcessor emailTemplateProcessor, CustomerRepository customerRepository, EmailFoldersRepository emailFoldersRepository, EmailRepository emailRepository) {
+        this.emailTemplateRepository = emailTemplateRepository;
+        this.emailTemplateFolderRepository = emailTemplateFolderRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+        this.emailTemplateProcessor = emailTemplateProcessor;
+        this.customerRepository = customerRepository;
+        this.emailFoldersRepository = emailFoldersRepository;
+        this.emailRepository = emailRepository;
+    }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)

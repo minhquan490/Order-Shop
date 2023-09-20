@@ -1,8 +1,8 @@
 package com.bachlinh.order.web.dto.resp;
 
+import com.bachlinh.order.entity.model.CrawlResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.bachlinh.order.entity.model.CrawlResult;
 
 public class CrawlResultResp {
 

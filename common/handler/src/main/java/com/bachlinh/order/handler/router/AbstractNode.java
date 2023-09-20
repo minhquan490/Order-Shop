@@ -7,18 +7,22 @@ import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.handler.controller.ControllerContext;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractNode implements Node, NodeHolder {
     private final ResponseConverter<HttpServletResponse> responseConverter = ResponseConverter.servletResponseConverter();
     private final ControllerManager controllerManager;
     private final JsonExceptionTranslator exceptionTranslator;
     private final String name;
     private final Node parent;
+
+    protected AbstractNode(ControllerManager controllerManager, JsonExceptionTranslator exceptionTranslator, String name, Node parent) {
+        this.controllerManager = controllerManager;
+        this.exceptionTranslator = exceptionTranslator;
+        this.name = name;
+        this.parent = parent;
+    }
 
     @Override
     @NonNull

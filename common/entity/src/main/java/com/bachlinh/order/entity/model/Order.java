@@ -14,10 +14,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -33,9 +29,6 @@ import java.util.Objects;
 @Table(name = "ORDERS", indexes = @Index(name = "idx_order_customer", columnList = "CUSTOMER_ID"))
 @Label("ODR-")
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class Order extends AbstractEntity<String> {
 
     @Id
@@ -51,23 +44,23 @@ public class Order extends AbstractEntity<String> {
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "ORDER_STATUS_ID", unique = true, nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private OrderStatus orderStatus;
 
     @OneToOne(mappedBy = "order")
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private OrderHistory orderHistory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order", orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
     private Collection<OrderDetail> orderDetails = new HashSet<>();
+
+    @ActiveReflection
+    protected Order() {
+    }
 
     @Override
     @ActiveReflection
@@ -148,5 +141,65 @@ public class Order extends AbstractEntity<String> {
     @ActiveReflection
     public void setOrderHistory(OrderHistory orderHistory) {
         this.orderHistory = orderHistory;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public Timestamp getTimeOrder() {
+        return this.timeOrder;
+    }
+
+    public String getBankTransactionCode() {
+        return this.bankTransactionCode;
+    }
+
+    public OrderStatus getOrderStatus() {
+        return this.orderStatus;
+    }
+
+    public OrderHistory getOrderHistory() {
+        return this.orderHistory;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public Collection<OrderDetail> getOrderDetails() {
+        return this.orderDetails;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Order other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$timeOrder = this.getTimeOrder();
+        final Object other$timeOrder = other.getTimeOrder();
+        if (!Objects.equals(this$timeOrder, other$timeOrder)) return false;
+        final Object this$bankTransactionCode = this.getBankTransactionCode();
+        final Object other$bankTransactionCode = other.getBankTransactionCode();
+        return Objects.equals(this$bankTransactionCode, other$bankTransactionCode);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Order;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $timeOrder = this.getTimeOrder();
+        result = result * PRIME + ($timeOrder == null ? 43 : $timeOrder.hashCode());
+        final Object $bankTransactionCode = this.getBankTransactionCode();
+        result = result * PRIME + ($bankTransactionCode == null ? 43 : $bankTransactionCode.hashCode());
+        return result;
     }
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {NextPage, TableData, TableFilter, TableHeader, TableNewData} from "~/types";
-import {Ref} from "vue";
+import { Ref } from "vue";
+import { NextPage, TableData, TableFilter, TableHeader, TableNewData } from "~/types";
 
 const props = defineProps({
   headers: {
@@ -167,7 +167,7 @@ const sliceData = (data: Array<TableData>): Array<any> => {
   return data.slice(itemsPerPage * (currentPage - 1), currentPage * itemsPerPage);
 }
 
-const calculatePage = (data: Array<TableHeader>): number => {
+const calculatePage = (data: Array<TableData>): number => {
   const itemsPerPage: number = table.value.itemsPerPage;
   let totalPage: number = data.length === 0 ? 0 : Math.floor(data.length / itemsPerPage);
   if (data.length % itemsPerPage !== 0) {

@@ -10,17 +10,22 @@ import com.bachlinh.order.web.dto.form.common.DistrictSearchForm;
 import com.bachlinh.order.web.dto.resp.DistrictResp;
 import com.bachlinh.order.web.service.business.DistrictSearchService;
 import com.bachlinh.order.web.service.common.DistrictService;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class DistrictServiceImpl implements DistrictSearchService, DistrictService {
     private final DistrictRepository districtRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
+
+    @ActiveReflection
+    public DistrictServiceImpl(DistrictRepository districtRepository, EntityFactory entityFactory, DtoMapper dtoMapper) {
+        this.districtRepository = districtRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+    }
 
     @Override
     public Collection<DistrictResp> search(DistrictSearchForm form) {

@@ -1,5 +1,6 @@
 package com.bachlinh.order.core.server.netty.collector;
 
+import com.bachlinh.order.exception.system.server.PayloadToLargeException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -12,15 +13,11 @@ import io.netty.incubator.codec.http3.DefaultHttp3Headers;
 import io.netty.incubator.codec.http3.Http3DataFrame;
 import io.netty.incubator.codec.http3.Http3Headers;
 import io.netty.incubator.codec.http3.Http3HeadersFrame;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import com.bachlinh.order.exception.system.server.PayloadToLargeException;
 
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Http3FrameCollector implements FrameCollector<Http3HeadersFrame, Http3DataFrame> {
     private final Queue<ByteBuf> dataPool = new ArrayDeque<>();
     private final Queue<Http3Headers> headerPool = new ArrayDeque<>();
@@ -29,6 +26,13 @@ public class Http3FrameCollector implements FrameCollector<Http3HeadersFrame, Ht
     private final String path;
     private final String scheme;
     private final String method;
+
+    private Http3FrameCollector(String authority, String path, String scheme, String method) {
+        this.authority = authority;
+        this.path = path;
+        this.scheme = scheme;
+        this.method = method;
+    }
 
     public static Http3FrameCollector getInstance(CharSequence authority, CharSequence path, CharSequence scheme, CharSequence method) {
         return new Http3FrameCollector(authority.toString(), path.toString(), scheme.toString(), method.toString());

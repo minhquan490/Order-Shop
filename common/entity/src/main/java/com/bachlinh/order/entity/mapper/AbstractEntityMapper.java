@@ -5,9 +5,6 @@ import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.entity.model.BaseEntity;
 import jakarta.persistence.Tuple;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -15,13 +12,10 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-@Getter(AccessLevel.PROTECTED)
 public abstract class AbstractEntityMapper<T extends BaseEntity<?>> implements EntityMapper<T> {
 
-    @Setter
     private EntityFactory entityFactory;
 
-    @Setter
     private EntityMapperFactory entityMapperFactory;
 
     @Override
@@ -66,15 +60,41 @@ public abstract class AbstractEntityMapper<T extends BaseEntity<?>> implements E
         return mappingObjectQueue;
     }
 
-    @Getter
+    protected EntityFactory getEntityFactory() {
+        return this.entityFactory;
+    }
+
+    protected EntityMapperFactory getEntityMapperFactory() {
+        return this.entityMapperFactory;
+    }
+
+    public void setEntityFactory(EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
+
+    public void setEntityMapperFactory(EntityMapperFactory entityMapperFactory) {
+        this.entityMapperFactory = entityMapperFactory;
+    }
+
     protected class EntityWrapper {
         private final T entity;
 
-        @Setter
         private boolean isTouched;
 
         EntityWrapper(T entity) {
             this.entity = entity;
+        }
+
+        public T getEntity() {
+            return this.entity;
+        }
+
+        public boolean isTouched() {
+            return this.isTouched;
+        }
+
+        public void setTouched(boolean isTouched) {
+            this.isTouched = isTouched;
         }
     }
 }

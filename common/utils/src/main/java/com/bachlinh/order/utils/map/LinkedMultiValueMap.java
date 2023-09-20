@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class LinkedMultiValueMap<K, V> extends MultiValueMapAdapter<K, V> implements Serializable, Cloneable {
 
-    
+
     public LinkedMultiValueMap() {
         super(new LinkedHashMap<>());
     }

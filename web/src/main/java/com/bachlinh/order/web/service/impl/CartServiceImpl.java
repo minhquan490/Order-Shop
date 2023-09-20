@@ -11,7 +11,6 @@ import com.bachlinh.order.web.dto.form.customer.CartDetailRemoveForm;
 import com.bachlinh.order.web.dto.form.customer.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,10 +23,15 @@ import java.util.List;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
+
+    @ActiveReflection
+    public CartServiceImpl(CartRepository cartRepository, CartDetailRepository cartDetailRepository) {
+        this.cartRepository = cartRepository;
+        this.cartDetailRepository = cartDetailRepository;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)

@@ -1,9 +1,9 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.text.MessageFormat;
 import java.util.Arrays;

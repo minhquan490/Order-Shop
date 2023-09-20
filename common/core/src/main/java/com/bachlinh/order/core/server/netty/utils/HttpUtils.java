@@ -15,13 +15,13 @@ import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HttpUtils {
+
+    private HttpUtils() {
+    }
 
     public static void writeResp(ChannelHandlerContext ctx, NettyHandlerContextStrategy strategy, FullHttpRequest req, ServletHandlerAdapter servletHandlerAdapter, HttpServletResponse sharedResponse) {
         HttpServletRequest servletRequest = NettyServletRequestAdapter.from(req);

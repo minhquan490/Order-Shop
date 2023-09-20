@@ -1,14 +1,8 @@
 package com.bachlinh.order.web.dto.resp;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @Dto(forType = "com.bachlinh.order.entity.model.Order")
 public class OrderListResp {
 
@@ -26,4 +20,47 @@ public class OrderListResp {
 
     @MappedDtoField(targetField = "customer.getUsername", outputJsonField = "customer_name")
     private String customerName;
+
+    public OrderListResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public boolean isDeposited() {
+        return this.deposited;
+    }
+
+    public String getTimeOrder() {
+        return this.timeOrder;
+    }
+
+    public String getOrderStatus() {
+        return this.orderStatus;
+    }
+
+    public String getCustomerName() {
+        return this.customerName;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setDeposited(boolean deposited) {
+        this.deposited = deposited;
+    }
+
+    public void setTimeOrder(String timeOrder) {
+        this.timeOrder = timeOrder;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 }

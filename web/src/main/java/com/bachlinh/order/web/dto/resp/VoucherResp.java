@@ -1,14 +1,8 @@
 package com.bachlinh.order.web.dto.resp;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Dto(forType = "com.bachlinh.order.entity.model.Voucher")
 public class VoucherResp {
 
@@ -35,4 +29,71 @@ public class VoucherResp {
 
     @MappedDtoField(targetField = "voucherCost", outputJsonField = "cost")
     private int cost;
+
+    public VoucherResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getDiscountPercent() {
+        return this.discountPercent;
+    }
+
+    public String getTimeStart() {
+        return this.timeStart;
+    }
+
+    public String getTimeEnd() {
+        return this.timeEnd;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public boolean isEnable() {
+        return this.enable;
+    }
+
+    public int getCost() {
+        return this.cost;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public void setTimeStart(String timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public void setTimeEnd(String timeEnd) {
+        this.timeEnd = timeEnd;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
 }

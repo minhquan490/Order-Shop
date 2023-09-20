@@ -12,16 +12,16 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.common.LoginForm;
 import com.bachlinh.order.web.dto.resp.LoginResp;
 import com.bachlinh.order.web.service.business.LoginService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "loginHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, LoginForm> {
     private String loginUrl;
     private TokenManager tokenManager;
     private LoginService loginService;
+
+    private LoginHandler() {
+    }
 
     @Override
     public AbstractController<NativeResponse<LoginResp>, LoginForm> newInstance() {

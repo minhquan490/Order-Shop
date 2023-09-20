@@ -33,6 +33,7 @@ dependencyResolutionManagement {
             version('googleAutoService', '1.1.0')
             version('netty', '4.1.96.Final')
             version('nettyQuic', '0.0.19.Final')
+            version('mainProject', '1.0.0')
         }
     }
     repositories {

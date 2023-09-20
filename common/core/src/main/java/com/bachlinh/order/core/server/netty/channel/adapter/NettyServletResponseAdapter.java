@@ -25,8 +25,6 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.UrlEncoded;
@@ -41,13 +39,15 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Locale;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NettyServletResponseAdapter implements HttpServletResponse, NettyHttpConvention {
     private static final ServerCookieEncoder COOKIE_ENCODER = ServerCookieEncoder.LAX;
     private final MultiValueMap<String, Object> headers = new LinkedMultiValueMap<>();
     private final ByteArrayOutputStream body = new ByteArrayOutputStream();
     private int status = 200;
     private boolean committed = false;
+
+    private NettyServletResponseAdapter() {
+    }
 
     public static HttpServletResponse getInstance() {
         return new NettyServletResponseAdapter();

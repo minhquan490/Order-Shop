@@ -10,18 +10,18 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CrawlResultResp;
 import com.bachlinh.order.web.service.business.CrawlerResultService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "crawlResultHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CrawlResultHandler extends AbstractController<Collection<CrawlResultResp>, Object> {
     private CrawlerResultService crawlerResultService;
     private String path;
+
+    private CrawlResultHandler() {
+    }
 
     @Override
     public AbstractController<Collection<CrawlResultResp>, Object> newInstance() {

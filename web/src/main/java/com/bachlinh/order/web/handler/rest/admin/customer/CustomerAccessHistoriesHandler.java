@@ -10,16 +10,16 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CustomerAccessHistoriesResp;
 import com.bachlinh.order.web.service.common.CustomerAccessHistoriesService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CustomerAccessHistoriesHandler extends AbstractController<CustomerAccessHistoriesResp, Void> {
     private String url;
     private CustomerAccessHistoriesService customerAccessHistoriesService;
+
+    private CustomerAccessHistoriesHandler() {
+    }
 
     @Override
     public AbstractController<CustomerAccessHistoriesResp, Void> newInstance() {

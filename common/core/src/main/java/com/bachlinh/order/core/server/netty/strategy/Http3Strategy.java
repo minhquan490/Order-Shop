@@ -1,8 +1,8 @@
 package com.bachlinh.order.core.server.netty.strategy;
 
+import com.bachlinh.order.core.http.parser.spi.NettyHttpConvention;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.incubator.codec.quic.QuicStreamChannel;
-import com.bachlinh.order.core.http.parser.spi.NettyHttpConvention;
 
 class Http3Strategy implements NettyHandlerContextStrategy {
     @Override

@@ -7,17 +7,17 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @RouteProvider(name = "categoryListHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CategoryListHandler extends AbstractController<Collection<CategoryResp>, Void> {
     private CategoryService categoryService;
     private String url;
+
+    private CategoryListHandler() {
+    }
 
     @Override
     public AbstractController<Collection<CategoryResp>, Void> newInstance() {

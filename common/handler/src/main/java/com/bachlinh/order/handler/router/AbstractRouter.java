@@ -10,12 +10,9 @@ import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.handler.strategy.ResponseStrategy;
 import com.bachlinh.order.service.container.DependenciesResolver;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 
-@Getter(AccessLevel.PROTECTED)
 public abstract class AbstractRouter<T, U> implements Router<T, U> {
     private final DependenciesResolver resolver;
     private final Node rootNode;
@@ -105,5 +102,21 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
                 .headers(defaultResponse.getHeaders())
                 .body(responseData)
                 .build();
+    }
+
+    protected DependenciesResolver getResolver() {
+        return this.resolver;
+    }
+
+    protected Node getRootNode() {
+        return this.rootNode;
+    }
+
+    protected WebInterceptorChain getWebInterceptorChain() {
+        return this.webInterceptorChain;
+    }
+
+    protected EntityFactory getEntityFactory() {
+        return this.entityFactory;
     }
 }

@@ -11,10 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -25,9 +21,6 @@ import java.util.Objects;
 @Entity
 @Table(name = "ADDRESS", indexes = @Index(name = "idx_address_customer", columnList = "CUSTOMER_ID"))
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(callSuper = true)
-@Getter
 public class Address extends AbstractEntity<String> {
 
     @Id
@@ -46,8 +39,11 @@ public class Address extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
+
+    @ActiveReflection
+    protected Address() {
+    }
 
     @Override
     @ActiveReflection
@@ -94,5 +90,62 @@ public class Address extends AbstractEntity<String> {
             trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+    public String getCity() {
+        return this.city;
+    }
+
+    public String getCountry() {
+        return this.country;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Address other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$value = this.getValue();
+        final Object other$value = other.getValue();
+        if (!Objects.equals(this$value, other$value)) return false;
+        final Object this$city = this.getCity();
+        final Object other$city = other.getCity();
+        if (!Objects.equals(this$city, other$city)) return false;
+        final Object this$country = this.getCountry();
+        final Object other$country = other.getCountry();
+        return Objects.equals(this$country, other$country);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Address;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $value = this.getValue();
+        result = result * PRIME + ($value == null ? 43 : $value.hashCode());
+        final Object $city = this.getCity();
+        result = result * PRIME + ($city == null ? 43 : $city.hashCode());
+        final Object $country = this.getCountry();
+        result = result * PRIME + ($country == null ? 43 : $country.hashCode());
+        return result;
     }
 }

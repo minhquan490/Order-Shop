@@ -11,8 +11,6 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.template.EmailTemplateDeleteForm;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -21,12 +19,14 @@ import java.util.Map;
 
 @RouteProvider(name = "emailTemplateDeleteHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EnableCsrf
 @Permit(roles = {Role.ADMIN, Role.SEO, Role.MARKETING})
 public class EmailTemplateDeleteHandler extends AbstractController<Map<String, Object>, EmailTemplateDeleteForm> {
     private String url;
     private EmailTemplateService emailTemplateService;
+
+    private EmailTemplateDeleteHandler() {
+    }
 
     @Override
     public AbstractController<Map<String, Object>, EmailTemplateDeleteForm> newInstance() {

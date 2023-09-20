@@ -1,14 +1,19 @@
 package com.bachlinh.order.web.dto.form.common;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.Setter;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
-@Getter
-@Setter
 public class AddEmailToTrashForm implements ValidatedDto {
 
     @JsonAlias("email_ids")
     private String[] emailIds;
+
+    public String[] getEmailIds() {
+        return this.emailIds;
+    }
+
+    @JsonAlias("email_ids")
+    public void setEmailIds(String[] emailIds) {
+        this.emailIds = emailIds;
+    }
 }

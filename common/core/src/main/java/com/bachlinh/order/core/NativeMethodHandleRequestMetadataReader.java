@@ -1,8 +1,5 @@
 package com.bachlinh.order.core;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -10,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 public final class NativeMethodHandleRequestMetadataReader {
     private static final NativeMethodHandleRequestMetadataReader SINGLETON = new NativeMethodHandleRequestMetadataReader();
     private final Map<String, MetadataReader> nativeMethodMetadataMap = new LinkedHashMap<>();

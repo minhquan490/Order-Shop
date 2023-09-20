@@ -10,18 +10,18 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerSearchForm;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.business.CustomerSearchingService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "customerSearchHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CustomerSearchHandler extends AbstractController<Collection<CustomerResp>, CustomerSearchForm> {
     private String url;
     private CustomerSearchingService customerSearchingService;
+
+    private CustomerSearchHandler() {
+    }
 
     @Override
     public AbstractController<Collection<CustomerResp>, CustomerSearchForm> newInstance() {
