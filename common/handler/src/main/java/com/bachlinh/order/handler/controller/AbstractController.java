@@ -12,8 +12,6 @@ import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.RuleManager;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 
@@ -24,15 +22,10 @@ public abstract non-sealed class AbstractController<T, U> implements Controller<
     private NativeRequest<U> request;
     private NativeResponse<T> response;
 
-    @Getter
-    @Setter
     private DependenciesContainerResolver containerResolver;
 
-    @Getter
-    @Setter
     private Environment environment;
 
-    @Setter
     private RuleManager ruleManager;
 
     private String name;
@@ -155,5 +148,25 @@ public abstract non-sealed class AbstractController<T, U> implements Controller<
 
     private NativeResponse<T> merge(NativeResponse<T> other) {
         return getNativeResponse().merge(other);
+    }
+
+    public DependenciesContainerResolver getContainerResolver() {
+        return this.containerResolver;
+    }
+
+    public Environment getEnvironment() {
+        return this.environment;
+    }
+
+    public void setContainerResolver(DependenciesContainerResolver containerResolver) {
+        this.containerResolver = containerResolver;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    public void setRuleManager(RuleManager ruleManager) {
+        this.ruleManager = ruleManager;
     }
 }

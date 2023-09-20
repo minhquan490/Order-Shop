@@ -10,8 +10,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Transient;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
@@ -26,8 +24,6 @@ import java.util.Objects;
  * @author Hoang Minh Quan.
  */
 @MappedSuperclass
-@Getter
-@EqualsAndHashCode
 @Formula(processors = {CommonFieldSelectFormula.class, IdFieldFormula.class})
 public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
@@ -125,11 +121,73 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Override
     public boolean isNew() {
-        return this.isNew == null ? getId() == null : this.isNew;
+        return getIsNew() == null ? getId() == null : getIsNew();
     }
 
     protected void trackUpdatedField(String fieldName, Object oldValue, Object newValue) {
         FieldUpdated fieldUpdated = new FieldUpdated(fieldName, oldValue, () -> newValue);
         setUpdatedField(fieldUpdated);
+    }
+
+    public String getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public String getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public Timestamp getCreatedDate() {
+        return this.createdDate;
+    }
+
+    public Timestamp getModifiedDate() {
+        return this.modifiedDate;
+    }
+
+    public List<FieldUpdated> getUpdatedFields() {
+        return this.updatedFields;
+    }
+
+    public Boolean getIsNew() {
+        return this.isNew;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof AbstractEntity<?> other)) return false;
+        if (!other.canEqual(this)) return false;
+        final Object this$createdBy = this.getCreatedBy();
+        final Object other$createdBy = other.getCreatedBy();
+        if (!Objects.equals(this$createdBy, other$createdBy)) return false;
+        final Object this$modifiedBy = this.getModifiedBy();
+        final Object other$modifiedBy = other.getModifiedBy();
+        if (!Objects.equals(this$modifiedBy, other$modifiedBy))
+            return false;
+        final Object this$createdDate = this.getCreatedDate();
+        final Object other$createdDate = other.getCreatedDate();
+        if (!Objects.equals(this$createdDate, other$createdDate))
+            return false;
+        final Object this$modifiedDate = this.getModifiedDate();
+        final Object other$modifiedDate = other.getModifiedDate();
+        return Objects.equals(this$modifiedDate, other$modifiedDate);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof AbstractEntity;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $createdBy = this.getCreatedBy();
+        result = result * PRIME + ($createdBy == null ? 43 : $createdBy.hashCode());
+        final Object $modifiedBy = this.getModifiedBy();
+        result = result * PRIME + ($modifiedBy == null ? 43 : $modifiedBy.hashCode());
+        final Object $createdDate = this.getCreatedDate();
+        result = result * PRIME + ($createdDate == null ? 43 : $createdDate.hashCode());
+        final Object $modifiedDate = this.getModifiedDate();
+        result = result * PRIME + ($modifiedDate == null ? 43 : $modifiedDate.hashCode());
+        return result;
     }
 }

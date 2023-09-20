@@ -1,15 +1,15 @@
 <script lang="ts">
 import {
-  carouselItems,
-  checkPageQueryParam,
-  createDefaultProduct,
-  deletePicture,
-  navigationSources,
-  onMounted,
-  submitUpdate,
-  uploadFile
+carouselItems,
+checkPageQueryParam,
+createDefaultProduct,
+deletePicture,
+navigationSources,
+onMounted,
+submitUpdate,
+uploadFile
 } from "~/logic/pages/admin/product/info.logic";
-import {AdminProduct, CarouselItem, Category, NavBarsSource} from "~/types";
+import { AdminProduct, CarouselItem, Category, NavBarsSource } from "~/types";
 
 export default {
   setup() {
@@ -288,7 +288,7 @@ export default {
         </client-only>
       </div>
       <div v-if="pictureSelected.length !== 0" id="readProductModal" tabindex="-1" aria-hidden="true"
-           class="flex items-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full">
+           class="flex items-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center w-full md:inset-0 h-modal md:h-full">
         <div class="relative p-4 w-full max-w-xl h-full md:h-auto">
           <div class="relative p-4 bg-white rounded-lg shadow sm:p-5">
             <div class="flex justify-between mb-4 rounded-t sm:mb-5">

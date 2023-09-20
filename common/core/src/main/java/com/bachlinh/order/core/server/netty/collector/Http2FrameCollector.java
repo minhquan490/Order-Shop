@@ -13,14 +13,11 @@ import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Http2FrameCollector implements FrameCollector<Http2HeadersFrame, Http2DataFrame> {
     private final Queue<ByteBuf> dataPool = new ArrayDeque<>();
     private final Queue<Http2Headers> headerPool = new ArrayDeque<>();
@@ -29,6 +26,13 @@ public class Http2FrameCollector implements FrameCollector<Http2HeadersFrame, Ht
     private final String path;
     private final String scheme;
     private final String method;
+
+    private Http2FrameCollector(String authority, String path, String scheme, String method) {
+        this.authority = authority;
+        this.path = path;
+        this.scheme = scheme;
+        this.method = method;
+    }
 
     public static Http2FrameCollector getInstance(CharSequence authority, CharSequence path, CharSequence scheme, CharSequence method) {
         return new Http2FrameCollector(authority.toString(), path.toString(), scheme.toString(), method.toString());

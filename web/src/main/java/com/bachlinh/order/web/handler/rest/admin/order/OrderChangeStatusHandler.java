@@ -11,20 +11,20 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.order.OrderChangeStatusForm;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "orderChangeStatusHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class OrderChangeStatusHandler extends AbstractController<Map<String, Object>, OrderChangeStatusForm> {
     private String url;
     private OrderChangeStatusService statusService;
+
+    private OrderChangeStatusHandler() {
+    }
 
     @Override
     public AbstractController<Map<String, Object>, OrderChangeStatusForm> newInstance() {

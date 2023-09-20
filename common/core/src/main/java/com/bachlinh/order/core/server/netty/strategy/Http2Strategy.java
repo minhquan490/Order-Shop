@@ -5,9 +5,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
-import lombok.Setter;
 
-@Setter
 public class Http2Strategy implements NettyHandlerContextStrategy {
 
     private Http2HeadersFrame headersFrame;
@@ -39,5 +37,13 @@ public class Http2Strategy implements NettyHandlerContextStrategy {
     @Override
     public void apply(ChannelHandlerContext ctx, NettyHttpConvention convention) {
         apply(ctx, convention, false);
+    }
+
+    public void setHeadersFrame(Http2HeadersFrame headersFrame) {
+        this.headersFrame = headersFrame;
+    }
+
+    public void setDataFrame(Http2DataFrame dataFrame) {
+        this.dataFrame = dataFrame;
     }
 }

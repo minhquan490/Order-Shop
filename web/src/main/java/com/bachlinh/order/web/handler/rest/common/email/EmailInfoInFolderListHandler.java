@@ -9,16 +9,16 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.EmailInfoInFolderListResp;
 import com.bachlinh.order.web.service.common.EmailService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ActiveReflection
 @RouteProvider(name = "emailInfoInFolderListHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailInfoInFolderListHandler extends AbstractController<EmailInfoInFolderListResp, Void> {
     private EmailService emailService;
     private String url;
+
+    private EmailInfoInFolderListHandler() {
+    }
 
     @Override
     public AbstractController<EmailInfoInFolderListResp, Void> newInstance() {

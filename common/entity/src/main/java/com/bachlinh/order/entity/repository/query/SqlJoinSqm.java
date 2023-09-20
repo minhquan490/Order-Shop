@@ -5,7 +5,6 @@ import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.formula.processor.JoinFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
-import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import java.text.MessageFormat;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-@RequiredArgsConstructor
 class SqlJoinSqm extends AbstractSql<SqlJoin> implements SqlJoin {
     private static final String JOIN_TYPE_TEMPLATE = "{0} JOIN";
 
@@ -28,6 +26,14 @@ class SqlJoinSqm extends AbstractSql<SqlJoin> implements SqlJoin {
     private final Queue<String> joinStatements = new LinkedList<>();
     private final List<QueryBinding> subQueryParam = new LinkedList<>();
     private final List<JoinFormulaProcessor> joinFormulaProcessors = new LinkedList<>();
+
+    public SqlJoinSqm(TableMetadataHolder targetMetadata, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata, String selectQuery, Queue<String> orderByStatements, FormulaMetadata formulaMetadata) {
+        this.targetMetadata = targetMetadata;
+        this.tableMetadata = tableMetadata;
+        this.selectQuery = selectQuery;
+        this.orderByStatements = orderByStatements;
+        this.formulaMetadata = formulaMetadata;
+    }
 
     @Override
     public SqlJoin join(Join join) {

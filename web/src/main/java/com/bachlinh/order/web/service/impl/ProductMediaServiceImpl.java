@@ -18,7 +18,6 @@ import com.bachlinh.order.web.dto.resp.ProductMediaResp;
 import com.bachlinh.order.web.service.business.FileUploadService;
 import com.bachlinh.order.web.service.business.ImageCompressService;
 import com.bachlinh.order.web.service.common.ProductMediaService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Isolation;
@@ -43,7 +42,6 @@ import java.util.UUID;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class ProductMediaServiceImpl implements ProductMediaService, FileUploadService, ImageCompressService {
 
     private String tempFilePath;
@@ -54,6 +52,14 @@ public class ProductMediaServiceImpl implements ProductMediaService, FileUploadS
     private final ProductMediaRepository productMediaRepository;
     private final MessageSettingRepository messageSettingRepository;
     private final EntityFactory entityFactory;
+
+    @ActiveReflection
+    public ProductMediaServiceImpl(ProductRepository productRepository, ProductMediaRepository productMediaRepository, MessageSettingRepository messageSettingRepository, EntityFactory entityFactory) {
+        this.productRepository = productRepository;
+        this.productMediaRepository = productMediaRepository;
+        this.messageSettingRepository = messageSettingRepository;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)

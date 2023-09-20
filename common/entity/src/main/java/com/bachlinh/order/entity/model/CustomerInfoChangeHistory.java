@@ -11,10 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -24,11 +20,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "CUSTOMER_INFORMATION_CHANGE_HISTORY", indexes = @Index(name = "idx_customer_history_id", columnList = "CUSTOMER_ID"))
-@Getter
 @ActiveReflection
 @Label("CIH-")
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(callSuper = true)
 public class CustomerInfoChangeHistory extends AbstractEntity<String> {
 
     @Id
@@ -47,8 +40,11 @@ public class CustomerInfoChangeHistory extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
+
+    @ActiveReflection
+    protected CustomerInfoChangeHistory() {
+    }
 
     @Override
     @ActiveReflection
@@ -96,5 +92,62 @@ public class CustomerInfoChangeHistory extends AbstractEntity<String> {
             trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getOldValue() {
+        return this.oldValue;
+    }
+
+    public String getFieldName() {
+        return this.fieldName;
+    }
+
+    public Timestamp getTimeUpdate() {
+        return this.timeUpdate;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof CustomerInfoChangeHistory other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$oldValue = this.getOldValue();
+        final Object other$oldValue = other.getOldValue();
+        if (!Objects.equals(this$oldValue, other$oldValue)) return false;
+        final Object this$fieldName = this.getFieldName();
+        final Object other$fieldName = other.getFieldName();
+        if (!Objects.equals(this$fieldName, other$fieldName)) return false;
+        final Object this$timeUpdate = this.getTimeUpdate();
+        final Object other$timeUpdate = other.getTimeUpdate();
+        return Objects.equals(this$timeUpdate, other$timeUpdate);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof CustomerInfoChangeHistory;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $oldValue = this.getOldValue();
+        result = result * PRIME + ($oldValue == null ? 43 : $oldValue.hashCode());
+        final Object $fieldName = this.getFieldName();
+        result = result * PRIME + ($fieldName == null ? 43 : $fieldName.hashCode());
+        final Object $timeUpdate = this.getTimeUpdate();
+        result = result * PRIME + ($timeUpdate == null ? 43 : $timeUpdate.hashCode());
+        return result;
     }
 }

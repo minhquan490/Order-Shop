@@ -9,19 +9,19 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.MessageSettingResp;
 import com.bachlinh.order.web.service.common.MessageSettingService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "messageSettingListHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class MessageSettingListHandler extends AbstractController<Collection<MessageSettingResp>, Void> {
 
     private String url;
     private MessageSettingService messageSettingService;
+
+    private MessageSettingListHandler() {
+    }
 
     @Override
     public AbstractController<Collection<MessageSettingResp>, Void> newInstance() {

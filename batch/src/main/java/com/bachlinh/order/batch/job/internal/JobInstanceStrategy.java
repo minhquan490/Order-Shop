@@ -4,9 +4,9 @@ import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.exception.system.batch.JobBuilderException;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.SneakyThrows;
 
 final class JobInstanceStrategy {
     private final Class<? extends Job> jobType;
@@ -22,10 +22,14 @@ final class JobInstanceStrategy {
         this.dependenciesResolver = dependenciesResolver;
     }
 
-    @SneakyThrows
     public Job newInstance() {
         BatchJob batchJob = jobType.getAnnotation(BatchJob.class);
-        AbstractJob abstractJob = (AbstractJob) UnsafeUtils.allocateInstance(jobType);
+        AbstractJob abstractJob;
+        try {
+            abstractJob = (AbstractJob) UnsafeUtils.allocateInstance(jobType);
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        }
         return abstractJob.newInstance(batchJob.name(), profile, dependenciesResolver);
     }
 }

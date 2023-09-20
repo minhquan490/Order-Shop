@@ -1,14 +1,8 @@
 package com.bachlinh.order.web.dto.form.admin.voucher;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
-@Getter
-@Setter
-@NoArgsConstructor
 public class VoucherCreateForm implements ValidatedDto {
 
     @JsonAlias("name")
@@ -31,4 +25,70 @@ public class VoucherCreateForm implements ValidatedDto {
 
     @JsonAlias("is_enable")
     private boolean isEnable;
+
+    public VoucherCreateForm() {
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getDiscounterPercent() {
+        return this.discounterPercent;
+    }
+
+    public int getCost() {
+        return this.cost;
+    }
+
+    public String getTimeStart() {
+        return this.timeStart;
+    }
+
+    public String getTimeEnd() {
+        return this.timeEnd;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public boolean isEnable() {
+        return this.isEnable;
+    }
+
+    @JsonAlias("name")
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @JsonAlias("discount_percent")
+    public void setDiscounterPercent(int discounterPercent) {
+        this.discounterPercent = discounterPercent;
+    }
+
+    @JsonAlias("cost")
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
+    @JsonAlias("time_start")
+    public void setTimeStart(String timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    @JsonAlias("time_end")
+    public void setTimeEnd(String timeEnd) {
+        this.timeEnd = timeEnd;
+    }
+
+    @JsonAlias("content")
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @JsonAlias("is_enable")
+    public void setEnable(boolean isEnable) {
+        this.isEnable = isEnable;
+    }
 }

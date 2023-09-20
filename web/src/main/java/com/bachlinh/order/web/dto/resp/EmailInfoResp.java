@@ -2,13 +2,7 @@ package com.bachlinh.order.web.dto.resp;
 
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @Dto(forType = "com.bachlinh.order.entity.model.Email")
 public class EmailInfoResp {
 
@@ -35,4 +29,71 @@ public class EmailInfoResp {
 
     @MappedDtoField(targetField = "folder.getName", outputJsonField = "folder_name")
     private String folderName;
+
+    public EmailInfoResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public String getReceivedTime() {
+        return this.receivedTime;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public boolean isRead() {
+        return this.read;
+    }
+
+    public String getMediaType() {
+        return this.mediaType;
+    }
+
+    public String getToCustomerName() {
+        return this.toCustomerName;
+    }
+
+    public String getFolderName() {
+        return this.folderName;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setReceivedTime(String receivedTime) {
+        this.receivedTime = receivedTime;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public void setToCustomerName(String toCustomerName) {
+        this.toCustomerName = toCustomerName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
 }

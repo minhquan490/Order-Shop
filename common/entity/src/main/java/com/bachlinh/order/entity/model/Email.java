@@ -14,10 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.http.MediaType;
@@ -38,9 +34,6 @@ import java.util.Objects;
 )
 @ActiveReflection
 @EnableFullTextSearch
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class Email extends AbstractEntity<String> {
 
     @Id
@@ -75,26 +68,26 @@ public class Email extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_CUSTOMER_ID", updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer fromCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_CUSTOMER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer toCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "FOLDER_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private EmailFolders folder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMAIL_TRASH_ID")
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private EmailTrash emailTrash;
+
+    @ActiveReflection
+    protected Email() {
+    }
 
     public boolean isRead() {
         return getRead();
@@ -200,5 +193,111 @@ public class Email extends AbstractEntity<String> {
             trackUpdatedField("EMAIL_TRASH_ID", this.emailTrash.getId(), emailTrash.getId());
         }
         this.emailTrash = emailTrash;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public Timestamp getReceivedTime() {
+        return this.receivedTime;
+    }
+
+    public Timestamp getTimeSent() {
+        return this.timeSent;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public Boolean getRead() {
+        return this.read;
+    }
+
+    public Boolean getSent() {
+        return this.sent;
+    }
+
+    public String getMediaType() {
+        return this.mediaType;
+    }
+
+    public Customer getFromCustomer() {
+        return this.fromCustomer;
+    }
+
+    public Customer getToCustomer() {
+        return this.toCustomer;
+    }
+
+    public EmailFolders getFolder() {
+        return this.folder;
+    }
+
+    public EmailTrash getEmailTrash() {
+        return this.emailTrash;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Email other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$content = this.getContent();
+        final Object other$content = other.getContent();
+        if (!Objects.equals(this$content, other$content)) return false;
+        final Object this$receivedTime = this.getReceivedTime();
+        final Object other$receivedTime = other.getReceivedTime();
+        if (!Objects.equals(this$receivedTime, other$receivedTime))
+            return false;
+        final Object this$timeSent = this.getTimeSent();
+        final Object other$timeSent = other.getTimeSent();
+        if (!Objects.equals(this$timeSent, other$timeSent)) return false;
+        final Object this$title = this.getTitle();
+        final Object other$title = other.getTitle();
+        if (!Objects.equals(this$title, other$title)) return false;
+        final Object this$read = this.getRead();
+        final Object other$read = other.getRead();
+        if (!Objects.equals(this$read, other$read)) return false;
+        final Object this$sent = this.getSent();
+        final Object other$sent = other.getSent();
+        if (!Objects.equals(this$sent, other$sent)) return false;
+        final Object this$mediaType = this.getMediaType();
+        final Object other$mediaType = other.getMediaType();
+        return Objects.equals(this$mediaType, other$mediaType);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Email;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $content = this.getContent();
+        result = result * PRIME + ($content == null ? 43 : $content.hashCode());
+        final Object $receivedTime = this.getReceivedTime();
+        result = result * PRIME + ($receivedTime == null ? 43 : $receivedTime.hashCode());
+        final Object $timeSent = this.getTimeSent();
+        result = result * PRIME + ($timeSent == null ? 43 : $timeSent.hashCode());
+        final Object $title = this.getTitle();
+        result = result * PRIME + ($title == null ? 43 : $title.hashCode());
+        final Object $read = this.getRead();
+        result = result * PRIME + ($read == null ? 43 : $read.hashCode());
+        final Object $sent = this.getSent();
+        result = result * PRIME + ($sent == null ? 43 : $sent.hashCode());
+        final Object $mediaType = this.getMediaType();
+        result = result * PRIME + ($mediaType == null ? 43 : $mediaType.hashCode());
+        return result;
     }
 }

@@ -2,13 +2,7 @@ package com.bachlinh.order.web.dto.resp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
-@Getter
-@Setter
 public class EmailTrashResp {
 
     @JsonProperty("id")
@@ -17,9 +11,28 @@ public class EmailTrashResp {
     @JsonProperty("emails")
     private Email[] emails;
 
+    public EmailTrashResp() {
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public Email[] getEmails() {
+        return this.emails;
+    }
+
+    @JsonProperty("id")
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @JsonProperty("emails")
+    public void setEmails(Email[] emails) {
+        this.emails = emails;
+    }
+
     @JsonRootName("email")
-    @Getter
-    @Setter
     public static class Email {
 
         @JsonProperty("id")
@@ -30,5 +43,32 @@ public class EmailTrashResp {
 
         @JsonProperty("title")
         private String title;
+
+        public String getId() {
+            return this.id;
+        }
+
+        public String getContent() {
+            return this.content;
+        }
+
+        public String getTitle() {
+            return this.title;
+        }
+
+        @JsonProperty("id")
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @JsonProperty("content")
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        @JsonProperty("title")
+        public void setTitle(String title) {
+            this.title = title;
+        }
     }
 }

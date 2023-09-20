@@ -1,13 +1,9 @@
 package com.bachlinh.order.utils;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
 public final class RuntimeUtils {
 
     public static int getVersion() {

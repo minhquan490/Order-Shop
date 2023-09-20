@@ -3,6 +3,8 @@ package com.bachlinh.order.core.concurrent.support;
 import com.bachlinh.order.core.concurrent.ExecutorHolder;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
+import com.bachlinh.order.core.concurrent.ThreadPoolOption;
+import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
@@ -14,7 +16,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 
-public class DefaultThreadPoolManager implements ThreadPoolManager {
+public class DefaultThreadPoolManager implements ThreadPoolManager, ThreadPoolOptionHolder {
     private final ExecutorHolder executorHolder;
 
     public DefaultThreadPoolManager(ThreadPoolOption option) {
@@ -103,5 +105,10 @@ public class DefaultThreadPoolManager implements ThreadPoolManager {
             case INDEX -> this.executorHolder.getEntityIndexExecutor();
             case SERVICE -> this.executorHolder.getServiceExecutor();
         };
+    }
+
+    @Override
+    public ThreadPoolOption getThreadOption() {
+        return ((ExecutorContainer) this.executorHolder).getOption();
     }
 }

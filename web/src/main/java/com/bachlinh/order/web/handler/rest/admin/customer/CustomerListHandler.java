@@ -11,8 +11,6 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -21,12 +19,14 @@ import java.util.Optional;
 
 @ActiveReflection
 @RouteProvider(name = "customerListHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CustomerListHandler extends AbstractController<Collection<CustomerResp>, Void> {
     private String url;
     private String defaultPageSize;
     private CustomerService customerService;
+
+    private CustomerListHandler() {
+    }
 
     @Override
     public AbstractController<Collection<CustomerResp>, Void> newInstance() {

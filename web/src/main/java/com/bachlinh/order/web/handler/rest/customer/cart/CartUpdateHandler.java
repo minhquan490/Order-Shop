@@ -11,17 +11,17 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.customer.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "cartUpdateHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = {Role.CUSTOMER, Role.ADMIN})
 @EnableCsrf
 public class CartUpdateHandler extends AbstractController<CartResp, CartForm> {
     private CartService cartService;
     private String url;
+
+    private CartUpdateHandler() {
+    }
 
     @Override
     public AbstractController<CartResp, CartForm> newInstance() {

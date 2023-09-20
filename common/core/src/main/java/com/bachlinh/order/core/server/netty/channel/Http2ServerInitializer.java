@@ -19,10 +19,10 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.incubator.codec.http3.DefaultHttp3DataFrame;
 import io.netty.incubator.codec.http3.DefaultHttp3HeadersFrame;
 import io.netty.incubator.codec.quic.QuicStreamChannel;
-import lombok.NonNull;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,5 +104,9 @@ public class Http2ServerInitializer extends ChannelInitializer<SocketChannel> {
         ch.config().setOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
         ch.pipeline().addLast(new ReadTimeoutHandler(10, TimeUnit.SECONDS));
         ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), HttpUtils.getServerAPNHandler(servletHandlerAdapter, filterChainAdapter));
+    }
+
+    public int getMaxHttpContentLength() {
+        return maxHttpContentLength;
     }
 }

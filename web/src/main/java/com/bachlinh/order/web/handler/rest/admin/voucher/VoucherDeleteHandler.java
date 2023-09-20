@@ -10,19 +10,19 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherDeleteForm;
 import com.bachlinh.order.web.service.common.VoucherService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "voucherDeleteHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
 public class VoucherDeleteHandler extends AbstractController<Map<String, Object>, VoucherDeleteForm> {
     private String url;
     private VoucherService voucherService;
+
+    private VoucherDeleteHandler() {
+    }
 
     @Override
     public AbstractController<Map<String, Object>, VoucherDeleteForm> newInstance() {

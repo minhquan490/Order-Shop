@@ -14,14 +14,12 @@ import com.bachlinh.order.web.dto.form.common.WardSearchForm;
 import com.bachlinh.order.web.dto.resp.WardResp;
 import com.bachlinh.order.web.service.business.WardSearchService;
 import com.bachlinh.order.web.service.common.WardService;
-import lombok.RequiredArgsConstructor;
 
 import java.text.MessageFormat;
 import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class WardServiceImpl implements WardSearchService, WardService {
     private static final String NOT_EXISTED_MESSAGE_ID = "MSG-000017";
 
@@ -30,6 +28,15 @@ public class WardServiceImpl implements WardSearchService, WardService {
     private final DistrictRepository districtRepository;
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
+
+    @ActiveReflection
+    public WardServiceImpl(EntityFactory entityFactory, WardRepository wardRepository, DistrictRepository districtRepository, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
+        this.entityFactory = entityFactory;
+        this.wardRepository = wardRepository;
+        this.districtRepository = districtRepository;
+        this.dtoMapper = dtoMapper;
+        this.messageSettingRepository = messageSettingRepository;
+    }
 
     @Override
     public Collection<WardResp> search(WardSearchForm form) {

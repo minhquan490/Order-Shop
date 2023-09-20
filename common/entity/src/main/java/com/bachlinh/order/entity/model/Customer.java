@@ -22,13 +22,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,15 +50,11 @@ import java.util.Set;
 )
 @EnableFullTextSearch
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor = @__(@ActiveReflection))
-@Getter
-@EqualsAndHashCode(callSuper = true)
 @QueryCache
 public class Customer extends AbstractEntity<String> implements UserDetails {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "varchar(32)", unique = true)
-    @NonNull
     private String id;
 
     @Column(name = "USER_NAME", unique = true, nullable = false, columnDefinition = "nvarchar(32)")
@@ -121,41 +112,33 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
 
     @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Cart cart;
 
     @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private RefreshToken refreshToken;
 
     @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private EmailTrash emailTrash;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_MEDIA_ID")
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private CustomerMedia customerMedia;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "TEMPORARY_TOKEN_ID", updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private TemporaryToken temporaryToken;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
     private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
     private Set<Order> orders = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
     private Set<CustomerAccessHistory> histories = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
@@ -167,8 +150,11 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
                     @Index(name = "idx_user_assignment", columnList = "CUSTOMER_ID, VOUCHER_ID")
             }
     )
-    @EqualsAndHashCode.Exclude
     private Set<Voucher> assignedVouchers = new HashSet<>();
+
+    @ActiveReflection
+    protected Customer() {
+    }
 
     public String getPicture() {
         if (customerMedia == null) {
@@ -417,5 +403,199 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
     @ActiveReflection
     public void setTemporaryToken(TemporaryToken temporaryToken) {
         this.temporaryToken = temporaryToken;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public String getRole() {
+        return this.role;
+    }
+
+    public Integer getOrderPoint() {
+        return this.orderPoint;
+    }
+
+    public Boolean getActivated() {
+        return this.activated;
+    }
+
+    public Boolean getAccountNonExpired() {
+        return this.accountNonExpired;
+    }
+
+    public Boolean getAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    public Boolean getCredentialsNonExpired() {
+        return this.credentialsNonExpired;
+    }
+
+    public Boolean getEnabled() {
+        return this.enabled;
+    }
+
+    public Cart getCart() {
+        return this.cart;
+    }
+
+    public RefreshToken getRefreshToken() {
+        return this.refreshToken;
+    }
+
+    public EmailTrash getEmailTrash() {
+        return this.emailTrash;
+    }
+
+    public CustomerMedia getCustomerMedia() {
+        return this.customerMedia;
+    }
+
+    public TemporaryToken getTemporaryToken() {
+        return this.temporaryToken;
+    }
+
+    public Set<Address> getAddresses() {
+        return this.addresses;
+    }
+
+    public Set<Order> getOrders() {
+        return this.orders;
+    }
+
+    public Set<CustomerAccessHistory> getHistories() {
+        return this.histories;
+    }
+
+    public Set<Voucher> getAssignedVouchers() {
+        return this.assignedVouchers;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Customer)) return false;
+        final Customer other = (Customer) o;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$username = this.getUsername();
+        final Object other$username = other.getUsername();
+        if (!Objects.equals(this$username, other$username)) return false;
+        final Object this$password = this.getPassword();
+        final Object other$password = other.getPassword();
+        if (!Objects.equals(this$password, other$password)) return false;
+        final Object this$firstName = this.getFirstName();
+        final Object other$firstName = other.getFirstName();
+        if (!Objects.equals(this$firstName, other$firstName)) return false;
+        final Object this$lastName = this.getLastName();
+        final Object other$lastName = other.getLastName();
+        if (!Objects.equals(this$lastName, other$lastName)) return false;
+        final Object this$phoneNumber = this.getPhoneNumber();
+        final Object other$phoneNumber = other.getPhoneNumber();
+        if (!Objects.equals(this$phoneNumber, other$phoneNumber))
+            return false;
+        final Object this$email = this.getEmail();
+        final Object other$email = other.getEmail();
+        if (!Objects.equals(this$email, other$email)) return false;
+        final Object this$gender = this.getGender();
+        final Object other$gender = other.getGender();
+        if (!Objects.equals(this$gender, other$gender)) return false;
+        final Object this$role = this.getRole();
+        final Object other$role = other.getRole();
+        if (!Objects.equals(this$role, other$role)) return false;
+        final Object this$orderPoint = this.getOrderPoint();
+        final Object other$orderPoint = other.getOrderPoint();
+        if (!Objects.equals(this$orderPoint, other$orderPoint))
+            return false;
+        final Object this$activated = this.getActivated();
+        final Object other$activated = other.getActivated();
+        if (!Objects.equals(this$activated, other$activated)) return false;
+        final Object this$accountNonExpired = this.getAccountNonExpired();
+        final Object other$accountNonExpired = other.getAccountNonExpired();
+        if (!Objects.equals(this$accountNonExpired, other$accountNonExpired))
+            return false;
+        final Object this$accountNonLocked = this.getAccountNonLocked();
+        final Object other$accountNonLocked = other.getAccountNonLocked();
+        if (!Objects.equals(this$accountNonLocked, other$accountNonLocked))
+            return false;
+        final Object this$credentialsNonExpired = this.getCredentialsNonExpired();
+        final Object other$credentialsNonExpired = other.getCredentialsNonExpired();
+        if (!Objects.equals(this$credentialsNonExpired, other$credentialsNonExpired))
+            return false;
+        final Object this$enabled = this.getEnabled();
+        final Object other$enabled = other.getEnabled();
+        return Objects.equals(this$enabled, other$enabled);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Customer;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + $id.hashCode();
+        final Object $username = this.getUsername();
+        result = result * PRIME + ($username == null ? 43 : $username.hashCode());
+        final Object $password = this.getPassword();
+        result = result * PRIME + ($password == null ? 43 : $password.hashCode());
+        final Object $firstName = this.getFirstName();
+        result = result * PRIME + ($firstName == null ? 43 : $firstName.hashCode());
+        final Object $lastName = this.getLastName();
+        result = result * PRIME + ($lastName == null ? 43 : $lastName.hashCode());
+        final Object $phoneNumber = this.getPhoneNumber();
+        result = result * PRIME + ($phoneNumber == null ? 43 : $phoneNumber.hashCode());
+        final Object $email = this.getEmail();
+        result = result * PRIME + ($email == null ? 43 : $email.hashCode());
+        final Object $gender = this.getGender();
+        result = result * PRIME + ($gender == null ? 43 : $gender.hashCode());
+        final Object $role = this.getRole();
+        result = result * PRIME + ($role == null ? 43 : $role.hashCode());
+        final Object $orderPoint = this.getOrderPoint();
+        result = result * PRIME + ($orderPoint == null ? 43 : $orderPoint.hashCode());
+        final Object $activated = this.getActivated();
+        result = result * PRIME + ($activated == null ? 43 : $activated.hashCode());
+        final Object $accountNonExpired = this.getAccountNonExpired();
+        result = result * PRIME + ($accountNonExpired == null ? 43 : $accountNonExpired.hashCode());
+        final Object $accountNonLocked = this.getAccountNonLocked();
+        result = result * PRIME + ($accountNonLocked == null ? 43 : $accountNonLocked.hashCode());
+        final Object $credentialsNonExpired = this.getCredentialsNonExpired();
+        result = result * PRIME + ($credentialsNonExpired == null ? 43 : $credentialsNonExpired.hashCode());
+        final Object $enabled = this.getEnabled();
+        result = result * PRIME + ($enabled == null ? 43 : $enabled.hashCode());
+        return result;
     }
 }

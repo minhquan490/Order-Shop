@@ -1,15 +1,9 @@
 package com.bachlinh.order.web.dto.resp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Collection;
 
-@NoArgsConstructor
-@Getter
-@Setter
 public class CustomerAccessHistoriesResp {
 
     @JsonProperty("access_histories")
@@ -24,9 +18,45 @@ public class CustomerAccessHistoriesResp {
     @JsonProperty("page_size")
     private Long pageSize;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
+    public CustomerAccessHistoriesResp() {
+    }
+
+    public Collection<CustomerAccessHistoriesInfo> getAccessHistories() {
+        return this.accessHistories;
+    }
+
+    public Long getTotalHistories() {
+        return this.totalHistories;
+    }
+
+    public Long getPage() {
+        return this.page;
+    }
+
+    public Long getPageSize() {
+        return this.pageSize;
+    }
+
+    @JsonProperty("access_histories")
+    public void setAccessHistories(Collection<CustomerAccessHistoriesInfo> accessHistories) {
+        this.accessHistories = accessHistories;
+    }
+
+    @JsonProperty("total_histories")
+    public void setTotalHistories(Long totalHistories) {
+        this.totalHistories = totalHistories;
+    }
+
+    @JsonProperty("page")
+    public void setPage(Long page) {
+        this.page = page;
+    }
+
+    @JsonProperty("page_size")
+    public void setPageSize(Long pageSize) {
+        this.pageSize = pageSize;
+    }
+
     public static class CustomerAccessHistoriesInfo {
 
         @JsonProperty("id")
@@ -46,5 +76,62 @@ public class CustomerAccessHistoriesResp {
 
         @JsonProperty("remove_time")
         private String removeTime;
+
+        public CustomerAccessHistoriesInfo() {
+        }
+
+        public String getId() {
+            return this.id;
+        }
+
+        public String getPathRequest() {
+            return this.pathRequest;
+        }
+
+        public String getRequestType() {
+            return this.requestType;
+        }
+
+        public String getRequestContent() {
+            return this.requestContent;
+        }
+
+        public String getCustomerIp() {
+            return this.customerIp;
+        }
+
+        public String getRemoveTime() {
+            return this.removeTime;
+        }
+
+        @JsonProperty("id")
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @JsonProperty("path_request")
+        public void setPathRequest(String pathRequest) {
+            this.pathRequest = pathRequest;
+        }
+
+        @JsonProperty("request_type")
+        public void setRequestType(String requestType) {
+            this.requestType = requestType;
+        }
+
+        @JsonProperty("request_content")
+        public void setRequestContent(String requestContent) {
+            this.requestContent = requestContent;
+        }
+
+        @JsonProperty("customer_ip")
+        public void setCustomerIp(String customerIp) {
+            this.customerIp = customerIp;
+        }
+
+        @JsonProperty("remove_time")
+        public void setRemoveTime(String removeTime) {
+            this.removeTime = removeTime;
+        }
     }
 }

@@ -1,10 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
@@ -20,16 +15,27 @@ import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplate
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderInfoResp;
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderListResp;
 import com.bachlinh.order.web.service.common.EmailTemplateFolderService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 public class EmailTemplateFolderServiceImpl implements EmailTemplateFolderService {
     private final EmailTemplateFolderRepository emailTemplateFolderRepository;
     private final DtoMapper dtoMapper;
     private final EntityFactory entityFactory;
+
+    @ActiveReflection
+    @DependenciesInitialize
+    public EmailTemplateFolderServiceImpl(EmailTemplateFolderRepository emailTemplateFolderRepository, DtoMapper dtoMapper, EntityFactory entityFactory) {
+        this.emailTemplateFolderRepository = emailTemplateFolderRepository;
+        this.dtoMapper = dtoMapper;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)

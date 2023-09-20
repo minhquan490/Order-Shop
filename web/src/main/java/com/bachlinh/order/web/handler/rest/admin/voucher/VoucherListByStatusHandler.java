@@ -10,20 +10,20 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.common.VoucherService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.regex.Pattern;
 
 @ActiveReflection
 @RouteProvider(name = "voucherListByStatusHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class VoucherListByStatusHandler extends AbstractController<Collection<VoucherResp>, Void> {
     private static final Pattern BOOLEAN_PATTERN = Pattern.compile("^(?>true)$|^(?>false)$");
     private VoucherService voucherService;
     private String url;
+
+    private VoucherListByStatusHandler() {
+    }
 
     @Override
     public AbstractController<Collection<VoucherResp>, Void> newInstance() {

@@ -11,7 +11,6 @@ import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingUpdateForm;
 import com.bachlinh.order.web.dto.resp.MessageSettingResp;
 import com.bachlinh.order.web.service.common.MessageSettingService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +19,16 @@ import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor
 public class MessageSettingServiceImpl implements MessageSettingService {
     private final MessageSettingRepository messageSettingRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
+
+    public MessageSettingServiceImpl(MessageSettingRepository messageSettingRepository, EntityFactory entityFactory, DtoMapper dtoMapper) {
+        this.messageSettingRepository = messageSettingRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)

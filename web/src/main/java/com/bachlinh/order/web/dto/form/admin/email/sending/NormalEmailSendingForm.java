@@ -1,14 +1,8 @@
 package com.bachlinh.order.web.dto.form.admin.email.sending;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
-@Getter
-@Setter
-@NoArgsConstructor
 public class NormalEmailSendingForm implements ValidatedDto {
 
     @JsonAlias("title")
@@ -22,4 +16,43 @@ public class NormalEmailSendingForm implements ValidatedDto {
 
     @JsonAlias("to")
     private String toCustomer;
+
+    public NormalEmailSendingForm() {
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public String getContentType() {
+        return this.contentType;
+    }
+
+    public String getToCustomer() {
+        return this.toCustomer;
+    }
+
+    @JsonAlias("title")
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @JsonAlias("content")
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @JsonAlias("content_type")
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    @JsonAlias("to")
+    public void setToCustomer(String toCustomer) {
+        this.toCustomer = toCustomer;
+    }
 }

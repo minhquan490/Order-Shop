@@ -10,8 +10,6 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.AddEmailToTrashForm;
 import com.bachlinh.order.web.dto.resp.EmailTrashResp;
 import com.bachlinh.order.web.service.business.EmailInTrashService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
@@ -19,10 +17,12 @@ import java.util.List;
 @RouteProvider(name = "addEmailToTrashHandler")
 @ActiveReflection
 @EnableCsrf
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AddEmailToTrashHandler extends AbstractController<EmailTrashResp, AddEmailToTrashForm> {
     private EmailInTrashService emailInTrashService;
     private String url;
+
+    private AddEmailToTrashHandler() {
+    }
 
     @Override
     public AbstractController<EmailTrashResp, AddEmailToTrashForm> newInstance() {

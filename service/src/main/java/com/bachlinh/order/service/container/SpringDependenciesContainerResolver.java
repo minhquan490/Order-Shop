@@ -1,8 +1,9 @@
 package com.bachlinh.order.service.container;
 
 import com.bachlinh.order.exception.system.common.CriticalException;
-import lombok.EqualsAndHashCode;
 import org.springframework.context.ApplicationContext;
+
+import java.util.Objects;
 
 class SpringDependenciesContainerResolver implements DependenciesContainerResolver {
     private static SpringDependenciesContainerResolver singleton;
@@ -41,7 +42,6 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
         return singleton;
     }
 
-    @EqualsAndHashCode
     private static class SpringDependenciesResolver implements DependenciesResolver {
         private final ApplicationContext context;
 
@@ -78,6 +78,27 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
 
         ApplicationContext unwrap() {
             return context;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof SpringDependenciesResolver other)) return false;
+            if (!other.canEqual(this)) return false;
+            final Object this$context = this.context;
+            final Object other$context = other.context;
+            return Objects.equals(this$context, other$context);
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof SpringDependenciesResolver;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            final Object $context = this.context;
+            result = result * PRIME + $context.hashCode();
+            return result;
         }
     }
 }

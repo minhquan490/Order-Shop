@@ -9,16 +9,16 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.service.business.OrderInDateService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "orderNewInDateHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = {Role.ADMIN, Role.MARKETING})
 public class OrderNewInDateHandler extends AbstractController<Integer, Object> {
     private String url;
     private OrderInDateService orderInDateService;
+
+    private OrderNewInDateHandler() {
+    }
 
     @Override
     public AbstractController<Integer, Object> newInstance() {

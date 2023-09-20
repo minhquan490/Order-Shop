@@ -1,14 +1,8 @@
 package com.bachlinh.order.web.dto.resp;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @Dto(forType = "com.bachlinh.order.entity.model.Email")
 public class EmailSendingResp {
 
@@ -20,4 +14,31 @@ public class EmailSendingResp {
 
     @MappedDtoField(targetField = "timeSent.toString", outputJsonField = "time_sent")
     private String timeSent;
+
+    public EmailSendingResp() {
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public boolean isSent() {
+        return this.sent;
+    }
+
+    public String getTimeSent() {
+        return this.timeSent;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent = sent;
+    }
+
+    public void setTimeSent(String timeSent) {
+        this.timeSent = timeSent;
+    }
 }

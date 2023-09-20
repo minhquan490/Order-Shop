@@ -33,7 +33,6 @@ import com.bachlinh.order.web.service.business.OrderAnalyzeService;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
 import com.bachlinh.order.web.service.business.OrderInDateService;
 import com.bachlinh.order.web.service.common.OrderService;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,7 +56,6 @@ import java.util.stream.Stream;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService, OrderChangeStatusService, OrderInDateService, OrderAnalyzeService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -70,6 +68,15 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
+
+    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository, EntityFactory entityFactory, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.customerRepository = customerRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+        this.messageSettingRepository = messageSettingRepository;
+    }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)

@@ -10,18 +10,18 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherSearchForm;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.business.VoucherSearchService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "voucherSearchHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class VoucherSearchHandler extends AbstractController<Collection<VoucherResp>, VoucherSearchForm> {
     private String url;
     private VoucherSearchService voucherSearchService;
+
+    private VoucherSearchHandler() {
+    }
 
     @Override
     public AbstractController<Collection<VoucherResp>, VoucherSearchForm> newInstance() {

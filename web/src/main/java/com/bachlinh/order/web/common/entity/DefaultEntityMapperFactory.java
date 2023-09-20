@@ -9,7 +9,6 @@ import com.bachlinh.order.entity.mapper.AbstractEntityMapper;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.SneakyThrows;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -37,7 +36,6 @@ public class DefaultEntityMapperFactory implements EntityMapperFactory {
         });
     }
 
-    @SneakyThrows
     private void configSharedMappers() {
         ApplicationScanner scanner = new ApplicationScanner();
         Collection<Class<?>> mapperClasses = scanner.findComponents()
@@ -47,7 +45,12 @@ public class DefaultEntityMapperFactory implements EntityMapperFactory {
                 .toList();
         for (var mapperClass : mapperClasses) {
             Class<?> entityType = entityType(mapperClass);
-            AbstractEntityMapper<?> abstractEntityMapper = (AbstractEntityMapper<?>) UnsafeUtils.allocateInstance(mapperClass);
+            AbstractEntityMapper<?> abstractEntityMapper;
+            try {
+                abstractEntityMapper = (AbstractEntityMapper<?>) UnsafeUtils.allocateInstance(mapperClass);
+            } catch (InstantiationException e) {
+                throw new CriticalException(e);
+            }
             abstractEntityMapper.setEntityFactory(entityFactory);
             abstractEntityMapper.setEntityMapperFactory(this);
             sharedMappersHolder.put(entityType, abstractEntityMapper);

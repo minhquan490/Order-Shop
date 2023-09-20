@@ -8,8 +8,6 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,10 +20,12 @@ import java.util.stream.Collectors;
 
 @RouteProvider(name = "homeHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HomeHandler extends AbstractController<Map<String, Object>, Object> {
     private String homeUrl;
     private ProductService productService;
+
+    private HomeHandler() {
+    }
 
     @Override
     public AbstractController<Map<String, Object>, Object> newInstance() {

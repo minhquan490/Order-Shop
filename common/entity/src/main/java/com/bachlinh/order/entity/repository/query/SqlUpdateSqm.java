@@ -3,8 +3,6 @@ package com.bachlinh.order.entity.repository.query;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -13,13 +11,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 class SqlUpdateSqm implements SqlUpdate {
 
     private final TableMetadataHolder metadataHolder;
     private final List<UpdatedFieldHolder> updatedFieldHolders = new LinkedList<>();
     private final Set<QueryBinding> bindingSet = new LinkedHashSet<>();
     private BaseEntity<?> target;
+
+    protected SqlUpdateSqm(TableMetadataHolder metadataHolder) {
+        this.metadataHolder = metadataHolder;
+    }
 
     @Override
     public String getNativeQuery() {

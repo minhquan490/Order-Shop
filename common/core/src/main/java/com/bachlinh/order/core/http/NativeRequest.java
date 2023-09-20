@@ -5,14 +5,10 @@ import com.bachlinh.order.core.http.converter.internal.HttpServletRequestConvert
 import com.bachlinh.order.core.http.converter.spi.RequestConverter;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@RequiredArgsConstructor
-@Getter
 public abstract class NativeRequest<T> {
     private static final Map<Class<?>, RequestConverter<?>> converterMap = new ConcurrentHashMap<>();
 
@@ -20,6 +16,13 @@ public abstract class NativeRequest<T> {
     private final String url;
     private final RequestMethod requestMethod;
     private final boolean isMultipart;
+
+    protected NativeRequest(T request, String url, RequestMethod requestMethod, boolean isMultipart) {
+        this.request = request;
+        this.url = url;
+        this.requestMethod = requestMethod;
+        this.isMultipart = isMultipart;
+    }
 
     public abstract MultiValueMap<String, String> getUrlQueryParam();
 
@@ -44,5 +47,21 @@ public abstract class NativeRequest<T> {
         }
         RequestConverter<HttpServletRequest> servletConverter = (RequestConverter<HttpServletRequest>) converterMap.get(HttpServletRequest.class);
         return servletConverter.convert(servletRequest);
+    }
+
+    public T getRequest() {
+        return this.request;
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public RequestMethod getRequestMethod() {
+        return this.requestMethod;
+    }
+
+    public boolean isMultipart() {
+        return this.isMultipart;
     }
 }

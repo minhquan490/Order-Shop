@@ -1,14 +1,10 @@
 package com.bachlinh.order.web.dto.form.customer;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-@Getter
 public class OrderCreateForm implements ValidatedDto {
 
     @JsonAlias("bank_transaction_code")
@@ -16,6 +12,10 @@ public class OrderCreateForm implements ValidatedDto {
 
     @JsonAlias("details")
     private Detail[] details;
+
+    @ActiveReflection
+    public OrderCreateForm() {
+    }
 
     @ActiveReflection
     public void setBankTransactionCode(String bankTransactionCode) {
@@ -27,9 +27,15 @@ public class OrderCreateForm implements ValidatedDto {
         this.details = details;
     }
 
+    public String getBankTransactionCode() {
+        return this.bankTransactionCode;
+    }
+
+    public Detail[] getDetails() {
+        return this.details;
+    }
+
     @ActiveReflection
-    @NoArgsConstructor(onConstructor = @__({@ActiveReflection}))
-    @Getter
     public static class Detail {
 
         @JsonAlias("amount")
@@ -40,6 +46,10 @@ public class OrderCreateForm implements ValidatedDto {
 
         @JsonAlias("product_id")
         private String productId;
+
+        @ActiveReflection
+        public Detail() {
+        }
 
         @ActiveReflection
         public void setAmount(String amount) {
@@ -54,6 +64,18 @@ public class OrderCreateForm implements ValidatedDto {
         @ActiveReflection
         public void setProductId(String productId) {
             this.productId = productId;
+        }
+
+        public String getAmount() {
+            return this.amount;
+        }
+
+        public String getProductName() {
+            return this.productName;
+        }
+
+        public String getProductId() {
+            return this.productId;
         }
     }
 }

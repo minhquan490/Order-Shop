@@ -1,8 +1,5 @@
 package com.bachlinh.order.utils;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -10,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DateTimeUtils {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER;
@@ -19,6 +15,9 @@ public final class DateTimeUtils {
     static {
         DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
         DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    }
+
+    private DateTimeUtils() {
     }
 
     public static String convertOutputDateTime(Timestamp target) {

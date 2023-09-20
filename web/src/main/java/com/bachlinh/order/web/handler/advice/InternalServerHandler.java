@@ -5,16 +5,18 @@ import com.bachlinh.order.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.JsonConvertException;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 @RouteExceptionHandler
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection))
 public class InternalServerHandler extends ExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    @ActiveReflection
+    public InternalServerHandler() {
+    }
 
     @Override
     protected int status() {

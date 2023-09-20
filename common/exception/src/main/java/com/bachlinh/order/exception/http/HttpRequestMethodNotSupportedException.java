@@ -1,6 +1,5 @@
 package com.bachlinh.order.exception.http;
 
-import lombok.NonNull;
 import com.bachlinh.order.exception.HttpException;
 
 public class HttpRequestMethodNotSupportedException extends HttpException {
@@ -9,11 +8,11 @@ public class HttpRequestMethodNotSupportedException extends HttpException {
         super(message, url);
     }
 
-    public HttpRequestMethodNotSupportedException(String message, @NonNull String url) {
+    public HttpRequestMethodNotSupportedException(String message, String url) {
         super(message, url);
     }
 
-    public HttpRequestMethodNotSupportedException(String message, Throwable cause, @NonNull String url) {
+    public HttpRequestMethodNotSupportedException(String message, Throwable cause, String url) {
         super(message, cause, url);
     }
 

@@ -15,16 +15,13 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -38,9 +35,6 @@ import java.util.Set;
 @Label("PRD-")
 @EnableFullTextSearch
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 @Formula(processors = ProductEnableFormula.class)
 public class Product extends AbstractEntity<String> {
 
@@ -79,16 +73,17 @@ public class Product extends AbstractEntity<String> {
     private Boolean enabled;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
     private Collection<ProductMedia> medias = new HashSet<>();
 
     @ManyToMany(mappedBy = "products")
-    @EqualsAndHashCode.Exclude
     private Collection<Category> categories = new HashSet<>();
 
     @ManyToMany(mappedBy = "products")
-    @EqualsAndHashCode.Exclude
     private Collection<Cart> carts = new HashSet<>();
+
+    @ActiveReflection
+    protected Product() {
+    }
 
     public boolean isEnabled() {
         return getEnabled();
@@ -207,5 +202,117 @@ public class Product extends AbstractEntity<String> {
     @ActiveReflection
     public void setCarts(Set<Cart> carts) {
         this.carts = carts;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Integer getPrice() {
+        return this.price;
+    }
+
+    public String getSize() {
+        return this.size;
+    }
+
+    public String getColor() {
+        return this.color;
+    }
+
+    public String getTaobaoUrl() {
+        return this.taobaoUrl;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public Integer getOrderPoint() {
+        return this.orderPoint;
+    }
+
+    public Boolean getEnabled() {
+        return this.enabled;
+    }
+
+    public Collection<ProductMedia> getMedias() {
+        return this.medias;
+    }
+
+    public Collection<Category> getCategories() {
+        return this.categories;
+    }
+
+    public Collection<Cart> getCarts() {
+        return this.carts;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Product other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$name = this.getName();
+        final Object other$name = other.getName();
+        if (!Objects.equals(this$name, other$name)) return false;
+        final Object this$price = this.getPrice();
+        final Object other$price = other.getPrice();
+        if (!Objects.equals(this$price, other$price)) return false;
+        final Object this$size = this.getSize();
+        final Object other$size = other.getSize();
+        if (!Objects.equals(this$size, other$size)) return false;
+        final Object this$color = this.getColor();
+        final Object other$color = other.getColor();
+        if (!Objects.equals(this$color, other$color)) return false;
+        final Object this$taobaoUrl = this.getTaobaoUrl();
+        final Object other$taobaoUrl = other.getTaobaoUrl();
+        if (!Objects.equals(this$taobaoUrl, other$taobaoUrl)) return false;
+        final Object this$description = this.getDescription();
+        final Object other$description = other.getDescription();
+        if (!Objects.equals(this$description, other$description))
+            return false;
+        final Object this$orderPoint = this.getOrderPoint();
+        final Object other$orderPoint = other.getOrderPoint();
+        if (!Objects.equals(this$orderPoint, other$orderPoint))
+            return false;
+        final Object this$enabled = this.getEnabled();
+        final Object other$enabled = other.getEnabled();
+        return Objects.equals(this$enabled, other$enabled);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Product;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $name = this.getName();
+        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
+        final Object $price = this.getPrice();
+        result = result * PRIME + ($price == null ? 43 : $price.hashCode());
+        final Object $size = this.getSize();
+        result = result * PRIME + ($size == null ? 43 : $size.hashCode());
+        final Object $color = this.getColor();
+        result = result * PRIME + ($color == null ? 43 : $color.hashCode());
+        final Object $taobaoUrl = this.getTaobaoUrl();
+        result = result * PRIME + ($taobaoUrl == null ? 43 : $taobaoUrl.hashCode());
+        final Object $description = this.getDescription();
+        result = result * PRIME + ($description == null ? 43 : $description.hashCode());
+        final Object $orderPoint = this.getOrderPoint();
+        result = result * PRIME + ($orderPoint == null ? 43 : $orderPoint.hashCode());
+        final Object $enabled = this.getEnabled();
+        result = result * PRIME + ($enabled == null ? 43 : $enabled.hashCode());
+        return result;
     }
 }

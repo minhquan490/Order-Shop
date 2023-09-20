@@ -8,10 +8,6 @@ import com.bachlinh.order.entity.formula.processor.WhereFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import java.text.MessageFormat;
@@ -22,6 +18,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -535,18 +532,86 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         }
     }
 
-    @RequiredArgsConstructor
-    @Getter
-    @EqualsAndHashCode
     private static class AdditionWhere {
         private final Operation operation;
         private final String attribute;
         private final Object value;
         private final String tableName;
         private final ConditionOperator conditionOperator;
+
+        public AdditionWhere(Operation operation, String attribute, Object value, String tableName, ConditionOperator conditionOperator) {
+            this.operation = operation;
+            this.attribute = attribute;
+            this.value = value;
+            this.tableName = tableName;
+            this.conditionOperator = conditionOperator;
+        }
+
+        public Operation getOperation() {
+            return this.operation;
+        }
+
+        public String getAttribute() {
+            return this.attribute;
+        }
+
+        public Object getValue() {
+            return this.value;
+        }
+
+        public String getTableName() {
+            return this.tableName;
+        }
+
+        public ConditionOperator getConditionOperator() {
+            return this.conditionOperator;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof AdditionWhere other)) return false;
+            if (!other.canEqual(this)) return false;
+            final Object this$operation = this.getOperation();
+            final Object other$operation = other.getOperation();
+            if (!Objects.equals(this$operation, other$operation))
+                return false;
+            final Object this$attribute = this.getAttribute();
+            final Object other$attribute = other.getAttribute();
+            if (!Objects.equals(this$attribute, other$attribute))
+                return false;
+            final Object this$value = this.getValue();
+            final Object other$value = other.getValue();
+            if (!Objects.equals(this$value, other$value)) return false;
+            final Object this$tableName = this.getTableName();
+            final Object other$tableName = other.getTableName();
+            if (!Objects.equals(this$tableName, other$tableName))
+                return false;
+            final Object this$conditionOperator = this.getConditionOperator();
+            final Object other$conditionOperator = other.getConditionOperator();
+            return Objects.equals(this$conditionOperator, other$conditionOperator);
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof AdditionWhere;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            final Object $operation = this.getOperation();
+            result = result * PRIME + ($operation == null ? 43 : $operation.hashCode());
+            final Object $attribute = this.getAttribute();
+            result = result * PRIME + ($attribute == null ? 43 : $attribute.hashCode());
+            final Object $value = this.getValue();
+            result = result * PRIME + ($value == null ? 43 : $value.hashCode());
+            final Object $tableName = this.getTableName();
+            result = result * PRIME + ($tableName == null ? 43 : $tableName.hashCode());
+            final Object $conditionOperator = this.getConditionOperator();
+            result = result * PRIME + ($conditionOperator == null ? 43 : $conditionOperator.hashCode());
+            return result;
+        }
     }
 
-    @Getter
     private static class AdditionWhereAppender extends AdditionWhere {
         private final Set<AdditionWhere> children = new HashSet<>();
 
@@ -557,18 +622,34 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         public void append(AdditionWhere additionWhere) {
             children.add(additionWhere);
         }
+
+        public Set<AdditionWhere> getChildren() {
+            return this.children;
+        }
     }
 
-    @RequiredArgsConstructor
-    @Getter
     private static class RootHolder {
         private final Where root;
 
-        @Setter
         private boolean isTouched = false;
+
+        public RootHolder(Where root) {
+            this.root = root;
+        }
+
+        public Where getRoot() {
+            return this.root;
+        }
+
+        public boolean isTouched() {
+            return this.isTouched;
+        }
+
+        public void setTouched(boolean isTouched) {
+            this.isTouched = isTouched;
+        }
     }
 
-    @Getter
     private enum ConditionOperator {
         AND(" AND "),
         OR(" OR "),
@@ -578,6 +659,10 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
         ConditionOperator(String s) {
             this.value = s;
+        }
+
+        public String getValue() {
+            return this.value;
         }
     }
 

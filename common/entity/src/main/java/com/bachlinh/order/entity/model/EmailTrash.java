@@ -12,10 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -24,14 +20,12 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Set;
 
 @ActiveReflection
 @Entity
 @Table(name = "EMAIL_TRASH", indexes = @Index(name = "inx_email_trash_customer", columnList = "CUSTOMER_ID"))
-@Getter
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(callSuper = true)
 public class EmailTrash extends AbstractEntity<Integer> {
 
     @Id
@@ -44,8 +38,11 @@ public class EmailTrash extends AbstractEntity<Integer> {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false, unique = true, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
+
+    @ActiveReflection
+    protected EmailTrash() {
+    }
 
     @ActiveReflection
     public void setEmails(Set<Email> emails) {
@@ -90,5 +87,44 @@ public class EmailTrash extends AbstractEntity<Integer> {
             results.addFirst(first);
             return (Collection<U>) results;
         }
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public Set<Email> getEmails() {
+        return this.emails;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof EmailTrash other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$emails = this.getEmails();
+        final Object other$emails = other.getEmails();
+        return Objects.equals(this$emails, other$emails);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof EmailTrash;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $emails = this.getEmails();
+        result = result * PRIME + ($emails == null ? 43 : $emails.hashCode());
+        return result;
     }
 }

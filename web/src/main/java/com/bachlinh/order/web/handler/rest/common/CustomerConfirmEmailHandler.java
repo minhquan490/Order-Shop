@@ -8,17 +8,17 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.ConfirmEmailResp;
 import com.bachlinh.order.web.service.business.ConfirmEmailService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @RouteProvider(name = "customerConfirmEmail")
 public class CustomerConfirmEmailHandler extends AbstractController<ConfirmEmailResp, Void> {
 
     private String url;
     private ConfirmEmailService confirmEmailService;
+
+    private CustomerConfirmEmailHandler() {
+    }
 
     @Override
     public AbstractController<ConfirmEmailResp, Void> newInstance() {

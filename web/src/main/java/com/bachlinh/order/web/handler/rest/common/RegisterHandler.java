@@ -11,19 +11,19 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.RegisterResp;
 import com.bachlinh.order.web.service.business.RegisterService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RouteProvider(name = "registerHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RegisterHandler extends AbstractController<RegisterResp, RegisterForm> {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private String url;
     private RegisterService registerService;
+
+    private RegisterHandler() {
+    }
 
     @Override
     public AbstractController<RegisterResp, RegisterForm> newInstance() {

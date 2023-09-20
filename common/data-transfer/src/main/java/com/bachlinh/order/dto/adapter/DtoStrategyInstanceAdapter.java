@@ -7,19 +7,23 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public final class DtoStrategyInstanceAdapter {
 
     private final ApplicationScanner scanner;
     private final DependenciesResolver resolver;
     private final Environment environment;
+
+    public DtoStrategyInstanceAdapter(ApplicationScanner scanner, DependenciesResolver resolver, Environment environment) {
+        this.scanner = scanner;
+        this.resolver = resolver;
+        this.environment = environment;
+    }
 
     public Map<Class<?>, List<DtoStrategy<?, ?>>> instanceStrategies() {
         var result = new HashMap<Class<?>, List<DtoStrategy<?, ?>>>();

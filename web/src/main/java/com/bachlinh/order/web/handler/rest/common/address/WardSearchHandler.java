@@ -8,17 +8,17 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.WardSearchForm;
 import com.bachlinh.order.web.dto.resp.WardResp;
 import com.bachlinh.order.web.service.business.WardSearchService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "wardSearchHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WardSearchHandler extends AbstractController<Collection<WardResp>, WardSearchForm> {
     private String url;
     private WardSearchService wardSearchService;
+
+    private WardSearchHandler() {
+    }
 
     @Override
     public AbstractController<Collection<WardResp>, WardSearchForm> newInstance() {

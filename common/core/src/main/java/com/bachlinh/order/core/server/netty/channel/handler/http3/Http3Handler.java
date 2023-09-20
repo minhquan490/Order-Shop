@@ -11,9 +11,7 @@ import io.netty.incubator.codec.http3.Http3DataFrame;
 import io.netty.incubator.codec.http3.Http3HeadersFrame;
 import io.netty.incubator.codec.http3.Http3RequestStreamInboundHandler;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class Http3Handler extends Http3RequestStreamInboundHandler {
     private final ServletHandlerAdapter servletHandlerAdapter;
     private final NettyHandlerContextStrategy strategy = NettyHandlerContextStrategy.getHttp3Strategy();
@@ -21,6 +19,11 @@ public class Http3Handler extends Http3RequestStreamInboundHandler {
     private final FilterChainAdapter filterChainAdapter;
 
     private Http3FrameCollector frameCollector;
+
+    public Http3Handler(ServletHandlerAdapter servletHandlerAdapter, FilterChainAdapter filterChainAdapter) {
+        this.servletHandlerAdapter = servletHandlerAdapter;
+        this.filterChainAdapter = filterChainAdapter;
+    }
 
     @Override
     protected void channelRead(ChannelHandlerContext ctx, Http3HeadersFrame frame, boolean isLast) {

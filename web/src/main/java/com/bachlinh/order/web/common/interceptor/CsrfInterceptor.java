@@ -13,8 +13,6 @@ import com.bachlinh.order.handler.controller.ControllerContextHolder;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.scheduling.support.CronTrigger;
 
 import java.time.LocalDateTime;
@@ -23,7 +21,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ActiveReflection
 public class CsrfInterceptor extends AbstractInterceptor {
     private static final long SEVEN_DAY_TO_SECOND = 86400L * 7L;
@@ -36,6 +33,9 @@ public class CsrfInterceptor extends AbstractInterceptor {
     private TemporaryTokenGenerator tokenGenerator;
     private Environment environment;
     private ThreadPoolManager threadPoolManager;
+
+    private CsrfInterceptor() {
+    }
 
     @Override
     public boolean preHandle(NativeRequest<?> request, NativeResponse<?> response) {

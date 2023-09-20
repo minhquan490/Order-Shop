@@ -12,17 +12,17 @@ import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.customer.CustomerUpdateForm;
 import com.bachlinh.order.web.dto.resp.CustomerResp;
 import com.bachlinh.order.web.service.common.CustomerService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider(name = "customerUpdateHandler")
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.CUSTOMER)
 @EnableCsrf
 public class CustomerUpdateHandler extends AbstractController<CustomerResp, CustomerUpdateForm> {
     private String url;
     private CustomerService customerService;
+
+    private CustomerUpdateHandler() {
+    }
 
     @Override
     public AbstractController<CustomerResp, CustomerUpdateForm> newInstance() {

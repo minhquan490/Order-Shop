@@ -12,7 +12,6 @@ import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +20,18 @@ import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__({@DependenciesInitialize, @ActiveReflection}))
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
+
+    @ActiveReflection
+    @DependenciesInitialize
+    public CategoryServiceImpl(CategoryRepository categoryRepository, EntityFactory entityFactory, DtoMapper dtoMapper) {
+        this.categoryRepository = categoryRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+    }
 
     @Override
     public boolean isExist(String id) {

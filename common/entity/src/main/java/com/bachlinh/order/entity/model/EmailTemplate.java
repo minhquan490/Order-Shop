@@ -14,10 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -37,9 +33,6 @@ import java.util.Objects;
 )
 @ActiveReflection
 @EnableFullTextSearch
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class EmailTemplate extends AbstractEntity<String> {
 
     @Id
@@ -73,14 +66,16 @@ public class EmailTemplate extends AbstractEntity<String> {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "OWNER_ID", nullable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private Customer owner;
 
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "FOLDER_ID", nullable = false)
     @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
     private EmailTemplateFolder folder;
+
+    @ActiveReflection
+    protected EmailTemplate() {
+    }
 
     @ActiveReflection
     @Override
@@ -157,5 +152,95 @@ public class EmailTemplate extends AbstractEntity<String> {
             trackUpdatedField("PARAMS", this.params, params);
         }
         this.params = params;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public Integer getExpiryPolicy() {
+        return this.expiryPolicy;
+    }
+
+    public Integer getTotalArgument() {
+        return this.totalArgument;
+    }
+
+    public String getParams() {
+        return this.params;
+    }
+
+    public Customer getOwner() {
+        return this.owner;
+    }
+
+    public EmailTemplateFolder getFolder() {
+        return this.folder;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof EmailTemplate other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$name = this.getName();
+        final Object other$name = other.getName();
+        if (!Objects.equals(this$name, other$name)) return false;
+        final Object this$title = this.getTitle();
+        final Object other$title = other.getTitle();
+        if (!Objects.equals(this$title, other$title)) return false;
+        final Object this$content = this.getContent();
+        final Object other$content = other.getContent();
+        if (!Objects.equals(this$content, other$content)) return false;
+        final Object this$expiryPolicy = this.getExpiryPolicy();
+        final Object other$expiryPolicy = other.getExpiryPolicy();
+        if (!Objects.equals(this$expiryPolicy, other$expiryPolicy))
+            return false;
+        final Object this$totalArgument = this.getTotalArgument();
+        final Object other$totalArgument = other.getTotalArgument();
+        if (!Objects.equals(this$totalArgument, other$totalArgument))
+            return false;
+        final Object this$params = this.getParams();
+        final Object other$params = other.getParams();
+        return Objects.equals(this$params, other$params);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof EmailTemplate;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $name = this.getName();
+        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
+        final Object $title = this.getTitle();
+        result = result * PRIME + ($title == null ? 43 : $title.hashCode());
+        final Object $content = this.getContent();
+        result = result * PRIME + ($content == null ? 43 : $content.hashCode());
+        final Object $expiryPolicy = this.getExpiryPolicy();
+        result = result * PRIME + ($expiryPolicy == null ? 43 : $expiryPolicy.hashCode());
+        final Object $totalArgument = this.getTotalArgument();
+        result = result * PRIME + ($totalArgument == null ? 43 : $totalArgument.hashCode());
+        final Object $params = this.getParams();
+        result = result * PRIME + ($params == null ? 43 : $params.hashCode());
+        return result;
     }
 }

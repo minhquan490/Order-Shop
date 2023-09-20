@@ -2,11 +2,16 @@ plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-    id 'org.graalvm.buildtools.native'
 }
 
 group = 'com.bachlinh.order'
-version = '1.0.0'
+version = "${libs.versions.mainProject.get()}"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 dependencies {
     implementation project(":aot")
@@ -47,8 +52,6 @@ dependencies {
     implementation "org.apache.lucene:lucene-queryparser:${libs.versions.lunceneVersion.get()}"
     implementation "org.apache.lucene:lucene-analysis-common:${libs.versions.lunceneVersion.get()}"
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor project(":annotation-processor")
 
@@ -72,6 +75,10 @@ test {
 //processAot {
 //    jvmArgs(List.of('-Xmx6096M'))
 //}
+
+compileJava {
+    options.compilerArgs += "--enable-preview"
+}
 
 bootJar {
     enabled = true

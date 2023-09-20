@@ -3,14 +3,16 @@ package com.bachlinh.order.entity.repository.query;
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.model.AbstractEntity;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
-@RequiredArgsConstructor
 class DefaultSqlBuilder implements SqlBuilder {
 
     private final Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata;
+
+    public DefaultSqlBuilder(Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata) {
+        this.tableMetadata = tableMetadata;
+    }
 
     @Override
     public SqlSelect from(Class<? extends AbstractEntity<?>> table) {

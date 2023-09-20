@@ -9,18 +9,18 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.VoucherResp;
 import com.bachlinh.order.web.service.common.VoucherService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
 @ActiveReflection
 @RouteProvider(name = "voucherListHandler")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class VoucherListHandler extends AbstractController<Collection<VoucherResp>, Void> {
     private VoucherService voucherService;
     private String url;
+
+    private VoucherListHandler() {
+    }
 
     @Override
     public AbstractController<Collection<VoucherResp>, Void> newInstance() {

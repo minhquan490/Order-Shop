@@ -8,7 +8,6 @@ import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -29,7 +28,6 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public class ProxyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private static final String TOKEN_QUERY_PARAM = "token";
@@ -37,6 +35,12 @@ public class ProxyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     private final CustomerRepository customerRepository;
     private final TokenManager tokenManager;
     private final UnAuthorizationHandler authorizationHandler;
+
+    public ProxyRequestUpgradeStrategy(CustomerRepository customerRepository, TokenManager tokenManager, UnAuthorizationHandler authorizationHandler) {
+        this.customerRepository = customerRepository;
+        this.tokenManager = tokenManager;
+        this.authorizationHandler = authorizationHandler;
+    }
 
     @Override
     @NonNull

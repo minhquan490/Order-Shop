@@ -3,10 +3,10 @@ package com.bachlinh.order.setup.internal;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.SetupManager;
+import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.setup.spi.AbstractSetup;
 import com.bachlinh.order.utils.UnsafeUtils;
-import lombok.SneakyThrows;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -63,9 +63,13 @@ class DefaultSetupManager implements SetupManager {
         return new ApplicationScanner().findComponents();
     }
 
-    @SneakyThrows
     private Setup newSetup(Class<Setup> setupClass) {
-        AbstractSetup setup = (AbstractSetup) UnsafeUtils.allocateInstance(setupClass);
+        AbstractSetup setup;
+        try {
+            setup = (AbstractSetup) UnsafeUtils.allocateInstance(setupClass);
+        } catch (InstantiationException e) {
+            throw new CriticalException(e);
+        }
         return setup.newInstance(wrapper, profile);
     }
 }

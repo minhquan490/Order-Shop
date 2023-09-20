@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.bachlinh.order'
-version = '1.0.0'
+version = "${libs.versions.mainProject.get()}"
 
 dependencies {
     implementation project(":crawler")
@@ -28,8 +28,6 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
     runtimeOnly 'com.google.code.findbugs:jsr305'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
 
     compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
 }

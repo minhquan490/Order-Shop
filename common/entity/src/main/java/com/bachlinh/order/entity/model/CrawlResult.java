@@ -7,21 +7,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 
 @Entity
 @Table(name = "CRAWL_RESULT", indexes = @Index(name = "idx_crawl_result_time_finish", columnList = "TIME_FINISH"))
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class CrawlResult extends AbstractEntity<Integer> {
 
     @Id
@@ -36,6 +30,10 @@ public class CrawlResult extends AbstractEntity<Integer> {
 
     @Column(name = "RESOURCES", columnDefinition = "nvarchar(1000)", updatable = false)
     private String resources;
+
+    @ActiveReflection
+    protected CrawlResult() {
+    }
 
     @Override
     @ActiveReflection
@@ -75,5 +73,60 @@ public class CrawlResult extends AbstractEntity<Integer> {
             trackUpdatedField("RESOURCES", this.resources, resources);
         }
         this.resources = resources;
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public String getSourcePath() {
+        return this.sourcePath;
+    }
+
+    public Timestamp getTimeFinish() {
+        return this.timeFinish;
+    }
+
+    public String getResources() {
+        return this.resources;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof CrawlResult other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$sourcePath = this.getSourcePath();
+        final Object other$sourcePath = other.getSourcePath();
+        if (!Objects.equals(this$sourcePath, other$sourcePath))
+            return false;
+        final Object this$timeFinish = this.getTimeFinish();
+        final Object other$timeFinish = other.getTimeFinish();
+        if (!Objects.equals(this$timeFinish, other$timeFinish))
+            return false;
+        final Object this$resources = this.getResources();
+        final Object other$resources = other.getResources();
+        return Objects.equals(this$resources, other$resources);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof CrawlResult;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $sourcePath = this.getSourcePath();
+        result = result * PRIME + ($sourcePath == null ? 43 : $sourcePath.hashCode());
+        final Object $timeFinish = this.getTimeFinish();
+        result = result * PRIME + ($timeFinish == null ? 43 : $timeFinish.hashCode());
+        final Object $resources = this.getResources();
+        result = result * PRIME + ($resources == null ? 43 : $resources.hashCode());
+        return result;
     }
 }

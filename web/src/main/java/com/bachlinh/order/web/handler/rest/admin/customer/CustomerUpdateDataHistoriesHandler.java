@@ -10,17 +10,17 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CustomerUpdateDataHistoriesResp;
 import com.bachlinh.order.web.service.common.CustomerInfoChangeService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @RouteProvider
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Permit(roles = Role.ADMIN)
 public class CustomerUpdateDataHistoriesHandler extends AbstractController<CustomerUpdateDataHistoriesResp, Void> {
 
     private String url;
     private CustomerInfoChangeService customerInfoChangeService;
+
+    private CustomerUpdateDataHistoriesHandler() {
+    }
 
     @Override
     public AbstractController<CustomerUpdateDataHistoriesResp, Void> newInstance() {

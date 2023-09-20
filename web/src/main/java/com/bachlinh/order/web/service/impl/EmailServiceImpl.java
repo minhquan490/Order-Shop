@@ -22,7 +22,6 @@ import com.bachlinh.order.web.service.business.EmailInTrashService;
 import com.bachlinh.order.web.service.business.EmailSearchingService;
 import com.bachlinh.order.web.service.business.EmailSendingService;
 import com.bachlinh.order.web.service.common.EmailService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,7 +34,6 @@ import java.util.HashSet;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 public class EmailServiceImpl implements EmailSendingService, EmailService, EmailInTrashService, EmailSearchingService {
     private final EmailRepository emailRepository;
     private final CustomerRepository customerRepository;
@@ -43,6 +41,17 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
     private final EmailTrashRepository emailTrashRepository;
+
+    @ActiveReflection
+    @DependenciesInitialize
+    public EmailServiceImpl(EmailRepository emailRepository, CustomerRepository customerRepository, EmailFoldersRepository emailFoldersRepository, EntityFactory entityFactory, DtoMapper dtoMapper, EmailTrashRepository emailTrashRepository) {
+        this.emailRepository = emailRepository;
+        this.customerRepository = customerRepository;
+        this.emailFoldersRepository = emailFoldersRepository;
+        this.entityFactory = entityFactory;
+        this.dtoMapper = dtoMapper;
+        this.emailTrashRepository = emailTrashRepository;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)

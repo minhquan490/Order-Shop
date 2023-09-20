@@ -11,8 +11,6 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.service.business.FileUploadService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
@@ -20,12 +18,14 @@ import java.io.IOException;
 @ActiveReflection
 @EnableCsrf
 @Permit(roles = Role.ADMIN)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdminFileUploadHandler extends AbstractController<Void, MultipartRequest> {
     private static final Void RETURN_OBJECT = initReturnObject();
 
     private String url;
     private FileUploadService fileUploadService;
+
+    private AdminFileUploadHandler() {
+    }
 
     @Override
     public AbstractController<Void, MultipartRequest> newInstance() {

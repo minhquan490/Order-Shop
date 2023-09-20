@@ -9,20 +9,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.Collection;
+import java.util.Objects;
 
 @Label("CMA-")
 @Table(name = "CUSTOMER_MEDIA")
 @Entity
 @ActiveReflection
-@NoArgsConstructor(onConstructor = @__(@ActiveReflection), access = AccessLevel.PROTECTED)
-@Getter
-@EqualsAndHashCode(callSuper = true)
 public class CustomerMedia extends AbstractEntity<String> {
 
     @Id
@@ -39,8 +33,11 @@ public class CustomerMedia extends AbstractEntity<String> {
     private Long contentLength;
 
     @OneToOne(optional = false, mappedBy = "customerMedia", fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
     private Customer customer;
+
+    @ActiveReflection
+    protected CustomerMedia() {
+    }
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
@@ -85,5 +82,63 @@ public class CustomerMedia extends AbstractEntity<String> {
     @SuppressWarnings("unchecked")
     public <U extends BaseEntity<String>> Collection<U> reduce(Collection<BaseEntity<?>> entities) {
         return entities.stream().map(entity -> (U) entity).toList();
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public String getContentType() {
+        return this.contentType;
+    }
+
+    public Long getContentLength() {
+        return this.contentLength;
+    }
+
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof CustomerMedia other)) return false;
+        if (!other.canEqual(this)) return false;
+        if (!super.equals(o)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (!Objects.equals(this$id, other$id)) return false;
+        final Object this$url = this.getUrl();
+        final Object other$url = other.getUrl();
+        if (!Objects.equals(this$url, other$url)) return false;
+        final Object this$contentType = this.getContentType();
+        final Object other$contentType = other.getContentType();
+        if (!Objects.equals(this$contentType, other$contentType))
+            return false;
+        final Object this$contentLength = this.getContentLength();
+        final Object other$contentLength = other.getContentLength();
+        return Objects.equals(this$contentLength, other$contentLength);
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof CustomerMedia;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = super.hashCode();
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $url = this.getUrl();
+        result = result * PRIME + ($url == null ? 43 : $url.hashCode());
+        final Object $contentType = this.getContentType();
+        result = result * PRIME + ($contentType == null ? 43 : $contentType.hashCode());
+        final Object $contentLength = this.getContentLength();
+        result = result * PRIME + ($contentLength == null ? 43 : $contentLength.hashCode());
+        return result;
     }
 }

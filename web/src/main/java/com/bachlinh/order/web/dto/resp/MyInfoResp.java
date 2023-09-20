@@ -1,14 +1,10 @@
 package com.bachlinh.order.web.dto.resp;
 
-import lombok.Getter;
-import lombok.Setter;
 import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.MappedDtoField;
 
 import java.util.Collection;
 
-@Getter
-@Setter
 @Dto(forType = "com.bachlinh.order.entity.model.Customer")
 public class MyInfoResp {
 
@@ -29,4 +25,52 @@ public class MyInfoResp {
 
     @MappedDtoField(targetField = "addressString", outputJsonField = "addresses")
     private Collection<String> address;
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public Collection<String> getAddress() {
+        return this.address;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setAddress(Collection<String> address) {
+        this.address = address;
+    }
 }

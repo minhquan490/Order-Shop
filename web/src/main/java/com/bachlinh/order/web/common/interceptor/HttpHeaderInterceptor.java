@@ -4,17 +4,17 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.eclipse.jetty.http.HttpHeader;
 
 import java.text.MessageFormat;
 
 @ActiveReflection
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpHeaderInterceptor extends AbstractInterceptor {
     private Boolean enableHttp3;
     private Integer h3Port;
+
+    private HttpHeaderInterceptor() {
+    }
 
     @Override
     public void postHandle(NativeRequest<?> request, NativeResponse<?> response) {

@@ -4,17 +4,17 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.base.ValidatedDto;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter(AccessLevel.PROTECTED)
 @ActiveReflection
 public abstract non-sealed class AbstractRule<T extends ValidatedDto> implements ValidationRule<T> {
     private final Environment environment;
     private final DependenciesResolver resolver;
+
+    protected AbstractRule(Environment environment, DependenciesResolver resolver) {
+        this.environment = environment;
+        this.resolver = resolver;
+    }
 
     @Override
     @NonNull
@@ -28,4 +28,12 @@ public abstract non-sealed class AbstractRule<T extends ValidatedDto> implements
     protected abstract ValidatedDto.ValidateResult doValidate(T dto);
 
     protected abstract void injectDependencies();
+
+    protected Environment getEnvironment() {
+        return this.environment;
+    }
+
+    protected DependenciesResolver getResolver() {
+        return this.resolver;
+    }
 }

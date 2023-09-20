@@ -18,12 +18,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
 import jakarta.servlet.http.Part;
-import lombok.NonNull;
 import org.eclipse.jetty.http.HttpHeader;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -31,16 +29,14 @@ import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class NettyServletRequestAdapter implements HttpServletRequest {
     private static final ServerCookieDecoder COOKIE_DECODER = ServerCookieDecoder.LAX;
-    private static final Pattern PATH_PATTERN = Pattern.compile("(https?)://+\\w+\\.+\\w+");
     private final FullHttpRequest fullHttpRequest;
-    private final Map<String, Object> attributes = new Hashtable<>();
+    private final Map<String, Object> attributes = new HashMap<>();
     private final URI requestUri;
 
     private Cookie[] cachedCookie;
@@ -199,7 +195,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+    public boolean authenticate(HttpServletResponse response) {
         throw new UnsupportedOperationException();
     }
 
@@ -224,7 +220,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
         return null;
     }
 
@@ -331,7 +327,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public BufferedReader getReader() throws IOException {
+    public BufferedReader getReader() {
         return null;
     }
 
@@ -355,7 +351,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public void removeAttribute(@NonNull String name) {
+    public void removeAttribute(String name) {
         this.attributes.remove(name);
     }
 

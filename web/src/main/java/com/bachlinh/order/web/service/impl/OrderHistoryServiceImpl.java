@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.dto.DtoMapper;
@@ -12,11 +11,16 @@ import com.bachlinh.order.web.service.common.OrderHistoryService;
 import java.util.Collection;
 
 @ServiceComponent
-@RequiredArgsConstructor(onConstructor = @__(@ActiveReflection))
 @ActiveReflection
 public class OrderHistoryServiceImpl implements OrderHistoryService {
     private final OrderHistoryRepository orderHistoryRepository;
     private final DtoMapper dtoMapper;
+
+    @ActiveReflection
+    public OrderHistoryServiceImpl(OrderHistoryRepository orderHistoryRepository, DtoMapper dtoMapper) {
+        this.orderHistoryRepository = orderHistoryRepository;
+        this.dtoMapper = dtoMapper;
+    }
 
     @Override
     public Collection<OrderHistoryResp> getOrderHistoriesOfCustomer(Customer owner) {

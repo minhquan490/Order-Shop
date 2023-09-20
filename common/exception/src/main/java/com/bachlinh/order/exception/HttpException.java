@@ -1,7 +1,5 @@
 package com.bachlinh.order.exception;
 
-import lombok.NonNull;
-
 public abstract class HttpException extends RuntimeException {
     private final String url;
     private final transient Object message;
@@ -12,13 +10,13 @@ public abstract class HttpException extends RuntimeException {
         this.message = message;
     }
 
-    protected HttpException(String message, @NonNull String url) {
+    protected HttpException(String message, String url) {
         super(message);
         this.url = url;
         this.message = message;
     }
 
-    protected HttpException(String message, Throwable cause, @NonNull String url) {
+    protected HttpException(String message, Throwable cause, String url) {
         super(message, cause);
         this.url = url;
         this.message = message;

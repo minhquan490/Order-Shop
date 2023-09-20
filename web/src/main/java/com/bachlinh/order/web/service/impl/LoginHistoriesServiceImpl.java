@@ -11,19 +11,23 @@ import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.resp.CustomerLoginHistoryResp;
 import com.bachlinh.order.web.service.common.LoginHistoryService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Collection;
 
 @ServiceComponent
-@RequiredArgsConstructor
 public class LoginHistoriesServiceImpl implements LoginHistoryService {
 
     private final LoginHistoryRepository loginHistoryRepository;
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
+
+    public LoginHistoriesServiceImpl(LoginHistoryRepository loginHistoryRepository, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
+        this.loginHistoryRepository = loginHistoryRepository;
+        this.dtoMapper = dtoMapper;
+        this.messageSettingRepository = messageSettingRepository;
+    }
 
     @Override
     public CustomerLoginHistoryResp getHistoriesOfCustomer(NativeRequest<?> nativeRequest, String path) {

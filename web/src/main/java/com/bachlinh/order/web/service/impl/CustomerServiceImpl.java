@@ -81,7 +81,6 @@ import com.bachlinh.order.web.service.common.CustomerAccessHistoriesService;
 import com.bachlinh.order.web.service.common.CustomerInfoChangeService;
 import com.bachlinh.order.web.service.common.CustomerService;
 import com.bachlinh.order.web.service.common.EmailFolderService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -114,7 +113,6 @@ import java.util.Set;
 
 @ServiceComponent
 @ActiveReflection
-@RequiredArgsConstructor(onConstructor = @__({@ActiveReflection, @DependenciesInitialize}))
 // @formatter:off
 public class CustomerServiceImpl implements CustomerService,
                                             LoginService,
@@ -148,6 +146,29 @@ public class CustomerServiceImpl implements CustomerService,
     private final ThreadPoolManager threadPoolManager;
     private String urlResetPassword;
     private String botEmail;
+
+    @ActiveReflection
+    @DependenciesInitialize
+    public CustomerServiceImpl(PasswordEncoder passwordEncoder, EntityFactory entityFactory, CustomerRepository customerRepository, TokenManager tokenManager, LoginHistoryRepository loginHistoryRepository, GmailSendingService gmailSendingService, TemporaryTokenGenerator tokenGenerator, EmailTemplateRepository emailTemplateRepository, EmailFolderService emailFolderService, CustomerInfoChangeHistoryRepository customerInfoChangeHistoryRepository, TemporaryTokenRepository temporaryTokenRepository, RefreshTokenRepository refreshTokenRepository, ProvinceRepository provinceRepository, AddressRepository addressRepository, CustomerAccessHistoryRepository customerAccessHistoryRepository, MessageSettingRepository messageSettingRepository, DtoMapper dtoMapper, ThreadPoolManager threadPoolManager) {
+        this.passwordEncoder = passwordEncoder;
+        this.entityFactory = entityFactory;
+        this.customerRepository = customerRepository;
+        this.tokenManager = tokenManager;
+        this.loginHistoryRepository = loginHistoryRepository;
+        this.gmailSendingService = gmailSendingService;
+        this.tokenGenerator = tokenGenerator;
+        this.emailTemplateRepository = emailTemplateRepository;
+        this.emailFolderService = emailFolderService;
+        this.customerInfoChangeHistoryRepository = customerInfoChangeHistoryRepository;
+        this.temporaryTokenRepository = temporaryTokenRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.provinceRepository = provinceRepository;
+        this.addressRepository = addressRepository;
+        this.customerAccessHistoryRepository = customerAccessHistoryRepository;
+        this.messageSettingRepository = messageSettingRepository;
+        this.dtoMapper = dtoMapper;
+        this.threadPoolManager = threadPoolManager;
+    }
 
     @Override
     public MyInfoResp getMyInfo(String customerId) {

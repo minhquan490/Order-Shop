@@ -4,11 +4,9 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Setter;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 
-@Setter
 public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> {
     private MultiValueMap<String, String> queryParams;
     private MultiValueMap<String, String> headers;
@@ -62,5 +60,25 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
 
     private static boolean isMultipartFile(HttpServletRequest request) {
         return StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.MULTIPART_FORM_DATA_VALUE);
+    }
+
+    public void setQueryParams(MultiValueMap<String, String> queryParams) {
+        this.queryParams = queryParams;
+    }
+
+    public void setHeaders(MultiValueMap<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public void setCookies(NativeCookie[] cookies) {
+        this.cookies = cookies;
+    }
+
+    public void setPayload(Payload<?> payload) {
+        this.payload = payload;
+    }
+
+    public void setCustomerIp(String customerIp) {
+        this.customerIp = customerIp;
     }
 }

@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.io.IOException;
  *
  * @author Hoang Minh Quan
  */
-@Getter
 public abstract class AbstractWebFilter extends OncePerRequestFilter {
     private final DependenciesResolver dependenciesResolver;
 

@@ -3,7 +3,6 @@ package com.bachlinh.order.core.server.jetty;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.ServerCustomizeException;
 import jakarta.servlet.MultipartConfigElement;
-import lombok.RequiredArgsConstructor;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.util.DomainType;
 import org.apache.http.conn.util.PublicSuffixMatcher;
@@ -43,13 +42,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.Deflater;
 
-@RequiredArgsConstructor
 public class H3JettyServerCustomize implements JettyServerCustomizer {
     private final int serverPort;
 
     private final String serverAddress;
 
     private final String activeProfile;
+
+    public H3JettyServerCustomize(int serverPort, String serverAddress, String activeProfile) {
+        this.serverPort = serverPort;
+        this.serverAddress = serverAddress;
+        this.activeProfile = activeProfile;
+    }
 
 
     @Override

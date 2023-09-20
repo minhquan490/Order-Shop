@@ -16,10 +16,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2SettingsFrame;
 import io.netty.util.CharsetUtil;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class Http2Handler extends ChannelInboundHandlerAdapter {
     private final Http2FrameListener frameListener;
 
@@ -28,7 +25,7 @@ public class Http2Handler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(@NonNull ChannelHandlerContext ctx, @NonNull Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof Http2HeadersFrame msgHeader) {
             frameListener.onHeaderFrame(msgHeader, ctx);
             return;
