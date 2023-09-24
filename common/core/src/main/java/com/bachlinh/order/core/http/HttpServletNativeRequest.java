@@ -2,6 +2,7 @@ package com.bachlinh.order.core.http;
 
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
@@ -15,8 +16,16 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
     private String customerIp;
     private final String csrfToken;
 
+    static RequestMethod getMethod(String methodName) {
+        RequestMethod method = RequestMethod.of(methodName);
+        if (method == null) {
+            throw new HttpRequestMethodNotSupportedException(methodName);
+        }
+        return method;
+    }
+
     public HttpServletNativeRequest(HttpServletRequest request) {
-        super(request, request.getRequestURI(), RequestMethod.valueOf(request.getMethod().toUpperCase()), isMultipartFile(request));
+        super(request, request.getRequestURI(), getMethod(request.getMethod()), isMultipartFile(request));
         String environmentName = Environment.getMainEnvironmentName();
         Environment environment = Environment.getInstance(environmentName);
         this.csrfToken = request.getHeader(environment.getProperty("shop.client.csrf.header.key"));

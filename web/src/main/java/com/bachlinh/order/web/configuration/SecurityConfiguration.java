@@ -1,13 +1,12 @@
 package com.bachlinh.order.web.configuration;
 
 import com.bachlinh.order.core.server.netty.channel.security.FilterChainAdapter;
-import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.security.auth.internal.TokenManagerProvider;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.filter.servlet.AuthenticationFilter;
 import com.bachlinh.order.security.filter.servlet.LoggingRequestFilter;
-import com.bachlinh.order.security.filter.servlet.PermissionFilter;
+import com.bachlinh.order.security.filter.servlet.WrappedCorsFilter;
 import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.service.container.ContainerWrapper;
@@ -58,11 +57,6 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    PermissionFilter permissionFilter(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile, PathMatcher pathMatcher) {
-        return new PermissionFilter(containerResolver, profile, getExcludeUrls(profile), pathMatcher);
-    }
-
-    @Bean
     BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
@@ -82,11 +76,9 @@ public class SecurityConfiguration {
     DefaultSecurityFilterChain filterChain(HttpSecurity http, DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile, PathMatcher pathMatcher) throws Exception {
         Environment environment = Environment.getInstance(profile);
         String clientUrl = environment.getProperty("shop.url.client");
-        String urlAdmin = environment.getProperty("shop.url.pattern.admin");
-        String urlCustomer = environment.getProperty("shop.url.pattern.customer");
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource(clientUrl, environment)))
+                .cors(AbstractHttpConfigurer::disable)
                 .anonymous(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
@@ -102,17 +94,13 @@ public class SecurityConfiguration {
                     httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
                 })
                 .requiresChannel(channelRequestMatcherRegistry -> channelRequestMatcherRegistry.anyRequest().requiresSecure())
-                .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers(urlAdmin).hasAnyAuthority(Role.ADMIN.name(), Role.SEO.name(), Role.MARKETING.name());
-                    registry.requestMatchers(urlCustomer).hasAnyAuthority(Role.ADMIN.name(), Role.CUSTOMER.name(), Role.SEO.name(), Role.MARKETING.name());
-                    registry.requestMatchers(getExcludeUrls(profile).toArray(new String[0])).permitAll();
-                })
+                .authorizeHttpRequests(registry -> registry.anyRequest().permitAll())
                 .requestCache(RequestCacheConfigurer::disable)
                 .jee(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new WrappedCorsFilter(containerResolver.getDependenciesResolver(), corsConfigurationSource(clientUrl, environment)), CsrfFilter.class)
                 .addFilterAfter(loggingRequestFilter(containerResolver, profile, pathMatcher), CsrfFilter.class)
                 .addFilterBefore(authenticationFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(permissionFilter(containerResolver, profile, pathMatcher), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

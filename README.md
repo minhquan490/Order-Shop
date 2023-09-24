@@ -6,11 +6,11 @@ To working with this project. I recommend set up your workspace follow these ste
 
 ## Check list
 
-- [ ] [Download](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) Java 17 and set up
+- [ ] [Download](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) Java 21 and set up
   your environment.
     - After download jdk set up JAVA_HOME following command:
-        -
-        Window: [Set up java home](https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html)
+      -
+      Window: [Set up java home](https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html)
         - Linux:
             ```
             export JAVA_HOME=/path/to/downloaded/jdk

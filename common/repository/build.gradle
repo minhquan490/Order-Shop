@@ -9,6 +9,7 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
+    implementation project(":common:core")
     implementation project(":common:entity")
     implementation project(":common:annotation")
     implementation project(":common:exception")

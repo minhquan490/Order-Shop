@@ -18,4 +18,14 @@ public enum RequestMethod {
         }
         return method.equalsIgnoreCase("delete");
     }
+
+    public static RequestMethod of(String name) {
+        String uppercaseName = name.toUpperCase();
+        for (var value : values()) {
+            if (value.name().equals(uppercaseName)) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

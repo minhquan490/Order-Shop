@@ -1,5 +1,6 @@
 package com.bachlinh.order.entity.bean.spring;
 
+import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
@@ -41,9 +42,9 @@ public class DataSourceBean {
 
 
     @Bean(name = "entityManagerFactory")
-    LocalSessionFactoryBean sessionFactoryBean(DependenciesResolver dependenciesResolver) {
+    LocalSessionFactoryBean sessionFactoryBean(DependenciesResolver dependenciesResolver, ThreadPoolOptionHolder threadPoolOptionHolder) {
         LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
-        factoryBean.setDataSource(dataSource());
+        factoryBean.setDataSource(dataSource(threadPoolOptionHolder));
         factoryBean.setPackagesToScan(BaseEntity.class.getPackage().getName());
         factoryBean.setHibernateProperties(hibernateProperties());
         return factoryBean;
@@ -89,7 +90,7 @@ public class DataSourceBean {
         };
     }
 
-    private DataSource dataSource() {
+    private DataSource dataSource(ThreadPoolOptionHolder threadPoolOptionHolder) {
         String url = MessageFormat.format(
                 "jdbc:{0}://{1}:{2};database={3};trustServerCertificate=true;sendTimeAsDateTime=false;", useDatabase,
                 databaseAddress, port, databaseName);
@@ -103,6 +104,7 @@ public class DataSourceBean {
         config.setConnectionTimeout(1000L * 60L * 30L);
         config.setMaximumPoolSize(1000);
         config.setMinimumIdle(2);
+        config.setThreadFactory(threadPoolOptionHolder.getThreadOption().getVirtualThreadFactory());
         return new HikariDataSource(config);
     }
 
