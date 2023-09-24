@@ -3,6 +3,7 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Address_;
 import com.bachlinh.order.entity.model.Customer;
@@ -288,6 +289,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         Select customerTimeOrderSelect = Select.builder().column(Order_.TIME_ORDER).build();
         Select customerOrderTransactionCodeSelect = Select.builder().column(Order_.BANK_TRANSACTION_CODE).build();
         Select orderStatusSelect = Select.builder().column(OrderStatus_.STATUS).build();
+        Select customerAccessHistoryId = Select.builder().column(CustomerAccessHistory_.ID).build();
         Select customerAccessHistoryPathRequestSelect = Select.builder().column(CustomerAccessHistory_.PATH_REQUEST).build();
         Select customerAccessHistoryRequestTypeSelect = Select.builder().column(CustomerAccessHistory_.REQUEST_TYPE).build();
         Select customerAccessHistoryRequestTimeSelect = Select.builder().column(CustomerAccessHistory_.REQUEST_TIME).build();
@@ -328,6 +330,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
                 .select(customerTimeOrderSelect, Order.class)
                 .select(customerOrderTransactionCodeSelect, Order.class)
                 .select(orderStatusSelect, OrderStatus.class)
+                .select(customerAccessHistoryId, CustomerAccessHistory.class)
                 .select(customerAccessHistoryPathRequestSelect, CustomerAccessHistory.class)
                 .select(customerAccessHistoryRequestTypeSelect, CustomerAccessHistory.class)
                 .select(customerAccessHistoryRequestTimeSelect, CustomerAccessHistory.class)
@@ -468,7 +471,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
         String query = "DELETE FROM USER_ASSIGNMENT WHERE CUSTOMER_ID = :customerId";
         EntityManager entityManager = getEntityManager();
 
-        Map<String, Object> attributes = new HashMap<>(1);
+        Map<String, Object> attributes = HashMap.newHashMap(1);
         attributes.put("customerId", customer.getId());
 
         if (entityTransactionManager.isActualTransactionActive()) {

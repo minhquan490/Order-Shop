@@ -1,6 +1,5 @@
 package com.bachlinh.order.web.common.servlet;
 
-import com.bachlinh.order.handler.router.ServletRouter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;

@@ -13,10 +13,12 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
+import jakarta.servlet.http.MappingMatch;
 import jakarta.servlet.http.Part;
 import org.eclipse.jetty.http.HttpHeader;
 
@@ -62,7 +64,11 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     @Override
     public Cookie[] getCookies() {
         if (cachedCookie == null || cachedCookie.length == 0) {
-            cachedCookie = COOKIE_DECODER.decode(fullHttpRequest.headers().getAsString(HttpHeader.COOKIE.asString()))
+            String cookieString = fullHttpRequest.headers().getAsString(HttpHeader.COOKIE.asString());
+            if (cookieString == null) {
+                cookieString = "";
+            }
+            cachedCookie = COOKIE_DECODER.decode(cookieString)
                     .stream()
                     .map(cookie -> {
                         var servletCookie = new Cookie(cookie.name(), cookie.value());
@@ -166,12 +172,12 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public HttpSession getSession(boolean create) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public HttpSession getSession() {
-        throw new UnsupportedOperationException();
+        return getSession(false);
     }
 
     @Override
@@ -443,5 +449,30 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     @Override
     public ServletConnection getServletConnection() {
         return null;
+    }
+
+    @Override
+    public HttpServletMapping getHttpServletMapping() {
+        return new HttpServletMapping() {
+            @Override
+            public String getMatchValue() {
+                return "";
+            }
+
+            @Override
+            public String getPattern() {
+                return "/";
+            }
+
+            @Override
+            public String getServletName() {
+                return "dispatcherServlet";
+            }
+
+            @Override
+            public MappingMatch getMappingMatch() {
+                return MappingMatch.DEFAULT;
+            }
+        };
     }
 }

@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.repository;
 
 import com.bachlinh.order.annotation.QueryCache;
+import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityManagerHolder;
 import com.bachlinh.order.entity.EntityTrigger;
@@ -100,7 +101,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
             }
             return queryDatabase(query, attributes, receiverType);
         } else {
-            // FIXME add custom type mapping
             return getResultListWithJavaType(query, attributes, receiverType);
         }
     }
@@ -554,9 +554,5 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         sqlSelect.select(idSelect, functionDialect.count());
 
         return sqlSelect;
-    }
-
-    protected interface TransactionCallback {
-        void execute();
     }
 }

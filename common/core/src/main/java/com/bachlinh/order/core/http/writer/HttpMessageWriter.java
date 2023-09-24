@@ -6,6 +6,7 @@ import com.bachlinh.order.utils.JacksonUtils;
 import com.bachlinh.order.utils.map.MultiValueMap;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.incubator.codec.http3.Http3DataFrame;
 import io.netty.incubator.codec.http3.Http3HeadersFrame;
@@ -147,6 +148,15 @@ class HttpMessageWriter implements MessageWriter {
     }
 
     @Override
+    public Http3DataFrame[] toH3DataFrames(long frameSize) {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH3DataFrames(frameSize);
+        } else {
+            return new Http3DataFrame[0];
+        }
+    }
+
+    @Override
     public Http3HeadersFrame toH3HeaderFrame() {
         if (actualResponse instanceof NettyServletResponseAdapter adapter) {
             return adapter.toH3HeaderFrame();
@@ -165,9 +175,41 @@ class HttpMessageWriter implements MessageWriter {
     }
 
     @Override
+    public Http2DataFrame toH2DataFrame(Http2FrameStream stream) {
+        return null;
+    }
+
+    @Override
+    public Http2DataFrame[] toH2DataFrame(Http2FrameStream stream, long frameSize) {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH2DataFrame(stream, frameSize);
+        } else {
+            return new Http2DataFrame[0];
+        }
+    }
+
+    @Override
+    public Http2DataFrame[] toH2DataFrame(long frameSize) {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH2DataFrame(frameSize);
+        } else {
+            return new Http2DataFrame[0];
+        }
+    }
+
+    @Override
     public Http2HeadersFrame toH2HeaderFrame() {
         if (actualResponse instanceof NettyServletResponseAdapter adapter) {
             return adapter.toH2HeaderFrame();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Http2HeadersFrame toH2HeaderFrame(Http2FrameStream stream) {
+        if (actualResponse instanceof NettyServletResponseAdapter adapter) {
+            return adapter.toH2HeaderFrame(stream);
         } else {
             return null;
         }

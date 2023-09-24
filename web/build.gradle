@@ -51,6 +51,7 @@ dependencies {
     implementation "org.apache.lucene:lucene-core:${libs.versions.lunceneVersion.get()}"
     implementation "org.apache.lucene:lucene-queryparser:${libs.versions.lunceneVersion.get()}"
     implementation "org.apache.lucene:lucene-analysis-common:${libs.versions.lunceneVersion.get()}"
+    implementation "io.netty.incubator:netty-incubator-codec-http3:${libs.versions.nettyQuic.get()}"
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor project(":annotation-processor")

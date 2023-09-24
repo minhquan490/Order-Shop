@@ -3,6 +3,7 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.model.CartDetail_;
