@@ -6,7 +6,6 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
 import org.springframework.util.StringUtils;
@@ -37,9 +36,8 @@ public class ProductInformationHandler extends AbstractController<ProductResp, V
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (productService == null) {
-            productService = resolver.resolveDependencies(ProductService.class);
+            productService = resolveService(ProductService.class);
         }
     }
 

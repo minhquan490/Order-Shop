@@ -9,13 +9,13 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
+    implementation project(":common:core")
     implementation project(":common:entity")
     implementation project(":common:repository")
     implementation project(":common:annotation")
     implementation project(":common:utils")
     implementation project(":common:exception")
     implementation project(":common:environment")
-    implementation project(":service")
     implementation 'org.aspectj:aspectjweaver'
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework.security:spring-security-core'

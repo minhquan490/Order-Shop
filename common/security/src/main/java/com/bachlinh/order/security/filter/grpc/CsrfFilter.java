@@ -1,5 +1,11 @@
 package com.bachlinh.order.security.filter.grpc;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.exception.http.AccessDeniedException;
+import com.bachlinh.order.security.auth.spi.CsrfTokenMatcher;
+import com.bachlinh.order.security.auth.spi.InMemoryCsrfTokenCaching;
+import com.bachlinh.order.security.filter.GrpcWebFilter;
+import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
@@ -7,12 +13,6 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.util.PathMatcher;
-import com.bachlinh.order.exception.http.AccessDeniedException;
-import com.bachlinh.order.security.auth.spi.CsrfTokenMatcher;
-import com.bachlinh.order.security.auth.spi.InMemoryCsrfTokenCaching;
-import com.bachlinh.order.security.filter.GrpcWebFilter;
-import com.bachlinh.order.security.handler.AccessDeniedHandler;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -59,19 +59,19 @@ public class CsrfFilter extends GrpcWebFilter {
     @Override
     protected void inject() {
         if (pathMatcher == null) {
-            pathMatcher = getDependenciesResolver().resolveDependencies(PathMatcher.class);
+            pathMatcher = resolveDependencies(PathMatcher.class);
         }
         if (csrfTokenRepository == null) {
-            csrfTokenRepository = getDependenciesResolver().resolveDependencies(CsrfTokenRepository.class);
+            csrfTokenRepository = resolveRepository(CsrfTokenRepository.class);
         }
         if (csrfTokenMatcher == null) {
-            csrfTokenMatcher = getDependenciesResolver().resolveDependencies(CsrfTokenMatcher.class);
+            csrfTokenMatcher = resolveDependencies(CsrfTokenMatcher.class);
         }
         if (accessDeniedHandler == null) {
-            accessDeniedHandler = getDependenciesResolver().resolveDependencies(AccessDeniedHandler.class);
+            accessDeniedHandler = resolveDependencies(AccessDeniedHandler.class);
         }
         if (inMemoryCsrfTokenCaching == null) {
-            inMemoryCsrfTokenCaching = getDependenciesResolver().resolveDependencies(InMemoryCsrfTokenCaching.class);
+            inMemoryCsrfTokenCaching = resolveDependencies(InMemoryCsrfTokenCaching.class);
         }
     }
 }

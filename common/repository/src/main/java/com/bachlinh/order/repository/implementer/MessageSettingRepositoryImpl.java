@@ -3,10 +3,12 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.MessageSetting_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Select;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
@@ -14,9 +16,7 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.MessageSettingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class MessageSettingRepositoryImpl extends AbstractRepository<String, MessageSetting> implements MessageSettingRepository {
+public class MessageSettingRepositoryImpl extends AbstractRepository<String, MessageSetting> implements MessageSettingRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -105,9 +105,12 @@ public class MessageSettingRepositoryImpl extends AbstractRepository<String, Mes
     }
 
     @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new MessageSettingRepositoryImpl(containerResolver.getDependenciesResolver());
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{MessageSettingRepository.class};
     }
 }

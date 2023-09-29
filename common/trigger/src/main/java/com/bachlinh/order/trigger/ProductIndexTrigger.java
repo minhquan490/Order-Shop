@@ -3,13 +3,13 @@ package com.bachlinh.order.trigger;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.core.concurrent.RunnableType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.Collections;
 
@@ -27,7 +27,7 @@ public class ProductIndexTrigger extends AbstractTrigger<Product> {
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            this.entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            this.entityFactory = resolveDependencies(EntityFactory.class);
         }
     }
 

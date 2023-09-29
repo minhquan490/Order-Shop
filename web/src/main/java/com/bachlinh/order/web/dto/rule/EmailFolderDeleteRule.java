@@ -2,12 +2,12 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
@@ -72,10 +72,10 @@ public class EmailFolderDeleteRule extends AbstractRule<EmailFolderDeleteForm> {
     @Override
     protected void injectDependencies() {
         if (emailFoldersRepository == null) {
-            emailFoldersRepository = getResolver().resolveDependencies(EmailFoldersRepository.class);
+            emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

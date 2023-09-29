@@ -5,7 +5,7 @@ import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CustomerAccessHistoriesResp;
 
 @ActiveReflection

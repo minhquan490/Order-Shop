@@ -7,7 +7,7 @@ import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.AdminProductResp;
 
 @ActiveReflection

@@ -1,7 +1,7 @@
 package com.bachlinh.order.core;
 
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;

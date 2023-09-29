@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.server.netty.channel.http3;
 
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import io.netty.channel.ChannelInitializer;
 import io.netty.incubator.codec.http3.Http3ServerConnectionHandler;
 import io.netty.incubator.codec.quic.QuicChannel;

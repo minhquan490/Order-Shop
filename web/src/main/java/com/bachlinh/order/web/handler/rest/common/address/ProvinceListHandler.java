@@ -32,9 +32,8 @@ public class ProvinceListHandler extends AbstractController<Collection<ProvinceR
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (provinceService == null) {
-            provinceService = resolver.resolveDependencies(ProvinceService.class);
+            provinceService = resolveService(ProvinceService.class);
         }
     }
 

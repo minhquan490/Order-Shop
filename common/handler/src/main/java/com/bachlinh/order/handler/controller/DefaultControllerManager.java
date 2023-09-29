@@ -2,7 +2,7 @@ package com.bachlinh.order.handler.controller;
 
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.core.container.ContainerWrapper;
 import org.springframework.lang.NonNull;
 
 class DefaultControllerManager extends AbstractControllerManager {

@@ -21,7 +21,7 @@ public class OrderDetailValidator extends AbstractValidator<OrderDetail> {
     @Override
     protected void inject() {
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

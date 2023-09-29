@@ -3,10 +3,11 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.District_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.DistrictRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
 import com.bachlinh.order.entity.repository.query.Select;
@@ -15,9 +16,7 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.DistrictRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -29,7 +28,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class DistrictRepositoryImpl extends AbstractRepository<Integer, District> implements DistrictRepository {
+public class DistrictRepositoryImpl extends AbstractRepository<Integer, District> implements DistrictRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -96,8 +95,12 @@ public class DistrictRepositoryImpl extends AbstractRepository<Integer, District
     }
 
     @Override
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new DistrictRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{DistrictRepository.class};
     }
 }

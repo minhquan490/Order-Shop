@@ -2,11 +2,11 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
@@ -83,10 +83,10 @@ public class RegisterRule extends AbstractRule<RegisterForm> {
     @Override
     protected void injectDependencies() {
         if (customerRepository == null) {
-            customerRepository = getResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

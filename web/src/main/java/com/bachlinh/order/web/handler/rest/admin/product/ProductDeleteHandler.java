@@ -9,20 +9,17 @@ import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteForm;
 import com.bachlinh.order.web.service.common.ProductService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
 @RouteProvider(name = "productDeleteHandler")
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
-public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<String, Object>>, ProductDeleteForm> {
+public class ProductDeleteHandler extends AbstractController<Map<String, Object>, ProductDeleteForm> {
     private String url;
     private ProductService productService;
 
@@ -30,22 +27,21 @@ public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<
     }
 
     @Override
-    public AbstractController<ResponseEntity<Map<String, Object>>, ProductDeleteForm> newInstance() {
+    public AbstractController<Map<String, Object>, ProductDeleteForm> newInstance() {
         return new ProductDeleteHandler();
     }
 
     @Override
     @ActiveReflection
-    protected ResponseEntity<Map<String, Object>> internalHandler(Payload<ProductDeleteForm> request) {
+    protected Map<String, Object> internalHandler(Payload<ProductDeleteForm> request) {
         String productId = request.data().productId();
         return deleteProduct(productId);
     }
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (productService == null) {
-            productService = resolver.resolveDependencies(ProductService.class);
+            productService = resolveService(ProductService.class);
         }
     }
 
@@ -62,14 +58,11 @@ public class ProductDeleteHandler extends AbstractController<ResponseEntity<Map<
         return RequestMethod.DELETE;
     }
 
-    private ResponseEntity<Map<String, Object>> deleteProduct(String productId) {
+    private Map<String, Object> deleteProduct(String productId) {
         var result = productService.deleteProduct(productId);
-        Map<String, Object> resp = new HashMap<>();
         if (!result) {
             throw new BadVariableException("Can not delete product has id [" + productId + "]");
         }
-        resp.put("status", HttpStatus.ACCEPTED.value());
-        resp.put("messages", new String[]{"Delete product has id [" + productId + "] success"});
-        return ResponseEntity.accepted().body(resp);
+        return createDefaultResponse(HttpStatus.ACCEPTED.value(), new String[]{"Delete product has id [" + productId + "] success"});
     }
 }

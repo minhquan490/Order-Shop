@@ -30,10 +30,10 @@ public class CustomerValidator extends AbstractValidator<Customer> {
     @Override
     protected void inject() {
         if (customerRepository == null) {
-            customerRepository = getResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

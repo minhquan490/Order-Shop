@@ -7,7 +7,7 @@ import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.repository.query.FunctionDialect;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import org.springframework.core.Ordered;
 
 import java.util.Map;

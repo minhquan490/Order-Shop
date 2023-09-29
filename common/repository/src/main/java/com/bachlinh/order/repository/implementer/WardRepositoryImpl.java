@@ -3,11 +3,12 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.model.Ward_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.WardRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
 import com.bachlinh.order.entity.repository.query.Select;
@@ -16,9 +17,7 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.WardRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -30,7 +29,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class WardRepositoryImpl extends AbstractRepository<Integer, Ward> implements WardRepository {
+public class WardRepositoryImpl extends AbstractRepository<Integer, Ward> implements WardRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -84,9 +83,12 @@ public class WardRepositoryImpl extends AbstractRepository<Integer, Ward> implem
     }
 
     @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new WardRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{WardRepository.class};
     }
 }

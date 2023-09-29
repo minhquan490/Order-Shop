@@ -7,7 +7,7 @@ import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.index.spi.SearchManagerFactory;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.codecs.lucene95.Lucene95Codec;

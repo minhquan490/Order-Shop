@@ -35,9 +35,8 @@ public class BatchReportListInMonthHandler extends AbstractController<Collection
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (batchReportService == null) {
-            batchReportService = resolver.resolveDependencies(BatchReportService.class);
+            batchReportService = resolveService(BatchReportService.class);
         }
     }
 

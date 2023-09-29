@@ -1,7 +1,7 @@
 package com.bachlinh.order.dto.strategy;
 
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 public abstract non-sealed class AbstractDtoStrategy<T, U> implements DtoStrategy<T, U> {
     private final DependenciesResolver dependenciesResolver;

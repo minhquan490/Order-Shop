@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.server.netty;
 
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.concurrent.ThreadFactory;
 

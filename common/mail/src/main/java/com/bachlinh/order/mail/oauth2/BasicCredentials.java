@@ -4,6 +4,7 @@ import com.bachlinh.order.mail.http.ssl.SslHttpTransportFactory;
 import com.google.auth.oauth2.GoogleCredentials;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 class BasicCredentials implements Credentials {
     private final CredentialAdapter adapter;
@@ -13,7 +14,7 @@ class BasicCredentials implements Credentials {
     }
 
     @Override
-    public GoogleCredentials getGoogleCredentials() throws IOException {
+    public GoogleCredentials getGoogleCredentials() throws IOException, URISyntaxException {
         return GoogleCredentials.fromStream(adapter.getCredentialResources(), new SslHttpTransportFactory(adapter.getSslPemLocation(), adapter.getSslPrivateKeyLocation()))
                 .createScoped(adapter.getGmailScope());
     }

@@ -8,11 +8,10 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.order.OrderChangeStatusForm;
 import com.bachlinh.order.web.service.business.OrderChangeStatusService;
+import org.apache.http.HttpStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
@@ -35,16 +34,13 @@ public class OrderChangeStatusHandler extends AbstractController<Map<String, Obj
     @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<OrderChangeStatusForm> request) {
         statusService.updateOrderStatus(request.data());
-        Map<String, Object> resp = new HashMap<>(1);
-        resp.put("messages", new String[]{"Update success"});
-        return resp;
+        return createDefaultResponse(HttpStatus.SC_OK, new String[]{"Update success"});
     }
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (statusService == null) {
-            statusService = resolver.resolveDependencies(OrderChangeStatusService.class);
+            statusService = resolveService(OrderChangeStatusService.class);
         }
     }
 

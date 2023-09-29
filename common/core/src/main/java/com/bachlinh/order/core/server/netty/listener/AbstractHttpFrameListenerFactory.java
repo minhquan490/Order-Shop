@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.server.netty.listener;
 
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 public abstract class AbstractHttpFrameListenerFactory<T> implements HttpFrameListenerFactory<T> {
     private final DependenciesResolver resolver;

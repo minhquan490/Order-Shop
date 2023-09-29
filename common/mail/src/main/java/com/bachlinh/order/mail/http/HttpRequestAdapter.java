@@ -1,6 +1,7 @@
 package com.bachlinh.order.mail.http;
 
 import com.bachlinh.order.core.enums.RequestMethod;
+import com.bachlinh.order.core.function.Decorator;
 import com.bachlinh.order.exception.system.mail.MailException;
 import com.google.api.client.http.LowLevelHttpRequest;
 import com.google.api.client.http.LowLevelHttpResponse;
@@ -27,7 +28,7 @@ public class HttpRequestAdapter extends LowLevelHttpRequest {
     }
 
     @Override
-    public void addHeader(String name, String value) throws IOException {
+    public void addHeader(String name, String value) {
         this.httpBuilder.header(name, value);
     }
 
@@ -39,7 +40,7 @@ public class HttpRequestAdapter extends LowLevelHttpRequest {
         if (httpMethod == null) {
             throw new MailException("Unknown http method");
         }
-        List<HttpRequestDecorator> decorators = new ArrayList<>();
+        List<Decorator<HttpRequest.Builder>> decorators = new ArrayList<>();
         decorators.add(decorateHeader());
         decorators.add(decorateMethod(httpMethod));
         decorators.add(decorateUrl(url));
@@ -66,7 +67,7 @@ public class HttpRequestAdapter extends LowLevelHttpRequest {
         this.httpMethod = method;
     }
 
-    private HttpRequestDecorator decorateHeader() {
+    private Decorator<HttpRequest.Builder> decorateHeader() {
         return requestBuilder -> {
             if (getContentType() != null) {
                 requestBuilder.header(HttpHeaders.CONTENT_TYPE, getContentType());
@@ -77,11 +78,10 @@ public class HttpRequestAdapter extends LowLevelHttpRequest {
             if (getContentLength() > 0) {
                 requestBuilder.header(HttpHeaders.CONTENT_LENGTH, String.valueOf(getContentLength()));
             }
-            return requestBuilder;
         };
     }
 
-    private HttpRequestDecorator decorateMethod(RequestMethod httpMethod) {
+    private Decorator<HttpRequest.Builder> decorateMethod(RequestMethod httpMethod) {
         return requestBuilder -> {
             switch (httpMethod) {
                 case GET -> requestBuilder.GET();
@@ -105,11 +105,10 @@ public class HttpRequestAdapter extends LowLevelHttpRequest {
                 }
                 case DELETE -> requestBuilder.DELETE();
             }
-            return requestBuilder;
         };
     }
 
-    private HttpRequestDecorator decorateUrl(String url) {
+    private Decorator<HttpRequest.Builder> decorateUrl(String url) {
         return requestBuilder -> requestBuilder.uri(URI.create(url));
     }
 }

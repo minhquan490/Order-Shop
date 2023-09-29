@@ -38,9 +38,8 @@ public class OrderHistoriesHandler extends AbstractController<Collection<OrderHi
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (orderHistoryService == null) {
-            orderHistoryService = resolver.resolveDependencies(OrderHistoryService.class);
+            orderHistoryService = resolveService(OrderHistoryService.class);
         }
     }
 

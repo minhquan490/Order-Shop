@@ -10,13 +10,15 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteMediaForm;
 import com.bachlinh.order.web.service.common.ProductMediaService;
+import org.apache.http.HttpStatus;
+
+import java.util.Map;
 
 @ActiveReflection
 @RouteProvider
 @Permit(roles = Role.ADMIN)
 @EnableCsrf
-public class ProductDeleteMediaHandler extends AbstractController<Void, ProductDeleteMediaForm> {
-    private static final Void RETURN_INSTANCE = initReturnObject();
+public class ProductDeleteMediaHandler extends AbstractController<Map<String, Object>, ProductDeleteMediaForm> {
 
     private String url;
     private ProductMediaService productMediaService;
@@ -25,22 +27,21 @@ public class ProductDeleteMediaHandler extends AbstractController<Void, ProductD
     }
 
     @Override
-    public AbstractController<Void, ProductDeleteMediaForm> newInstance() {
+    public AbstractController<Map<String, Object>, ProductDeleteMediaForm> newInstance() {
         return new ProductDeleteMediaHandler();
     }
 
     @Override
     @ActiveReflection
-    protected Void internalHandler(Payload<ProductDeleteMediaForm> request) {
+    protected Map<String, Object> internalHandler(Payload<ProductDeleteMediaForm> request) {
         productMediaService.deleteMedia(request.data().getMediaUrl());
-        return RETURN_INSTANCE;
+        return createDefaultResponse(HttpStatus.SC_OK, new String[]{"Delete successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (productMediaService == null) {
-            productMediaService = resolver.resolveDependencies(ProductMediaService.class);
+            productMediaService = resolveService(ProductMediaService.class);
         }
     }
 
@@ -55,13 +56,5 @@ public class ProductDeleteMediaHandler extends AbstractController<Void, ProductD
     @Override
     public RequestMethod getRequestMethod() {
         return RequestMethod.DELETE;
-    }
-
-    private static Void initReturnObject() {
-        try {
-            return Void.class.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

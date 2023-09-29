@@ -37,9 +37,8 @@ public class MessageSettingUpdateHandler extends AbstractController<MessageSetti
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (messageSettingService == null) {
-            messageSettingService = resolver.resolveDependencies(MessageSettingService.class);
+            messageSettingService = resolveService(MessageSettingService.class);
         }
     }
 

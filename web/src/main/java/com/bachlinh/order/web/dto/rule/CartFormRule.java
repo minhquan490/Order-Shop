@@ -2,11 +2,11 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
@@ -41,7 +41,7 @@ public class CartFormRule extends AbstractRule<CartForm> {
 
     @Override
     protected ValidatedDto.ValidateResult doValidate(CartForm dto) {
-        var validateResult = new HashMap<String, List<String>>(3);
+        HashMap<String, List<String>> validateResult = HashMap.newHashMap(3);
         MessageSetting nonEmptyMessage = messageSettingRepository.getMessageById(NON_EMPTY_MESSAGE_ID);
 
         if (dto.getProductForms().length == 0) {
@@ -78,10 +78,10 @@ public class CartFormRule extends AbstractRule<CartForm> {
     @Override
     protected void injectDependencies() {
         if (productRepository == null) {
-            productRepository = getResolver().resolveDependencies(ProductRepository.class);
+            productRepository = resolveRepository(ProductRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

@@ -2,12 +2,12 @@ package com.bachlinh.order.web.handler.rest.common;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.service.business.LogoutService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,14 +59,12 @@ public class LogoutHandler extends AbstractController<NativeResponse<Map<String,
 
     private NativeResponse<Map<String, Object>> logout() {
         boolean result = logoutService.logout((Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        Map<String, Object> resp = new HashMap<>(2);
+        Map<String, Object> resp = HashMap.newHashMap(2);
         NativeResponse.NativeResponseBuilder<Map<String, Object>> builder = NativeResponse.builder();
         if (result) {
-            resp.put("messages", new String[]{"Logout success"});
-            resp.put(STATUS, HttpStatus.OK.value());
+            resp.putAll(createDefaultResponse(HttpStatus.OK.value(), new String[]{"Logout success"}));
         } else {
-            resp.put("messages", new String[]{"Logout failure, please contact for admin"});
-            resp.put(STATUS, HttpStatus.SERVICE_UNAVAILABLE.value());
+            resp.putAll(createDefaultResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), new String[]{"Logout failure, please contact for admin"}));
         }
         return builder.body(resp).statusCode((Integer) resp.get(STATUS)).build();
     }

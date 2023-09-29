@@ -94,28 +94,28 @@ public class CustomerCreateSendingConfirmEmailTrigger extends AbstractTrigger<Cu
     @Override
     protected void inject() {
         if (emailTemplateRepository == null) {
-            emailTemplateRepository = getDependenciesResolver().resolveDependencies(EmailTemplateRepository.class);
+            emailTemplateRepository = resolveRepository(EmailTemplateRepository.class);
         }
         if (emailFoldersRepository == null) {
-            emailFoldersRepository = getDependenciesResolver().resolveDependencies(EmailFoldersRepository.class);
+            emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
         }
         if (emailTemplateProcessor == null) {
-            emailTemplateProcessor = getDependenciesResolver().resolveDependencies(EmailTemplateProcessor.class);
+            emailTemplateProcessor = resolveDependencies(EmailTemplateProcessor.class);
         }
         if (emailRepository == null) {
-            emailRepository = getDependenciesResolver().resolveDependencies(EmailRepository.class);
+            emailRepository = resolveRepository(EmailRepository.class);
         }
         if (tokenGenerator == null) {
-            tokenGenerator = getDependenciesResolver().resolveDependencies(TemporaryTokenGenerator.class);
+            tokenGenerator = resolveDependencies(TemporaryTokenGenerator.class);
         }
         if (temporaryTokenRepository == null) {
-            temporaryTokenRepository = getDependenciesResolver().resolveDependencies(TemporaryTokenRepository.class);
+            temporaryTokenRepository = resolveRepository(TemporaryTokenRepository.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
     }
 

@@ -2,8 +2,8 @@ package com.bachlinh.order.security.auth.internal;
 
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 
 public class TokenManagerProvider {
     private final String algorithm;

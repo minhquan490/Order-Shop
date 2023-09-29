@@ -12,7 +12,6 @@ import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingDeleteForm;
 import com.bachlinh.order.web.service.common.MessageSettingService;
 import org.springframework.http.HttpStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
@@ -36,17 +35,13 @@ public class MessageSettingDeleteHandler extends AbstractController<Map<String, 
     @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<MessageSettingDeleteForm> request) {
         messageSettingService.deleteMessageSetting(request.data());
-        var resp = new HashMap<String, Object>(2);
-        resp.put("status", HttpStatus.ACCEPTED.value());
-        resp.put("messages", new String[]{"OK"});
-        return resp;
+        return createDefaultResponse(HttpStatus.ACCEPTED.value(), new String[]{"OK"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (messageSettingService == null) {
-            messageSettingService = resolver.resolveDependencies(MessageSettingService.class);
+            messageSettingService = resolveService(MessageSettingService.class);
         }
     }
 

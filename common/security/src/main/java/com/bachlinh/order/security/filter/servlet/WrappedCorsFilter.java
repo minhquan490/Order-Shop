@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.filter.servlet;
 
 import com.bachlinh.order.security.filter.AbstractWebFilter;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

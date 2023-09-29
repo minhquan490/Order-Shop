@@ -2,11 +2,11 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
@@ -52,73 +52,15 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
         MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
         MessageSetting existedMessage = messageSettingRepository.getMessageById(EXISTED_MESSAGE_ID);
 
-        String firstName = "First name";
-        if (!StringUtils.hasText(dto.getFirstName())) {
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), firstName);
-            RuntimeUtils.computeMultiValueMap(FIRST_NAME_KEY, errorContent, r);
-        } else {
-            int firstNameLength = dto.getFirstName().length();
-            if (firstNameLength < 4 || firstNameLength > 32) {
-                String content = MessageFormat.format(rangeMessage.getValue(), firstName, "4", "32");
-                RuntimeUtils.computeMultiValueMap(FIRST_NAME_KEY, content, r);
-            }
-        }
+        validateFirstName(dto, r, nonEmptyMessage, rangeMessage);
 
-        String lastName = "Last name";
-        if (!StringUtils.hasText(dto.getLastName())) {
-            var key = "last_name";
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), lastName);
-            RuntimeUtils.computeMultiValueMap(key, errorContent, r);
-        } else {
-            int lastNameLength = dto.getLastName().length();
-            if (lastNameLength < 4 || lastNameLength > 32) {
-                var key = "last_name";
-                String errorContent = MessageFormat.format(rangeMessage.getValue(), lastName, "4", "32");
-                RuntimeUtils.computeMultiValueMap(key, errorContent, r);
-            }
-        }
+        validateLastName(dto, r, nonEmptyMessage, rangeMessage);
 
-        String username = "Username";
-        if (!StringUtils.hasText(dto.getUsername())) {
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), username);
-            RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
-        } else {
-            int usernameLength = dto.getUsername().length();
-            if (usernameLength < 4 || usernameLength > 32) {
-                String errorContent = MessageFormat.format(rangeMessage.getValue(), username, "4", "32");
-                RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
-            } else if (customerRepository.isUsernameExisted(dto.getUsername())) {
-                String errorContent = MessageFormat.format(existedMessage.getValue(), "Username");
-                RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
-            }
-        }
+        validateUsername(dto, r, nonEmptyMessage, rangeMessage, existedMessage);
 
-        if (!StringUtils.hasText(dto.getPhone())) {
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Phone name");
-            RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
-        } else {
-            if (!ValidateUtils.isPhoneValid(dto.getPhone())) {
-                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Phone");
-                RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
-            } else if (customerRepository.isPhoneNumberExisted(dto.getPhone())) {
-                String errorContent = MessageFormat.format(existedMessage.getValue(), "Phone");
-                RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
-            }
-        }
+        validatePhone(dto, r, nonEmptyMessage, invalidMessage, existedMessage);
 
-        String email = "Email";
-        if (!StringUtils.hasText(dto.getEmail())) {
-            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), email);
-            RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
-        } else {
-            if (!ValidateUtils.isEmailValidUsingRfc5322(dto.getEmail())) {
-                String errorContent = MessageFormat.format(invalidMessage.getValue(), email);
-                RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
-            } else if (customerRepository.isEmailExisted(dto.getEmail())) {
-                String errorContent = MessageFormat.format(existedMessage.getValue(), email);
-                RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
-            }
-        }
+        validateEmail(dto, r, nonEmptyMessage, invalidMessage, existedMessage);
 
         if (!StringUtils.hasText(dto.getGender())) {
             var key = "gender";
@@ -165,7 +107,7 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
         return new ValidatedDto.ValidateResult() {
             @Override
             public Map<String, Object> getErrorResult() {
-                Map<String, Object> result = new HashMap<>(r.size());
+                Map<String, Object> result = HashMap.newHashMap(r.size());
                 result.putAll(r);
                 return result;
             }
@@ -180,15 +122,93 @@ public class CustomerCreateRule extends AbstractRule<CustomerCreateForm> {
     @Override
     protected void injectDependencies() {
         if (customerRepository == null) {
-            customerRepository = getResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 
     @Override
     public Class<CustomerCreateForm> applyOnType() {
         return CustomerCreateForm.class;
+    }
+
+    private void validateFirstName(CustomerCreateForm dto, Map<String, List<String>> r, MessageSetting nonEmptyMessage, MessageSetting rangeMessage) {
+        String firstName = "First name";
+        if (!StringUtils.hasText(dto.getFirstName())) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), firstName);
+            RuntimeUtils.computeMultiValueMap(FIRST_NAME_KEY, errorContent, r);
+        } else {
+            int firstNameLength = dto.getFirstName().length();
+            if (firstNameLength < 4 || firstNameLength > 32) {
+                String content = MessageFormat.format(rangeMessage.getValue(), firstName, "4", "32");
+                RuntimeUtils.computeMultiValueMap(FIRST_NAME_KEY, content, r);
+            }
+        }
+    }
+
+    private void validateLastName(CustomerCreateForm dto, Map<String, List<String>> r, MessageSetting nonEmptyMessage, MessageSetting rangeMessage) {
+        String lastName = "Last name";
+        if (!StringUtils.hasText(dto.getLastName())) {
+            var key = "last_name";
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), lastName);
+            RuntimeUtils.computeMultiValueMap(key, errorContent, r);
+        } else {
+            int lastNameLength = dto.getLastName().length();
+            if (lastNameLength < 4 || lastNameLength > 32) {
+                var key = "last_name";
+                String errorContent = MessageFormat.format(rangeMessage.getValue(), lastName, "4", "32");
+                RuntimeUtils.computeMultiValueMap(key, errorContent, r);
+            }
+        }
+    }
+
+    private void validateUsername(CustomerCreateForm dto, Map<String, List<String>> r, MessageSetting nonEmptyMessage, MessageSetting rangeMessage, MessageSetting existedMessage) {
+        String username = "Username";
+        if (!StringUtils.hasText(dto.getUsername())) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), username);
+            RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
+        } else {
+            int usernameLength = dto.getUsername().length();
+            if (usernameLength < 4 || usernameLength > 32) {
+                String errorContent = MessageFormat.format(rangeMessage.getValue(), username, "4", "32");
+                RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
+            } else if (customerRepository.isUsernameExisted(dto.getUsername())) {
+                String errorContent = MessageFormat.format(existedMessage.getValue(), "Username");
+                RuntimeUtils.computeMultiValueMap(USERNAME_KEY, errorContent, r);
+            }
+        }
+    }
+
+    private void validatePhone(CustomerCreateForm dto, Map<String, List<String>> r, MessageSetting nonEmptyMessage, MessageSetting invalidMessage, MessageSetting existedMessage) {
+        if (!StringUtils.hasText(dto.getPhone())) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Phone name");
+            RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
+        } else {
+            if (!ValidateUtils.isPhoneValid(dto.getPhone())) {
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), "Phone");
+                RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
+            } else if (customerRepository.isPhoneNumberExisted(dto.getPhone())) {
+                String errorContent = MessageFormat.format(existedMessage.getValue(), "Phone");
+                RuntimeUtils.computeMultiValueMap(PHONE_KEY, errorContent, r);
+            }
+        }
+    }
+
+    private void validateEmail(CustomerCreateForm dto, Map<String, List<String>> r, MessageSetting nonEmptyMessage, MessageSetting invalidMessage, MessageSetting existedMessage) {
+        String email = "Email";
+        if (!StringUtils.hasText(dto.getEmail())) {
+            String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), email);
+            RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
+        } else {
+            if (!ValidateUtils.isEmailValidUsingRfc5322(dto.getEmail())) {
+                String errorContent = MessageFormat.format(invalidMessage.getValue(), email);
+                RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
+            } else if (customerRepository.isEmailExisted(dto.getEmail())) {
+                String errorContent = MessageFormat.format(existedMessage.getValue(), email);
+                RuntimeUtils.computeMultiValueMap(EMAIL_KEY, errorContent, r);
+            }
+        }
     }
 }

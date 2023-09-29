@@ -2,11 +2,14 @@ package com.bachlinh.order.repository.implementer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.entity.model.TemporaryToken_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Select;
@@ -17,9 +20,6 @@ import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Isolation;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @ActiveReflection
 @RepositoryComponent
-public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, TemporaryToken> implements TemporaryTokenRepository {
+public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, TemporaryToken> implements TemporaryTokenRepository, RepositoryBase {
 
     @ActiveReflection
     public TemporaryTokenRepositoryImpl(DependenciesResolver dependenciesResolver) {
@@ -69,7 +69,7 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, Te
                 .select(customerPassword, Customer.class)
                 .select(customerActivated, Customer.class);
         SqlJoin sqlJoin = sqlSelect.join(customerJoin);
-        return getTemporaryToken(sqlJoin.where(tokenValueWhere), tokenValueWhere, sqlSelect);
+        return getTemporaryToken(sqlJoin.where(tokenValueWhere));
     }
 
     @Override
@@ -89,14 +89,17 @@ public class TemporaryTokenRepositoryImpl extends AbstractRepository<Integer, Te
     }
 
     @Override
-    @ActiveReflection
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new TemporaryTokenRepositoryImpl(containerResolver.getDependenciesResolver());
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{TemporaryTokenRepository.class};
     }
 
     @Nullable
-    private TemporaryToken getTemporaryToken(SqlWhere where, Where customerWhere, SqlSelect sqlSelect) {
+    private TemporaryToken getTemporaryToken(SqlWhere where) {
         String query = where.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(where.getQueryBindings());
         return getSingleResult(query, attributes, TemporaryToken.class);

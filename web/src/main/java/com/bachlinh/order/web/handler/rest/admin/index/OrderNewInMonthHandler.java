@@ -30,9 +30,8 @@ public class OrderNewInMonthHandler extends AbstractController<AnalyzeOrderNewIn
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (orderAnalyzeService == null) {
-            orderAnalyzeService = resolver.resolveDependencies(OrderAnalyzeService.class);
+            orderAnalyzeService = resolveService(OrderAnalyzeService.class);
         }
     }
 

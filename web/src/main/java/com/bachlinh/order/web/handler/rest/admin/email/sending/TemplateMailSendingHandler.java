@@ -12,7 +12,6 @@ import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RouteProvider(name = "templateMailSendingHandler")
@@ -35,17 +34,13 @@ public class TemplateMailSendingHandler extends AbstractController<Map<String, O
     protected Map<String, Object> internalHandler(Payload<TemplateMailSendingForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailTemplateSendingService.processTemplateAndSend(request.data(), customer, getEnvironment());
-        var resp = new HashMap<String, Object>(2);
-        resp.put("status", HttpStatus.OK.value());
-        resp.put("messages", new String[]{"Sending email complete"});
-        return resp;
+        return createDefaultResponse(HttpStatus.OK.value(), new String[]{"Sending email complete"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailTemplateSendingService == null) {
-            emailTemplateSendingService = resolver.resolveDependencies(EmailTemplateSendingService.class);
+            emailTemplateSendingService = resolveService(EmailTemplateSendingService.class);
         }
     }
 

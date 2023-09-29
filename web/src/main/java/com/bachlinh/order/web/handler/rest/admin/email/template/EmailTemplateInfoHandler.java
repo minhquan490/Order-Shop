@@ -39,9 +39,8 @@ public class EmailTemplateInfoHandler extends AbstractController<EmailTemplateIn
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailTemplateService == null) {
-            emailTemplateService = resolver.resolveDependencies(EmailTemplateService.class);
+            emailTemplateService = resolveService(EmailTemplateService.class);
         }
     }
 

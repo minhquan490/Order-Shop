@@ -3,7 +3,7 @@ package com.bachlinh.order.web.common.listener;
 import com.bachlinh.order.core.server.netty.channel.security.FilterChainAdapter;
 import com.bachlinh.order.core.server.netty.listener.AbstractHttpFrameListenerFactory;
 import com.bachlinh.order.core.server.netty.listener.HttpFrameListener;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.web.common.servlet.ServletRouter;
 import io.netty.incubator.codec.http3.Http3Frame;
 

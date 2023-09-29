@@ -1,28 +1,89 @@
 package com.bachlinh.order.core.server.netty;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.compression.StandardCompressionOptions;
 import io.netty.handler.codec.http2.CompressorHttp2ConnectionEncoder;
+import io.netty.handler.codec.http2.DefaultHttp2Connection;
+import io.netty.handler.codec.http2.DefaultHttp2ConnectionDecoder;
+import io.netty.handler.codec.http2.DefaultHttp2ConnectionEncoder;
+import io.netty.handler.codec.http2.DefaultHttp2FrameReader;
+import io.netty.handler.codec.http2.DefaultHttp2FrameWriter;
+import io.netty.handler.codec.http2.DefaultHttp2HeadersDecoder;
+import io.netty.handler.codec.http2.Http2Connection;
+import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2FrameCodec;
 import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
+import io.netty.handler.codec.http2.Http2FrameReader;
+import io.netty.handler.codec.http2.Http2FrameWriter;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.Http2PromisedRequestVerifier;
 import io.netty.handler.codec.http2.Http2Settings;
 
 public class Http2CompressFrameCodecBuilder extends Http2FrameCodecBuilder {
 
     @Override
     public Http2FrameCodec build() {
-        Http2FrameCodec frameCodec = Http2FrameCodecBuilder.forServer()
-                .initialSettings(new Http2Settings().pushEnabled(true).maxHeaderListSize(8192))
-                .decoupleCloseAndGoAway(true)
-                .build();
 
-        server(true);
-        gracefulShutdownTimeoutMillis(0);
-        decoupleCloseAndGoAway(true);
-        initialSettings(new Http2Settings().pushEnabled(true).maxHeaderListSize(8192));
+        Http2Connection connection = buildConnection();
+        Http2ConnectionEncoder encoder = buildEncoder(connection);
+        Http2ConnectionDecoder decoder = buildDecoder(connection, encoder);
 
-        Http2ConnectionEncoder compressEncoder = new CompressorHttp2ConnectionEncoder(frameCodec.encoder(), StandardCompressionOptions.gzip());
+        Http2FrameCodec handler = build(decoder, encoder, settings());
 
-        return super.build(frameCodec.decoder(), compressEncoder, initialSettings());
+        handler.gracefulShutdownTimeoutMillis(0);
+
+        return handler;
+    }
+
+    private Http2Connection buildConnection() {
+        return new DefaultHttp2Connection(true, 1000);
+    }
+
+    private Http2FrameReader buildFrameReader() {
+        long maxHeaderListSize = 8192;
+        DefaultHttp2HeadersDecoder decoder = new DefaultHttp2HeadersDecoder(true, maxHeaderListSize, -1);
+        return new DefaultHttp2FrameReader(decoder);
+    }
+
+    private Http2FrameWriter buildFrameWriter() {
+        return new DefaultHttp2FrameWriter((name, value) -> false);
+    }
+
+    private Http2ConnectionEncoder buildEncoder(Http2Connection connection) {
+        Http2FrameWriter frameWriter = buildFrameWriter();
+        Http2ConnectionEncoder encoder = new DefaultHttp2ConnectionEncoder(connection, frameWriter);
+        return new CompressorHttp2ConnectionEncoder(encoder, StandardCompressionOptions.gzip());
+    }
+
+    private Http2ConnectionDecoder buildDecoder(Http2Connection connection, Http2ConnectionEncoder encoder) {
+        Http2FrameReader frameReader = buildFrameReader();
+        return new DefaultHttp2ConnectionDecoder(connection, encoder, frameReader, always(), true, true);
+    }
+
+    private Http2PromisedRequestVerifier always() {
+        return new Http2PromisedRequestVerifier() {
+            @Override
+            public boolean isAuthoritative(ChannelHandlerContext ctx, Http2Headers headers) {
+                return true;
+            }
+
+            @Override
+            public boolean isCacheable(Http2Headers headers) {
+                return true;
+            }
+
+            @Override
+            public boolean isSafe(Http2Headers headers) {
+                return true;
+            }
+        };
+    }
+
+    private Http2Settings settings() {
+        Http2Settings settings = new Http2Settings();
+        settings.maxConcurrentStreams(10000);
+        settings.maxHeaderListSize(8192);
+        return settings;
     }
 }

@@ -1,13 +1,15 @@
 package com.bachlinh.order.handler.interceptor.spi;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 public abstract non-sealed class AbstractInterceptor implements WebInterceptor {
     private DependenciesResolver resolver;
     private Environment environment;
+    private RepositoryManager repositoryManager;
 
     protected AbstractInterceptor() {
     }
@@ -37,6 +39,13 @@ public abstract non-sealed class AbstractInterceptor implements WebInterceptor {
 
     protected Environment getEnvironment() {
         return this.environment;
+    }
+
+    protected <T> T resolveRepository(Class<T> repositoryType) {
+        if (repositoryManager == null) {
+            repositoryManager = getResolver().resolveDependencies(RepositoryManager.class);
+        }
+        return repositoryManager.getRepository(repositoryType);
     }
 
     public void setResolver(DependenciesResolver resolver) {

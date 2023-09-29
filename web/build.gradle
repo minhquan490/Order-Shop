@@ -17,7 +17,6 @@ dependencies {
     implementation project(":aot")
     implementation project(":common:analyzer")
     implementation project(":batch")
-    implementation project(":service")
     implementation project(":common:annotation")
     implementation project(":common:core")
     implementation project(":common:entity")
@@ -35,7 +34,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.data:spring-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'jakarta.persistence:jakarta.persistence-api'
@@ -52,6 +51,8 @@ dependencies {
     implementation "org.apache.lucene:lucene-queryparser:${libs.versions.lunceneVersion.get()}"
     implementation "org.apache.lucene:lucene-analysis-common:${libs.versions.lunceneVersion.get()}"
     implementation "io.netty.incubator:netty-incubator-codec-http3:${libs.versions.nettyQuic.get()}"
+    implementation "com.google.apis:google-api-services-gmail:${libs.versions.gmailApi.get()}"
+    implementation 'org.aspectj:aspectjrt'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor project(":annotation-processor")

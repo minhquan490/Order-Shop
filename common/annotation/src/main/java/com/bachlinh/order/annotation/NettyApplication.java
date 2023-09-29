@@ -7,13 +7,11 @@ import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfigurati
 import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
-import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,7 +23,6 @@ import java.lang.annotation.Target;
 @SpringBootApplication
 @EnableWebSecurity
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableTransactionManagement(proxyTargetClass = true, mode = AdviceMode.ASPECTJ)
 @ImportRuntimeHints(value = {})
 @Import(value = {})
 public @interface NettyApplication {

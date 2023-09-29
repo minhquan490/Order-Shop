@@ -1,5 +1,6 @@
 package com.bachlinh.order.security.filter.grpc;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
@@ -9,7 +10,6 @@ import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.filter.GrpcWebFilter;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.security.helper.AuthenticationHelper;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
@@ -60,16 +60,16 @@ public class AuthenticationFilter extends GrpcWebFilter {
     @Override
     protected void inject() {
         if (tokenManager == null) {
-            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+            tokenManager = resolveDependencies(TokenManager.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (authenticationFailureHandler == null) {
-            authenticationFailureHandler = getDependenciesResolver().resolveDependencies(UnAuthorizationHandler.class);
+            authenticationFailureHandler = resolveDependencies(UnAuthorizationHandler.class);
         }
         if (pathMatcher == null) {
-            pathMatcher = getDependenciesResolver().resolveDependencies(PathMatcher.class);
+            pathMatcher = resolveDependencies(PathMatcher.class);
         }
     }
 }

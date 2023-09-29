@@ -1,6 +1,7 @@
 package com.bachlinh.order.core.server.netty.channel.adapter;
 
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
@@ -20,7 +21,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
 import jakarta.servlet.http.MappingMatch;
 import jakarta.servlet.http.Part;
-import org.eclipse.jetty.http.HttpHeader;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -64,7 +64,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
     @Override
     public Cookie[] getCookies() {
         if (cachedCookie == null || cachedCookie.length == 0) {
-            String cookieString = fullHttpRequest.headers().getAsString(HttpHeader.COOKIE.asString());
+            String cookieString = fullHttpRequest.headers().getAsString(HttpHeaderNames.COOKIE.toString());
             if (cookieString == null) {
                 cookieString = "";
             }
@@ -87,7 +87,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public long getDateHeader(String name) {
-        return Long.parseLong(fullHttpRequest.headers().get(HttpHeader.DATE.asString()));
+        return Long.parseLong(fullHttpRequest.headers().get(HttpHeaderNames.DATE.toString()));
     }
 
     @Override
@@ -262,7 +262,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public String getContentType() {
-        return fullHttpRequest.headers().get(HttpHeader.CONTENT_TYPE.asString());
+        return fullHttpRequest.headers().get(HttpHeaderNames.CONTENT_TYPE.toString());
     }
 
     @Override
@@ -363,7 +363,7 @@ public class NettyServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public Locale getLocale() {
-        return Locale.forLanguageTag(fullHttpRequest.headers().get(HttpHeader.ACCEPT_LANGUAGE.asString()));
+        return Locale.forLanguageTag(fullHttpRequest.headers().get(HttpHeaderNames.ACCEPT_LANGUAGE.toString()));
     }
 
     @Override

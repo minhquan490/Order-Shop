@@ -2,10 +2,10 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
@@ -33,7 +33,7 @@ public class EmailSearchRule extends AbstractRule<EmailSearchForm> {
 
     @Override
     protected ValidatedDto.ValidateResult doValidate(EmailSearchForm dto) {
-        var validationResult = new HashMap<String, List<String>>(1);
+        HashMap<String, List<String>> validationResult = HashMap.newHashMap(1);
 
         if (!StringUtils.hasText(dto.getQuery())) {
             var key = "query";
@@ -56,7 +56,7 @@ public class EmailSearchRule extends AbstractRule<EmailSearchForm> {
     @Override
     protected void injectDependencies() {
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

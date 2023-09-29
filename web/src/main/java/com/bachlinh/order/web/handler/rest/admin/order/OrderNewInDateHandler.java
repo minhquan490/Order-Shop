@@ -7,7 +7,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.service.business.OrderInDateService;
 
 @RouteProvider(name = "orderNewInDateHandler")
@@ -33,9 +32,8 @@ public class OrderNewInDateHandler extends AbstractController<Integer, Object> {
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (orderInDateService == null) {
-            orderInDateService = resolver.resolveDependencies(OrderInDateService.class);
+            orderInDateService = resolveService(OrderInDateService.class);
         }
     }
 

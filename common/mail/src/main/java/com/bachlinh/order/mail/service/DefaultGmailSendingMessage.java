@@ -16,6 +16,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +25,7 @@ final class DefaultGmailSendingMessage implements GmailSendingService {
     private final Converter<Message, GmailMessage> converter;
     private final Gmail internalService;
 
-    DefaultGmailSendingMessage(CredentialAdapter adapter) throws IOException {
+    DefaultGmailSendingMessage(CredentialAdapter adapter) throws IOException, URISyntaxException {
         Credentials credentials = Credentials.basicCredentials(adapter);
         this.converter = new GmailConverter();
         HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(credentials.getGoogleCredentials());

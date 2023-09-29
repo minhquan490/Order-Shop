@@ -4,10 +4,10 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.repository.EmailRepository;
 import com.bachlinh.order.repository.EmailTrashRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,20 +33,20 @@ public class EmailTrashClearing extends AbstractJob {
     @Override
     protected void inject() {
         if (emailRepository == null) {
-            emailRepository = getDependenciesResolver().resolveDependencies(EmailRepository.class);
+            emailRepository = resolveRepository(EmailRepository.class);
         }
         if (emailTrashRepository == null) {
-            emailTrashRepository = getDependenciesResolver().resolveDependencies(EmailTrashRepository.class);
+            emailTrashRepository = resolveRepository(EmailTrashRepository.class);
         }
     }
 
     @Override
-    protected void doExecuteInternal() throws Exception {
+    protected void doExecuteInternal() {
         var trashes = emailTrashRepository.getTrashNeedClearing();
         var emails = new ArrayList<Email>();
         for (var trash : trashes) {
             emails.addAll(trash.getEmails());
-            trash.setEmails(new HashSet<>(0));
+            trash.setEmails(HashSet.newHashSet(0));
         }
         emailTrashRepository.updateTrashes(trashes);
         emailRepository.deleteEmails(emails.stream().map(Email::getId).toList());

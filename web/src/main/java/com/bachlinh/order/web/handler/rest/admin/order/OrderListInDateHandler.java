@@ -35,9 +35,8 @@ public class OrderListInDateHandler extends AbstractController<Collection<OrderL
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (orderInDateService == null) {
-            orderInDateService = resolver.resolveDependencies(OrderInDateService.class);
+            orderInDateService = resolveService(OrderInDateService.class);
         }
     }
 

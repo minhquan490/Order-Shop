@@ -2,10 +2,10 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
@@ -32,7 +32,7 @@ public class RestoreEmailRule extends AbstractRule<RestoreEmailForm> {
 
     @Override
     protected ValidatedDto.ValidateResult doValidate(RestoreEmailForm dto) {
-        var validateResult = new HashMap<String, List<String>>(1);
+        HashMap<String, List<String>> validateResult = HashMap.newHashMap(1);
         if (dto.getEmailIds().length == 0) {
             var key = "email_ids";
             MessageSetting messageSetting = messageSettingRepository.getMessageById(CAN_NOT_STORE_EMAIL_MESSAGE_ID);
@@ -54,7 +54,7 @@ public class RestoreEmailRule extends AbstractRule<RestoreEmailForm> {
     @Override
     protected void injectDependencies() {
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

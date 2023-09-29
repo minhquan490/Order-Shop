@@ -36,9 +36,8 @@ public class CategoryUpdateHandler extends AbstractController<CategoryResp, Cate
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (categoryService == null) {
-            categoryService = resolver.resolveDependencies(CategoryService.class);
+            categoryService = resolveService(CategoryService.class);
         }
     }
 

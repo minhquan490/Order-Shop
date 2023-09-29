@@ -1,61 +1,61 @@
 package com.bachlinh.order.handler.router;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ExceptionReturn;
 import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
+import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
+import com.bachlinh.order.entity.transaction.spi.TransactionManager;
 import com.bachlinh.order.handler.controller.Controller;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.handler.strategy.ResponseStrategy;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractRouter<T, U> implements Router<T, U> {
     private final DependenciesResolver resolver;
     private final Node rootNode;
     private final WebInterceptorChain webInterceptorChain;
     private final EntityFactory entityFactory;
+    private final TransactionManager<?> transactionManager;
+    private final RepositoryManager repositoryManager;
 
     protected AbstractRouter(DependenciesResolver resolver) {
         this.resolver = resolver;
         this.rootNode = configRootNode();
         this.webInterceptorChain = resolver.resolveDependencies(WebInterceptorChain.class);
         this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.transactionManager = resolver.resolveDependencies(TransactionManager.class);
+        this.repositoryManager = resolver.resolveDependencies(RepositoryManager.class);
     }
 
     @Override
     public final void handleRequest(T request, U response) {
-        NativeRequest<?> nativeReq = null;
-        NativeResponse<?> nativeResp = null;
+        AtomicReference<NativeRequest<?>> requestReference = new AtomicReference<>(registerReq(request));
+        AtomicReference<NativeResponse<?>> responseReference = new AtomicReference<>(createDefault());
+        TransactionHolder<?> transaction = startAndAssignTransaction(requestReference);
         try {
-            nativeReq = registerReq(request);
-            var defaultResp = createDefault();
-            configResponse(defaultResp, response);
-            rootNode.setNativeRequest(nativeReq);
-            rootNode.setNativeResponse(defaultResp);
-            if (webInterceptorChain.shouldHandle(nativeReq, defaultResp)) {
-                nativeResp = internalHandle(nativeReq);
+            preHandle(requestReference, responseReference, response);
+            if (webInterceptorChain.shouldHandle(requestReference.get(), responseReference.get())) {
+                responseReference.set(internalHandle(requestReference.get()));
             } else {
-                nativeResp = createUnPassedInterceptorResponse(defaultResp);
+                responseReference.set(createUnPassedInterceptorResponse(responseReference.get()));
             }
-            webInterceptorChain.afterHandle(nativeReq, nativeResp);
-            getStrategy().apply(nativeResp, response);
-            writeResponse(nativeResp, response);
+            postHandle(transaction, requestReference, responseReference, response);
+            writeResponse(responseReference.get(), response);
         } catch (Throwable throwable) {
             onErrorBeforeHandle(throwable, response);
+            doOnException(transaction);
         } finally {
-            EntityTransactionManager transactionManager = getEntityFactory().getTransactionManager();
-            if (transactionManager.hasSavePoint()) {
-                transactionManager.getSavePointManager().release();
-            }
-            if (nativeReq != null && nativeResp != null) {
-                webInterceptorChain.onCompletion(nativeReq, nativeResp);
-            }
-            getRootNode().release();
-            cleanUpRequest(request, nativeReq);
+            onComplete(requestReference, responseReference);
+            release(request, requestReference, responseReference, transaction);
         }
     }
 
@@ -112,11 +112,78 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
         return this.rootNode;
     }
 
-    protected WebInterceptorChain getWebInterceptorChain() {
-        return this.webInterceptorChain;
-    }
-
     protected EntityFactory getEntityFactory() {
         return this.entityFactory;
+    }
+
+    private TransactionHolder<?> startAndAssignTransaction(AtomicReference<NativeRequest<?>> requestReference) {
+        NativeRequest<?> request = requestReference.get();
+        if (request.getRequestMethod().equals(RequestMethod.GET)) {
+            return new NoOpTransactionHolder();
+        }
+        TransactionHolder<?> transaction = transactionManager.beginTransaction();
+        repositoryManager.assignTransaction(transaction);
+        return transaction;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void postHandle(TransactionHolder<?> transaction, AtomicReference<NativeRequest<?>> requestReference, AtomicReference<NativeResponse<?>> responseReference, U response) {
+        webInterceptorChain.afterHandle(requestReference.get(), responseReference.get());
+        getStrategy().apply(responseReference.get(), response);
+        if (!(transaction instanceof NoOpTransactionHolder)) {
+            transactionManager.commit((TransactionHolder) transaction);
+        }
+    }
+
+    private void preHandle(AtomicReference<NativeRequest<?>> requestReference, AtomicReference<NativeResponse<?>> responseReference, U response) {
+        configResponse(responseReference.get(), response);
+        rootNode.setNativeRequest(requestReference.get());
+        rootNode.setNativeResponse(responseReference.get());
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void doOnException(TransactionHolder<?> transaction) {
+        if (transaction instanceof NoOpTransactionHolder) {
+            return;
+        }
+        transactionManager.rollback((TransactionHolder) transaction);
+    }
+
+    private void cleanupTransaction(TransactionHolder<?> transaction) {
+        if (transaction instanceof NoOpTransactionHolder) {
+            return;
+        }
+        repositoryManager.releaseTransaction(transaction);
+    }
+
+    private void release(T request, AtomicReference<NativeRequest<?>> requestReference, AtomicReference<NativeResponse<?>> responseReference, TransactionHolder<?> transaction) {
+        EntityTransactionManager entityTransactionManager = getEntityFactory().getTransactionManager();
+        if (entityTransactionManager.hasSavePoint()) {
+            entityTransactionManager.getSavePointManager().release();
+        }
+        getRootNode().release();
+        cleanUpRequest(request, requestReference.get());
+        requestReference.set(null);
+        responseReference.set(null);
+        cleanupTransaction(transaction);
+    }
+
+    private void onComplete(AtomicReference<NativeRequest<?>> requestReference, AtomicReference<NativeResponse<?>> responseReference) {
+        if (requestReference.get() != null && responseReference.get() != null) {
+            webInterceptorChain.onCompletion(requestReference.get(), responseReference.get());
+        }
+    }
+
+    private static class NoOpTransactionHolder implements TransactionHolder<Object> {
+
+        @Override
+        public Object getTransaction() {
+            return null;
+        }
+
+        @Override
+        public void cleanup(Object transaction) {
+            // Do nothing
+        }
     }
 }

@@ -35,7 +35,7 @@ public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
 
     @Override
     protected void doExecute(Order entity) {
-        Map<String, String> message = new HashMap<>(2);
+        Map<String, String> message = HashMap.newHashMap(2);
         message.put("order_id", (entity).getId());
         message.put("time_order", entity.getTimeOrder().toString());
         try {
@@ -48,7 +48,7 @@ public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
     @Override
     protected void inject() {
         if (webSocketSessionManager == null) {
-            webSocketSessionManager = getDependenciesResolver().resolveDependencies(WebSocketSessionManager.class);
+            webSocketSessionManager = resolveDependencies(WebSocketSessionManager.class);
         }
     }
 }

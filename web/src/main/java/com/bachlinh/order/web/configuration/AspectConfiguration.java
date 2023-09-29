@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.configuration;
 
 import com.bachlinh.order.entity.repository.monitor.RepositoryMonitor;
-import com.bachlinh.order.service.monitor.ServiceMonitor;
+import com.bachlinh.order.web.service.monitor.ServiceMonitor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

@@ -3,11 +3,12 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.model.EmailFolders_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.EmailFoldersRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Select;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
@@ -15,9 +16,7 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.EmailFoldersRepository;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class EmailFoldersRepositoryImpl extends AbstractRepository<String, EmailFolders> implements EmailFoldersRepository {
+public class EmailFoldersRepositoryImpl extends AbstractRepository<String, EmailFolders> implements EmailFoldersRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -90,9 +89,13 @@ public class EmailFoldersRepositoryImpl extends AbstractRepository<String, Email
     }
 
     @Override
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new EmailFoldersRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{EmailFoldersRepository.class};
     }
 
     @Nullable

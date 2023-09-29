@@ -3,10 +3,13 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderDetail;
 import com.bachlinh.order.entity.model.OrderDetail_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
@@ -14,7 +17,6 @@ import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.OrderDetailRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +26,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class OrderDetailRepositoryImpl extends AbstractRepository<Integer, OrderDetail> implements OrderDetailRepository {
+public class OrderDetailRepositoryImpl extends AbstractRepository<Integer, OrderDetail> implements OrderDetailRepository, RepositoryBase {
 
     @ActiveReflection
     @DependenciesInitialize
@@ -50,5 +52,15 @@ public class OrderDetailRepositoryImpl extends AbstractRepository<Integer, Order
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void deleteOrderDetails(Collection<OrderDetail> orderDetails) {
         deleteAll(orderDetails);
+    }
+
+    @Override
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new OrderDetailRepositoryImpl(containerResolver.getDependenciesResolver());
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{OrderDetailRepository.class};
     }
 }

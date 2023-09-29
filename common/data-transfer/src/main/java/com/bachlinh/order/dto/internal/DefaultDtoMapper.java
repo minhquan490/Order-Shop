@@ -5,7 +5,7 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.dto.MappingContext;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.dto.MappingNotFoundException;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Collection;

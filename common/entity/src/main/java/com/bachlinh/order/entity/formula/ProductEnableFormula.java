@@ -6,7 +6,7 @@ import com.bachlinh.order.entity.formula.adapter.WhereFormulaAdapter;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.Product_;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import org.springframework.core.Ordered;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

@@ -2,13 +2,14 @@ package com.bachlinh.order.handler.controller;
 
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.NativeMethodHandleRequestMetadataReader;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.ValidationFailureException;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
+import com.bachlinh.order.handler.service.ServiceManager;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.RuleManager;
@@ -16,18 +17,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract non-sealed class AbstractController<T, U> implements Controller<T, U> {
+    private static final String STATUS_KEY = "status";
+
     private final NativeMethodHandleRequestMetadataReader reader = NativeMethodHandleRequestMetadataReader.getInstance();
     private NativeRequest<U> request;
     private NativeResponse<T> response;
 
     private DependenciesContainerResolver containerResolver;
-
+    private ServiceManager serviceManager;
     private Environment environment;
-
     private RuleManager ruleManager;
-
     private String name;
 
     public boolean isController() {
@@ -65,22 +68,12 @@ public abstract non-sealed class AbstractController<T, U> implements Controller<
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public final NativeResponse<T> handle(NativeRequest<U> request) {
-        resolveValidator();
-        inject();
         var metadata = reader.getNativeMethodMetadata(getPath());
         var paramType = metadata.parameterType();
-        validateRequest(paramType, request.getBody().data());
+        preHandle(paramType);
         T returnValue = internalHandler(request.getBody());
-        if (ResponseEntity.class.isAssignableFrom(returnValue.getClass())) {
-            ResponseEntity<T> res = (ResponseEntity<T>) returnValue;
-            return merge(res, paramType);
-        }
-        if (NativeResponse.class.isAssignableFrom(returnValue.getClass())) {
-            return merge((NativeResponse<T>) returnValue);
-        }
-        return merge(metadata.returnTypes(), returnValue);
+        return createResponse(returnValue, paramType, metadata);
     }
 
     @Override
@@ -109,6 +102,21 @@ public abstract non-sealed class AbstractController<T, U> implements Controller<
 
     protected abstract void inject();
 
+    protected <K> K resolveService(Class<K> serviceType) {
+        return this.serviceManager.getService(serviceType);
+    }
+
+    protected <K> K resolveDependencies(Class<K> dependenciesType) {
+        return getContainerResolver().getDependenciesResolver().resolveDependencies(dependenciesType);
+    }
+
+    protected Map<String, Object> createDefaultResponse(int status, String[] messages) {
+        Map<String, Object> resp = HashMap.newHashMap(2);
+        resp.put(STATUS_KEY, status);
+        resp.put("messages", messages);
+        return resp;
+    }
+
     private void resolveValidator() {
         var resolver = containerResolver.getDependenciesResolver();
         if (ruleManager == null) {
@@ -136,12 +144,16 @@ public abstract non-sealed class AbstractController<T, U> implements Controller<
                 .build());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private NativeResponse<T> merge(Class<?> returnType, T returnValue) {
+        int statusCode = getNativeResponse().getStatusCode();
+        if (returnValue instanceof Map casted && casted.containsKey(STATUS_KEY)) {
+            statusCode = (int) casted.get(STATUS_KEY);
+        }
         return getNativeResponse().merge((NativeResponse<T>) NativeResponse
                 .builder()
                 .activePushBuilder(getNativeResponse().isActivePushBuilder())
-                .statusCode(getNativeResponse().getStatusCode() <= 0 ? 200 : getNativeResponse().getStatusCode())
+                .statusCode(statusCode <= 0 ? 200 : statusCode)
                 .body(returnType.equals(Void.class) ? null : returnValue)
                 .build());
     }
@@ -168,5 +180,30 @@ public abstract non-sealed class AbstractController<T, U> implements Controller<
 
     public void setRuleManager(RuleManager ruleManager) {
         this.ruleManager = ruleManager;
+    }
+
+    private void preHandle(Class<?> paramType) {
+        lazyInitServiceManager();
+        resolveValidator();
+        inject();
+        validateRequest(paramType, request.getBody().data());
+    }
+
+    @SuppressWarnings("unchecked")
+    private NativeResponse<T> createResponse(T returnValue, Class<?> paramType, NativeMethodHandleRequestMetadataReader.MetadataReader metadata) {
+        if (ResponseEntity.class.isAssignableFrom(returnValue.getClass())) {
+            ResponseEntity<T> res = (ResponseEntity<T>) returnValue;
+            return merge(res, paramType);
+        }
+        if (NativeResponse.class.isAssignableFrom(returnValue.getClass())) {
+            return merge((NativeResponse<T>) returnValue);
+        }
+        return merge(metadata.returnTypes(), returnValue);
+    }
+
+    private void lazyInitServiceManager() {
+        if (this.serviceManager == null) {
+            this.serviceManager = getContainerResolver().getDependenciesResolver().resolveDependencies(ServiceManager.class);
+        }
     }
 }

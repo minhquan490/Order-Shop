@@ -9,17 +9,10 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'org.springframework.security:spring-security-config'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework:spring-websocket'
-    implementation 'org.springframework:spring-tx'
-    implementation 'jakarta.persistence:jakarta.persistence-api'
-    implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
-    implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
-    implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
-
-    // Empty
+    compileOnly 'org.springframework.security:spring-security-config'
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.springframework:spring-websocket'
+    compileOnly 'org.springframework:spring-tx'
 }
 
 test {

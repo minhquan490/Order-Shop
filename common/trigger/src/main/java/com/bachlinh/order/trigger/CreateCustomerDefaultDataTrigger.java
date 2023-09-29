@@ -2,12 +2,12 @@ package com.bachlinh.order.trigger;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 @ActiveReflection
 @ApplyOn(entity = Customer.class)
@@ -49,7 +49,7 @@ public class CreateCustomerDefaultDataTrigger extends AbstractTrigger<Customer> 
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
     }
 

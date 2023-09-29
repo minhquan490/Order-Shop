@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Category_;
 import com.bachlinh.order.entity.model.Product;
@@ -10,7 +10,7 @@ import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.entity.model.ProductMedia_;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.ProductRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
@@ -21,38 +21,28 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.ProductRepository;
 import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class ProductRepositoryImpl extends AbstractRepository<String, Product> implements ProductRepository {
-    private static final String LIKE_PATTERN = "%{0}%";
+public class ProductRepositoryImpl extends AbstractRepository<String, Product> implements ProductRepository, RepositoryBase {
 
-    @DependenciesInitialize
-    @ActiveReflection
-    public ProductRepositoryImpl(DependenciesContainerResolver containerResolver) {
+    private ProductRepositoryImpl(DependenciesContainerResolver containerResolver) {
         super(Product.class, containerResolver.getDependenciesResolver());
     }
 
@@ -103,12 +93,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
 
     @Override
     public Product getProductForFileUpload(String productId) {
-        Select idSelect = Select.builder().column(Product_.ID).build();
-        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operation(Operation.EQ).build();
-        SqlBuilder sqlBuilder = getSqlBuilder();
-        SqlSelect sqlSelect = sqlBuilder.from(Product.class);
-        sqlSelect.select(idSelect);
-        return getProduct(sqlSelect.where(idWhere));
+        return getProduct(productId);
     }
 
     @Override
@@ -121,12 +106,7 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
 
     @Override
     public Product getProductForDelete(String productId) {
-        Select idSelect = Select.builder().column(Product_.ID).build();
-        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operation(Operation.EQ).build();
-        SqlBuilder sqlBuilder = getSqlBuilder();
-        SqlSelect sqlSelect = sqlBuilder.from(Product.class);
-        sqlSelect.select(idSelect);
-        return getProduct(sqlSelect.where(idWhere));
+        return getProduct(productId);
     }
 
     @Override
@@ -225,47 +205,14 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
         return this.getResultList(sql, Collections.emptyMap(), Product.class);
     }
 
-    private Specification<Product> specWithCondition(Map<String, Object> conditions) {
-        Map<String, Object> copyConditions = conditions.entrySet()
-                .stream()
-                .filter(stringObjectEntry -> stringObjectEntry.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return Specification.where(((root, query, criteriaBuilder) -> {
-            query.multiselect(
-                    root.get(Product_.id),
-                    root.get(Product_.carts),
-                    root.get(Product_.size),
-                    root.get(Product_.name),
-                    root.get(Product_.color),
-                    root.get(Product_.price),
-                    root.get(Product_.taobaoUrl),
-                    root.get(Product_.description),
-                    root.get(Product_.categories),
-                    root.get(Product_.medias)
-            );
-            root.join(Product_.categories, JoinType.INNER);
-            root.join(Product_.medias, JoinType.LEFT);
-            AtomicReference<Predicate> predicateWrapper = new AtomicReference<>();
-            copyConditions.forEach((key, value) -> {
-                Predicate predicate = switch (key) {
-                    case Product_.PRICE -> criteriaBuilder.lessThanOrEqualTo(root.get(key), (int) value);
-                    case Product_.NAME ->
-                            criteriaBuilder.like(root.get(Product_.NAME), MessageFormat.format(LIKE_PATTERN, value));
-                    case "IDS" -> criteriaBuilder.in(root.get(Product_.ID)).in(value);
-                    case Product_.CATEGORIES -> criteriaBuilder.in(root.get(Product_.CATEGORIES)).in(value);
-                    default -> criteriaBuilder.equal(root.get(key), value);
-                };
-                predicateWrapper.set(criteriaBuilder.and(predicate));
-            });
-            return predicateWrapper.get();
-        }));
+    @Override
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new ProductRepositoryImpl(containerResolver);
     }
 
     @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{ProductRepository.class};
     }
 
     @Nullable
@@ -273,5 +220,15 @@ public class ProductRepositoryImpl extends AbstractRepository<String, Product> i
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return getSingleResult(sql, attributes, Product.class);
+    }
+
+    @Nullable
+    private Product getProduct(String productId) {
+        Select idSelect = Select.builder().column(Product_.ID).build();
+        Where idWhere = Where.builder().attribute(Product_.ID).value(productId).operation(Operation.EQ).build();
+        SqlBuilder sqlBuilder = getSqlBuilder();
+        SqlSelect sqlSelect = sqlBuilder.from(Product.class);
+        sqlSelect.select(idSelect);
+        return getProduct(sqlSelect.where(idWhere));
     }
 }

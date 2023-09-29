@@ -8,7 +8,6 @@ import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.entity.mapper.AbstractEntityMapper;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.utils.UnsafeUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -43,16 +42,12 @@ public class DefaultEntityMapperFactory implements EntityMapperFactory {
                 .filter(EntityMapper.class::isAssignableFrom)
                 .filter(entityMapperClass -> entityMapperClass.isAnnotationPresent(ResultMapper.class))
                 .toList();
+        EntityMapperInitializer mapperInitializer = new EntityMapperInitializer();
         for (var mapperClass : mapperClasses) {
             Class<?> entityType = entityType(mapperClass);
-            AbstractEntityMapper<?> abstractEntityMapper;
-            try {
-                abstractEntityMapper = (AbstractEntityMapper<?>) UnsafeUtils.allocateInstance(mapperClass);
-            } catch (InstantiationException e) {
-                throw new CriticalException(e);
-            }
-            abstractEntityMapper.setEntityFactory(entityFactory);
-            abstractEntityMapper.setEntityMapperFactory(this);
+
+            AbstractEntityMapper<?> abstractEntityMapper = mapperInitializer.getObject(mapperClass, entityFactory, this);
+
             sharedMappersHolder.put(entityType, abstractEntityMapper);
         }
     }

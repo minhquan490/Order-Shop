@@ -9,7 +9,6 @@ import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.repository.CartDetailRepository;
 import com.bachlinh.order.repository.ProductCartRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.Collection;
 
@@ -45,12 +44,11 @@ public class CartAssociateDeletionTrigger extends AbstractTrigger<Cart> {
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getDependenciesResolver();
         if (cartDetailRepository == null) {
-            cartDetailRepository = resolver.resolveDependencies(CartDetailRepository.class);
+            cartDetailRepository = resolveRepository(CartDetailRepository.class);
         }
         if (productCartRepository == null) {
-            productCartRepository = resolver.resolveDependencies(ProductCartRepository.class);
+            productCartRepository = resolveRepository(ProductCartRepository.class);
         }
     }
 }

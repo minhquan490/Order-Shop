@@ -37,9 +37,8 @@ public class CustomerConfirmEmailHandler extends AbstractController<ConfirmEmail
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (confirmEmailService == null) {
-            confirmEmailService = resolver.resolveDependencies(ConfirmEmailService.class);
+            confirmEmailService = resolveService(ConfirmEmailService.class);
         }
     }
 

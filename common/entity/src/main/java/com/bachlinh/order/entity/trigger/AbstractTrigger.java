@@ -3,15 +3,13 @@ package com.bachlinh.order.entity.trigger;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractTrigger<T extends BaseEntity<?>> implements EntityTrigger<T> {
     private DependenciesResolver dependenciesResolver;
@@ -19,6 +17,7 @@ public abstract class AbstractTrigger<T extends BaseEntity<?>> implements Entity
     private boolean runSync = false;
     private Environment environment;
     private RunnableType runnableType;
+    private RepositoryManager repositoryManager;
 
     protected Logger log;
 
@@ -28,9 +27,20 @@ public abstract class AbstractTrigger<T extends BaseEntity<?>> implements Entity
 
     protected ThreadPoolManager getExecutor() {
         if (threadPoolManager == null) {
-            this.threadPoolManager = getDependenciesResolver().resolveDependencies(ThreadPoolManager.class);
+            this.threadPoolManager = resolveDependencies(ThreadPoolManager.class);
         }
         return threadPoolManager;
+    }
+
+    protected <U> U resolveDependencies(Class<U> dependenciesType) {
+        return getDependenciesResolver().resolveDependencies(dependenciesType);
+    }
+
+    protected <U> U resolveRepository(Class<U> repositoryType) {
+        if (repositoryManager == null) {
+            repositoryManager = resolveDependencies(RepositoryManager.class);
+        }
+        return repositoryManager.getRepository(repositoryType);
     }
 
     protected abstract void doExecute(T entity);
@@ -50,8 +60,7 @@ public abstract class AbstractTrigger<T extends BaseEntity<?>> implements Entity
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public void execute(T entity) {
+    public final void execute(T entity) {
         if (entity == null) {
             return;
         }

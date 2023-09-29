@@ -7,7 +7,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CustomerAssignmentVouchersResp;
 import com.bachlinh.order.web.service.common.VoucherService;
 
@@ -34,9 +33,8 @@ public class CustomerAssignmentVouchers extends AbstractController<CustomerAssig
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (voucherService == null) {
-            voucherService = resolver.resolveDependencies(VoucherService.class);
+            voucherService = resolveService(VoucherService.class);
         }
     }
 

@@ -2,8 +2,8 @@ package com.bachlinh.order.entity;
 
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.io.IOException;
 

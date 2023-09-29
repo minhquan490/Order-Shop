@@ -5,7 +5,7 @@ import com.bachlinh.order.batch.boot.JobCenterBooster;
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.exception.system.batch.JobCenterInitializeException;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 class JobCenterBuilderAdapter implements JobCenter.Builder {
     private final JobCenter.Builder delegate;

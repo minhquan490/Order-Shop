@@ -7,7 +7,7 @@ import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.handler.controller.ControllerContextHolder;
 import com.bachlinh.order.handler.controller.ControllerManager;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 

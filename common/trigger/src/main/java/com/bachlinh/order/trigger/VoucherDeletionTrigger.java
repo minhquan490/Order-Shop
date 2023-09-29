@@ -37,7 +37,7 @@ public class VoucherDeletionTrigger extends AbstractTrigger<Voucher> {
     @Override
     protected void inject() {
         if (userAssignmentRepository == null) {
-            userAssignmentRepository = getDependenciesResolver().resolveDependencies(UserAssignmentRepository.class);
+            userAssignmentRepository = resolveRepository(UserAssignmentRepository.class);
         }
     }
 }

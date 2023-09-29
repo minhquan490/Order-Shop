@@ -38,7 +38,7 @@ public class ForgotPasswordSendMailHandler extends AbstractController<NativeResp
     @Override
     protected void inject() {
         if (forgotPasswordService == null) {
-            forgotPasswordService = getContainerResolver().getDependenciesResolver().resolveDependencies(ForgotPasswordService.class);
+            forgotPasswordService = resolveService(ForgotPasswordService.class);
         }
     }
 

@@ -20,6 +20,9 @@ public final class UnsafeUtils {
         }
     }
 
+    private UnsafeUtils() {
+    }
+
     public static Unsafe getUnsafe() {
         return INSTANCE;
     }

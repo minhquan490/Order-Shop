@@ -36,9 +36,8 @@ public class VoucherSearchHandler extends AbstractController<Collection<VoucherR
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (voucherSearchService == null) {
-            voucherSearchService = resolver.resolveDependencies(VoucherSearchService.class);
+            voucherSearchService = resolveService(VoucherSearchService.class);
         }
     }
 

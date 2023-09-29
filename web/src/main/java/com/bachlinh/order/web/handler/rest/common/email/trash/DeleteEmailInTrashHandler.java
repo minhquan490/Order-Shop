@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 @ActiveReflection
@@ -36,17 +35,13 @@ public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Ob
     protected Map<String, Object> internalHandler(Payload<DeleteEmailInTrashForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailInTrashService.removeEmailsFromTrash(Arrays.asList(request.data().getEmailId()), customer);
-        var resp = new HashMap<String, Object>(2);
-        resp.put("status", HttpStatus.ACCEPTED.value());
-        resp.put("messages", new String[]{"Delete successfully"});
-        return resp;
+        return createDefaultResponse(HttpStatus.ACCEPTED.value(), new String[]{"Delete successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailInTrashService == null) {
-            emailInTrashService = resolver.resolveDependencies(EmailInTrashService.class);
+            emailInTrashService = resolveService(EmailInTrashService.class);
         }
     }
 

@@ -2,9 +2,13 @@ package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CartDetailRepository;
 import com.bachlinh.order.repository.CartRepository;
 import com.bachlinh.order.web.dto.form.customer.CartDetailRemoveForm;
@@ -23,14 +27,14 @@ import java.util.List;
 
 @ServiceComponent
 @ActiveReflection
-public class CartServiceImpl implements CartService {
+public class CartServiceImpl extends AbstractService implements CartService {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
 
-    @ActiveReflection
-    public CartServiceImpl(CartRepository cartRepository, CartDetailRepository cartDetailRepository) {
-        this.cartRepository = cartRepository;
-        this.cartDetailRepository = cartDetailRepository;
+    private CartServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.cartRepository = resolveRepository(CartRepository.class);
+        this.cartDetailRepository = resolveRepository(CartDetailRepository.class);
     }
 
     @Override
@@ -63,6 +67,16 @@ public class CartServiceImpl implements CartService {
         return new CartResp(200, "OK");
     }
 
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new CartServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{CartService.class};
+    }
+
     private int searchCartDetail(List<CartDetail> list, String productId) {
         int low = 0;
         int high = list.size() - 1;
@@ -70,7 +84,11 @@ public class CartServiceImpl implements CartService {
         while (low <= high) {
             int mid = (low + high) >>> 1;
             var midTarget = list.get(mid);
-            int cmp = midTarget.getProduct().getId().compareTo(productId);
+            String pId = midTarget.getProduct().getId();
+            if (pId == null) {
+                return -1;
+            }
+            int cmp = pId.compareTo(productId);
             if (cmp < 0)
                 low = mid + 1;
             else if (cmp > 0)

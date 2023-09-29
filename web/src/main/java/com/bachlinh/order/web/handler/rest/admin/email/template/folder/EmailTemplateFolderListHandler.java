@@ -34,9 +34,8 @@ public class EmailTemplateFolderListHandler extends AbstractController<Collectio
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailTemplateFolderService == null) {
-            emailTemplateFolderService = resolver.resolveDependencies(EmailTemplateFolderService.class);
+            emailTemplateFolderService = resolveService(EmailTemplateFolderService.class);
         }
     }
 

@@ -501,101 +501,17 @@ public class Customer extends AbstractEntity<String> implements UserDetails {
         return this.assignedVouchers;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Customer)) return false;
-        final Customer other = (Customer) o;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$username = this.getUsername();
-        final Object other$username = other.getUsername();
-        if (!Objects.equals(this$username, other$username)) return false;
-        final Object this$password = this.getPassword();
-        final Object other$password = other.getPassword();
-        if (!Objects.equals(this$password, other$password)) return false;
-        final Object this$firstName = this.getFirstName();
-        final Object other$firstName = other.getFirstName();
-        if (!Objects.equals(this$firstName, other$firstName)) return false;
-        final Object this$lastName = this.getLastName();
-        final Object other$lastName = other.getLastName();
-        if (!Objects.equals(this$lastName, other$lastName)) return false;
-        final Object this$phoneNumber = this.getPhoneNumber();
-        final Object other$phoneNumber = other.getPhoneNumber();
-        if (!Objects.equals(this$phoneNumber, other$phoneNumber))
-            return false;
-        final Object this$email = this.getEmail();
-        final Object other$email = other.getEmail();
-        if (!Objects.equals(this$email, other$email)) return false;
-        final Object this$gender = this.getGender();
-        final Object other$gender = other.getGender();
-        if (!Objects.equals(this$gender, other$gender)) return false;
-        final Object this$role = this.getRole();
-        final Object other$role = other.getRole();
-        if (!Objects.equals(this$role, other$role)) return false;
-        final Object this$orderPoint = this.getOrderPoint();
-        final Object other$orderPoint = other.getOrderPoint();
-        if (!Objects.equals(this$orderPoint, other$orderPoint))
-            return false;
-        final Object this$activated = this.getActivated();
-        final Object other$activated = other.getActivated();
-        if (!Objects.equals(this$activated, other$activated)) return false;
-        final Object this$accountNonExpired = this.getAccountNonExpired();
-        final Object other$accountNonExpired = other.getAccountNonExpired();
-        if (!Objects.equals(this$accountNonExpired, other$accountNonExpired))
-            return false;
-        final Object this$accountNonLocked = this.getAccountNonLocked();
-        final Object other$accountNonLocked = other.getAccountNonLocked();
-        if (!Objects.equals(this$accountNonLocked, other$accountNonLocked))
-            return false;
-        final Object this$credentialsNonExpired = this.getCredentialsNonExpired();
-        final Object other$credentialsNonExpired = other.getCredentialsNonExpired();
-        if (!Objects.equals(this$credentialsNonExpired, other$credentialsNonExpired))
-            return false;
-        final Object this$enabled = this.getEnabled();
-        final Object other$enabled = other.getEnabled();
-        return Objects.equals(this$enabled, other$enabled);
+        Customer customer = (Customer) o;
+        return com.google.common.base.Objects.equal(getId(), customer.getId()) && com.google.common.base.Objects.equal(getUsername(), customer.getUsername()) && com.google.common.base.Objects.equal(getPassword(), customer.getPassword()) && com.google.common.base.Objects.equal(getFirstName(), customer.getFirstName()) && com.google.common.base.Objects.equal(getLastName(), customer.getLastName()) && com.google.common.base.Objects.equal(getPhoneNumber(), customer.getPhoneNumber()) && com.google.common.base.Objects.equal(getEmail(), customer.getEmail()) && com.google.common.base.Objects.equal(getGender(), customer.getGender()) && com.google.common.base.Objects.equal(getRole(), customer.getRole()) && com.google.common.base.Objects.equal(getOrderPoint(), customer.getOrderPoint()) && com.google.common.base.Objects.equal(isActivated(), customer.isActivated()) && com.google.common.base.Objects.equal(isAccountNonExpired(), customer.isAccountNonExpired()) && com.google.common.base.Objects.equal(isAccountNonLocked(), customer.isAccountNonLocked()) && com.google.common.base.Objects.equal(isCredentialsNonExpired(), customer.isCredentialsNonExpired()) && com.google.common.base.Objects.equal(isEnabled(), customer.isEnabled());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Customer;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + $id.hashCode();
-        final Object $username = this.getUsername();
-        result = result * PRIME + ($username == null ? 43 : $username.hashCode());
-        final Object $password = this.getPassword();
-        result = result * PRIME + ($password == null ? 43 : $password.hashCode());
-        final Object $firstName = this.getFirstName();
-        result = result * PRIME + ($firstName == null ? 43 : $firstName.hashCode());
-        final Object $lastName = this.getLastName();
-        result = result * PRIME + ($lastName == null ? 43 : $lastName.hashCode());
-        final Object $phoneNumber = this.getPhoneNumber();
-        result = result * PRIME + ($phoneNumber == null ? 43 : $phoneNumber.hashCode());
-        final Object $email = this.getEmail();
-        result = result * PRIME + ($email == null ? 43 : $email.hashCode());
-        final Object $gender = this.getGender();
-        result = result * PRIME + ($gender == null ? 43 : $gender.hashCode());
-        final Object $role = this.getRole();
-        result = result * PRIME + ($role == null ? 43 : $role.hashCode());
-        final Object $orderPoint = this.getOrderPoint();
-        result = result * PRIME + ($orderPoint == null ? 43 : $orderPoint.hashCode());
-        final Object $activated = this.getActivated();
-        result = result * PRIME + ($activated == null ? 43 : $activated.hashCode());
-        final Object $accountNonExpired = this.getAccountNonExpired();
-        result = result * PRIME + ($accountNonExpired == null ? 43 : $accountNonExpired.hashCode());
-        final Object $accountNonLocked = this.getAccountNonLocked();
-        result = result * PRIME + ($accountNonLocked == null ? 43 : $accountNonLocked.hashCode());
-        final Object $credentialsNonExpired = this.getCredentialsNonExpired();
-        result = result * PRIME + ($credentialsNonExpired == null ? 43 : $credentialsNonExpired.hashCode());
-        final Object $enabled = this.getEnabled();
-        result = result * PRIME + ($enabled == null ? 43 : $enabled.hashCode());
-        return result;
+        return com.google.common.base.Objects.hashCode(super.hashCode(), getId(), getUsername(), getPassword(), getFirstName(), getLastName(), getPhoneNumber(), getEmail(), getGender(), getRole(), getOrderPoint(), isActivated(), isAccountNonExpired(), isAccountNonLocked(), isCredentialsNonExpired(), isEnabled());
     }
 }

@@ -1,14 +1,13 @@
 package com.bachlinh.order.setup.spi;
 
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.Setup;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base setup of all setup object. Extends this object for define setup object.
@@ -19,10 +18,12 @@ public abstract class AbstractSetup implements Setup {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final DependenciesContainerResolver containerResolver;
     private final Environment environment;
+    private final RepositoryManager repositoryManager;
 
     protected AbstractSetup(ContainerWrapper wrapper, String profile) {
         this.containerResolver = DependenciesContainerResolver.buildResolver(wrapper.unwrap(), profile);
         this.environment = Environment.getInstance(profile);
+        this.repositoryManager = resolveDependencies(RepositoryManager.class);
     }
 
     protected DependenciesResolver getDependenciesResolver() {
@@ -31,6 +32,14 @@ public abstract class AbstractSetup implements Setup {
 
     protected Environment getEnvironment() {
         return environment;
+    }
+
+    protected <T> T resolveDependencies(Class<T> dependenciesType) {
+        return getDependenciesResolver().resolveDependencies(dependenciesType);
+    }
+
+    protected <T> T resolveRepository(Class<T> repositoryType) {
+        return this.repositoryManager.getRepository(repositoryType);
     }
 
     protected abstract void inject();
@@ -48,7 +57,6 @@ public abstract class AbstractSetup implements Setup {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public final void execute() {
         try {
             doExecute();

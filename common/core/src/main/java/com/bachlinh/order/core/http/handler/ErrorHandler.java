@@ -15,7 +15,7 @@ public abstract class ErrorHandler implements ThrowableHandler<Error, NativeResp
     @Override
     public NativeResponse<byte[]> handle(Error throwable) {
         executeOnError(throwable);
-        Map<String, Object> error = new HashMap<>(2);
+        Map<String, Object> error = HashMap.newHashMap(2);
         error.put("status", HttpStatus.SERVICE_UNAVAILABLE);
         error.put("messages", new String[]{"Problem when process your request, please contact to the admin"});
         NativeResponse.NativeResponseBuilder<byte[]> builder = NativeResponse.builder();

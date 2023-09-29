@@ -1,6 +1,6 @@
 package com.bachlinh.order.handler.router;
 
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.Collections;
 import java.util.List;

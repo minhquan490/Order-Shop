@@ -4,8 +4,8 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.repository.CrawlResultRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.time.LocalDateTime;
 
@@ -27,12 +27,12 @@ public class CrawlResultCleaner extends AbstractJob {
     @Override
     protected void inject() {
         if (crawlResultRepository == null) {
-            crawlResultRepository = getDependenciesResolver().resolveDependencies(CrawlResultRepository.class);
+            crawlResultRepository = resolveRepository(CrawlResultRepository.class);
         }
     }
 
     @Override
-    protected void doExecuteInternal() throws Exception {
+    protected void doExecuteInternal() {
         LocalDateTime now = LocalDateTime.now();
         crawlResultRepository.deleteCrawlResults(now);
         previousExecution = now;

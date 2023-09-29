@@ -36,9 +36,8 @@ public class RevokeAccessTokenHandler extends AbstractController<RevokeTokenResp
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (revokeAccessTokenService == null) {
-            revokeAccessTokenService = resolver.resolveDependencies(RevokeAccessTokenService.class);
+            revokeAccessTokenService = resolveService(RevokeAccessTokenService.class);
         }
     }
 

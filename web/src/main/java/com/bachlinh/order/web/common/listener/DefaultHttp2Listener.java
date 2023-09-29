@@ -1,5 +1,6 @@
 package com.bachlinh.order.web.common.listener;
 
+import com.bachlinh.order.core.function.Decorator;
 import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletResponseAdapter;
 import com.bachlinh.order.core.server.netty.channel.security.FilterChainAdapter;
 import com.bachlinh.order.core.server.netty.collector.Http2FrameCollector;
@@ -14,11 +15,17 @@ import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2PushPromiseFrame;
+import org.eclipse.jetty.http.HttpHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class DefaultHttp2Listener implements HttpFrameListener<Http2Frame> {
     private static final int FRAME_SIZE = 8000;
+    private static final Decorator<Http2HeadersFrame> HTTP_2_HEADERS_FRAME_DECORATOR;
+
+    static {
+        HTTP_2_HEADERS_FRAME_DECORATOR = target -> target.headers().set(HttpHeader.CONTENT_ENCODING.asString().toLowerCase(), "gzip");
+    }
 
     private final ServletRouter servletRouter;
     private final FilterChainAdapter filterChainAdapter;
@@ -106,6 +113,7 @@ class DefaultHttp2Listener implements HttpFrameListener<Http2Frame> {
         try {
             NettyServletResponseAdapter adapter = HandlerUtils.handle(frameCollector, filterChainAdapter, ctx, (servletRouter::handleRequest));
             Http2HeadersFrame http2HeadersFrame = adapter.toH2HeaderFrame(streamFrame);
+            HTTP_2_HEADERS_FRAME_DECORATOR.decorate(http2HeadersFrame);
             Http2DataFrame[] dataFrames = adapter.toH2DataFrame(streamFrame, FRAME_SIZE);
             ctx.write(http2HeadersFrame);
             for (Http2DataFrame dataFrame : dataFrames) {

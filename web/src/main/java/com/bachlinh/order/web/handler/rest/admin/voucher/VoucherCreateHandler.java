@@ -36,9 +36,8 @@ public class VoucherCreateHandler extends AbstractController<VoucherResp, Vouche
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (voucherService == null) {
-            voucherService = resolver.resolveDependencies(VoucherService.class);
+            voucherService = resolveService(VoucherService.class);
         }
     }
 

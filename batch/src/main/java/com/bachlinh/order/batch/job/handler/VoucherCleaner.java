@@ -4,14 +4,14 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.AbstractEntity_;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.VoucherRepository;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.VoucherRepository;
 import jakarta.persistence.criteria.JoinType;
 
 import java.sql.Timestamp;
@@ -40,10 +40,10 @@ public class VoucherCleaner extends AbstractJob {
     @Override
     protected void inject() {
         if (voucherRepository == null) {
-            voucherRepository = getDependenciesResolver().resolveDependencies(VoucherRepository.class);
+            voucherRepository = resolveRepository(VoucherRepository.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
     }
 
@@ -65,7 +65,7 @@ public class VoucherCleaner extends AbstractJob {
                     customers2.addAll(customers);
                     return customers2;
                 })
-                .orElse(new HashSet<>(0));
+                .orElse(HashSet.newHashSet(0));
         customerRepository.updateCustomers(customerUpdated);
         voucherRepository.updateVouchers(vouchers);
         voucherRepository.deleteVouchers(vouchers);

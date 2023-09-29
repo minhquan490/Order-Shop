@@ -2,7 +2,11 @@ package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.dto.DtoMapper;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.BatchReportRepository;
 import com.bachlinh.order.web.dto.resp.BatchReportResp;
 import com.bachlinh.order.web.service.common.BatchReportService;
@@ -14,14 +18,14 @@ import java.util.Collection;
 
 @ServiceComponent
 @ActiveReflection
-public class BatchReportServiceImpl implements BatchReportService {
+public class BatchReportServiceImpl extends AbstractService implements BatchReportService {
     private final BatchReportRepository batchReportRepository;
     private final DtoMapper dtoMapper;
 
-    @ActiveReflection
-    public BatchReportServiceImpl(BatchReportRepository batchReportRepository, DtoMapper dtoMapper) {
-        this.batchReportRepository = batchReportRepository;
-        this.dtoMapper = dtoMapper;
+    private BatchReportServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.batchReportRepository = resolveRepository(BatchReportRepository.class);
+        this.dtoMapper = getResolver().resolveDependencies(DtoMapper.class);
     }
 
     @Override
@@ -60,5 +64,15 @@ public class BatchReportServiceImpl implements BatchReportService {
         var now = Timestamp.from(Instant.now());
         var reports = batchReportRepository.getReports(from, now);
         return dtoMapper.map(reports, BatchReportResp.class);
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new BatchReportServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{BatchReportService.class};
     }
 }

@@ -4,12 +4,12 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.utils.ValidateUtils;
+import com.bachlinh.order.web.dto.resp.MessageSettingResp;
 import com.bachlinh.order.web.dto.resp.WardResp;
+import com.bachlinh.order.web.service.common.MessageSettingService;
 import com.bachlinh.order.web.service.common.WardService;
 import org.springframework.util.StringUtils;
 
@@ -23,7 +23,7 @@ public class WardListWithDistrictHandler extends AbstractController<Collection<W
 
     private String url;
     private WardService wardService;
-    private MessageSettingRepository messageSettingRepository;
+    private MessageSettingService messageSettingService;
 
     private WardListWithDistrictHandler() {
     }
@@ -38,12 +38,12 @@ public class WardListWithDistrictHandler extends AbstractController<Collection<W
     protected Collection<WardResp> internalHandler(Payload<Void> request) {
         String districtId = getNativeRequest().getUrlQueryParam().getFirst("districtId");
         if (!StringUtils.hasText(districtId)) {
-            MessageSetting messageSetting = messageSettingRepository.getMessageById(NOT_EMPTY_MESSAGE_ID);
+            MessageSettingResp messageSetting = messageSettingService.getMessage(NOT_EMPTY_MESSAGE_ID);
             String errorContent = MessageFormat.format(messageSetting.getValue(), "ID of district");
             throw new BadVariableException(errorContent, getPath());
         }
         if (!ValidateUtils.isNumber(districtId)) {
-            MessageSetting notANumberMessage = messageSettingRepository.getMessageById("MSG-000018");
+            MessageSettingResp notANumberMessage = messageSettingService.getMessage("MSG-000018");
             throw new BadVariableException(MessageFormat.format(notANumberMessage.getValue(), "Id of district"));
         }
         return wardService.getWardsByDistrict(districtId);
@@ -51,12 +51,11 @@ public class WardListWithDistrictHandler extends AbstractController<Collection<W
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (wardService == null) {
-            wardService = resolver.resolveDependencies(WardService.class);
+            wardService = resolveService(WardService.class);
         }
-        if (messageSettingRepository == null) {
-            messageSettingRepository = resolver.resolveDependencies(MessageSettingRepository.class);
+        if (messageSettingService == null) {
+            messageSettingService = resolveService(MessageSettingService.class);
         }
     }
 

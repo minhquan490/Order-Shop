@@ -3,10 +3,11 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.DirectMessage;
 import com.bachlinh.order.entity.model.DirectMessage_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.DirectMessageRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Select;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
@@ -14,9 +15,7 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.DirectMessageRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -28,7 +27,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class DirectMessageRepositoryImpl extends AbstractRepository<Integer, DirectMessage> implements DirectMessageRepository {
+public class DirectMessageRepositoryImpl extends AbstractRepository<Integer, DirectMessage> implements DirectMessageRepository, RepositoryBase {
     private static final Integer REMOVAL_POLICY = -3;
 
     @ActiveReflection
@@ -66,8 +65,12 @@ public class DirectMessageRepositoryImpl extends AbstractRepository<Integer, Dir
     }
 
     @Override
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new DirectMessageRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{DirectMessageRepository.class};
     }
 }

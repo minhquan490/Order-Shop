@@ -14,7 +14,6 @@ import com.bachlinh.order.web.service.common.EmailTemplateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RouteProvider(name = "emailTemplateDeleteHandler")
@@ -38,17 +37,13 @@ public class EmailTemplateDeleteHandler extends AbstractController<Map<String, O
     protected Map<String, Object> internalHandler(Payload<EmailTemplateDeleteForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailTemplateService.deleteEmailTemplate(request.data(), customer);
-        var resp = new HashMap<String, Object>(2);
-        resp.put("status", HttpStatus.ACCEPTED.value());
-        resp.put("messages", new String[]{"Delete successfully"});
-        return resp;
+        return createDefaultResponse(HttpStatus.ACCEPTED.value(), new String[]{"Delete successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailTemplateService == null) {
-            emailTemplateService = resolver.resolveDependencies(EmailTemplateService.class);
+            emailTemplateService = resolveService(EmailTemplateService.class);
         }
     }
 

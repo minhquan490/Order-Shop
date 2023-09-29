@@ -53,7 +53,7 @@ public class EmailSendingTrigger extends AbstractTrigger<Email> {
     @Override
     protected void inject() {
         if (gmailSendingService == null) {
-            gmailSendingService = getDependenciesResolver().resolveDependencies(GmailSendingService.class);
+            gmailSendingService = resolveDependencies(GmailSendingService.class);
         }
         if (botEmail == null) {
             try {

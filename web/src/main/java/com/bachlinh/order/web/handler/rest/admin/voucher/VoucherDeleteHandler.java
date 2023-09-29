@@ -10,6 +10,7 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherDeleteForm;
 import com.bachlinh.order.web.service.common.VoucherService;
+import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 
@@ -32,14 +33,14 @@ public class VoucherDeleteHandler extends AbstractController<Map<String, Object>
     @Override
     @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<VoucherDeleteForm> request) {
-        return voucherService.deleteVoucher(request.data());
+        voucherService.deleteVoucher(request.data());
+        return createDefaultResponse(HttpStatus.OK.value(), new String[]{"Delete successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (voucherService == null) {
-            voucherService = resolver.resolveDependencies(VoucherService.class);
+            voucherService = resolveService(VoucherService.class);
         }
     }
 

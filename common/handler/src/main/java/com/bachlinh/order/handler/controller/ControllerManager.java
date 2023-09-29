@@ -1,7 +1,7 @@
 package com.bachlinh.order.handler.controller;
 
 import com.bachlinh.order.core.http.handler.RequestHandler;
-import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.core.container.ContainerWrapper;
 import org.springframework.lang.NonNull;
 
 public sealed interface ControllerManager extends RequestHandler, ControllerContextHolder permits AbstractControllerManager {
