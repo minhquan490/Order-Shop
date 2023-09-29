@@ -7,7 +7,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CustomerUpdateDataHistoriesResp;
 import com.bachlinh.order.web.service.common.CustomerInfoChangeService;
 
@@ -34,9 +33,8 @@ public class CustomerUpdateDataHistoriesHandler extends AbstractController<Custo
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (customerInfoChangeService == null) {
-            customerInfoChangeService = resolver.resolveDependencies(CustomerInfoChangeService.class);
+            customerInfoChangeService = resolveService(CustomerInfoChangeService.class);
         }
     }
 

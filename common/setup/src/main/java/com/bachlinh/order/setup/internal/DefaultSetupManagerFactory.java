@@ -1,7 +1,7 @@
 package com.bachlinh.order.setup.internal;
 
 import com.bachlinh.order.entity.SetupManager;
-import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.setup.spi.SetupManagerFactory;
 
 class DefaultSetupManagerFactory implements SetupManagerFactory {

@@ -11,9 +11,9 @@ import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.transaction.internal.DefaultTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.io.IOException;
 import java.util.Collection;

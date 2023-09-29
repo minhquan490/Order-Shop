@@ -5,6 +5,7 @@ import com.bachlinh.order.mail.model.GmailSendingResult;
 import com.bachlinh.order.mail.oauth2.CredentialAdapter;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
 public interface GmailSendingService {
@@ -12,7 +13,7 @@ public interface GmailSendingService {
 
     Collection<GmailSendingResult> sendMulti(Collection<GmailMessage> messages);
 
-    static GmailSendingService defaultService(CredentialAdapter adapter) throws IOException {
+    static GmailSendingService defaultService(CredentialAdapter adapter) throws IOException, URISyntaxException {
         return new DefaultGmailSendingMessage(adapter);
     }
 }

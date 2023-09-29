@@ -2,12 +2,12 @@ package com.bachlinh.order.entity.trigger;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -31,7 +31,7 @@ public class IdGenTrigger extends AbstractTrigger<BaseEntity<?>> {
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
     }
 

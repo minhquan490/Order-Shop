@@ -2,6 +2,7 @@ package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
@@ -13,9 +14,12 @@ import com.bachlinh.order.entity.model.OrderDetail;
 import com.bachlinh.order.entity.model.OrderStatus;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.transaction.spi.EntitySavePointManager;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.OrderRepository;
@@ -56,7 +60,7 @@ import java.util.stream.Stream;
 
 @ServiceComponent
 @ActiveReflection
-public class OrderServiceImpl implements OrderService, OrderChangeStatusService, OrderInDateService, OrderAnalyzeService {
+public class OrderServiceImpl extends AbstractService implements OrderService, OrderChangeStatusService, OrderInDateService, OrderAnalyzeService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String SAVE_POINT_NAME = "customerOrderPoint";
@@ -69,13 +73,14 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository, EntityFactory entityFactory, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
-        this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
-        this.customerRepository = customerRepository;
-        this.entityFactory = entityFactory;
-        this.dtoMapper = dtoMapper;
-        this.messageSettingRepository = messageSettingRepository;
+    private OrderServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.orderRepository = resolveRepository(OrderRepository.class);
+        this.productRepository = resolveRepository(ProductRepository.class);
+        this.customerRepository = resolveRepository(CustomerRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
+        this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
     }
 
     @Override
@@ -332,5 +337,15 @@ public class OrderServiceImpl implements OrderService, OrderChangeStatusService,
         } else {
             return 1L;
         }
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new OrderServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{OrderService.class, OrderChangeStatusService.class, OrderInDateService.class, OrderAnalyzeService.class};
     }
 }

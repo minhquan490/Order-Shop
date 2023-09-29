@@ -36,9 +36,8 @@ public class ProductListHandler extends AbstractController<Collection<AdminProdu
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (productService == null) {
-            productService = resolver.resolveDependencies(ProductService.class);
+            productService = resolveService(ProductService.class);
         }
     }
 

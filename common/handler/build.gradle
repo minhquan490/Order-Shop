@@ -14,13 +14,13 @@ dependencies {
     implementation project(":common:utils")
     implementation project(":common:exception")
     implementation project(":common:environment")
-    implementation project(":service")
     implementation project(":common:validate")
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework:spring-tx'
     compileOnly 'jakarta.servlet:jakarta.servlet-api'
     compileOnly "com.google.code.findbugs:jsr305:${libs.versions.findbugs.get()}"
 }

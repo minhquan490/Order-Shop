@@ -36,9 +36,8 @@ public class NormalEmailSendingHandler extends AbstractController<EmailSendingRe
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailSendingService == null) {
-            emailSendingService = resolver.resolveDependencies(EmailSendingService.class);
+            emailSendingService = resolveService(EmailSendingService.class);
         }
     }
 

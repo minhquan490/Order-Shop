@@ -1,16 +1,18 @@
 package com.bachlinh.order.web.common.listener;
 
+import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.enums.ExecuteEvent;
 import com.bachlinh.order.core.excecute.AbstractExecutor;
 import com.bachlinh.order.core.excecute.BootWrapper;
 import com.bachlinh.order.core.excecute.Executor;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
 import com.bachlinh.order.security.helper.RequestAccessHistoriesHolder;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.UnsafeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +38,12 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
     @SuppressWarnings("unchecked")
     public WebApplicationEventListener(DependenciesContainerResolver dependenciesContainerResolver, String profile) {
         ApplicationScanner scanner = new ApplicationScanner();
+        ExecutorInitializer initializer = new ExecutorInitializer();
         eventExecutors.addAll(scanner.findComponents()
                 .stream()
                 .filter(Executor.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends Executor<?>>) clazz)
-                .map(clazz -> instanceExecutor(clazz, dependenciesContainerResolver, profile))
+                .map(clazz -> initializer.getObject(clazz, dependenciesContainerResolver, profile))
                 .filter(Objects::nonNull)
                 .toList());
         this.resolver = dependenciesContainerResolver.getDependenciesResolver();
@@ -73,7 +76,8 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
                 onApplicationRefresh(applicationRefreshExecutors);
             }
             case STOP_EVENT -> {
-                var repository = resolver.resolveDependencies(CustomerAccessHistoryRepository.class);
+                RepositoryManager repositoryManager = resolver.resolveDependencies(RepositoryManager.class);
+                var repository = repositoryManager.getRepository(CustomerAccessHistoryRepository.class);
                 var threadPoolManager = resolver.resolveDependencies(ThreadPoolManager.class);
                 threadPoolManager.execute(() -> RequestAccessHistoriesHolder.flushAllHistories(repository));
             }
@@ -106,13 +110,17 @@ public final class WebApplicationEventListener implements ApplicationListener<Ap
         });
     }
 
-    private Executor<?> instanceExecutor(Class<? extends Executor<?>> initiator, DependenciesContainerResolver containerResolver, String profile) {
-        AbstractExecutor<?> abstractExecutor;
-        try {
-            abstractExecutor = (AbstractExecutor<?>) UnsafeUtils.allocateInstance(initiator);
-        } catch (InstantiationException e) {
-            throw new CriticalException(e);
+    private static class ExecutorInitializer implements Initializer<AbstractExecutor<?>> {
+
+        @Override
+        public AbstractExecutor<?> getObject(Class<?> type, Object... params) {
+            AbstractExecutor<?> abstractExecutor;
+            try {
+                abstractExecutor = (AbstractExecutor<?>) UnsafeUtils.allocateInstance(type);
+            } catch (InstantiationException e) {
+                throw new CriticalException(e);
+            }
+            return abstractExecutor.newInstance((DependenciesContainerResolver) params[0], (String) params[1]);
         }
-        return abstractExecutor.newInstance(containerResolver, profile);
     }
 }

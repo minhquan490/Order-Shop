@@ -7,7 +7,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.CrawlResultResp;
 import com.bachlinh.order.web.service.business.CrawlerResultService;
 
@@ -39,9 +38,8 @@ public class CrawlResultHandler extends AbstractController<Collection<CrawlResul
 
     @Override
     protected void inject() {
-        DependenciesResolver dependenciesResolver = getContainerResolver().getDependenciesResolver();
         if (crawlerResultService == null) {
-            crawlerResultService = dependenciesResolver.resolveDependencies(CrawlerResultService.class);
+            crawlerResultService = resolveService(CrawlerResultService.class);
         }
     }
 

@@ -3,7 +3,7 @@ package com.bachlinh.order.core.server.netty;
 import com.bachlinh.order.core.server.netty.channel.http2.Http2ServerInitializer;
 import com.bachlinh.order.core.server.netty.channel.http3.Http3ServerInitializer;
 import com.bachlinh.order.core.server.netty.ssl.SslContextProvider;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import org.springframework.util.StringUtils;
 

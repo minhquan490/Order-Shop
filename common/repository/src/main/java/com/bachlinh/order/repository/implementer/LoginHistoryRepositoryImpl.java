@@ -3,11 +3,13 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.LoginHistory_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
@@ -19,9 +21,6 @@ import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.LoginHistoryRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class LoginHistoryRepositoryImpl extends AbstractRepository<Integer, LoginHistory> implements LoginHistoryRepository {
+public class LoginHistoryRepositoryImpl extends AbstractRepository<Integer, LoginHistory> implements LoginHistoryRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -121,8 +120,12 @@ public class LoginHistoryRepositoryImpl extends AbstractRepository<Integer, Logi
     }
 
     @Override
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new LoginHistoryRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{LoginHistoryRepository.class};
     }
 }

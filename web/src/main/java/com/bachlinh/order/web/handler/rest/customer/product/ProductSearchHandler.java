@@ -5,7 +5,6 @@ import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.common.ProductSearchForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
@@ -38,9 +37,8 @@ public class ProductSearchHandler extends AbstractController<Collection<ProductR
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (searchingService == null) {
-            searchingService = resolver.resolveDependencies(ProductSearchingService.class);
+            searchingService = resolveService(ProductSearchingService.class);
         }
         if (defaultPageSize == null) {
             defaultPageSize = Integer.parseInt(getEnvironment().getProperty("data.default.page.size"));

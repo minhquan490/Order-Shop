@@ -36,9 +36,8 @@ public class CustomerSearchHandler extends AbstractController<Collection<Custome
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (customerSearchingService == null) {
-            customerSearchingService = resolver.resolveDependencies(CustomerSearchingService.class);
+            customerSearchingService = resolveService(CustomerSearchingService.class);
         }
     }
 

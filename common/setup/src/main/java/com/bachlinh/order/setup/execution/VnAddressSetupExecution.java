@@ -1,6 +1,7 @@
 package com.bachlinh.order.setup.execution;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.Setup;
@@ -10,7 +11,6 @@ import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.repository.DistrictRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.WardRepository;
-import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.setup.spi.AbstractSetup;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
@@ -51,19 +51,19 @@ public class VnAddressSetupExecution extends AbstractSetup {
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
         if (restTemplate == null) {
-            restTemplate = getDependenciesResolver().resolveDependencies(RestTemplate.class);
+            restTemplate = resolveDependencies(RestTemplate.class);
         }
         if (provinceRepository == null) {
-            provinceRepository = getDependenciesResolver().resolveDependencies(ProvinceRepository.class);
+            provinceRepository = resolveRepository(ProvinceRepository.class);
         }
         if (districtRepository == null) {
-            districtRepository = getDependenciesResolver().resolveDependencies(DistrictRepository.class);
+            districtRepository = resolveRepository(DistrictRepository.class);
         }
         if (wardRepository == null) {
-            wardRepository = getDependenciesResolver().resolveDependencies(WardRepository.class);
+            wardRepository = resolveRepository(WardRepository.class);
         }
         if (provinceApi == null) {
             provinceApi = getEnvironment().getProperty("address.province.vn.api.url");

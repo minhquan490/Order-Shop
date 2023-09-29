@@ -1,8 +1,7 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
@@ -10,6 +9,8 @@ import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.Product_;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.web.dto.form.admin.product.ProductCreateForm;
@@ -21,7 +22,6 @@ import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductAnalyzeService;
 import com.bachlinh.order.web.service.business.ProductSearchingService;
 import com.bachlinh.order.web.service.common.ProductService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -43,22 +43,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @ServiceComponent
-@ActiveReflection
-public class ProductServiceImpl implements ProductService, ProductSearchingService, ProductAnalyzeService {
+public class ProductServiceImpl extends AbstractService implements ProductService, ProductSearchingService, ProductAnalyzeService {
     private final ProductRepository productRepository;
     private final EntityFactory entityFactory;
     private final CategoryRepository categoryRepository;
     private final DtoMapper dtoMapper;
     private final String resourceUrl;
 
-    @ActiveReflection
-    @DependenciesInitialize
-    public ProductServiceImpl(ProductRepository productRepository, EntityFactory entityFactory, CategoryRepository categoryRepository, @Value("${active.profile}") String profile, DtoMapper dtoMapper) {
-        this.productRepository = productRepository;
-        this.entityFactory = entityFactory;
-        this.categoryRepository = categoryRepository;
-        this.dtoMapper = dtoMapper;
-        Environment environment = Environment.getInstance(profile);
+    private ProductServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.productRepository = resolveRepository(ProductRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.categoryRepository = resolveRepository(CategoryRepository.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
         String urlPattern = "https://{0}:{1}";
         resourceUrl = MessageFormat.format(urlPattern, environment.getProperty("server.address"), environment.getProperty("server.port"));
     }
@@ -197,7 +194,7 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         var fourthStatement = "select count(p.id) from Product p where p.created_date between :fourthStart and :fourthEnd";
         var lastStatement = "select count(p.id) from Product p where p.created_date between :lastStart and :lastEnd";
         var query = MessageFormat.format(template, secondStatement, thirdStatement, fourthStatement, lastStatement);
-        var attributes = new HashMap<String, Object>(10);
+        Map<String, Object> attributes = HashMap.newHashMap(10);
         var now = LocalDateTime.now();
         var firstParam = Timestamp.valueOf(now.plusWeeks(-5));
         var secondParam = Timestamp.valueOf(now.plusWeeks(-4));
@@ -216,5 +213,15 @@ public class ProductServiceImpl implements ProductService, ProductSearchingServi
         attributes.put("lastEnd", Timestamp.valueOf(now));
         var resultSet = productRepository.getResultList(query, attributes, AnalyzeProductPostedInMonthResp.ResultSet.class).get(0);
         return dtoMapper.map(resultSet, AnalyzeProductPostedInMonthResp.class);
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new ProductServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{ProductService.class, ProductSearchingService.class, ProductAnalyzeService.class};
     }
 }

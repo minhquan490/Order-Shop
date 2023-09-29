@@ -1,8 +1,9 @@
 package com.bachlinh.order.validate.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import org.springframework.lang.NonNull;
 
@@ -10,6 +11,7 @@ import org.springframework.lang.NonNull;
 public abstract non-sealed class AbstractRule<T extends ValidatedDto> implements ValidationRule<T> {
     private final Environment environment;
     private final DependenciesResolver resolver;
+    private RepositoryManager repositoryManager;
 
     protected AbstractRule(Environment environment, DependenciesResolver resolver) {
         this.environment = environment;
@@ -35,5 +37,12 @@ public abstract non-sealed class AbstractRule<T extends ValidatedDto> implements
 
     protected DependenciesResolver getResolver() {
         return this.resolver;
+    }
+
+    protected <U> U resolveRepository(Class<U> repositoryType) {
+        if (repositoryManager == null) {
+            repositoryManager = getResolver().resolveDependencies(RepositoryManager.class);
+        }
+        return repositoryManager.getRepository(repositoryType);
     }
 }

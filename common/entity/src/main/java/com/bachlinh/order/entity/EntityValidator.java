@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity;
 
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 public interface EntityValidator<T extends BaseEntity<?>> {
     /**

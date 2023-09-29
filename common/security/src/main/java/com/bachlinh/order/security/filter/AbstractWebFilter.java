@@ -1,10 +1,12 @@
 package com.bachlinh.order.security.filter;
 
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -17,9 +19,11 @@ import java.io.IOException;
  */
 public abstract class AbstractWebFilter extends OncePerRequestFilter {
     private final DependenciesResolver dependenciesResolver;
+    private final RepositoryManager repositoryManager;
 
     protected AbstractWebFilter(DependenciesResolver dependenciesResolver) {
         this.dependenciesResolver = dependenciesResolver;
+        this.repositoryManager = resolveDependencies(RepositoryManager.class);
     }
 
     @Override
@@ -31,8 +35,16 @@ public abstract class AbstractWebFilter extends OncePerRequestFilter {
         return dependenciesResolver;
     }
 
+    protected <T> T resolveDependencies(Class<T> dependenciesType) {
+        return getDependenciesResolver().resolveDependencies(dependenciesType);
+    }
+
+    protected <T> T resolveRepository(Class<T> repositoryType) {
+        return this.repositoryManager.getRepository(repositoryType);
+    }
+
     @Override
-    protected final void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected final void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         inject();
         doFilter(request, response, filterChain);
     }

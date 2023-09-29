@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.repository;
 
 import com.bachlinh.order.annotation.QueryCache;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityManagerHolder;
@@ -29,12 +30,22 @@ import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.ValidationFailureException;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Query;
+import jakarta.persistence.StoredProcedureQuery;
 import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.metamodel.Metamodel;
 import org.hibernate.SessionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -52,7 +63,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements EntityManagerHolder, NativeQueryRepository, CrudRepository<T, U> {
+public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements EntityManagerHolder, NativeQueryRepository, CrudRepository<T, U>, RepositoryBase {
 
     private static final String ID_PROPERTY = "id";
 
@@ -81,10 +92,10 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     @Override
     public EntityManager getEntityManager() {
         boolean springActualTransactionActive = entityFactory.getTransactionManager().isActualTransactionActive();
-        if (springActualTransactionActive) {
+        if (springActualTransactionActive && em != null && em.isOpen()) {
             return em;
         } else {
-            return sessionFactory.createEntityManager();
+            return new EntityMangerProxy(sessionFactory.createEntityManager());
         }
     }
 
@@ -133,13 +144,15 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
                 EntityContext entityContext = entityFactory.getEntityContext(getDomainClass());
                 try {
                     entityContext.beginTransaction();
-                    return task.get();
+                    S result = task.get();
+                    entityContext.commit();
+                    return result;
                 } catch (Exception e) {
                     entityContext.rollback();
                     throw new PersistenceException(e);
                 }
             } else {
-                return doInTransaction(entityManager.getTransaction(), task, entityManager::flush);
+                return execute(entityManager, task);
             }
         } else {
             return update(entity);
@@ -160,7 +173,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
             if (entityTransaction.isActive()) {
                 return task.get();
             } else {
-                return doInTransaction(entityManager.getTransaction(), task, entityManager::flush);
+                return execute(entityManager, task);
             }
         }
     }
@@ -183,7 +196,8 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
 
     @Override
     public boolean exists(T id) {
-        return false;
+        Where idWhere = Where.builder().attribute(ID_PROPERTY).value(id).operation(Operation.EQ).build();
+        return count(idWhere) > 0;
     }
 
     @Override
@@ -238,10 +252,21 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         EntityManager entityManager = getEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         EntityContext entityContext = entityFactory.getEntityContext(getDomainClass());
+        Supplier<U> task = getTask(entity, entityContext, entityManager);
+
+        if (entityTransaction.isActive()) {
+            task.get();
+        } else {
+            doInTransaction(entityTransaction, task, () -> closeEntityManager(entityManager));
+        }
+        evictCache();
+    }
+
+    private Supplier<U> getTask(U entity, EntityContext entityContext, EntityManager entityManager) {
         Collection<EntityTrigger<U>> beforeDeleteTriggers = getBeforeDeleteTriggers();
         Collection<EntityTrigger<U>> afterDeleteTriggers = getAfterDeleteTriggers();
 
-        Supplier<U> task = () -> {
+        return () -> {
             String deleteQuery = getDeleteQuery(entityContext.getTableName());
             Query query = entityManager.createNativeQuery(deleteQuery);
             query.setParameter(ID_PROPERTY, entity.getId());
@@ -251,14 +276,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
             afterDeleteTriggers.forEach(trigger -> trigger.execute(entity));
             return null;
         };
-
-        if (entityTransaction.isActive()) {
-            task.get();
-        } else {
-            doInTransaction(entityTransaction, task, null);
-        }
-
-        evictCache();
     }
 
     @Override
@@ -308,7 +325,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         return this.builder;
     }
 
-    protected void setEntityManager(EntityManager entityManager) {
+    public void setEntityManager(EntityManager entityManager) {
         this.em = entityManager;
     }
 
@@ -346,10 +363,12 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     private <K> List<K> queryDatabase(String query, Map<String, Object> attributes, Class<K> receiverType) {
-        var typedQuery = getEntityManager().createNativeQuery(query, Tuple.class).unwrap(org.hibernate.query.Query.class);
+        EntityManager entityManager = getEntityManager();
+        var typedQuery = entityManager.createNativeQuery(query, Tuple.class).unwrap(org.hibernate.query.Query.class);
         attributes.forEach(typedQuery::setParameter);
         var processing = ResultListProcessing.nativeProcessing(getEntityFactory(), getDomainClass());
         var results = processing.process(typedQuery::getResultList);
+        closeEntityManager(entityManager);
         return results.stream().map(receiverType::cast).toList();
     }
 
@@ -554,5 +573,281 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         sqlSelect.select(idSelect, functionDialect.count());
 
         return sqlSelect;
+    }
+
+    private <S extends U> S execute(EntityManager entityManager, Supplier<S> task) {
+        return doInTransaction(entityManager.getTransaction(), task, () -> {
+            entityManager.flush();
+            closeEntityManager(entityManager);
+        });
+    }
+
+    private void closeEntityManager(EntityManager entityManager) {
+        if (entityManager instanceof EntityMangerProxy proxy) {
+            proxy.close();
+        }
+    }
+
+    private static class EntityMangerProxy implements EntityManager {
+        private final EntityManager delegate;
+
+        EntityMangerProxy(EntityManager delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void persist(Object entity) {
+            delegate.persist(entity);
+        }
+
+        @Override
+        public <T> T merge(T entity) {
+            return delegate.merge(entity);
+        }
+
+        @Override
+        public void remove(Object entity) {
+            delegate.remove(entity);
+        }
+
+        @Override
+        public <T> T find(Class<T> entityClass, Object primaryKey) {
+            return delegate.find(entityClass, primaryKey);
+        }
+
+        @Override
+        public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+            return delegate.find(entityClass, primaryKey, properties);
+        }
+
+        @Override
+        public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+            return delegate.find(entityClass, primaryKey, lockMode);
+        }
+
+        @Override
+        public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+            return delegate.find(entityClass, primaryKey, lockMode, properties);
+        }
+
+        @Override
+        public <T> T getReference(Class<T> entityClass, Object primaryKey) {
+            return delegate.getReference(entityClass, primaryKey);
+        }
+
+        @Override
+        public void flush() {
+            delegate.flush();
+        }
+
+        @Override
+        public void setFlushMode(FlushModeType flushMode) {
+            delegate.setFlushMode(flushMode);
+        }
+
+        @Override
+        public FlushModeType getFlushMode() {
+            return delegate.getFlushMode();
+        }
+
+        @Override
+        public void lock(Object entity, LockModeType lockMode) {
+            delegate.lock(entity, lockMode);
+        }
+
+        @Override
+        public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+            delegate.lock(entity, lockMode, properties);
+        }
+
+        @Override
+        public void refresh(Object entity) {
+            delegate.refresh(entity);
+        }
+
+        @Override
+        public void refresh(Object entity, Map<String, Object> properties) {
+            delegate.refresh(entity, properties);
+        }
+
+        @Override
+        public void refresh(Object entity, LockModeType lockMode) {
+            delegate.refresh(entity, lockMode);
+        }
+
+        @Override
+        public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+            delegate.refresh(entity, lockMode, properties);
+        }
+
+        @Override
+        public void clear() {
+            delegate.clear();
+        }
+
+        @Override
+        public void detach(Object entity) {
+            delegate.detach(entity);
+        }
+
+        @Override
+        public boolean contains(Object entity) {
+            return delegate.contains(entity);
+        }
+
+        @Override
+        public LockModeType getLockMode(Object entity) {
+            return delegate.getLockMode(entity);
+        }
+
+        @Override
+        public void setProperty(String propertyName, Object value) {
+            delegate.setProperty(propertyName, value);
+        }
+
+        @Override
+        public Map<String, Object> getProperties() {
+            return delegate.getProperties();
+        }
+
+        @Override
+        public Query createQuery(String qlString) {
+            return delegate.createQuery(qlString);
+        }
+
+        @Override
+        public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+            return delegate.createQuery(criteriaQuery);
+        }
+
+        @Override
+        public Query createQuery(CriteriaUpdate updateQuery) {
+            return delegate.createQuery(updateQuery);
+        }
+
+        @Override
+        public Query createQuery(CriteriaDelete deleteQuery) {
+            return delegate.createQuery(deleteQuery);
+        }
+
+        @Override
+        public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+            return delegate.createQuery(qlString, resultClass);
+        }
+
+        @Override
+        public Query createNamedQuery(String name) {
+            return delegate.createNamedQuery(name);
+        }
+
+        @Override
+        public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+            return delegate.createNamedQuery(name, resultClass);
+        }
+
+        @Override
+        public Query createNativeQuery(String sqlString) {
+            return delegate.createNativeQuery(sqlString);
+        }
+
+        @Override
+        public Query createNativeQuery(String sqlString, Class resultClass) {
+            return delegate.createNativeQuery(sqlString, resultClass);
+        }
+
+        @Override
+        public Query createNativeQuery(String sqlString, String resultSetMapping) {
+            return delegate.createNativeQuery(sqlString, resultSetMapping);
+        }
+
+        @Override
+        public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
+            return delegate.createNamedStoredProcedureQuery(name);
+        }
+
+        @Override
+        public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
+            return delegate.createStoredProcedureQuery(procedureName);
+        }
+
+        @Override
+        public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
+            return delegate.createStoredProcedureQuery(procedureName, resultClasses);
+        }
+
+        @Override
+        public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
+            return delegate.createStoredProcedureQuery(procedureName, resultSetMappings);
+        }
+
+        @Override
+        public void joinTransaction() {
+            delegate.joinTransaction();
+        }
+
+        @Override
+        public boolean isJoinedToTransaction() {
+            return delegate.isJoinedToTransaction();
+        }
+
+        @Override
+        public <T> T unwrap(Class<T> cls) {
+            return delegate.unwrap(cls);
+        }
+
+        @Override
+        public Object getDelegate() {
+            return delegate.getDelegate();
+        }
+
+        @Override
+        public void close() {
+            delegate.close();
+        }
+
+        @Override
+        public boolean isOpen() {
+            return delegate.isOpen();
+        }
+
+        @Override
+        public EntityTransaction getTransaction() {
+            return delegate.getTransaction();
+        }
+
+        @Override
+        public EntityManagerFactory getEntityManagerFactory() {
+            return delegate.getEntityManagerFactory();
+        }
+
+        @Override
+        public CriteriaBuilder getCriteriaBuilder() {
+            return delegate.getCriteriaBuilder();
+        }
+
+        @Override
+        public Metamodel getMetamodel() {
+            return delegate.getMetamodel();
+        }
+
+        @Override
+        public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
+            return delegate.createEntityGraph(rootType);
+        }
+
+        @Override
+        public EntityGraph<?> createEntityGraph(String graphName) {
+            return delegate.createEntityGraph(graphName);
+        }
+
+        @Override
+        public EntityGraph<?> getEntityGraph(String graphName) {
+            return delegate.getEntityGraph(graphName);
+        }
+
+        @Override
+        public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
+            return delegate.getEntityGraphs(entityClass);
+        }
     }
 }

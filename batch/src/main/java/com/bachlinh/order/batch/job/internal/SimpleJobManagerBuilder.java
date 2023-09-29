@@ -2,7 +2,7 @@ package com.bachlinh.order.batch.job.internal;
 
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.batch.job.JobManager;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 public class SimpleJobManagerBuilder implements JobManager.Builder {
     private DependenciesResolver dependenciesResolver;

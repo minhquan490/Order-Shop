@@ -36,9 +36,8 @@ public class EmailTemplateSearchHandler extends AbstractController<Collection<Em
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailTemplateSearchService == null) {
-            emailTemplateSearchService = resolver.resolveDependencies(EmailTemplateSearchService.class);
+            emailTemplateSearchService = resolveService(EmailTemplateSearchService.class);
         }
     }
 

@@ -1,12 +1,11 @@
 package com.bachlinh.order.handler.controller;
 
 import com.bachlinh.order.annotation.Scope;
+import com.bachlinh.order.core.alloc.Initializer;
+import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.utils.UnsafeUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
 
     private final Map<Class<? extends Controller<?, ?>>, Controller<?, ?>> controllerMap = new HashMap<>(100, 0.9f);
     private final Map<String, Class<? extends Controller<?, ?>>> referencePath = new HashMap<>(100, 0.9f);
+    private final Initializer<AbstractController<?, ?>> initializer = new ControllerInitializer();
 
     @Override
     public <T, U> Controller<T, U> createController(Class<? extends Controller<T, U>> controllerType, Object... params) {
@@ -78,16 +78,9 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
         return preResult;
     }
 
+    @SuppressWarnings("unchecked")
     private <T, U> Controller<T, U> createControllerWithParams(Class<? extends Controller<T, U>> controllerType, ContainerWrapper wrapper, String profile) {
-        AbstractController<T, U> instance;
-        try {
-            instance = (AbstractController<T, U>) UnsafeUtils.allocateInstance(controllerType);
-        } catch (InstantiationException e) {
-            throw new CriticalException(e);
-        }
-        var actual = instance.newInstance();
-        actual.setWrapper(wrapper, profile);
-        return actual;
+        return (Controller<T, U>) initializer.getObject(controllerType, wrapper, profile);
     }
 
     @Override

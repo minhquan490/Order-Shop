@@ -33,9 +33,8 @@ public class DistrictSearchHandler extends AbstractController<Collection<Distric
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (districtSearchService == null) {
-            districtSearchService = resolver.resolveDependencies(DistrictSearchService.class);
+            districtSearchService = resolveService(DistrictSearchService.class);
         }
     }
 

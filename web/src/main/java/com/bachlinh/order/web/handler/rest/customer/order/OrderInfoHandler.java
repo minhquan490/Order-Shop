@@ -39,9 +39,8 @@ public class OrderInfoHandler extends AbstractController<OrderInfoResp, Void> {
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (orderService == null) {
-            orderService = resolver.resolveDependencies(OrderService.class);
+            orderService = resolveService(OrderService.class);
         }
     }
 

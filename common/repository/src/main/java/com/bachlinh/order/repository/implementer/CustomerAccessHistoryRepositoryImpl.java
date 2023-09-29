@@ -3,10 +3,12 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import com.bachlinh.order.entity.model.CustomerAccessHistory_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
 import com.bachlinh.order.entity.repository.query.Select;
@@ -16,9 +18,6 @@ import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
@@ -31,7 +30,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Integer, CustomerAccessHistory> implements CustomerAccessHistoryRepository {
+public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Integer, CustomerAccessHistory> implements CustomerAccessHistoryRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -101,13 +100,6 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Inte
         return count(ownerWhere);
     }
 
-    @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
-    }
-
     private Collection<CustomerAccessHistory> getCustomerAccessHistories(Where where) {
         Select customerAccessHistoryIdSelect = Select.builder().column(CustomerAccessHistory_.ID).build();
         Select customerAccessHistoryPathRequestSelect = Select.builder().column(CustomerAccessHistory_.PATH_REQUEST).build();
@@ -131,4 +123,13 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Inte
         return this.getResultList(sql, attributes, CustomerAccessHistory.class);
     }
 
+    @Override
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new CustomerAccessHistoryRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{CustomerAccessHistoryRepository.class};
+    }
 }

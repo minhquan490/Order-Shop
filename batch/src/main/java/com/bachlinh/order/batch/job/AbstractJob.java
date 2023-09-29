@@ -1,8 +1,9 @@
 package com.bachlinh.order.batch.job;
 
 import com.bachlinh.order.batch.Report;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ public abstract non-sealed class AbstractJob implements Job {
     private Report report;
     private final Environment environment;
     private final DependenciesResolver dependenciesResolver;
+    private final RepositoryManager repositoryManager;
     private boolean executed = false;
 
     protected AbstractJob(String name, String activeProfile, DependenciesResolver dependenciesResolver) {
@@ -20,6 +22,7 @@ public abstract non-sealed class AbstractJob implements Job {
         this.report = new Report(name);
         this.environment = Environment.getInstance(activeProfile);
         this.dependenciesResolver = dependenciesResolver;
+        this.repositoryManager = resolveDependencies(RepositoryManager.class);
     }
 
     @Override
@@ -74,6 +77,14 @@ public abstract non-sealed class AbstractJob implements Job {
 
     protected DependenciesResolver getDependenciesResolver() {
         return dependenciesResolver;
+    }
+
+    protected <T> T resolveDependencies(Class<T> dependenciesType) {
+        return getDependenciesResolver().resolveDependencies(dependenciesType);
+    }
+
+    protected <T> T resolveRepository(Class<T> repositoryType) {
+        return this.repositoryManager.getRepository(repositoryType);
     }
 
     protected abstract void inject();

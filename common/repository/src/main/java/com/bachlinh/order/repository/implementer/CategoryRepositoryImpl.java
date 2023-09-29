@@ -3,11 +3,13 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Category_;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Select;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
@@ -17,9 +19,7 @@ import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.repository.ProductCategoryRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,7 +36,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CategoryRepositoryImpl extends AbstractRepository<String, Category> implements CategoryRepository, ProductCategoryRepository {
+public class CategoryRepositoryImpl extends AbstractRepository<String, Category> implements CategoryRepository, ProductCategoryRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -148,18 +148,21 @@ public class CategoryRepositoryImpl extends AbstractRepository<String, Category>
         doInTransaction(entityManager, callback);
     }
 
-    @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
-    }
-
     @Nullable
     private Category getCategory(SqlWhere sqlWhere) {
         String query = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = new HashMap<>();
         sqlWhere.getQueryBindings().forEach(queryBinding -> attributes.put(queryBinding.attribute(), queryBinding.value()));
         return getSingleResult(query, attributes, Category.class);
+    }
+
+    @Override
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new CategoryRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{CategoryRepository.class, ProductCategoryRepository.class};
     }
 }

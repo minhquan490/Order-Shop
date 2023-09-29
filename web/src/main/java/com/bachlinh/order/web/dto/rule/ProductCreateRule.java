@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Product;
@@ -9,7 +10,6 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.CategoryRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
@@ -56,6 +56,57 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
         MessageSetting nonNumberMessage = messageSettingRepository.getMessageById(NON_NUMBER_MESSAGE_ID);
         MessageSetting invalidMessage = messageSettingRepository.getMessageById(INVALID_MESSAGE_ID);
 
+        validateProductName(dto, validateResult, nonEmptyMessage);
+
+        validateProductPrice(dto, validateResult, nonEmptyMessage, nonNumberMessage);
+
+        validateProductSize(dto, validateResult, nonEmptyMessage, invalidMessage);
+
+        validateProductColor(dto, validateResult, nonEmptyMessage);
+
+        validateProductTaobaoUrl(dto, validateResult, nonEmptyMessage, invalidMessage);
+
+        validateProductEnabled(dto, validateResult);
+
+        validateProductCategory(dto, validateResult, invalidMessage);
+
+        validateProductOrderPoint(dto, validateResult, nonEmptyMessage, nonNumberMessage);
+
+        return new ValidatedDto.ValidateResult() {
+            @Override
+            public Map<String, Object> getErrorResult() {
+                return new HashMap<>(validateResult);
+            }
+
+            @Override
+            public boolean shouldHandle() {
+                return validateResult.isEmpty();
+            }
+        };
+    }
+
+    @Override
+    protected void injectDependencies() {
+        if (productRepository == null) {
+            productRepository = resolveRepository(ProductRepository.class);
+        }
+        if (categoryRepository == null) {
+            categoryRepository = resolveRepository(CategoryRepository.class);
+        }
+        if (entityFactory == null) {
+            entityFactory = getResolver().resolveDependencies(EntityFactory.class);
+        }
+        if (messageSettingRepository == null) {
+            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+        }
+    }
+
+    @Override
+    public Class<ProductCreateForm> applyOnType() {
+        return ProductCreateForm.class;
+    }
+
+    private void validateProductName(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage) {
         if (!StringUtils.hasText(dto.getProductName())) {
             String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Name of product");
             RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, errorContent, validateResult);
@@ -75,7 +126,9 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
                 RuntimeUtils.computeMultiValueMap(PRODUCT_NAME_KEY, errorContent, validateResult);
             }
         }
+    }
 
+    private void validateProductPrice(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting nonNumberMessage) {
         if (!StringUtils.hasText(dto.getProductPrice())) {
             var key = "product_price";
             String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Price of product");
@@ -87,7 +140,9 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
                 RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
             }
         }
+    }
 
+    private void validateProductSize(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting invalidMessage) {
         if (!StringUtils.hasText(dto.getProductSize())) {
             var key = "product_size";
             String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Size of product");
@@ -99,13 +154,17 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
                 RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
             }
         }
+    }
 
+    private void validateProductColor(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage) {
         if (!StringUtils.hasText(dto.getProductColor())) {
             var key = "product_color";
             String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Color of product");
             RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
+    }
 
+    private void validateProductTaobaoUrl(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting invalidMessage) {
         if (!StringUtils.hasText(dto.getProductTaobaoUrl())) {
             var key = "product_taobao_url";
             String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Tabao url of product");
@@ -117,14 +176,18 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
                 RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
             }
         }
+    }
 
+    private void validateProductEnabled(ProductCreateForm dto, Map<String, List<String>> validateResult) {
         if (!StringUtils.hasText(dto.getProductEnabled())) {
             var key = "product_enabled";
             MessageSetting messageSetting = messageSettingRepository.getMessageById(ENABLE_DISABLE_INVALID_MESSAGE_ID);
             String errorContent = MessageFormat.format(messageSetting.getValue(), "Product must");
             RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
         }
+    }
 
+    private void validateProductCategory(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting invalidMessage) {
         if (dto.getProductCategoriesId().length == 0 || Stream.of(dto.getProductCategoriesId()).anyMatch(category -> !StringUtils.hasText(category))) {
             var key = "product_categories";
             MessageSetting messageSetting = messageSettingRepository.getMessageById(PRODUCT_MUST_HAVE_CATEGORY_MESSAGE_ID);
@@ -137,7 +200,9 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
                 RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
             }
         }
+    }
 
+    private void validateProductOrderPoint(ProductCreateForm dto, Map<String, List<String>> validateResult, MessageSetting nonEmptyMessage, MessageSetting nonNumberMessage) {
         if (!StringUtils.hasText(dto.getProductOrderPoint())) {
             var key = "product_order_point";
             String errorContent = MessageFormat.format(nonEmptyMessage.getValue(), "Point of product");
@@ -149,38 +214,5 @@ public class ProductCreateRule extends AbstractRule<ProductCreateForm> {
                 RuntimeUtils.computeMultiValueMap(key, errorContent, validateResult);
             }
         }
-
-        return new ValidatedDto.ValidateResult() {
-            @Override
-            public Map<String, Object> getErrorResult() {
-                return new HashMap<>(validateResult);
-            }
-
-            @Override
-            public boolean shouldHandle() {
-                return validateResult.isEmpty();
-            }
-        };
-    }
-
-    @Override
-    protected void injectDependencies() {
-        if (productRepository == null) {
-            productRepository = getResolver().resolveDependencies(ProductRepository.class);
-        }
-        if (categoryRepository == null) {
-            categoryRepository = getResolver().resolveDependencies(CategoryRepository.class);
-        }
-        if (entityFactory == null) {
-            entityFactory = getResolver().resolveDependencies(EntityFactory.class);
-        }
-        if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
-        }
-    }
-
-    @Override
-    public Class<ProductCreateForm> applyOnType() {
-        return ProductCreateForm.class;
     }
 }

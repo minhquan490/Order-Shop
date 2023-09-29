@@ -52,16 +52,16 @@ public class CreateCustomerAssociateDataTrigger extends AbstractTrigger<Customer
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
         if (cartRepository == null) {
-            cartRepository = getDependenciesResolver().resolveDependencies(CartRepository.class);
+            cartRepository = resolveRepository(CartRepository.class);
         }
         if (emailTrashRepository == null) {
-            emailTrashRepository = getDependenciesResolver().resolveDependencies(EmailTrashRepository.class);
+            emailTrashRepository = resolveRepository(EmailTrashRepository.class);
         }
         if (emailFoldersRepository == null) {
-            emailFoldersRepository = getDependenciesResolver().resolveDependencies(EmailFoldersRepository.class);
+            emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
         }
     }
 

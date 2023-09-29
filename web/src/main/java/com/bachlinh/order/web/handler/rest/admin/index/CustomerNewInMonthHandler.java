@@ -30,9 +30,8 @@ public class CustomerNewInMonthHandler extends AbstractController<AnalyzeCustome
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (customerAnalyzeService == null) {
-            customerAnalyzeService = resolver.resolveDependencies(CustomerAnalyzeService.class);
+            customerAnalyzeService = resolveService(CustomerAnalyzeService.class);
         }
     }
 

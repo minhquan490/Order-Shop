@@ -33,9 +33,8 @@ public class EmailSearchHandler extends AbstractController<Collection<EmailInfoR
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailService == null) {
-            emailService = resolver.resolveDependencies(EmailSearchingService.class);
+            emailService = resolveService(EmailSearchingService.class);
         }
     }
 

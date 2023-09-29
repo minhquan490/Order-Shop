@@ -1,7 +1,7 @@
 package com.bachlinh.order.batch.job;
 
 import com.bachlinh.order.batch.Report;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.Collection;
 

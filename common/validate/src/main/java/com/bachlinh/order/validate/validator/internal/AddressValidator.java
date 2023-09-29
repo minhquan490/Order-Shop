@@ -25,10 +25,10 @@ public class AddressValidator extends AbstractValidator<Address> {
     @Override
     protected void inject() {
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
         if (addressRepository == null) {
-            addressRepository = getResolver().resolveDependencies(AddressRepository.class);
+            addressRepository = resolveRepository(AddressRepository.class);
         }
     }
 

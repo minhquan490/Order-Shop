@@ -30,9 +30,8 @@ public class ProductPostedInMonthHandler extends AbstractController<AnalyzeProdu
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (productAnalyzeService == null) {
-            productAnalyzeService = resolver.resolveDependencies(ProductAnalyzeService.class);
+            productAnalyzeService = resolveService(ProductAnalyzeService.class);
         }
     }
 

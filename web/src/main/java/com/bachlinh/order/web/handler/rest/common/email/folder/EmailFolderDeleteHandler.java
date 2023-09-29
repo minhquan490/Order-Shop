@@ -10,7 +10,6 @@ import com.bachlinh.order.web.dto.form.common.EmailFolderDeleteForm;
 import com.bachlinh.order.web.service.common.EmailFolderService;
 import org.springframework.http.HttpStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RouteProvider(name = "emailFolderDeleteHandler")
@@ -32,17 +31,13 @@ public class EmailFolderDeleteHandler extends AbstractController<Map<String, Obj
     @ActiveReflection
     protected Map<String, Object> internalHandler(Payload<EmailFolderDeleteForm> request) {
         emailFolderService.deleteEmailFolder(request.data().getId());
-        var resp = new HashMap<String, Object>(2);
-        resp.put("status", HttpStatus.ACCEPTED.value());
-        resp.put("messages", new String[]{"Delete successfully"});
-        return resp;
+        return createDefaultResponse(HttpStatus.ACCEPTED.value(), new String[]{"Delete successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailFolderService == null) {
-            emailFolderService = resolver.resolveDependencies(EmailFolderService.class);
+            emailFolderService = resolveService(EmailFolderService.class);
         }
     }
 

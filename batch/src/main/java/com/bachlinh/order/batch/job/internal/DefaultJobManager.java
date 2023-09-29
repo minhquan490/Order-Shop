@@ -8,7 +8,7 @@ import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.batch.job.JobManager;
 import com.bachlinh.order.batch.job.Worker;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.Collection;
 import java.util.LinkedList;

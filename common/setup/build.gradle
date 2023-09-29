@@ -16,7 +16,6 @@ dependencies {
     implementation project(":common:exception")
     implementation project(':common:repository')
     implementation project(":common:utils")
-    implementation project(":service")
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework:spring-context'

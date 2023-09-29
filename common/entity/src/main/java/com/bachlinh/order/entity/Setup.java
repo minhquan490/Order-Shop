@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity;
 
-import com.bachlinh.order.service.container.ContainerWrapper;
+import com.bachlinh.order.core.container.ContainerWrapper;
 
 /**
  * The sealed interface for setting everything before application is ready.

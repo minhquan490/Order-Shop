@@ -4,13 +4,13 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.resp.DistrictResp;
+import com.bachlinh.order.web.dto.resp.MessageSettingResp;
 import com.bachlinh.order.web.service.common.DistrictService;
+import com.bachlinh.order.web.service.common.MessageSettingService;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
@@ -22,7 +22,7 @@ public class DistrictListWithProvinceHandler extends AbstractController<Collecti
 
     private String url;
     private DistrictService districtService;
-    private MessageSettingRepository messageSettingRepository;
+    private MessageSettingService messageSettingService;
 
     private DistrictListWithProvinceHandler() {
     }
@@ -40,7 +40,7 @@ public class DistrictListWithProvinceHandler extends AbstractController<Collecti
             throw new BadVariableException("Province id is required", getPath());
         }
         if (!ValidateUtils.isNumber(provinceId)) {
-            MessageSetting notANumberMessage = messageSettingRepository.getMessageById("MSG-000018");
+            MessageSettingResp notANumberMessage = messageSettingService.getMessage("MSG-000018");
             throw new BadVariableException(MessageFormat.format(notANumberMessage.getValue(), "Id of province"));
         }
         return districtService.getDistrictByProvince(provinceId);
@@ -48,12 +48,11 @@ public class DistrictListWithProvinceHandler extends AbstractController<Collecti
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (districtService == null) {
-            districtService = resolver.resolveDependencies(DistrictService.class);
+            districtService = resolveService(DistrictService.class);
         }
-        if (messageSettingRepository == null) {
-            messageSettingRepository = resolver.resolveDependencies(MessageSettingRepository.class);
+        if (messageSettingService == null) {
+            messageSettingService = resolveService(MessageSettingService.class);
         }
     }
 

@@ -7,7 +7,6 @@ import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.repository.ProductCategoryRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 @ApplyOn(entity = Category.class)
 @ActiveReflection
@@ -37,9 +36,8 @@ public class CategoryAssociateDeletionTrigger extends AbstractTrigger<Category> 
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getDependenciesResolver();
         if (productCategoryRepository == null) {
-            productCategoryRepository = resolver.resolveDependencies(ProductCategoryRepository.class);
+            productCategoryRepository = resolveRepository(ProductCategoryRepository.class);
         }
     }
 }

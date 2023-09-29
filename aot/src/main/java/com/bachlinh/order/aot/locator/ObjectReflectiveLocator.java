@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.bachlinh.order.aot.locator.ObjectReflectiveLocator.InternalClassMetadata.getReflectiveModifier;
+
 public class ObjectReflectiveLocator implements ServiceLoader {
 
     private final Scanner<Collection<Class<?>>> classScanner;
@@ -82,7 +84,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
         return methodMetadata;
     }
 
-    private static class InternalClassMetadata implements ClassMetadata {
+    static class InternalClassMetadata implements ClassMetadata {
 
         private final Class<?> wrappedTarget;
         private Constructor<?> defaultConstructor;
@@ -177,13 +179,17 @@ public class ObjectReflectiveLocator implements ServiceLoader {
 
         @Override
         public Modifier getModifier() {
-            if (java.lang.reflect.Modifier.isPublic(this.wrappedTarget.getModifiers())) {
+            return getReflectiveModifier(this.wrappedTarget.getModifiers());
+        }
+
+        static Modifier getReflectiveModifier(int modifiers) {
+            if (java.lang.reflect.Modifier.isPublic(modifiers)) {
                 return Modifier.PUBLIC;
             }
-            if (java.lang.reflect.Modifier.isProtected(this.wrappedTarget.getModifiers())) {
+            if (java.lang.reflect.Modifier.isProtected(modifiers)) {
                 return Modifier.PROTECTED;
             }
-            if (java.lang.reflect.Modifier.isPrivate(this.wrappedTarget.getModifiers())) {
+            if (java.lang.reflect.Modifier.isPrivate(modifiers)) {
                 return Modifier.PRIVATE;
             }
             return Modifier.DEFAULT;
@@ -237,7 +243,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
             this.wrappedTarget = target;
             this.needRegisterToReflectionHint = target.isAnnotationPresent(ActiveReflection.class);
             try {
-                this.parentObject = UnsafeUtils.getUnsafe().allocateInstance(parent.getTarget());
+                this.parentObject = UnsafeUtils.allocateInstance(parent.getTarget());
             } catch (InstantiationException e) {
                 this.parentObject = null;
             }
@@ -269,16 +275,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
 
         @Override
         public Modifier getModifier() {
-            if (java.lang.reflect.Modifier.isPublic(this.wrappedTarget.getModifiers())) {
-                return Modifier.PUBLIC;
-            }
-            if (java.lang.reflect.Modifier.isProtected(this.wrappedTarget.getModifiers())) {
-                return Modifier.PROTECTED;
-            }
-            if (java.lang.reflect.Modifier.isPrivate(this.wrappedTarget.getModifiers())) {
-                return Modifier.PRIVATE;
-            }
-            return Modifier.DEFAULT;
+            return getReflectiveModifier(this.wrappedTarget.getModifiers());
         }
 
         @Override
@@ -345,7 +342,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
             this.parent = parent;
             this.needToRegisterReflectionHint = field.isAnnotationPresent(ActiveReflection.class);
             try {
-                this.parentObject = UnsafeUtils.getUnsafe().allocateInstance(parent.getTarget());
+                this.parentObject = UnsafeUtils.allocateInstance(parent.getTarget());
             } catch (InstantiationException e) {
                 this.parentObject = null;
             }
@@ -388,16 +385,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
 
         @Override
         public Modifier getModifier() {
-            if (java.lang.reflect.Modifier.isPublic(this.wrappedTarget.getModifiers())) {
-                return Modifier.PUBLIC;
-            }
-            if (java.lang.reflect.Modifier.isProtected(this.wrappedTarget.getModifiers())) {
-                return Modifier.PROTECTED;
-            }
-            if (java.lang.reflect.Modifier.isPrivate(this.wrappedTarget.getModifiers())) {
-                return Modifier.PRIVATE;
-            }
-            return Modifier.DEFAULT;
+            return getReflectiveModifier(this.wrappedTarget.getModifiers());
         }
 
         @Override
@@ -481,16 +469,7 @@ public class ObjectReflectiveLocator implements ServiceLoader {
 
         @Override
         public Modifier getModifier() {
-            if (java.lang.reflect.Modifier.isPublic(this.wrappedTarget.getModifiers())) {
-                return Modifier.PUBLIC;
-            }
-            if (java.lang.reflect.Modifier.isProtected(this.wrappedTarget.getModifiers())) {
-                return Modifier.PROTECTED;
-            }
-            if (java.lang.reflect.Modifier.isPrivate(this.wrappedTarget.getModifiers())) {
-                return Modifier.PRIVATE;
-            }
-            return Modifier.DEFAULT;
+            return getReflectiveModifier(this.wrappedTarget.getModifiers());
         }
 
         @Override

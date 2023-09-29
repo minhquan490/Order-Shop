@@ -35,10 +35,10 @@ public class OrderHistoryTrigger extends AbstractTrigger<Order> {
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            this.entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            this.entityFactory = resolveDependencies(EntityFactory.class);
         }
         if (orderHistoryRepository == null) {
-            orderHistoryRepository = getDependenciesResolver().resolveDependencies(OrderHistoryRepository.class);
+            orderHistoryRepository = resolveRepository(OrderHistoryRepository.class);
         }
     }
 

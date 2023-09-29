@@ -6,7 +6,6 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.MyInfoResp;
 import com.bachlinh.order.web.service.common.CustomerService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,9 +33,8 @@ public class MyInfoHandler extends AbstractController<MyInfoResp, Object> {
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (customerService == null) {
-            customerService = resolver.resolveDependencies(CustomerService.class);
+            customerService = resolveService(CustomerService.class);
         }
     }
 

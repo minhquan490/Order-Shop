@@ -3,12 +3,16 @@ package com.bachlinh.order.web.service.impl;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailFolders;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.repository.EmailRepository;
@@ -34,7 +38,7 @@ import java.util.HashSet;
 
 @ServiceComponent
 @ActiveReflection
-public class EmailServiceImpl implements EmailSendingService, EmailService, EmailInTrashService, EmailSearchingService {
+public class EmailServiceImpl extends AbstractService implements EmailSendingService, EmailService, EmailInTrashService, EmailSearchingService {
     private final EmailRepository emailRepository;
     private final CustomerRepository customerRepository;
     private final EmailFoldersRepository emailFoldersRepository;
@@ -44,13 +48,14 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
 
     @ActiveReflection
     @DependenciesInitialize
-    public EmailServiceImpl(EmailRepository emailRepository, CustomerRepository customerRepository, EmailFoldersRepository emailFoldersRepository, EntityFactory entityFactory, DtoMapper dtoMapper, EmailTrashRepository emailTrashRepository) {
-        this.emailRepository = emailRepository;
-        this.customerRepository = customerRepository;
-        this.emailFoldersRepository = emailFoldersRepository;
-        this.entityFactory = entityFactory;
-        this.dtoMapper = dtoMapper;
-        this.emailTrashRepository = emailTrashRepository;
+    public EmailServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.emailRepository = resolveRepository(EmailRepository.class);
+        this.customerRepository = resolveRepository(CustomerRepository.class);
+        this.emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
+        this.emailTrashRepository = resolveRepository(EmailTrashRepository.class);
     }
 
     @Override
@@ -141,5 +146,15 @@ public class EmailServiceImpl implements EmailSendingService, EmailService, Emai
         var ids = context.search(Email.class, query);
         var result = emailRepository.getResultSearch(ids, owner);
         return dtoMapper.map(result, EmailInfoResp.class);
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new EmailServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{EmailSendingService.class, EmailService.class, EmailInTrashService.class, EmailSearchingService.class};
     }
 }

@@ -12,7 +12,6 @@ import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.repository.OrderDetailRepository;
 import com.bachlinh.order.repository.OrderHistoryRepository;
 import com.bachlinh.order.repository.OrderStatusRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.util.Collection;
 
@@ -53,15 +52,14 @@ public class OrderAssociateDeletionTrigger extends AbstractTrigger<Order> {
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getDependenciesResolver();
         if (orderStatusRepository == null) {
-            orderStatusRepository = resolver.resolveDependencies(OrderStatusRepository.class);
+            orderStatusRepository = resolveRepository(OrderStatusRepository.class);
         }
         if (orderHistoryRepository == null) {
-            orderHistoryRepository = resolver.resolveDependencies(OrderHistoryRepository.class);
+            orderHistoryRepository = resolveRepository(OrderHistoryRepository.class);
         }
         if (orderDetailRepository == null) {
-            orderDetailRepository = resolver.resolveDependencies(OrderDetailRepository.class);
+            orderDetailRepository = resolveRepository(OrderDetailRepository.class);
         }
     }
 }

@@ -8,7 +8,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.admin.product.ProductCreateForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
@@ -37,9 +36,8 @@ public class ProductCreateHandler extends AbstractController<ProductResp, Produc
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (productService == null) {
-            productService = resolver.resolveDependencies(ProductService.class);
+            productService = resolveService(ProductService.class);
         }
     }
 

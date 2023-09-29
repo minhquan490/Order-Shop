@@ -93,7 +93,7 @@ public class CsrfInterceptor extends AbstractInterceptor {
             this.controllerContextHolder = getResolver().resolveDependencies(ControllerContextHolder.class);
         }
         if (this.messageSettingRepository == null) {
-            this.messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
         if (this.tokenGenerator == null) {
             this.tokenGenerator = getResolver().resolveDependencies(TemporaryTokenGenerator.class);

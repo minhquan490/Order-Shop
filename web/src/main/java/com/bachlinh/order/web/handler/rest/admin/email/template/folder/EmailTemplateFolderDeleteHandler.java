@@ -14,7 +14,6 @@ import com.bachlinh.order.web.service.common.EmailTemplateFolderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RouteProvider(name = "emailTemplateFolderDeleteHandler")
@@ -38,17 +37,13 @@ public class EmailTemplateFolderDeleteHandler extends AbstractController<Map<Str
     protected Map<String, Object> internalHandler(Payload<EmailTemplateFolderDeleteForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailTemplateFolderService.deleteEmailTemplateFolder(request.data(), customer);
-        var resp = new HashMap<String, Object>(2);
-        resp.put("status", HttpStatus.ACCEPTED.value());
-        resp.put("messages", new String[]{"Delete successfully"});
-        return resp;
+        return createDefaultResponse(HttpStatus.ACCEPTED.value(), new String[]{"Delete successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailTemplateFolderService == null) {
-            emailTemplateFolderService = resolver.resolveDependencies(EmailTemplateFolderService.class);
+            emailTemplateFolderService = resolveService(EmailTemplateFolderService.class);
         }
     }
 

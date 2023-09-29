@@ -3,13 +3,14 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.entity.model.EmailTemplateFolder_;
 import com.bachlinh.order.entity.model.EmailTemplate_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Select;
@@ -19,9 +20,7 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.bachlinh.order.repository.EmailTemplateFolderRepository;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +33,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String, EmailTemplateFolder> implements EmailTemplateFolderRepository {
+public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String, EmailTemplateFolder> implements EmailTemplateFolderRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -166,12 +165,6 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
         return this.getResultList(sql, attributes, EmailTemplateFolder.class);
     }
 
-    @Override
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
-    }
-
     @Nullable
     private EmailTemplateFolder getEmailTemplateFolder(Where ownerWhere, SqlWhere where) {
         SqlWhere sqlWhere = where.and(ownerWhere);
@@ -183,5 +176,15 @@ public class EmailTemplateFolderRepositoryImpl extends AbstractRepository<String
         String sql = sqlWhere.getNativeQuery();
         Map<String, Object> attributes = QueryUtils.parse(sqlWhere.getQueryBindings());
         return getSingleResult(sql, attributes, EmailTemplateFolder.class);
+    }
+
+    @Override
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new EmailTemplateFolderRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{EmailTemplateFolderRepository.class};
     }
 }

@@ -2,12 +2,12 @@ package com.bachlinh.order.entity.trigger;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.AuditorAware;
@@ -63,7 +63,7 @@ public class AuditingTrigger extends AbstractTrigger<AbstractEntity<?>> {
     @SuppressWarnings("unchecked")
     protected void inject() {
         if (entityAuditor == null) {
-            this.entityAuditor = getDependenciesResolver().resolveDependencies(AuditorAware.class);
+            this.entityAuditor = resolveDependencies(AuditorAware.class);
         }
     }
 

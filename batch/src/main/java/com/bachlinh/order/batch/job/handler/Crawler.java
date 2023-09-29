@@ -4,6 +4,7 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.crawler.core.visitor.InnerElementVisitor;
 import com.bachlinh.order.crawler.core.visitor.PageVisitor;
 import com.bachlinh.order.crawler.core.writer.ElementWriter;
@@ -13,7 +14,6 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.CrawlResult;
 import com.bachlinh.order.exception.system.crawler.AwakeCrawlerException;
 import com.bachlinh.order.repository.CrawlResultRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,10 +65,10 @@ public class Crawler extends AbstractJob {
     @Override
     protected void inject() {
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
         if (repository == null) {
-            repository = getDependenciesResolver().resolveDependencies(CrawlResultRepository.class);
+            repository = resolveRepository(CrawlResultRepository.class);
         }
     }
 

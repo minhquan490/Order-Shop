@@ -68,7 +68,7 @@ public class PermissionInterceptor extends AbstractInterceptor {
             this.controllerContextHolder = getResolver().resolveDependencies(ControllerContextHolder.class);
         }
         if (this.messageSettingRepository == null) {
-            this.messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

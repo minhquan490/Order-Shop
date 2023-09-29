@@ -1,5 +1,6 @@
 package com.bachlinh.order.security.filter.servlet;
 
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
@@ -9,7 +10,6 @@ import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.security.helper.AuthenticationHelper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +42,7 @@ public class AuthenticationFilter extends AbstractWebFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         return excludePaths.stream().anyMatch(path -> pathMatcher.match(path, request.getRequestURI()));
     }
 
@@ -65,13 +65,13 @@ public class AuthenticationFilter extends AbstractWebFilter {
     @Override
     protected void inject() {
         if (tokenManager == null) {
-            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+            tokenManager = resolveDependencies(TokenManager.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (authenticationFailureHandler == null) {
-            authenticationFailureHandler = getDependenciesResolver().resolveDependencies(UnAuthorizationHandler.class);
+            authenticationFailureHandler = resolveDependencies(UnAuthorizationHandler.class);
         }
     }
 }

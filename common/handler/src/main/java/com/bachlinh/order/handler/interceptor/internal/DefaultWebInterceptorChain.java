@@ -6,7 +6,7 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Comparator;

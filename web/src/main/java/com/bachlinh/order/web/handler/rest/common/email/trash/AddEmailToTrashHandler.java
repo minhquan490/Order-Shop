@@ -42,9 +42,8 @@ public class AddEmailToTrashHandler extends AbstractController<EmailTrashResp, A
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailInTrashService == null) {
-            emailInTrashService = resolver.resolveDependencies(EmailInTrashService.class);
+            emailInTrashService = resolveService(EmailInTrashService.class);
         }
     }
 

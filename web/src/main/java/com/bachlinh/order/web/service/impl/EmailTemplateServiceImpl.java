@@ -1,8 +1,8 @@
 package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
@@ -12,6 +12,8 @@ import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.mail.template.BindingModel;
 import com.bachlinh.order.mail.template.EmailTemplateProcessor;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -40,7 +42,7 @@ import java.util.Collection;
 
 @ActiveReflection
 @ServiceComponent
-public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemplateSendingService, EmailTemplateSearchService {
+public class EmailTemplateServiceImpl extends AbstractService implements EmailTemplateService, EmailTemplateSendingService, EmailTemplateSearchService {
     private final EmailTemplateRepository emailTemplateRepository;
     private final EmailTemplateFolderRepository emailTemplateFolderRepository;
     private final EntityFactory entityFactory;
@@ -50,17 +52,16 @@ public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemp
     private final EmailFoldersRepository emailFoldersRepository;
     private final EmailRepository emailRepository;
 
-    @ActiveReflection
-    @DependenciesInitialize
-    public EmailTemplateServiceImpl(EmailTemplateRepository emailTemplateRepository, EmailTemplateFolderRepository emailTemplateFolderRepository, EntityFactory entityFactory, DtoMapper dtoMapper, EmailTemplateProcessor emailTemplateProcessor, CustomerRepository customerRepository, EmailFoldersRepository emailFoldersRepository, EmailRepository emailRepository) {
-        this.emailTemplateRepository = emailTemplateRepository;
-        this.emailTemplateFolderRepository = emailTemplateFolderRepository;
-        this.entityFactory = entityFactory;
-        this.dtoMapper = dtoMapper;
-        this.emailTemplateProcessor = emailTemplateProcessor;
-        this.customerRepository = customerRepository;
-        this.emailFoldersRepository = emailFoldersRepository;
-        this.emailRepository = emailRepository;
+    private EmailTemplateServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.emailTemplateRepository = resolveRepository(EmailTemplateRepository.class);
+        this.emailTemplateFolderRepository = resolveRepository(EmailTemplateFolderRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
+        this.emailTemplateProcessor = resolver.resolveDependencies(EmailTemplateProcessor.class);
+        this.customerRepository = resolveRepository(CustomerRepository.class);
+        this.emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
+        this.emailRepository = resolveRepository(EmailRepository.class);
     }
 
     @Override
@@ -155,5 +156,15 @@ public class EmailTemplateServiceImpl implements EmailTemplateService, EmailTemp
         var ids = context.search(form.getQuery());
         var result = emailTemplateRepository.getEmailTemplates(ids, owner);
         return dtoMapper.map(result, EmailTemplateInfoResp.class);
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new EmailTemplateServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{EmailTemplateService.class, EmailTemplateSendingService.class, EmailTemplateSearchService.class};
     }
 }

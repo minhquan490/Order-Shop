@@ -31,7 +31,6 @@ import com.bachlinh.order.repository.OrderRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
 import com.bachlinh.order.repository.UserAssignmentRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -115,45 +114,44 @@ public class CustomerAssociateDeletionTrigger extends AbstractTrigger<Customer> 
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getDependenciesResolver();
         if (cartRepository == null) {
-            cartRepository = resolver.resolveDependencies(CartRepository.class);
+            cartRepository = resolveRepository(CartRepository.class);
         }
         if (refreshTokenRepository == null) {
-            refreshTokenRepository = resolver.resolveDependencies(RefreshTokenRepository.class);
+            refreshTokenRepository = resolveRepository(RefreshTokenRepository.class);
         }
         if (emailTrashRepository == null) {
-            emailTrashRepository = resolver.resolveDependencies(EmailTrashRepository.class);
+            emailTrashRepository = resolveRepository(EmailTrashRepository.class);
         }
         if (customerMediaRepository == null) {
-            customerMediaRepository = resolver.resolveDependencies(CustomerMediaRepository.class);
+            customerMediaRepository = resolveRepository(CustomerMediaRepository.class);
         }
         if (temporaryTokenRepository == null) {
-            temporaryTokenRepository = resolver.resolveDependencies(TemporaryTokenRepository.class);
+            temporaryTokenRepository = resolveRepository(TemporaryTokenRepository.class);
         }
         if (addressRepository == null) {
-            addressRepository = resolver.resolveDependencies(AddressRepository.class);
+            addressRepository = resolveRepository(AddressRepository.class);
         }
         if (orderRepository == null) {
-            orderRepository = resolver.resolveDependencies(OrderRepository.class);
+            orderRepository = resolveRepository(OrderRepository.class);
         }
         if (customerAccessHistoryRepository == null) {
-            customerAccessHistoryRepository = resolver.resolveDependencies(CustomerAccessHistoryRepository.class);
+            customerAccessHistoryRepository = resolveRepository(CustomerAccessHistoryRepository.class);
         }
         if (userAssignmentRepository == null) {
-            userAssignmentRepository = resolver.resolveDependencies(UserAssignmentRepository.class);
+            userAssignmentRepository = resolveRepository(UserAssignmentRepository.class);
         }
         if (loginHistoryRepository == null) {
-            loginHistoryRepository = resolver.resolveDependencies(LoginHistoryRepository.class);
+            loginHistoryRepository = resolveRepository(LoginHistoryRepository.class);
         }
         if (customerInfoChangeHistoryRepository == null) {
-            customerInfoChangeHistoryRepository = resolver.resolveDependencies(CustomerInfoChangeHistoryRepository.class);
+            customerInfoChangeHistoryRepository = resolveRepository(CustomerInfoChangeHistoryRepository.class);
         }
         if (emailFoldersRepository == null) {
-            emailFoldersRepository = resolver.resolveDependencies(EmailFoldersRepository.class);
+            emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
         }
         if (emailRepository == null) {
-            emailRepository = resolver.resolveDependencies(EmailRepository.class);
+            emailRepository = resolveRepository(EmailRepository.class);
         }
     }
 }

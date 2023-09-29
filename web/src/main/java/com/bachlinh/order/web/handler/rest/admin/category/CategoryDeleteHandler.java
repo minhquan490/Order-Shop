@@ -12,7 +12,6 @@ import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.service.common.CategoryService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RouteProvider(name = "categoryDeleteHandler")
@@ -36,10 +35,7 @@ public class CategoryDeleteHandler extends AbstractController<Map<String, Object
     protected Map<String, Object> internalHandler(Payload<CategoryDeleteForm> request) {
         var result = categoryService.deleteCategory(request.data());
         if (result) {
-            Map<String, Object> resp = new HashMap<>();
-            resp.put("messages", new String[]{"OK"});
-            resp.put("status", 200);
-            return resp;
+            return createDefaultResponse(200, new String[]{"OK"});
         } else {
             throw new CriticalException("Server under maintenance");
         }
@@ -47,9 +43,8 @@ public class CategoryDeleteHandler extends AbstractController<Map<String, Object
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (categoryService == null) {
-            categoryService = resolver.resolveDependencies(CategoryService.class);
+            categoryService = resolveService(CategoryService.class);
         }
     }
 

@@ -14,5 +14,7 @@ public interface MessageSettingService {
 
     void deleteMessageSetting(MessageSettingDeleteForm form);
 
+    MessageSettingResp getMessage(String messageId);
+
     Collection<MessageSettingResp> getAllMessage();
 }

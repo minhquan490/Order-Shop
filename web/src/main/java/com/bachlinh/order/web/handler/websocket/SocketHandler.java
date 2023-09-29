@@ -8,7 +8,7 @@ import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.handler.tcp.handler.SpringWebSocketHandler;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.DirectMessageRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.WebSocketSession;

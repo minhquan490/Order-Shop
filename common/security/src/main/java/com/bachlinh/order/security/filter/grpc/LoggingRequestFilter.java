@@ -1,5 +1,6 @@
 package com.bachlinh.order.security.filter.grpc;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
@@ -12,7 +13,6 @@ import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.enums.RequestType;
 import com.bachlinh.order.security.filter.GrpcWebFilter;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,29 +57,29 @@ public class LoggingRequestFilter extends GrpcWebFilter {
     }
 
     @Override
-    protected void intercept(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void intercept(HttpServletRequest request, HttpServletResponse response) {
         executor.execute(() -> logCustomerRequest(request));
     }
 
     @Override
     protected void inject() {
         if (executor == null) {
-            executor = getDependenciesResolver().resolveDependencies(ThreadPoolTaskExecutor.class);
+            executor = resolveDependencies(ThreadPoolTaskExecutor.class);
         }
         if (customerAccessHistoryRepository == null) {
-            customerAccessHistoryRepository = getDependenciesResolver().resolveDependencies(CustomerAccessHistoryRepository.class);
+            customerAccessHistoryRepository = resolveRepository(CustomerAccessHistoryRepository.class);
         }
         if (tokenManager == null) {
-            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+            tokenManager = resolveDependencies(TokenManager.class);
         }
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (refreshTokenRepository == null) {
-            refreshTokenRepository = getDependenciesResolver().resolveDependencies(RefreshTokenRepository.class);
+            refreshTokenRepository = resolveRepository(RefreshTokenRepository.class);
         }
     }
 

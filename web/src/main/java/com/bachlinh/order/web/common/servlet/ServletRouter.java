@@ -6,7 +6,7 @@ import com.bachlinh.order.core.http.writer.MessageWriter;
 import com.bachlinh.order.handler.router.AbstractRouter;
 import com.bachlinh.order.handler.strategy.ResponseStrategy;
 import com.bachlinh.order.handler.strategy.ServletResponseStrategy;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

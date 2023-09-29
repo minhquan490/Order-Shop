@@ -7,7 +7,7 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

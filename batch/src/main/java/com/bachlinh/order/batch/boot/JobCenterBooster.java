@@ -2,7 +2,7 @@ package com.bachlinh.order.batch.boot;
 
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.batch.job.internal.DefaultJobCenter;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 public class JobCenterBooster implements JobCenter.Builder {
     private DependenciesResolver dependenciesResolver;

@@ -1,11 +1,15 @@
 package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.MessageSetting;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.LoginHistoryRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.utils.ValidateUtils;
@@ -17,16 +21,17 @@ import java.text.MessageFormat;
 import java.util.Collection;
 
 @ServiceComponent
-public class LoginHistoriesServiceImpl implements LoginHistoryService {
+public class LoginHistoriesServiceImpl extends AbstractService implements LoginHistoryService {
 
     private final LoginHistoryRepository loginHistoryRepository;
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
 
-    public LoginHistoriesServiceImpl(LoginHistoryRepository loginHistoryRepository, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
-        this.loginHistoryRepository = loginHistoryRepository;
-        this.dtoMapper = dtoMapper;
-        this.messageSettingRepository = messageSettingRepository;
+    private LoginHistoriesServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.loginHistoryRepository = resolveRepository(LoginHistoryRepository.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
+        this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
     }
 
     @Override
@@ -71,5 +76,15 @@ public class LoginHistoriesServiceImpl implements LoginHistoryService {
         } else {
             return 1L;
         }
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new LoginHistoriesServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{LoginHistoryService.class};
     }
 }

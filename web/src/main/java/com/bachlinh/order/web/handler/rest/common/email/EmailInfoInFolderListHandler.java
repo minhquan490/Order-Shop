@@ -38,9 +38,8 @@ public class EmailInfoInFolderListHandler extends AbstractController<EmailInfoIn
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailService == null) {
-            emailService = resolver.resolveDependencies(EmailService.class);
+            emailService = resolveService(EmailService.class);
         }
     }
 

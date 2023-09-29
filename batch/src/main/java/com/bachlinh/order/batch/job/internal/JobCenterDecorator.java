@@ -5,7 +5,7 @@ import com.bachlinh.order.batch.job.AbstractJobCenter;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobCenter;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 final class JobCenterDecorator {
     private final JobCenter jobCenter;

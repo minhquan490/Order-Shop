@@ -4,7 +4,7 @@ import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.formula.processor.AbstractFormulaProcessor;
 import com.bachlinh.order.entity.formula.processor.SelectFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.Map;
 

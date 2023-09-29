@@ -50,10 +50,10 @@ public class CustomerInfoChangeHistoryTrigger extends AbstractTrigger<Customer> 
     @Override
     protected void inject() {
         if (repository == null) {
-            repository = getDependenciesResolver().resolveDependencies(CustomerInfoChangeHistoryRepository.class);
+            repository = resolveRepository(CustomerInfoChangeHistoryRepository.class);
         }
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
     }
 

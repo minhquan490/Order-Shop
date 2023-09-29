@@ -24,7 +24,7 @@ public class CrawlResultValidator extends AbstractValidator<CrawlResult> {
     @Override
     protected void inject() {
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

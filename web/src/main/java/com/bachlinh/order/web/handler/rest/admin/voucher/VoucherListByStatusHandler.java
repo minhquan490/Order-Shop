@@ -42,9 +42,8 @@ public class VoucherListByStatusHandler extends AbstractController<Collection<Vo
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (voucherService == null) {
-            voucherService = resolver.resolveDependencies(VoucherService.class);
+            voucherService = resolveService(VoucherService.class);
         }
     }
 

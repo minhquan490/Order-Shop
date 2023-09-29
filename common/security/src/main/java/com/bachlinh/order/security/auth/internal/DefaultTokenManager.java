@@ -1,8 +1,10 @@
 package com.bachlinh.order.security.auth.internal;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.RefreshToken;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
@@ -12,7 +14,6 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenGenerator;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.DateTimeUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -50,8 +51,9 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
                 .build()
                 .buildEncoder();
         this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
-        this.refreshTokenRepository = resolver.resolveDependencies(RefreshTokenRepository.class);
-        this.customerRepository = resolver.resolveDependencies(CustomerRepository.class);
+        RepositoryManager repositoryManager = resolver.resolveDependencies(RepositoryManager.class);
+        this.refreshTokenRepository = repositoryManager.getRepository(RefreshTokenRepository.class);
+        this.customerRepository = repositoryManager.getRepository(CustomerRepository.class);
     }
 
     JwtDecoder getJwtDecoder() {
@@ -75,7 +77,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
         try {
             return getJwtDecoder().decode(token).getClaims();
         } catch (JwtException e) {
-            return new HashMap<>(0);
+            return HashMap.newHashMap(0);
         }
     }
 
@@ -84,7 +86,7 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
         try {
             return getJwtDecoder().decode(token).getHeaders();
         } catch (JwtException e) {
-            return new HashMap<>(0);
+            return HashMap.newHashMap(0);
         }
     }
 

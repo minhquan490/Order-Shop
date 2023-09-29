@@ -33,9 +33,8 @@ public class WardSearchHandler extends AbstractController<Collection<WardResp>, 
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (wardSearchService == null) {
-            wardSearchService = resolver.resolveDependencies(WardSearchService.class);
+            wardSearchService = resolveService(WardSearchService.class);
         }
     }
 

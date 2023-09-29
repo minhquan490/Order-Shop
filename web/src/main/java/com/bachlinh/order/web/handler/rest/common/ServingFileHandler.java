@@ -8,7 +8,6 @@ import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.web.dto.resp.ProductMediaResp;
 import com.bachlinh.order.web.service.common.ProductMediaService;
@@ -59,9 +58,8 @@ public class ServingFileHandler extends AbstractController<NativeResponse<byte[]
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (productMediaService == null) {
-            productMediaService = resolver.resolveDependencies(ProductMediaService.class);
+            productMediaService = resolveService(ProductMediaService.class);
         }
         if (resourceTotalHeader == null) {
             resourceTotalHeader = getEnvironment().getProperty("server.header.resource.total.length");

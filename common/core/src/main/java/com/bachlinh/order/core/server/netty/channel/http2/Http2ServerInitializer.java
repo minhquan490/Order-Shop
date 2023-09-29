@@ -2,7 +2,7 @@ package com.bachlinh.order.core.server.netty.channel.http2;
 
 import com.bachlinh.order.core.server.netty.ssl.SslContextProvider;
 import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.epoll.EpollSocketChannel;

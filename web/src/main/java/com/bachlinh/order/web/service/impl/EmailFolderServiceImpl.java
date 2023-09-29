@@ -1,11 +1,13 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
+import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.EmailFoldersRepository;
 import com.bachlinh.order.web.dto.form.common.EmailFolderCreateForm;
 import com.bachlinh.order.web.dto.form.common.EmailFolderUpdateForm;
@@ -22,24 +24,22 @@ import java.util.HashSet;
 import java.util.List;
 
 @ServiceComponent
-@ActiveReflection
-public class EmailFolderServiceImpl implements EmailFolderService {
+public class EmailFolderServiceImpl extends AbstractService implements EmailFolderService {
     private static final List<String> DEFAULT_FOLDER = List.of("Default", "Draft", "Sent", "Importance");
 
     private final EmailFoldersRepository emailFoldersRepository;
     private final EntityFactory entityFactory;
 
-    @ActiveReflection
-    @DependenciesInitialize
-    public EmailFolderServiceImpl(EmailFoldersRepository emailFoldersRepository, EntityFactory entityFactory) {
-        this.emailFoldersRepository = emailFoldersRepository;
-        this.entityFactory = entityFactory;
+    private EmailFolderServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.emailFoldersRepository = resolveRepository(EmailFoldersRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
     }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void createDefaultFolders(Customer owner) {
-        Collection<EmailFolders> emailFolders = new HashSet<>(DEFAULT_FOLDER.size());
+        Collection<EmailFolders> emailFolders = HashSet.newHashSet(DEFAULT_FOLDER.size());
         DEFAULT_FOLDER.forEach(name -> {
             var folder = entityFactory.getEntity(EmailFolders.class);
             folder.setTimeCreated(Timestamp.from(Instant.now()));
@@ -83,5 +83,15 @@ public class EmailFolderServiceImpl implements EmailFolderService {
         return folders.stream()
                 .map(emailFolders -> new EmailFolderInfoResp(emailFolders.getId(), emailFolders.getName(), emailFolders.getEmailClearPolicy()))
                 .toList();
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new EmailFolderServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{EmailFolderService.class};
     }
 }

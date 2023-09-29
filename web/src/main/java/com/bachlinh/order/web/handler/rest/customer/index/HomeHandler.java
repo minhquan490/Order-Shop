@@ -5,7 +5,6 @@ import com.bachlinh.order.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.common.ProductService;
 import org.springframework.data.domain.Page;
@@ -40,9 +39,8 @@ public class HomeHandler extends AbstractController<Map<String, Object>, Object>
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (productService == null) {
-            productService = resolver.resolveDependencies(ProductService.class);
+            productService = resolveService(ProductService.class);
         }
     }
 

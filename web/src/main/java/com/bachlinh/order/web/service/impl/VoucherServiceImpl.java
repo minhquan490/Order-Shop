@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
@@ -10,7 +10,10 @@ import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.VoucherRepository;
 import com.bachlinh.order.utils.ValidateUtils;
@@ -24,7 +27,6 @@ import com.bachlinh.order.web.service.business.VoucherSearchService;
 import com.bachlinh.order.web.service.common.VoucherService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,23 +36,20 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @ServiceComponent
-@ActiveReflection
-public class VoucherServiceImpl implements VoucherService, VoucherSearchService {
+public class VoucherServiceImpl extends AbstractService implements VoucherService, VoucherSearchService {
     private final VoucherRepository voucherRepository;
     private final EntityFactory entityFactory;
     private final DtoMapper dtoMapper;
     private final MessageSettingRepository messageSettingRepository;
 
-    @ActiveReflection
-    public VoucherServiceImpl(VoucherRepository voucherRepository, EntityFactory entityFactory, DtoMapper dtoMapper, MessageSettingRepository messageSettingRepository) {
-        this.voucherRepository = voucherRepository;
-        this.entityFactory = entityFactory;
-        this.dtoMapper = dtoMapper;
-        this.messageSettingRepository = messageSettingRepository;
+    private VoucherServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.voucherRepository = resolveRepository(VoucherRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
+        this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
     }
 
     @Override
@@ -83,13 +82,9 @@ public class VoucherServiceImpl implements VoucherService, VoucherSearchService 
     }
 
     @Override
-    public Map<String, Object> deleteVoucher(VoucherDeleteForm form) {
+    public void deleteVoucher(VoucherDeleteForm form) {
         var voucher = voucherRepository.getVoucherById(Collections.emptyList(), form.getId());
         voucherRepository.deleteVoucher(voucher);
-        Map<String, Object> result = new HashMap<>(2);
-        result.put("status", HttpStatus.OK.value());
-        result.put("messages", new String[]{"Delete successfully"});
-        return result;
     }
 
     @Override
@@ -129,6 +124,16 @@ public class VoucherServiceImpl implements VoucherService, VoucherSearchService 
         var ids = context.search(form.getQuery());
         var result = voucherRepository.getVouchersByIds(ids);
         return dtoMapper.map(result, VoucherResp.class);
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new VoucherServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{VoucherService.class, VoucherSearchService.class};
     }
 
     private String getCustomerId(NativeRequest<?> nativeRequest, String path) {

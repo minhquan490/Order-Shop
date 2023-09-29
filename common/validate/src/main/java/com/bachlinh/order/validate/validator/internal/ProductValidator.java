@@ -30,10 +30,10 @@ public class ProductValidator extends AbstractValidator<Product> {
     @Override
     protected void inject() {
         if (productRepository == null) {
-            productRepository = getResolver().resolveDependencies(ProductRepository.class);
+            productRepository = resolveRepository(ProductRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

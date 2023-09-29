@@ -2,6 +2,9 @@ package com.bachlinh.order.web.configuration;
 
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
@@ -10,18 +13,18 @@ import com.bachlinh.order.core.server.netty.listener.HttpFrameListenerFactory;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapperFactory;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
 import com.bachlinh.order.entity.repository.query.SqlBuilderFactory;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
+import com.bachlinh.order.handler.service.DefaultServiceManager;
+import com.bachlinh.order.handler.service.ServiceManager;
 import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
-import com.bachlinh.order.service.container.ContainerWrapper;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.RuleFactory;
 import com.bachlinh.order.validate.rule.RuleManager;
@@ -53,8 +56,6 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.server.RequestUpgradeStrategy;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
 
-import java.io.IOException;
-
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class WebBaseConfiguration extends WebInterceptorConfigurer implements WebSocketConfigurer {
@@ -84,6 +85,11 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
     @Bean
     ServletRouter servletRouter() {
         return new ServletRouter(resolver);
+    }
+
+    @Bean
+    ServiceManager serviceManager() {
+        return new DefaultServiceManager(resolver, environment);
     }
 
     @Bean
@@ -139,21 +145,13 @@ public class WebBaseConfiguration extends WebInterceptorConfigurer implements We
     }
 
     @Bean
-    RequestUpgradeStrategy requestUpgradeStrategy(CustomerRepository customerRepository, TokenManager tokenManager, UnAuthorizationHandler unAuthorizationHandler) {
-        return new ProxyRequestUpgradeStrategy(customerRepository, tokenManager, unAuthorizationHandler);
+    RequestUpgradeStrategy requestUpgradeStrategy(RepositoryManager repositoryManager, TokenManager tokenManager, UnAuthorizationHandler unAuthorizationHandler) {
+        return new ProxyRequestUpgradeStrategy(repositoryManager.getRepository(CustomerRepository.class), tokenManager, unAuthorizationHandler);
     }
 
     @Bean
     public WebInterceptorChain configInterceptorChain(@Autowired(required = false) Environment environment) {
         return super.configInterceptorChain(resolver, environment == null ? this.environment : environment);
-    }
-
-    @Bean
-    EntityFactory entityFactory(ApplicationContext applicationContext, @Value("${active.profile}") String profile) throws IOException {
-        return new DefaultEntityFactory.DefaultEntityFactoryBuilder()
-                .container(ContainerWrapper.wrap(applicationContext))
-                .profile(profile)
-                .build();
     }
 
     @Bean

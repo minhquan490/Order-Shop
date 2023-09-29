@@ -1,8 +1,8 @@
 package com.bachlinh.order.validate.rule;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.validate.RuleInstanceFailureException;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.validate.base.ValidatedDto;
 
 public interface RuleFactory {

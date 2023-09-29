@@ -1,9 +1,10 @@
 package com.bachlinh.order.validate.validator.spi;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 
 /**
  * Base validator for all entities validator use in this project.
@@ -12,9 +13,18 @@ import com.bachlinh.order.service.container.DependenciesResolver;
  */
 public abstract class AbstractValidator<T extends BaseEntity<?>> implements EntityValidator<T> {
     private DependenciesResolver resolver;
+    private RepositoryManager repositoryManager;
 
     protected DependenciesResolver getResolver() {
         return resolver;
+    }
+
+    protected <U> U resolveDependencies(Class<U> dependenciesType) {
+        return getResolver().resolveDependencies(dependenciesType);
+    }
+
+    protected <U> U resolveRepository(Class<U> repositoryType) {
+        return repositoryManager.getRepository(repositoryType);
     }
 
     protected abstract void inject();
@@ -23,6 +33,7 @@ public abstract class AbstractValidator<T extends BaseEntity<?>> implements Enti
 
     @Override
     public final ValidateResult validate(T entity) {
+        lazyInitRepositoryManager();
         inject();
         return doValidate(entity);
     }
@@ -30,5 +41,11 @@ public abstract class AbstractValidator<T extends BaseEntity<?>> implements Enti
     @Override
     public final void setResolver(DependenciesResolver resolver) {
         this.resolver = resolver;
+    }
+
+    private void lazyInitRepositoryManager() {
+        if (repositoryManager == null) {
+            repositoryManager = resolveDependencies(RepositoryManager.class);
+        }
     }
 }

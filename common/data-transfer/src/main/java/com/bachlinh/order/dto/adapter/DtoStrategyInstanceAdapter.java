@@ -1,11 +1,12 @@
 package com.bachlinh.order.dto.adapter;
 
+import com.bachlinh.order.core.alloc.Initializer;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.UnsafeUtils;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public final class DtoStrategyInstanceAdapter {
     private final ApplicationScanner scanner;
     private final DependenciesResolver resolver;
     private final Environment environment;
+    private final Initializer<DtoStrategy<?, ?>> initializer = new DtoStrategyInitializer();
 
     public DtoStrategyInstanceAdapter(ApplicationScanner scanner, DependenciesResolver resolver, Environment environment) {
         this.scanner = scanner;
@@ -44,11 +46,19 @@ public final class DtoStrategyInstanceAdapter {
     }
 
     private DtoStrategy<?, ?> initStrategy(Class<DtoStrategy<?, ?>> strategyClass) {
-        try {
-            var dummyObject = UnsafeUtils.allocateInstance(strategyClass);
-            return ((AbstractDtoStrategy<?, ?>) dummyObject).getInstance(resolver, environment);
-        } catch (Exception e) {
-            throw new CriticalException(e.getMessage(), e);
+        return initializer.getObject(strategyClass, resolver, environment);
+    }
+
+    private static class DtoStrategyInitializer implements Initializer<DtoStrategy<?, ?>> {
+
+        @Override
+        public DtoStrategy<?, ?> getObject(Class<?> type, Object... params) {
+            try {
+                var dummyObject = UnsafeUtils.allocateInstance(type);
+                return ((AbstractDtoStrategy<?, ?>) dummyObject).getInstance((DependenciesResolver) params[0], (Environment) params[1]);
+            } catch (Exception e) {
+                throw new CriticalException(e.getMessage(), e);
+            }
         }
     }
 }

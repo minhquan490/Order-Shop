@@ -9,7 +9,6 @@ import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.repository.ProductCartRepository;
 import com.bachlinh.order.repository.ProductCategoryRepository;
 import com.bachlinh.order.repository.ProductMediaRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 @ApplyOn(entity = Product.class)
 @ActiveReflection
@@ -43,15 +42,14 @@ public class ProductAssociateDeletionTrigger extends AbstractTrigger<Product> {
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getDependenciesResolver();
         if (productCategoryRepository == null) {
-            productCategoryRepository = resolver.resolveDependencies(ProductCategoryRepository.class);
+            productCategoryRepository = resolveRepository(ProductCategoryRepository.class);
         }
         if (productCartRepository == null) {
-            productCartRepository = resolver.resolveDependencies(ProductCartRepository.class);
+            productCartRepository = resolveRepository(ProductCartRepository.class);
         }
         if (productMediaRepository == null) {
-            productMediaRepository = resolver.resolveDependencies(ProductMediaRepository.class);
+            productMediaRepository = resolveRepository(ProductMediaRepository.class);
         }
     }
 }

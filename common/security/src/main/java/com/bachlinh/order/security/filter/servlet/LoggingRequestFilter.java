@@ -2,6 +2,7 @@ package com.bachlinh.order.security.filter.servlet;
 
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.http.DelegateHttpServletRequest;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
@@ -16,7 +17,6 @@ import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.security.enums.RequestType;
 import com.bachlinh.order.security.filter.AbstractWebFilter;
 import com.bachlinh.order.security.helper.RequestAccessHistoriesHolder;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import com.bachlinh.order.utils.HeaderUtils;
 import com.bachlinh.order.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,7 +64,7 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         return excludePaths.stream().anyMatch(path -> pathMatcher.match(path, request.getRequestURI()));
     }
 
@@ -85,22 +85,22 @@ public class LoggingRequestFilter extends AbstractWebFilter {
     @Override
     protected void inject() {
         if (threadPoolManager == null) {
-            threadPoolManager = getDependenciesResolver().resolveDependencies(ThreadPoolManager.class);
+            threadPoolManager = resolveDependencies(ThreadPoolManager.class);
         }
         if (customerAccessHistoryRepository == null) {
-            customerAccessHistoryRepository = getDependenciesResolver().resolveDependencies(CustomerAccessHistoryRepository.class);
+            customerAccessHistoryRepository = resolveRepository(CustomerAccessHistoryRepository.class);
         }
         if (tokenManager == null) {
-            tokenManager = getDependenciesResolver().resolveDependencies(TokenManager.class);
+            tokenManager = resolveDependencies(TokenManager.class);
         }
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
         if (refreshTokenRepository == null) {
-            refreshTokenRepository = getDependenciesResolver().resolveDependencies(RefreshTokenRepository.class);
+            refreshTokenRepository = resolveRepository(RefreshTokenRepository.class);
         }
     }
 

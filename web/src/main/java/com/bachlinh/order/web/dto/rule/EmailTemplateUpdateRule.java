@@ -2,6 +2,7 @@ package com.bachlinh.order.web.dto.rule;
 
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -9,7 +10,6 @@ import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;
@@ -89,10 +89,10 @@ public class EmailTemplateUpdateRule extends AbstractRule<EmailTemplateUpdateFor
     @Override
     protected void injectDependencies() {
         if (emailTemplateFolderRepository == null) {
-            emailTemplateFolderRepository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
+            emailTemplateFolderRepository = resolveRepository(EmailTemplateFolderRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
         if (emailTemplateRepository == null) {
             emailTemplateRepository = getResolver().resolveDependencies(EmailTemplateRepository.class);

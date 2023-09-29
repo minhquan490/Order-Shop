@@ -1,22 +1,22 @@
 package com.bachlinh.order.core.server.grpc.adapter;
 
+import com.bachlinh.order.core.server.grpc.InboundMessage;
+import com.bachlinh.order.core.server.grpc.OutboundMessage;
+import com.bachlinh.order.utils.JacksonUtils;
 import com.google.protobuf.ByteString;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.Status;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.http.HttpHeader;
-import org.springframework.web.util.UriUtils;
-import com.bachlinh.order.core.server.grpc.InboundMessage;
-import com.bachlinh.order.core.server.grpc.OutboundMessage;
-import com.bachlinh.order.utils.JacksonUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -34,7 +34,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public void addCookie(Cookie cookie) {
-        String cookieHeader = builder.getHeadersOrDefault(HttpHeader.SET_COOKIE.asString(), null);
+        String cookieHeader = builder.getHeadersOrDefault(HttpHeaderNames.COOKIE.toString(), null);
         StringBuilder cookieBuilder = new StringBuilder();
         cookieBuilder.append(MessageFormat.format("{0}={1}; ", cookie.getName(), cookie.getValue()));
         cookieBuilder.append(MessageFormat.format("path={0}; ", cookie.getPath()));
@@ -47,9 +47,9 @@ public class ServletResponseAdapter implements HttpServletResponse {
         }
         cookieBuilder.append(MessageFormat.format("SameSite={0}", cookie.getAttribute("SameSite")));
         if (cookieHeader == null) {
-            builder.putHeaders(HttpHeader.SET_COOKIE.asString(), cookieBuilder.toString());
+            builder.putHeaders(HttpHeaderNames.SET_COOKIE.toString(), cookieBuilder.toString());
         } else {
-            builder.putHeaders(HttpHeader.SET_COOKIE.asString(), cookieBuilder.append(SPLITTER).append(cookieHeader).toString());
+            builder.putHeaders(HttpHeaderNames.SET_COOKIE.toString(), cookieBuilder.append(SPLITTER).append(cookieHeader).toString());
         }
     }
 
@@ -60,7 +60,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public String encodeURL(String url) {
-        return UriUtils.encodePath(url, StandardCharsets.UTF_8);
+        return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
     }
 
     @Override
-    public void sendError(int sc, String msg) throws IOException {
+    public void sendError(int sc, String msg) {
         builder.setStatus(sc);
         builder.setBody(ByteString.copyFrom(JacksonUtils.writeObjectAsBytes(msg)));
         call.sendMessage(convert());
@@ -77,18 +77,18 @@ public class ServletResponseAdapter implements HttpServletResponse {
     }
 
     @Override
-    public void sendError(int sc) throws IOException {
+    public void sendError(int sc) {
         sendError(sc, "");
     }
 
     @Override
-    public void sendRedirect(String location) throws IOException {
+    public void sendRedirect(String location) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setDateHeader(String name, long date) {
-        builder.putHeaders(HttpHeader.DATE.asString(), new Date(date).toString());
+        builder.putHeaders(HttpHeaderNames.DATE.toString(), new Date(date).toString());
     }
 
     @Override
@@ -148,11 +148,11 @@ public class ServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public String getContentType() {
-        return builder.getHeadersOrDefault(HttpHeader.CONTENT_LENGTH.asString(), null);
+        return builder.getHeadersOrDefault(HttpHeaderNames.CONTENT_LENGTH.toString(), null);
     }
 
     @Override
-    public ServletOutputStream getOutputStream() throws IOException {
+    public ServletOutputStream getOutputStream() {
         return new ServletOutputStream() {
             private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -167,7 +167,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
             }
 
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 outputStream.write(b);
             }
 
@@ -182,7 +182,7 @@ public class ServletResponseAdapter implements HttpServletResponse {
     }
 
     @Override
-    public PrintWriter getWriter() throws IOException {
+    public PrintWriter getWriter() {
         throw new UnsupportedOperationException();
     }
 
@@ -193,17 +193,17 @@ public class ServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public void setContentLength(int len) {
-        builder.putHeaders(HttpHeader.CONTENT_LENGTH.asString(), String.valueOf(len));
+        builder.putHeaders(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(len));
     }
 
     @Override
     public void setContentLengthLong(long len) {
-        builder.putHeaders(HttpHeader.CONTENT_LENGTH.asString(), String.valueOf(len));
+        builder.putHeaders(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(len));
     }
 
     @Override
     public void setContentType(String type) {
-        builder.putHeaders(HttpHeader.CONTENT_TYPE.asString(), type);
+        builder.putHeaders(HttpHeaderNames.CONTENT_TYPE.toString(), type);
     }
 
     @Override

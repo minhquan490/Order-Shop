@@ -6,6 +6,7 @@ import com.bachlinh.order.utils.map.MultiValueMap;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
@@ -26,12 +27,11 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.util.UrlEncoded;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -165,7 +165,7 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public void addCookie(Cookie cookie) {
-        headers.compute(HttpHeader.SET_COOKIE.toString(), (s, strings) -> {
+        headers.compute(HttpHeaderNames.SET_COOKIE.toString(), (s, strings) -> {
             if (strings == null) {
                 strings = new LinkedList<>();
             }
@@ -189,12 +189,12 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public String encodeURL(String url) {
-        return UrlEncoded.encodeString(url);
+        return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 
     @Override
     public String encodeRedirectURL(String url) {
-        return UrlEncoded.encodeString(url);
+        return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -215,12 +215,12 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public void setDateHeader(String name, long date) {
-        computed(HttpHeader.DATE.asString(), date);
+        computed(HttpHeaderNames.DATE.toString(), date);
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        computed(HttpHeader.DATE.asString(), date);
+        computed(HttpHeaderNames.DATE.toString(), date);
     }
 
     @Override
@@ -280,7 +280,7 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public String getContentType() {
-        var headerList = headers.get(HttpHeader.CONTENT_TYPE.asString());
+        var headerList = headers.get(HttpHeaderNames.CONTENT_TYPE.toString());
         if (headerList == null || headerList.isEmpty()) {
             return MediaType.APPLICATION_JSON_VALUE;
         }
@@ -326,22 +326,22 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public void setCharacterEncoding(String charset) {
-        computed(HttpHeader.CONTENT_ENCODING.asString(), charset);
+        computed(HttpHeaderNames.CONTENT_ENCODING.toString(), charset);
     }
 
     @Override
     public void setContentLength(int len) {
-        computed(HttpHeader.CONTENT_LENGTH.asString(), len);
+        computed(HttpHeaderNames.CONTENT_LENGTH.toString(), len);
     }
 
     @Override
     public void setContentLengthLong(long len) {
-        computed(HttpHeader.CONTENT_LENGTH.asString(), len);
+        computed(HttpHeaderNames.CONTENT_LENGTH.toString(), len);
     }
 
     @Override
     public void setContentType(String type) {
-        computed(HttpHeader.CONTENT_TYPE.asString(), type);
+        computed(HttpHeaderNames.CONTENT_TYPE.toString(), type);
     }
 
     @Override
@@ -386,9 +386,9 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     private Set<Map.Entry<String, List<Object>>> filterHeaders(Set<Map.Entry<String, List<Object>>> entrySet) {
         return entrySet.stream()
-                .filter(entry -> !entry.getKey().equalsIgnoreCase(HttpHeader.LOCATION.asString()))
-                .filter(entry -> !entry.getKey().equalsIgnoreCase(HttpHeader.CONTENT_LENGTH.asString()))
-                .filter(entry -> !entry.getKey().equalsIgnoreCase(HttpHeader.TRANSFER_ENCODING.asString()))
+                .filter(entry -> !entry.getKey().equalsIgnoreCase(HttpHeaderNames.LOCATION.toString()))
+                .filter(entry -> !entry.getKey().equalsIgnoreCase(HttpHeaderNames.CONTENT_LENGTH.toString()))
+                .filter(entry -> !entry.getKey().equalsIgnoreCase(HttpHeaderNames.TRANSFER_ENCODING.toString()))
                 .collect(Collectors.toSet());
     }
 

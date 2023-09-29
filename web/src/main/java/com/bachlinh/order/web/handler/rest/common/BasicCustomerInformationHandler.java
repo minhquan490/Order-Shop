@@ -38,9 +38,8 @@ public class BasicCustomerInformationHandler extends AbstractController<Customer
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (customerService == null) {
-            customerService = resolver.resolveDependencies(CustomerService.class);
+            customerService = resolveService(CustomerService.class);
         }
     }
 

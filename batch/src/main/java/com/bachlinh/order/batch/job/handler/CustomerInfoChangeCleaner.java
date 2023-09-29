@@ -4,8 +4,8 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
 
 import java.time.LocalDateTime;
 
@@ -28,12 +28,12 @@ public class CustomerInfoChangeCleaner extends AbstractJob {
     @Override
     protected void inject() {
         if (repository == null) {
-            repository = getDependenciesResolver().resolveDependencies(CustomerInfoChangeHistoryRepository.class);
+            repository = resolveRepository(CustomerInfoChangeHistoryRepository.class);
         }
     }
 
     @Override
-    protected void doExecuteInternal() throws Exception {
+    protected void doExecuteInternal() {
         var histories = repository.getHistoriesInYear();
         repository.deleteHistories(histories);
         this.previousTimeExecution = LocalDateTime.now();

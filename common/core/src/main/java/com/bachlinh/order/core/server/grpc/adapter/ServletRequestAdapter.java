@@ -1,5 +1,8 @@
 package com.bachlinh.order.core.server.grpc.adapter;
 
+import com.bachlinh.order.core.server.grpc.InboundMessage;
+import com.google.common.net.MediaType;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ReadListener;
@@ -16,16 +19,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
 import jakarta.servlet.http.Part;
-import org.eclipse.jetty.http.HttpHeader;
-import org.springframework.http.MediaType;
-import com.bachlinh.order.core.server.grpc.InboundMessage;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
@@ -55,8 +54,8 @@ public class ServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public Cookie[] getCookies() {
-        String cookieString = delegate.getHeadersOrDefault(HttpHeader.COOKIE.asString(), null);
-        if (cookieString == null) {
+        String cookieString = delegate.getHeadersOrDefault(HttpHeaderNames.COOKIE.toString(), "");
+        if (cookieString.isEmpty()) {
             return new Cookie[0];
         }
         Collection<Cookie> cookies = new LinkedList<>();
@@ -69,7 +68,7 @@ public class ServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public long getDateHeader(String name) {
-        return Integer.parseInt(delegate.getHeadersOrDefault(HttpHeader.DATE.asString(), "0"));
+        return Integer.parseInt(delegate.getHeadersOrDefault(HttpHeaderNames.DATE.toString(), "0"));
     }
 
     @Override
@@ -198,7 +197,7 @@ public class ServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+    public boolean authenticate(HttpServletResponse response) {
         throw new UnsupportedOperationException();
     }
 
@@ -208,22 +207,22 @@ public class ServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public void logout() throws ServletException {
+    public void logout() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Collection<Part> getParts() throws IOException, ServletException {
+    public Collection<Part> getParts() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Part getPart(String name) throws IOException, ServletException {
+    public Part getPart(String name) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
         throw new UnsupportedOperationException();
     }
 
@@ -243,7 +242,7 @@ public class ServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+    public void setCharacterEncoding(String env) {
         throw new UnsupportedOperationException();
     }
 
@@ -259,11 +258,11 @@ public class ServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public String getContentType() {
-        return delegate.getHeadersOrDefault(HttpHeader.CONTENT_TYPE.asString(), MediaType.APPLICATION_PROTOBUF_VALUE);
+        return delegate.getHeadersOrDefault(HttpHeaderNames.CONTENT_TYPE.toString(), MediaType.PROTOBUF.toString());
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
+    public ServletInputStream getInputStream() {
         return new BodyInputStream(delegate.getBody().toByteArray());
     }
 
@@ -308,7 +307,7 @@ public class ServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public BufferedReader getReader() throws IOException {
+    public BufferedReader getReader() {
         return new BufferedReader(new InputStreamReader(getInputStream()));
     }
 

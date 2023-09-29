@@ -36,9 +36,8 @@ public class CartUpdateHandler extends AbstractController<CartResp, CartForm> {
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (cartService == null) {
-            cartService = resolver.resolveDependencies(CartService.class);
+            cartService = resolveService(CartService.class);
         }
     }
 

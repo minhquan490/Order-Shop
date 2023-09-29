@@ -4,13 +4,13 @@ import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.VoucherRepository;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.VoucherRepository;
 import jakarta.persistence.criteria.JoinType;
 
 import java.sql.Timestamp;
@@ -39,15 +39,15 @@ public class VoucherInvalidateHandler extends AbstractJob {
     @Override
     protected void inject() {
         if (voucherRepository == null) {
-            voucherRepository = getDependenciesResolver().resolveDependencies(VoucherRepository.class);
+            voucherRepository = resolveRepository(VoucherRepository.class);
         }
         if (customerRepository == null) {
-            customerRepository = getDependenciesResolver().resolveDependencies(CustomerRepository.class);
+            customerRepository = resolveRepository(CustomerRepository.class);
         }
     }
 
     @Override
-    protected void doExecuteInternal() throws Exception {
+    protected void doExecuteInternal() {
         Where timeExpiryWhere = Where.builder().attribute(Voucher_.TIME_EXPIRED).value(Timestamp.from(Instant.now())).operation(Operation.LT).build();
         Where enabledWhere = Where.builder().attribute(Voucher_.ACTIVE).value(true).operation(Operation.EQ).build();
         Join assigneredJoin = Join.builder().attribute(Voucher_.CUSTOMERS).type(JoinType.INNER).build();
@@ -64,7 +64,7 @@ public class VoucherInvalidateHandler extends AbstractJob {
                     customers2.addAll(customers);
                     return customers2;
                 })
-                .orElse(new HashSet<>(0));
+                .orElse(HashSet.newHashSet(0));
         customerRepository.updateCustomers(updatedCustomers);
         voucherRepository.updateVouchers(vouchers);
         previousTimeExecution = LocalDateTime.now();

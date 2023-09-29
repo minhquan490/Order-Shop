@@ -3,6 +3,7 @@ package com.bachlinh.order.web.service.impl;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.MultipartRequest;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Product;
@@ -10,6 +11,8 @@ import com.bachlinh.order.entity.model.ProductMedia;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.http.BadVariableException;
 import com.bachlinh.order.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductMediaRepository;
 import com.bachlinh.order.repository.ProductRepository;
@@ -42,7 +45,7 @@ import java.util.UUID;
 
 @ServiceComponent
 @ActiveReflection
-public class ProductMediaServiceImpl implements ProductMediaService, FileUploadService, ImageCompressService {
+public class ProductMediaServiceImpl extends AbstractService implements ProductMediaService, FileUploadService, ImageCompressService {
 
     private String tempFilePath;
     private String resourceFilePath;
@@ -53,12 +56,12 @@ public class ProductMediaServiceImpl implements ProductMediaService, FileUploadS
     private final MessageSettingRepository messageSettingRepository;
     private final EntityFactory entityFactory;
 
-    @ActiveReflection
-    public ProductMediaServiceImpl(ProductRepository productRepository, ProductMediaRepository productMediaRepository, MessageSettingRepository messageSettingRepository, EntityFactory entityFactory) {
-        this.productRepository = productRepository;
-        this.productMediaRepository = productMediaRepository;
-        this.messageSettingRepository = messageSettingRepository;
-        this.entityFactory = entityFactory;
+    private ProductMediaServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.productRepository = resolveRepository(ProductRepository.class);
+        this.productMediaRepository = resolveRepository(ProductMediaRepository.class);
+        this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
     }
 
     @Override
@@ -253,6 +256,16 @@ public class ProductMediaServiceImpl implements ProductMediaService, FileUploadS
             }
             productMedia.setContentLength(channel.size());
         }
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new ProductMediaServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{ProductMediaService.class, FileUploadService.class, ImageCompressService.class};
     }
 
     private static class SortMachine {

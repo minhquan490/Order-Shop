@@ -33,9 +33,8 @@ public class CustomerLoginHistoriesListHandler extends AbstractController<Custom
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (loginHistoryService == null) {
-            loginHistoryService = resolver.resolveDependencies(LoginHistoryService.class);
+            loginHistoryService = resolveService(LoginHistoryService.class);
         }
     }
 

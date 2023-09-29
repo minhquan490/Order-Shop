@@ -46,7 +46,7 @@ public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, 
     @Override
     protected void inject() {
         if (forgotPasswordService == null) {
-            forgotPasswordService = getContainerResolver().getDependenciesResolver().resolveDependencies(ForgotPasswordService.class);
+            forgotPasswordService = resolveService(ForgotPasswordService.class);
         }
     }
 

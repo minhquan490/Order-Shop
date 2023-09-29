@@ -1,8 +1,8 @@
 package com.bachlinh.order.core.server.netty.channel.http2;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.server.netty.Http2CompressFrameCodecBuilder;
 import com.bachlinh.order.core.server.netty.listener.HttpFrameListenerFactory;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -45,7 +45,7 @@ public class Http2OrHttpHandler extends ApplicationProtocolNegotiationHandler {
         try {
             super.handlerRemoved(ctx);
         } catch (IllegalStateException e) {
-            logger.error("Handler have been removed");
+            // Do nothing
         }
     }
 

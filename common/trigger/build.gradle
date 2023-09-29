@@ -13,7 +13,6 @@ dependencies {
     implementation project(":common:exception")
     implementation project(":common:annotation")
     implementation project(":common:utils")
-    implementation project(":service")
     implementation project(":common:repository")
     implementation project(":common:core")
     implementation project(":common:mail")

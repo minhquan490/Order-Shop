@@ -37,9 +37,8 @@ public class CartProductRemoveHandler extends AbstractController<CartResp, CartD
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (cartService == null) {
-            cartService = resolver.resolveDependencies(CartService.class);
+            cartService = resolveService(CartService.class);
         }
     }
 

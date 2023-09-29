@@ -2,7 +2,7 @@ package com.bachlinh.order.entity.index.spi;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriterConfig;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.io.IOException;
 

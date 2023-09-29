@@ -3,7 +3,8 @@ package com.bachlinh.order.core.server.netty.channel.security;
 import com.bachlinh.order.core.function.ServletCallback;
 import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletRequestAdapter;
 import com.bachlinh.order.core.server.netty.channel.adapter.WrappedRequest;
-import com.bachlinh.order.service.container.DependenciesResolver;
+import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import jakarta.servlet.FilterChain;
@@ -26,6 +27,9 @@ public class FilterChainAdapter implements FilterChain {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+        if (callback == null) {
+            throw new CriticalException("Call interceptRequest before call this method");
+        }
         proxy.doFilter(request, response, (request1, response1) -> callback.call((HttpServletRequest) request1, (HttpServletResponse) response1));
     }
 

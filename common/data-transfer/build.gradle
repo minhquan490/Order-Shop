@@ -13,7 +13,6 @@ dependencies {
     implementation project(":common:core")
     implementation project(":common:exception")
     implementation project(":common:environment")
-    implementation project(":service")
     implementation project(":common:utils")
     implementation 'org.springframework:spring-context'
     implementation 'com.fasterxml.jackson.core:jackson-databind'

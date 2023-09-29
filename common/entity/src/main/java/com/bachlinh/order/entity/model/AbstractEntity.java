@@ -71,7 +71,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     }
 
     @ActiveReflection
-    public void setCreatedBy(@NonNull String createdBy) {
+    public void setCreatedBy(String createdBy) {
         if (this.createdBy != null && !Objects.equals(this.createdBy, createdBy)) {
             trackUpdatedField("CREATED_BY", this.createdBy, createdBy);
         }
@@ -79,7 +79,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     }
 
     @ActiveReflection
-    public void setModifiedBy(@NonNull String modifiedBy) {
+    public void setModifiedBy(String modifiedBy) {
         if (this.modifiedBy != null && !Objects.equals(this.modifiedBy, modifiedBy)) {
             trackUpdatedField("MODIFIED_BY", this.modifiedBy, modifiedBy);
         }
@@ -87,7 +87,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     }
 
     @ActiveReflection
-    public void setCreatedDate(@NonNull Timestamp createdDate) {
+    public void setCreatedDate(Timestamp createdDate) {
         if (this.createdDate != null && !Objects.equals(this.createdDate, createdDate)) {
             trackUpdatedField("CREATED_DATE", this.createdDate, createdDate);
         }
@@ -95,7 +95,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
     }
 
     @ActiveReflection
-    public void setModifiedDate(@NonNull Timestamp modifiedDate) {
+    public void setModifiedDate(Timestamp modifiedDate) {
         if (this.modifiedDate != null && !Objects.equals(this.modifiedDate, modifiedDate)) {
             trackUpdatedField("MODIFIED_DATE", this.modifiedDate, modifiedDate);
         }
@@ -153,41 +153,16 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
         return this.isNew;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof AbstractEntity<?> other)) return false;
-        if (!other.canEqual(this)) return false;
-        final Object this$createdBy = this.getCreatedBy();
-        final Object other$createdBy = other.getCreatedBy();
-        if (!Objects.equals(this$createdBy, other$createdBy)) return false;
-        final Object this$modifiedBy = this.getModifiedBy();
-        final Object other$modifiedBy = other.getModifiedBy();
-        if (!Objects.equals(this$modifiedBy, other$modifiedBy))
-            return false;
-        final Object this$createdDate = this.getCreatedDate();
-        final Object other$createdDate = other.getCreatedDate();
-        if (!Objects.equals(this$createdDate, other$createdDate))
-            return false;
-        final Object this$modifiedDate = this.getModifiedDate();
-        final Object other$modifiedDate = other.getModifiedDate();
-        return Objects.equals(this$modifiedDate, other$modifiedDate);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractEntity<?> that = (AbstractEntity<?>) o;
+        return com.google.common.base.Objects.equal(getCreatedBy(), that.getCreatedBy()) && com.google.common.base.Objects.equal(getModifiedBy(), that.getModifiedBy()) && com.google.common.base.Objects.equal(getCreatedDate(), that.getCreatedDate()) && com.google.common.base.Objects.equal(getModifiedDate(), that.getModifiedDate());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof AbstractEntity;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $createdBy = this.getCreatedBy();
-        result = result * PRIME + ($createdBy == null ? 43 : $createdBy.hashCode());
-        final Object $modifiedBy = this.getModifiedBy();
-        result = result * PRIME + ($modifiedBy == null ? 43 : $modifiedBy.hashCode());
-        final Object $createdDate = this.getCreatedDate();
-        result = result * PRIME + ($createdDate == null ? 43 : $createdDate.hashCode());
-        final Object $modifiedDate = this.getModifiedDate();
-        result = result * PRIME + ($modifiedDate == null ? 43 : $modifiedDate.hashCode());
-        return result;
+        return com.google.common.base.Objects.hashCode(getCreatedBy(), getModifiedBy(), getCreatedDate(), getModifiedDate());
     }
 }

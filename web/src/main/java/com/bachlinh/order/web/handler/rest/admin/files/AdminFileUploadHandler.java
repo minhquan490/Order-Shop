@@ -11,15 +11,16 @@ import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.service.business.FileUploadService;
+import org.apache.http.HttpStatus;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RouteProvider
 @ActiveReflection
 @EnableCsrf
 @Permit(roles = Role.ADMIN)
-public class AdminFileUploadHandler extends AbstractController<Void, MultipartRequest> {
-    private static final Void RETURN_OBJECT = initReturnObject();
+public class AdminFileUploadHandler extends AbstractController<Map<String, Object>, MultipartRequest> {
 
     private String url;
     private FileUploadService fileUploadService;
@@ -28,26 +29,25 @@ public class AdminFileUploadHandler extends AbstractController<Void, MultipartRe
     }
 
     @Override
-    public AbstractController<Void, MultipartRequest> newInstance() {
+    public AbstractController<Map<String, Object>, MultipartRequest> newInstance() {
         return new AdminFileUploadHandler();
     }
 
     @Override
     @ActiveReflection
-    protected Void internalHandler(Payload<MultipartRequest> request) {
+    protected Map<String, Object> internalHandler(Payload<MultipartRequest> request) {
         try {
             fileUploadService.handleFileUpload(request.data());
         } catch (IOException e) {
             throw new CriticalException("Problem when process file upload", e);
         }
-        return RETURN_OBJECT;
+        return createDefaultResponse(HttpStatus.SC_OK, new String[]{"Upload successfully"});
     }
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (fileUploadService == null) {
-            fileUploadService = resolver.resolveDependencies(FileUploadService.class);
+            fileUploadService = resolveService(FileUploadService.class);
         }
     }
 
@@ -62,13 +62,5 @@ public class AdminFileUploadHandler extends AbstractController<Void, MultipartRe
     @Override
     public RequestMethod getRequestMethod() {
         return RequestMethod.POST;
-    }
-
-    private static Void initReturnObject() {
-        try {
-            return Void.class.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

@@ -6,17 +6,16 @@ import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.service.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.form.common.FileFlushForm;
 import com.bachlinh.order.web.service.business.FileUploadService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RouteProvider(name = "flushFileUploadHandler")
 @ActiveReflection
-public class FlushFileUploadHandler extends AbstractController<ResponseEntity<?>, FileFlushForm> {
+public class FlushFileUploadHandler extends AbstractController<Map<String, Object>, FileFlushForm> {
     private String url;
     private FileUploadService fileUploadService;
 
@@ -24,26 +23,25 @@ public class FlushFileUploadHandler extends AbstractController<ResponseEntity<?>
     }
 
     @Override
-    public AbstractController<ResponseEntity<?>, FileFlushForm> newInstance() {
+    public AbstractController<Map<String, Object>, FileFlushForm> newInstance() {
         return new FlushFileUploadHandler();
     }
 
     @Override
     @ActiveReflection
-    protected ResponseEntity<?> internalHandler(Payload<FileFlushForm> request) {
+    protected Map<String, Object> internalHandler(Payload<FileFlushForm> request) {
         try {
             fileUploadService.catAndFlushFile(request.data());
         } catch (IOException e) {
             throw new CriticalException("Can not flush file", e);
         }
-        return ResponseEntity.status(HttpStatus.CREATED.value()).build();
+        return createDefaultResponse(HttpStatus.CREATED.value(), new String[]{"Create file successfully"});
     }
 
     @Override
     protected void inject() {
-        DependenciesResolver resolver = getContainerResolver().getDependenciesResolver();
         if (fileUploadService == null) {
-            fileUploadService = resolver.resolveDependencies(FileUploadService.class);
+            fileUploadService = resolveService(FileUploadService.class);
         }
     }
 

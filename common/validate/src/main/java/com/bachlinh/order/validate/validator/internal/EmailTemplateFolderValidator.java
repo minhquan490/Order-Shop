@@ -26,10 +26,10 @@ public class EmailTemplateFolderValidator extends AbstractValidator<EmailTemplat
     @Override
     protected void inject() {
         if (emailTemplateFolderRepository == null) {
-            emailTemplateFolderRepository = getResolver().resolveDependencies(EmailTemplateFolderRepository.class);
+            emailTemplateFolderRepository = resolveRepository(EmailTemplateFolderRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

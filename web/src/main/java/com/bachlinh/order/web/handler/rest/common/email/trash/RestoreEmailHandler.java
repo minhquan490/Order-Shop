@@ -36,9 +36,8 @@ public class RestoreEmailHandler extends AbstractController<EmailTrashResp, Rest
 
     @Override
     protected void inject() {
-        var resolver = getContainerResolver().getDependenciesResolver();
         if (emailInTrashService == null) {
-            emailInTrashService = resolver.resolveDependencies(EmailInTrashService.class);
+            emailInTrashService = resolveService(EmailInTrashService.class);
         }
     }
 

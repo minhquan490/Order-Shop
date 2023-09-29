@@ -25,10 +25,10 @@ public class EmailTemplateValidator extends AbstractValidator<EmailTemplate> {
     @Override
     protected void inject() {
         if (emailTemplateRepository == null) {
-            emailTemplateRepository = getResolver().resolveDependencies(EmailTemplateRepository.class);
+            emailTemplateRepository = resolveRepository(EmailTemplateRepository.class);
         }
         if (messageSettingRepository == null) {
-            messageSettingRepository = getResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
     }
 

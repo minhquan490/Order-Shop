@@ -3,10 +3,13 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory;
 import com.bachlinh.order.entity.model.CustomerInfoChangeHistory_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
 import com.bachlinh.order.entity.repository.query.Select;
@@ -16,9 +19,6 @@ import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.entity.repository.utils.QueryUtils;
 import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
-import com.bachlinh.order.service.container.DependenciesResolver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<String, CustomerInfoChangeHistory> implements CustomerInfoChangeHistoryRepository {
+public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<String, CustomerInfoChangeHistory> implements CustomerInfoChangeHistoryRepository, RepositoryBase {
 
     @DependenciesInitialize
     @ActiveReflection
@@ -93,10 +93,13 @@ public class CustomerInfoChangeHistoryRepositoryImpl extends AbstractRepository<
     }
 
     @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new CustomerInfoChangeHistoryRepositoryImpl(containerResolver.getDependenciesResolver());
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{CustomerInfoChangeHistoryRepository.class};
     }
 
     private Collection<CustomerInfoChangeHistory> getAccessHistories(Where where, long limit) {

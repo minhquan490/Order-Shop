@@ -3,6 +3,8 @@ package com.bachlinh.order.web.common.entity;
 import com.bachlinh.order.annotation.ApplyOn;
 import com.bachlinh.order.annotation.Formula;
 import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.alloc.Initializer;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.EntityMapperFactory;
@@ -21,14 +23,12 @@ import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.entity.repository.query.JoinMetadata;
 import com.bachlinh.order.entity.repository.query.JoinMetadataHolder;
-import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.exception.system.common.NoTransactionException;
-import com.bachlinh.order.service.container.DependenciesResolver;
-import com.bachlinh.order.utils.UnsafeUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -61,8 +61,6 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 public class DefaultEntityContext implements EntityContext, FormulaMetadata, JoinMetadataHolder, EntityMapperHolder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     private final Class<?> idType;
     private final BaseEntity<?> baseEntity;
     private final String prefix;
@@ -79,14 +77,15 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
     private final Collection<FormulaHolder> formulas;
     private EntityMapperFactory entityMapperFactory;
 
-    @SuppressWarnings("unchecked")
     public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
+        Logger log = LoggerFactory.getLogger(getClass());
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Init entity context for entity {}", entity.getSimpleName());
             }
             this.idType = queryIdType(entity);
-            this.baseEntity = getBaseEntityInstance((Class<? extends BaseEntity<?>>) entity);
+            Initializer<BaseEntity<?>> entityInitializer = new EntityInitializer();
+            this.baseEntity = entityInitializer.getObject(entity);
             this.validators = getValidators(entity, dependenciesResolver);
             this.triggers = getTriggers(entity, dependenciesResolver, environment);
             this.prefix = createIdPrefix(entity);
@@ -309,13 +308,8 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
                     return applyOn.entity().equals(entity);
                 })
                 .map(validator -> {
-                    Object returnValidator = newInstance(validator);
-                    EntityValidator<?> entityValidator = (EntityValidator<?>) returnValidator;
-                    entityValidator.setResolver(resolver);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Init validator [{}] for entity [{}]", validator.getName(), baseEntity.getClass().getName());
-                    }
-                    return entityValidator;
+                    Initializer<EntityValidator<?>> validatorInitializer = new EntityValidatorInitializer();
+                    return validatorInitializer.getObject(validator, resolver);
                 })
                 .map(returnObject -> (T) returnObject)
                 .toList();
@@ -349,40 +343,18 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         throw new PersistenceException("Can not find type of entity id");
     }
 
-    private Object newInstance(Class<?> initiator) {
-        try {
-            return UnsafeUtils.allocateInstance(initiator);
-        } catch (Exception e) {
-            throw new CriticalException(e);
-        }
-    }
-
-    private BaseEntity<?> getBaseEntityInstance(Class<? extends BaseEntity<?>> baseEntityType) {
-        try {
-            return UnsafeUtils.allocateInstance(baseEntityType);
-        } catch (InstantiationException e) {
-            throw new CriticalException(e);
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     private <T extends EntityTrigger<? extends BaseEntity<?>>> T initTrigger(Class<T> triggerClass, DependenciesResolver dependenciesResolver, Environment environment) {
-        AbstractTrigger<? extends BaseEntity<?>> trigger;
-        try {
-            trigger = (AbstractTrigger<? extends BaseEntity<?>>) UnsafeUtils.allocateInstance(triggerClass);
-        } catch (InstantiationException e) {
-            throw new CriticalException(e);
-        }
-        trigger.setEnvironment(environment);
-        trigger.setResolver(dependenciesResolver);
-
-        return triggerClass.cast(trigger);
+        Initializer<EntityTrigger<? extends BaseEntity<?>>> initializer = new TriggerInitializer();
+        return (T) initializer.getObject(triggerClass, environment, dependenciesResolver);
     }
 
     private int configLastId() throws ClassNotFoundException {
         String repositoryPattern = "com.bachlinh.order.repository.{0}Repository";
         String repositoryName = MessageFormat.format(repositoryPattern, entityType.getSimpleName());
         Class<?> repositoryClass = Class.forName(repositoryName);
-        AbstractRepository<?, ?> repository = (AbstractRepository<?, ?>) dependenciesResolver.resolveDependencies(repositoryClass);
+        RepositoryManager repositoryManager = dependenciesResolver.resolveDependencies(RepositoryManager.class);
+        AbstractRepository<?, ?> repository = (AbstractRepository<?, ?>) repositoryManager.getRepository(repositoryClass);
         String sql = MessageFormat.format("SELECT MAX(ID) FROM {0}", entityType.getAnnotation(Table.class).name());
         List<?> result = repository.getResultList(sql, Collections.emptyMap(), idType);
         if (result.isEmpty()) {
@@ -580,6 +552,7 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
         return joinTable;
     }
 
+    @SuppressWarnings("unchecked")
     private Collection<FormulaHolder> resolveFormulas(Class<?> entity) {
         Collection<FormulaHolder> results = new LinkedList<>();
         createFormulaTable(entity, results);
@@ -590,32 +563,30 @@ public class DefaultEntityContext implements EntityContext, FormulaMetadata, Joi
             Formula formula = field.getAnnotation(Formula.class);
             Class<?>[] processors = formula.processors();
             for (var processor : processors) {
-                try {
-                    FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
-                    FormulaHolder formulaHolder = new FormulaHolder(FormulaApplyOn.COLUMN, formulaProcessor, field.getName());
-                    results.add(formulaHolder);
-                } catch (InstantiationException e) {
-                    throw new PersistenceException(String.format("Can not create formula [%s]", processor.getName()), e);
-                }
+                resolveFormula(FormulaApplyOn.COLUMN, field.getName(), (Class<? extends FormulaProcessor>) processor, results);
             }
         }
         return results;
     }
 
+    @SuppressWarnings("unchecked")
     private void createFormulaTable(Class<?> entity, Collection<FormulaHolder> formulaHolders) {
         if (entity.isAnnotationPresent(Formula.class)) {
             Formula formula = entity.getAnnotation(Formula.class);
             Class<?>[] processors = formula.processors();
             for (var processor : processors) {
-                try {
-                    FormulaProcessor formulaProcessor = (FormulaProcessor) UnsafeUtils.allocateInstance(processor);
-                    FormulaHolder holder = new FormulaHolder(FormulaApplyOn.TABLE, formulaProcessor, "");
-                    formulaHolders.add(holder);
-                } catch (InstantiationException e) {
-                    throw new PersistenceException(String.format("Can not create formula [%s]", processor.getName()), e);
-                }
+                resolveFormula(FormulaApplyOn.TABLE, "", (Class<? extends FormulaProcessor>) processor, formulaHolders);
             }
         }
+    }
+
+    private void resolveFormula(FormulaApplyOn applyOn, String fieldName, Class<? extends FormulaProcessor> type, Collection<DefaultEntityContext.FormulaHolder> holders) {
+        Initializer<FormulaProcessor> initializer = new FormulaInitializer();
+
+        FormulaProcessor formulaProcessor = initializer.getObject(type);
+
+        FormulaHolder holder = new FormulaHolder(applyOn, formulaProcessor, fieldName);
+        holders.add(holder);
     }
 
     private record InternalJoinMetadata(String attribute, String joinStatement) implements JoinMetadata {

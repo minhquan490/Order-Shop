@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.ServiceComponent;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.dto.DtoMapper;
@@ -33,6 +33,9 @@ import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.exception.http.TemporaryTokenExpiredException;
 import com.bachlinh.order.exception.http.UnAuthorizationException;
 import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.handler.service.AbstractService;
+import com.bachlinh.order.handler.service.ServiceBase;
+import com.bachlinh.order.handler.service.ServiceManager;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.repository.AddressRepository;
@@ -112,19 +115,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @ServiceComponent
-@ActiveReflection
-// @formatter:off
-public class CustomerServiceImpl implements CustomerService,
-                                            LoginService,
-                                            RegisterService,
-                                            LogoutService,
-                                            ForgotPasswordService,
-                                            CustomerAnalyzeService,
-                                            RevokeAccessTokenService,
-                                            CustomerSearchingService,
-                                            ConfirmEmailService,
-                                            CustomerAccessHistoriesService,
-                                            CustomerInfoChangeService { // @formatter:on
+public class CustomerServiceImpl extends AbstractService implements CustomerService, LoginService, RegisterService, LogoutService, ForgotPasswordService, CustomerAnalyzeService, RevokeAccessTokenService, CustomerSearchingService, ConfirmEmailService, CustomerAccessHistoriesService, CustomerInfoChangeService {
 
     private final PasswordEncoder passwordEncoder;
     private final EntityFactory entityFactory;
@@ -134,7 +125,6 @@ public class CustomerServiceImpl implements CustomerService,
     private final GmailSendingService gmailSendingService;
     private final TemporaryTokenGenerator tokenGenerator;
     private final EmailTemplateRepository emailTemplateRepository;
-    private final EmailFolderService emailFolderService;
     private final CustomerInfoChangeHistoryRepository customerInfoChangeHistoryRepository;
     private final TemporaryTokenRepository temporaryTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -146,28 +136,27 @@ public class CustomerServiceImpl implements CustomerService,
     private final ThreadPoolManager threadPoolManager;
     private String urlResetPassword;
     private String botEmail;
+    private ServiceManager serviceManager;
 
-    @ActiveReflection
-    @DependenciesInitialize
-    public CustomerServiceImpl(PasswordEncoder passwordEncoder, EntityFactory entityFactory, CustomerRepository customerRepository, TokenManager tokenManager, LoginHistoryRepository loginHistoryRepository, GmailSendingService gmailSendingService, TemporaryTokenGenerator tokenGenerator, EmailTemplateRepository emailTemplateRepository, EmailFolderService emailFolderService, CustomerInfoChangeHistoryRepository customerInfoChangeHistoryRepository, TemporaryTokenRepository temporaryTokenRepository, RefreshTokenRepository refreshTokenRepository, ProvinceRepository provinceRepository, AddressRepository addressRepository, CustomerAccessHistoryRepository customerAccessHistoryRepository, MessageSettingRepository messageSettingRepository, DtoMapper dtoMapper, ThreadPoolManager threadPoolManager) {
-        this.passwordEncoder = passwordEncoder;
-        this.entityFactory = entityFactory;
-        this.customerRepository = customerRepository;
-        this.tokenManager = tokenManager;
-        this.loginHistoryRepository = loginHistoryRepository;
-        this.gmailSendingService = gmailSendingService;
-        this.tokenGenerator = tokenGenerator;
-        this.emailTemplateRepository = emailTemplateRepository;
-        this.emailFolderService = emailFolderService;
-        this.customerInfoChangeHistoryRepository = customerInfoChangeHistoryRepository;
-        this.temporaryTokenRepository = temporaryTokenRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.provinceRepository = provinceRepository;
-        this.addressRepository = addressRepository;
-        this.customerAccessHistoryRepository = customerAccessHistoryRepository;
-        this.messageSettingRepository = messageSettingRepository;
-        this.dtoMapper = dtoMapper;
-        this.threadPoolManager = threadPoolManager;
+    private CustomerServiceImpl(DependenciesResolver resolver, Environment environment) {
+        super(resolver, environment);
+        this.passwordEncoder = resolver.resolveDependencies(PasswordEncoder.class);
+        this.entityFactory = resolver.resolveDependencies(EntityFactory.class);
+        this.customerRepository = resolveRepository(CustomerRepository.class);
+        this.tokenManager = resolver.resolveDependencies(TokenManager.class);
+        this.loginHistoryRepository = resolveRepository(LoginHistoryRepository.class);
+        this.gmailSendingService = resolver.resolveDependencies(GmailSendingService.class);
+        this.tokenGenerator = resolver.resolveDependencies(TemporaryTokenGenerator.class);
+        this.emailTemplateRepository = resolveRepository(EmailTemplateRepository.class);
+        this.customerInfoChangeHistoryRepository = resolveRepository(CustomerInfoChangeHistoryRepository.class);
+        this.temporaryTokenRepository = resolveRepository(TemporaryTokenRepository.class);
+        this.refreshTokenRepository = resolveRepository(RefreshTokenRepository.class);
+        this.provinceRepository = resolveRepository(ProvinceRepository.class);
+        this.addressRepository = resolveRepository(AddressRepository.class);
+        this.customerAccessHistoryRepository = resolveRepository(CustomerAccessHistoryRepository.class);
+        this.messageSettingRepository = resolveRepository(MessageSettingRepository.class);
+        this.dtoMapper = resolver.resolveDependencies(DtoMapper.class);
+        this.threadPoolManager = resolver.resolveDependencies(ThreadPoolManager.class);
     }
 
     @Override
@@ -189,8 +178,10 @@ public class CustomerServiceImpl implements CustomerService,
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerResp saveCustomer(CustomerCreateForm customerCreateForm) {
+        lazyInitServiceManager();
         var customer = dtoMapper.map(customerCreateForm, Customer.class);
         customer = customerRepository.saveCustomer(customer);
+        EmailFolderService emailFolderService = serviceManager.getService(EmailFolderService.class);
         emailFolderService.createDefaultFolders(customer);
         return dtoMapper.map(customer, CustomerResp.class);
     }
@@ -442,7 +433,7 @@ public class CustomerServiceImpl implements CustomerService,
         var fourthStatement = "select count(c.id) from Customer c where c.created_date between :fourthStart and :fourthEnd";
         var lastStatement = "select count(c.id) from Customer c where c.created_date between :lastStart and :lastEnd";
         var query = MessageFormat.format(template, secondStatement, thirdStatement, fourthStatement, lastStatement);
-        var attributes = new HashMap<String, Object>(10);
+        Map<String, Object> attributes = HashMap.newHashMap(10);
         var now = LocalDateTime.now();
         var firstParam = Timestamp.valueOf(now.plusWeeks(-5));
         var secondParam = Timestamp.valueOf(now.plusWeeks(-4));
@@ -576,6 +567,34 @@ public class CustomerServiceImpl implements CustomerService,
             return Long.parseLong(pageRequestParam);
         } else {
             return 1L;
+        }
+    }
+
+    @Override
+    public ServiceBase getInstance(DependenciesResolver resolver, Environment environment) {
+        return new CustomerServiceImpl(resolver, environment);
+    }
+
+    @Override
+    public Class<?>[] getServiceTypes() {
+        return new Class[]{
+                CustomerService.class,
+                LoginService.class,
+                RegisterService.class,
+                LogoutService.class,
+                ForgotPasswordService.class,
+                CustomerAnalyzeService.class,
+                RevokeAccessTokenService.class,
+                CustomerSearchingService.class,
+                ConfirmEmailService.class,
+                CustomerAccessHistoriesService.class,
+                CustomerInfoChangeService.class
+        };
+    }
+
+    private void lazyInitServiceManager() {
+        if (this.serviceManager == null) {
+            this.serviceManager = getResolver().resolveDependencies(ServiceManager.class);
         }
     }
 }

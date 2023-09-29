@@ -1,11 +1,11 @@
 package com.bachlinh.order.setup.execution;
 
 import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.service.container.ContainerWrapper;
 import com.bachlinh.order.setup.spi.AbstractSetup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +27,10 @@ public class MessageSettingRegistration extends AbstractSetup {
     @Override
     protected void inject() {
         if (messageSettingRepository == null) {
-            messageSettingRepository = getDependenciesResolver().resolveDependencies(MessageSettingRepository.class);
+            messageSettingRepository = resolveRepository(MessageSettingRepository.class);
         }
         if (entityFactory == null) {
-            entityFactory = getDependenciesResolver().resolveDependencies(EntityFactory.class);
+            entityFactory = resolveDependencies(EntityFactory.class);
         }
     }
 

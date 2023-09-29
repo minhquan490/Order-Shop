@@ -3,6 +3,7 @@ package com.bachlinh.order.repository.implementer;
 import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.DependenciesInitialize;
 import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Address_;
@@ -19,6 +20,7 @@ import com.bachlinh.order.entity.model.Order_;
 import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.entity.repository.AbstractRepository;
+import com.bachlinh.order.entity.repository.RepositoryBase;
 import com.bachlinh.order.entity.repository.query.Join;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.OrderBy;
@@ -33,9 +35,7 @@ import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.UserAssignmentRepository;
-import com.bachlinh.order.service.container.DependenciesContainerResolver;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
@@ -58,7 +58,7 @@ import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
-public class CustomerRepositoryImpl extends AbstractRepository<String, Customer> implements CustomerRepository, UserAssignmentRepository {
+public class CustomerRepositoryImpl extends AbstractRepository<String, Customer> implements CustomerRepository, UserAssignmentRepository, RepositoryBase {
     private final AtomicLong customerCount = new AtomicLong(0);
 
     @DependenciesInitialize
@@ -139,7 +139,7 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
                 .select(credentialsNonExpiredSelect)
                 .select(enabledSelect);
         SqlWhere sqlWhere = sqlSelect.where(idWhere);
-        return getCustomer(sqlWhere, true);
+        return getCustomer(sqlWhere, false);
     }
 
     @Override
@@ -512,10 +512,13 @@ public class CustomerRepositoryImpl extends AbstractRepository<String, Customer>
     }
 
     @Override
-    @PersistenceContext
-    @ActiveReflection
-    public void setEntityManager(EntityManager entityManager) {
-        super.setEntityManager(entityManager);
+    public RepositoryBase getInstance(DependenciesContainerResolver containerResolver) {
+        return new CustomerRepositoryImpl(containerResolver);
+    }
+
+    @Override
+    public Class<?>[] getRepositoryTypes() {
+        return new Class[]{CustomerRepository.class, UserAssignmentRepository.class};
     }
 
     @Nullable

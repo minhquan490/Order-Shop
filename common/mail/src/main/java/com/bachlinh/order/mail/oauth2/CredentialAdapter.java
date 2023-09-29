@@ -2,9 +2,10 @@ package com.bachlinh.order.mail.oauth2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 
 public interface CredentialAdapter {
-    InputStream getCredentialResources() throws IOException;
+    InputStream getCredentialResources() throws IOException, URISyntaxException;
 
     String getSslPemLocation();
 
