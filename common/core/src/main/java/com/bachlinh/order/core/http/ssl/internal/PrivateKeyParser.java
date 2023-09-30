@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.http.ssl.internal;
 
-import com.bachlinh.order.utils.ResourceUtils;
+import com.bachlinh.order.core.utils.ResourceUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;

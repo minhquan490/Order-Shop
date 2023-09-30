@@ -1,13 +1,13 @@
 package com.bachlinh.order.web.handler.rest.admin.product;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableCsrf;
-import com.bachlinh.order.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.EnableCsrf;
+import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
-import com.bachlinh.order.exception.http.BadVariableException;
+import com.bachlinh.order.core.exception.http.BadVariableException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.product.ProductDeleteForm;
 import com.bachlinh.order.web.service.common.ProductService;

@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.common.interceptor;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
-import org.eclipse.jetty.http.HttpHeader;
+import io.netty.handler.codec.http.HttpHeaderNames;
 
 import java.text.MessageFormat;
 
@@ -20,7 +20,7 @@ public class HttpHeaderInterceptor extends AbstractInterceptor {
     public void postHandle(NativeRequest<?> request, NativeResponse<?> response) {
         boolean isEnableHttp3 = enableHttp3;
         if (isEnableHttp3) {
-            response.addHeader(HttpHeader.ALT_SVC.asString(), MessageFormat.format("h3=\":{0}\"; ma=2592000", h3Port).replace(",", ""));
+            response.addHeader(HttpHeaderNames.ALT_SVC.toString(), MessageFormat.format("h3=\":{0}\"; ma=2592000", h3Port).replace(",", ""));
         }
     }
 

@@ -24,7 +24,7 @@ class SqlUpdateSqm implements SqlUpdate {
 
     @Override
     public String getNativeQuery() {
-        String template = "UPDATE {0} SET {1} WHERE ID = {2}";
+        String template = "UPDATE {0} WITH(UPDLOCK, ROWLOCK) SET {1} WHERE ID = {2}";
         String setComponent = resolveUpdateValue();
         bindingSet.addAll(updatedFieldHolders.stream()
                 .map(updatedFieldHolder -> new QueryBinding(updatedFieldHolder.bindingAttribute(), updatedFieldHolder.value()))

@@ -118,7 +118,7 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
 
     private TransactionHolder<?> startAndAssignTransaction(AtomicReference<NativeRequest<?>> requestReference) {
         NativeRequest<?> request = requestReference.get();
-        if (request.getRequestMethod().equals(RequestMethod.GET)) {
+        if (request.getRequestMethod().equals(RequestMethod.GET) || request.getRequestMethod().equals(RequestMethod.OPTION)) {
             return new NoOpTransactionHolder();
         }
         TransactionHolder<?> transaction = transactionManager.beginTransaction();
@@ -157,9 +157,9 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
     }
 
     private void release(T request, AtomicReference<NativeRequest<?>> requestReference, AtomicReference<NativeResponse<?>> responseReference, TransactionHolder<?> transaction) {
-        EntityTransactionManager entityTransactionManager = getEntityFactory().getTransactionManager();
+        EntityTransactionManager<?> entityTransactionManager = getEntityFactory().getTransactionManager();
         if (entityTransactionManager.hasSavePoint()) {
-            entityTransactionManager.getSavePointManager().release();
+            entityTransactionManager.release();
         }
         getRootNode().release();
         cleanUpRequest(request, requestReference.get());
@@ -182,7 +182,12 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
         }
 
         @Override
-        public void cleanup(Object transaction) {
+        public boolean isActive() {
+            return false;
+        }
+
+        @Override
+        public void cleanup(TransactionHolder<?> holder) {
             // Do nothing
         }
     }

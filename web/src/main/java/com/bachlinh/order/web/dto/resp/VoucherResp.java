@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.bachlinh.order.annotation.Dto;
-import com.bachlinh.order.annotation.MappedDtoField;
+import com.bachlinh.order.core.annotation.Dto;
+import com.bachlinh.order.core.annotation.MappedDtoField;
 
 @Dto(forType = "com.bachlinh.order.entity.model.Voucher")
 public class VoucherResp {
@@ -29,9 +29,6 @@ public class VoucherResp {
 
     @MappedDtoField(targetField = "voucherCost", outputJsonField = "cost")
     private int cost;
-
-    public VoucherResp() {
-    }
 
     public String getId() {
         return this.id;

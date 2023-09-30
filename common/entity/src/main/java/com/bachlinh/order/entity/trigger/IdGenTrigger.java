@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.trigger;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;

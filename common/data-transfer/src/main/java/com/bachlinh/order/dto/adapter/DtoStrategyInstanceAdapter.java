@@ -5,9 +5,9 @@ import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.utils.UnsafeUtils;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.utils.UnsafeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

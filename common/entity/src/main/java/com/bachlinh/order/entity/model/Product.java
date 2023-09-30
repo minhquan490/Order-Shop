@@ -1,11 +1,12 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.Formula;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.Formula;
+import com.bachlinh.order.core.annotation.FullTextField;
+import com.bachlinh.order.core.annotation.Label;
 import com.bachlinh.order.entity.formula.ProductEnableFormula;
+import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +22,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -252,67 +252,16 @@ public class Product extends AbstractEntity<String> {
         return this.carts;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Product other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product product)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$name = this.getName();
-        final Object other$name = other.getName();
-        if (!Objects.equals(this$name, other$name)) return false;
-        final Object this$price = this.getPrice();
-        final Object other$price = other.getPrice();
-        if (!Objects.equals(this$price, other$price)) return false;
-        final Object this$size = this.getSize();
-        final Object other$size = other.getSize();
-        if (!Objects.equals(this$size, other$size)) return false;
-        final Object this$color = this.getColor();
-        final Object other$color = other.getColor();
-        if (!Objects.equals(this$color, other$color)) return false;
-        final Object this$taobaoUrl = this.getTaobaoUrl();
-        final Object other$taobaoUrl = other.getTaobaoUrl();
-        if (!Objects.equals(this$taobaoUrl, other$taobaoUrl)) return false;
-        final Object this$description = this.getDescription();
-        final Object other$description = other.getDescription();
-        if (!Objects.equals(this$description, other$description))
-            return false;
-        final Object this$orderPoint = this.getOrderPoint();
-        final Object other$orderPoint = other.getOrderPoint();
-        if (!Objects.equals(this$orderPoint, other$orderPoint))
-            return false;
-        final Object this$enabled = this.getEnabled();
-        final Object other$enabled = other.getEnabled();
-        return Objects.equals(this$enabled, other$enabled);
+        return Objects.equal(getId(), product.getId()) && Objects.equal(getName(), product.getName()) && Objects.equal(getPrice(), product.getPrice()) && Objects.equal(getSize(), product.getSize()) && Objects.equal(getColor(), product.getColor()) && Objects.equal(getTaobaoUrl(), product.getTaobaoUrl()) && Objects.equal(getDescription(), product.getDescription()) && Objects.equal(getOrderPoint(), product.getOrderPoint()) && Objects.equal(isEnabled(), product.isEnabled()) && Objects.equal(getMedias(), product.getMedias()) && Objects.equal(getCategories(), product.getCategories()) && Objects.equal(getCarts(), product.getCarts());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Product;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $name = this.getName();
-        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-        final Object $price = this.getPrice();
-        result = result * PRIME + ($price == null ? 43 : $price.hashCode());
-        final Object $size = this.getSize();
-        result = result * PRIME + ($size == null ? 43 : $size.hashCode());
-        final Object $color = this.getColor();
-        result = result * PRIME + ($color == null ? 43 : $color.hashCode());
-        final Object $taobaoUrl = this.getTaobaoUrl();
-        result = result * PRIME + ($taobaoUrl == null ? 43 : $taobaoUrl.hashCode());
-        final Object $description = this.getDescription();
-        result = result * PRIME + ($description == null ? 43 : $description.hashCode());
-        final Object $orderPoint = this.getOrderPoint();
-        result = result * PRIME + ($orderPoint == null ? 43 : $orderPoint.hashCode());
-        final Object $enabled = this.getEnabled();
-        result = result * PRIME + ($enabled == null ? 43 : $enabled.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getName(), getPrice(), getSize(), getColor(), getTaobaoUrl(), getDescription(), getOrderPoint(), isEnabled(), getMedias(), getCategories(), getCarts());
     }
 }

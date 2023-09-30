@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.container;
 
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.google.common.base.Objects;
 import org.springframework.context.ApplicationContext;
 

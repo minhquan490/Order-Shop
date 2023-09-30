@@ -3,7 +3,7 @@ package com.bachlinh.order.core.server.netty.channel.security;
 import com.bachlinh.order.core.function.ServletCallback;
 import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletRequestAdapter;
 import com.bachlinh.order.core.server.netty.channel.adapter.WrappedRequest;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;

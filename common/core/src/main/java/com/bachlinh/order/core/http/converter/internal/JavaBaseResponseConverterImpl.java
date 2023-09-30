@@ -1,7 +1,7 @@
 package com.bachlinh.order.core.http.converter.internal;
 
 import com.bachlinh.order.core.http.converter.spi.JavaBaseResponseConverter;
-import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;

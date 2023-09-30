@@ -1,13 +1,13 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.EmailTemplateFolderRepository;
@@ -18,9 +18,6 @@ import com.bachlinh.order.web.dto.resp.EmailTemplateFolderInfoResp;
 import com.bachlinh.order.web.dto.resp.EmailTemplateFolderListResp;
 import com.bachlinh.order.web.service.common.EmailTemplateFolderService;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -38,7 +35,6 @@ public class EmailTemplateFolderServiceImpl extends AbstractService implements E
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public EmailTemplateFolderInfoResp createEmailTemplateFolder(EmailTemplateFolderCreateForm form, Customer customer) {
         var emailTemplateFolder = entityFactory.getEntity(EmailTemplateFolder.class);
         emailTemplateFolder.setClearTemplatePolicy(form.cleanPolicy());
@@ -49,7 +45,6 @@ public class EmailTemplateFolderServiceImpl extends AbstractService implements E
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public EmailTemplateFolderInfoResp updateEmailTemplateFolder(EmailTemplateFolderUpdateForm form, Customer customer) {
         var templateFolder = emailTemplateFolderRepository.getEmailTemplateFolderHasCustomer(form.id());
         if (templateFolder == null) {
@@ -65,7 +60,6 @@ public class EmailTemplateFolderServiceImpl extends AbstractService implements E
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void deleteEmailTemplateFolder(EmailTemplateFolderDeleteForm form, Customer customer) {
         var folderTemplate = emailTemplateFolderRepository.getEmailTemplateFolderHasCustomer(form.id());
         if (!folderTemplate.getOwner().getId().equals(customer.getId())) {

@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.DirectMessage;
 import com.bachlinh.order.entity.model.DirectMessage_;
@@ -14,16 +14,12 @@ import com.bachlinh.order.entity.repository.query.SqlBuilder;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.bachlinh.order.repository.DirectMessageRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -36,14 +32,12 @@ public class DirectMessageRepositoryImpl extends AbstractRepository<Integer, Dir
         super(DirectMessage.class, containerResolver.getDependenciesResolver());
     }
 
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     @Override
     public void saveMessage(DirectMessage message) {
         save(message);
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteMessage(Collection<DirectMessage> directMessages) {
         getEntityManager().flush();
         deleteAll(directMessages);

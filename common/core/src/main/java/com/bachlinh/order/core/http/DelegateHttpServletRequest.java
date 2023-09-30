@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.http;
 
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;

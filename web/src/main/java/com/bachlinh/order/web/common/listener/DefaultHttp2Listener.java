@@ -8,6 +8,7 @@ import com.bachlinh.order.core.server.netty.listener.HttpFrameListener;
 import com.bachlinh.order.core.server.netty.utils.HandlerUtils;
 import com.bachlinh.order.web.common.servlet.ServletRouter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Frame;
@@ -15,7 +16,6 @@ import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2PushPromiseFrame;
-import org.eclipse.jetty.http.HttpHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ class DefaultHttp2Listener implements HttpFrameListener<Http2Frame> {
     private static final Decorator<Http2HeadersFrame> HTTP_2_HEADERS_FRAME_DECORATOR;
 
     static {
-        HTTP_2_HEADERS_FRAME_DECORATOR = target -> target.headers().set(HttpHeader.CONTENT_ENCODING.asString().toLowerCase(), "gzip");
+        HTTP_2_HEADERS_FRAME_DECORATOR = target -> target.headers().set(HttpHeaderNames.CONTENT_ENCODING.toLowerCase(), "gzip");
     }
 
     private final ServletRouter servletRouter;

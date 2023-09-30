@@ -1,9 +1,9 @@
 package com.bachlinh.order.web.handler.advice;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,10 +12,6 @@ import org.springframework.http.HttpStatus;
 @ActiveReflection
 public class NotFoundHandler extends ExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @ActiveReflection
-    public NotFoundHandler() {
-    }
 
     @Override
     protected int status() {

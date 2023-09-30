@@ -2,7 +2,7 @@ package com.bachlinh.order.handler.strategy;
 
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface ResourcePushStrategies {

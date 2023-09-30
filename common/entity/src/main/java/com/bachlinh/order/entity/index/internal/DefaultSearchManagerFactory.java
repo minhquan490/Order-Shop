@@ -1,13 +1,13 @@
 package com.bachlinh.order.entity.index.internal;
 
-import com.bachlinh.order.analyzer.StopWordLoader;
-import com.bachlinh.order.analyzer.VietnameseAnalyzer;
-import com.bachlinh.order.analyzer.VietnameseConfig;
+import com.bachlinh.order.core.analyzer.StopWordLoader;
+import com.bachlinh.order.core.analyzer.VietnameseAnalyzer;
+import com.bachlinh.order.core.analyzer.VietnameseConfig;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.index.spi.SearchManagerFactory;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.core.container.DependenciesResolver;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.codecs.lucene95.Lucene95Codec;

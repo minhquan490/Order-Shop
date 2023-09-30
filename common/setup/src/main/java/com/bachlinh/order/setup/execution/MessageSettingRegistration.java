@@ -1,6 +1,6 @@
 package com.bachlinh.order.setup.execution;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.Setup;

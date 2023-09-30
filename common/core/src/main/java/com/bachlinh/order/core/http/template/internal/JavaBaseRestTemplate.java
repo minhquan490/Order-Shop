@@ -3,7 +3,7 @@ package com.bachlinh.order.core.http.template.internal;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.converter.spi.JavaBaseResponseConverter;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
-import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import org.slf4j.Logger;

@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.handler.advice;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.JsonConvertException;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.exception.system.common.JsonConvertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,10 +13,6 @@ import org.springframework.http.HttpStatus;
 @ActiveReflection
 public class InternalServerHandler extends ExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @ActiveReflection
-    public InternalServerHandler() {
-    }
 
     @Override
     protected int status() {

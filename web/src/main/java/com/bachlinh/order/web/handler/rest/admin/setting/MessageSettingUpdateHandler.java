@@ -1,8 +1,8 @@
 package com.bachlinh.order.web.handler.rest.admin.setting;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableCsrf;
-import com.bachlinh.order.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.EnableCsrf;
+import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.Permit;

@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
@@ -16,17 +16,12 @@ import com.bachlinh.order.entity.repository.query.SqlBuilder;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.bachlinh.order.repository.CustomerAccessHistoryRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.Collection;
 import java.util.Map;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
-import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 @RepositoryComponent
 @ActiveReflection
@@ -39,19 +34,16 @@ public class CustomerAccessHistoryRepositoryImpl extends AbstractRepository<Inte
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void saveCustomerHistory(CustomerAccessHistory customerAccessHistory) {
         this.save(customerAccessHistory);
     }
 
     @Override
-    @Transactional(propagation = REQUIRED, isolation = READ_COMMITTED)
     public void saveAllCustomerAccessHistory(Collection<CustomerAccessHistory> customerAccessHistories) {
         saveAll(customerAccessHistories);
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteAll(Collection<CustomerAccessHistory> histories) {
         super.deleteAll(histories);
     }

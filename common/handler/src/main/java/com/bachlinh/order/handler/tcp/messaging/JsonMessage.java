@@ -2,7 +2,7 @@ package com.bachlinh.order.handler.tcp.messaging;
 
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.WebSocketMessage;
-import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
 
 public class JsonMessage implements WebSocketMessage<String> {
     private final String payload;

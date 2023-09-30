@@ -7,7 +7,7 @@ import com.bachlinh.order.entity.repository.cache.CacheAllocator;
 import com.bachlinh.order.entity.repository.cache.CacheDestroyer;
 import com.bachlinh.order.entity.repository.cache.CacheLoader;
 import com.bachlinh.order.entity.repository.cache.CacheManager;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import org.ehcache.PersistentCacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
 

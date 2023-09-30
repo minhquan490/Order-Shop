@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.bachlinh.order.annotation.Dto;
-import com.bachlinh.order.annotation.MappedDtoField;
+import com.bachlinh.order.core.annotation.Dto;
+import com.bachlinh.order.core.annotation.MappedDtoField;
 
 @Dto(forType = "com.bachlinh.order.entity.model.MessageSetting")
 public class MessageSettingResp {
@@ -11,9 +11,6 @@ public class MessageSettingResp {
 
     @MappedDtoField(targetField = "value", outputJsonField = "value")
     private String value;
-
-    public MessageSettingResp() {
-    }
 
     public String getId() {
         return this.id;

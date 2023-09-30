@@ -1,6 +1,10 @@
 package com.bachlinh.order.web.common.entity;
 
-import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.EntityContext;
@@ -8,12 +12,8 @@ import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.index.spi.SearchManagerFactory;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.transaction.internal.DefaultTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.core.container.ContainerWrapper;
-import com.bachlinh.order.core.container.DependenciesContainerResolver;
-import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.entity.transaction.spi.TransactionManager;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -25,13 +25,13 @@ public final class DefaultEntityFactory implements EntityFactory {
 
     private final Map<Class<?>, EntityContext> entityContext;
     private final DependenciesResolver dependenciesResolver;
-    private final EntityTransactionManager transactionManager;
+    private final EntityTransactionManager<?> transactionManager;
     private final String activeProfile;
 
     private DefaultEntityFactory(Map<Class<?>, EntityContext> entityContext, DependenciesResolver dependenciesResolver, String activeProfile) {
         this.entityContext = entityContext;
         this.dependenciesResolver = dependenciesResolver;
-        this.transactionManager = new DefaultTransactionManager();
+        this.transactionManager = (EntityTransactionManager<?>) dependenciesResolver.resolveDependencies(TransactionManager.class);
         this.activeProfile = activeProfile;
     }
 
@@ -54,7 +54,7 @@ public final class DefaultEntityFactory implements EntityFactory {
     }
 
     @Override
-    public EntityTransactionManager getTransactionManager() {
+    public EntityTransactionManager<?> getTransactionManager() {
         return transactionManager;
     }
 

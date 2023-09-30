@@ -1,9 +1,9 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.QueryCache;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.FullTextField;
+import com.bachlinh.order.core.annotation.QueryCache;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -139,51 +139,16 @@ public class Ward extends AbstractEntity<Integer> {
         return this.district;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Ward other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ward ward)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$name = this.getName();
-        final Object other$name = other.getName();
-        if (!Objects.equals(this$name, other$name)) return false;
-        final Object this$code = this.getCode();
-        final Object other$code = other.getCode();
-        if (!Objects.equals(this$code, other$code)) return false;
-        final Object this$codeName = this.getCodeName();
-        final Object other$codeName = other.getCodeName();
-        if (!Objects.equals(this$codeName, other$codeName)) return false;
-        final Object this$divisionType = this.getDivisionType();
-        final Object other$divisionType = other.getDivisionType();
-        if (!Objects.equals(this$divisionType, other$divisionType))
-            return false;
-        final Object this$district = this.getDistrict();
-        final Object other$district = other.getDistrict();
-        return Objects.equals(this$district, other$district);
+        return com.google.common.base.Objects.equal(getId(), ward.getId()) && com.google.common.base.Objects.equal(getName(), ward.getName()) && com.google.common.base.Objects.equal(getCode(), ward.getCode()) && com.google.common.base.Objects.equal(getCodeName(), ward.getCodeName()) && com.google.common.base.Objects.equal(getDivisionType(), ward.getDivisionType()) && com.google.common.base.Objects.equal(getDistrict(), ward.getDistrict());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Ward;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $name = this.getName();
-        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-        final Object $code = this.getCode();
-        result = result * PRIME + ($code == null ? 43 : $code.hashCode());
-        final Object $codeName = this.getCodeName();
-        result = result * PRIME + ($codeName == null ? 43 : $codeName.hashCode());
-        final Object $divisionType = this.getDivisionType();
-        result = result * PRIME + ($divisionType == null ? 43 : $divisionType.hashCode());
-        final Object $district = this.getDistrict();
-        result = result * PRIME + ($district == null ? 43 : $district.hashCode());
-        return result;
+        return com.google.common.base.Objects.hashCode(super.hashCode(), getId(), getName(), getCode(), getCodeName(), getDivisionType(), getDistrict());
     }
 }

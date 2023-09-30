@@ -1,6 +1,6 @@
 package com.bachlinh.order.web.dto.form.admin.product;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
@@ -36,10 +36,6 @@ public class ProductUpdateForm implements ValidatedDto {
 
     @JsonAlias("product_order_point")
     private String productOrderPoint;
-
-    @ActiveReflection
-    public ProductUpdateForm() {
-    }
 
     @ActiveReflection
     public void setProductId(String productId) {

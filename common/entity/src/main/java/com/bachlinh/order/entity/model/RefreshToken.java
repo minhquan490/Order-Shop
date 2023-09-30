@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.Label;
 import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -110,42 +110,16 @@ public class RefreshToken extends AbstractEntity<String> {
         return this.customer;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof RefreshToken other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RefreshToken that)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!java.util.Objects.equals(this$id, other$id)) return false;
-        final Object this$timeCreated = this.getTimeCreated();
-        final Object other$timeCreated = other.getTimeCreated();
-        if (!java.util.Objects.equals(this$timeCreated, other$timeCreated))
-            return false;
-        final Object this$timeExpired = this.getTimeExpired();
-        final Object other$timeExpired = other.getTimeExpired();
-        if (!java.util.Objects.equals(this$timeExpired, other$timeExpired))
-            return false;
-        final Object this$refreshTokenValue = this.getRefreshTokenValue();
-        final Object other$refreshTokenValue = other.getRefreshTokenValue();
-        return java.util.Objects.equals(this$refreshTokenValue, other$refreshTokenValue);
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getTimeCreated(), that.getTimeCreated()) && Objects.equal(getTimeExpired(), that.getTimeExpired()) && Objects.equal(getRefreshTokenValue(), that.getRefreshTokenValue()) && Objects.equal(getCustomer(), that.getCustomer());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof RefreshToken;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $timeCreated = this.getTimeCreated();
-        result = result * PRIME + ($timeCreated == null ? 43 : $timeCreated.hashCode());
-        final Object $timeExpired = this.getTimeExpired();
-        result = result * PRIME + ($timeExpired == null ? 43 : $timeExpired.hashCode());
-        final Object $refreshTokenValue = this.getRefreshTokenValue();
-        result = result * PRIME + ($refreshTokenValue == null ? 43 : $refreshTokenValue.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getTimeCreated(), getTimeExpired(), getRefreshTokenValue(), getCustomer());
     }
 }

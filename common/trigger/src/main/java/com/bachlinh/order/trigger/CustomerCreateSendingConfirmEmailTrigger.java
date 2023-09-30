@@ -1,8 +1,8 @@
 package com.bachlinh.order.trigger;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ApplyOn;
-import com.bachlinh.order.annotation.Ignore;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ApplyOn;
+import com.bachlinh.order.core.annotation.Ignore;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;

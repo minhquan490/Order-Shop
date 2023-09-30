@@ -1,4 +1,4 @@
-import com.bachlinh.order.annotation.DtoProxy;
+import com.bachlinh.order.core.annotation.DtoProxy;
 import com.bachlinh.order.dto.proxy.Proxy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

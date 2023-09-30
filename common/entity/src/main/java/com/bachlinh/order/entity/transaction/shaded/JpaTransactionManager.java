@@ -43,7 +43,6 @@ import org.springframework.transaction.SavepointManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.DelegatingTransactionDefinition;
 import org.springframework.transaction.support.ResourceTransactionDefinition;
@@ -337,7 +336,6 @@ public class JpaTransactionManager extends AbstractPlatformTransactionManager
                     TransactionSynchronizationManager.getResource(getDataSource());
             txObject.setConnectionHolder(conHolder);
         }
-
         return txObject;
     }
 

@@ -13,7 +13,7 @@ import org.openqa.selenium.html5.WebStorage;
 import org.openqa.selenium.logging.HasLogEvents;
 import org.openqa.selenium.mobile.NetworkConnection;
 import com.bachlinh.order.crawler.driver.option.EdgeOption;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 class EdgeDriver extends ChromiumDriver implements Driver, HasAuthentication, HasCasting, HasCdp, HasDevTools, HasLaunchApp, HasLogEvents, HasNetworkConditions, HasPermissions, LocationContext, NetworkConnection, WebStorage {
     private final Environment environment;

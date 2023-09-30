@@ -10,7 +10,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
-import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
 
 import java.security.Principal;
 

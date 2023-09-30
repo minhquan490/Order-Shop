@@ -1,6 +1,6 @@
 package com.bachlinh.order.security.auth.internal;
 
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;

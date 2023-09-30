@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.server.netty.collector;
 
-import com.bachlinh.order.exception.system.server.PayloadToLargeException;
+import com.bachlinh.order.core.exception.system.server.PayloadToLargeException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.Headers;

@@ -8,7 +8,7 @@ import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.formula.processor.WhereFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.google.common.base.Objects;
 import org.springframework.lang.NonNull;
 

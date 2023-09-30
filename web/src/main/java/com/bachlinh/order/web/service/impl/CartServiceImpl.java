@@ -1,12 +1,12 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.model.Customer;
-import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CartDetailRepository;
@@ -16,9 +16,6 @@ import com.bachlinh.order.web.dto.form.customer.CartForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
 import com.bachlinh.order.web.service.common.CartService;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +35,6 @@ public class CartServiceImpl extends AbstractService implements CartService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CartResp updateCart(CartForm form) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Collection<CartForm.ProductForm> productForms = List.of(form.getProductForms());
@@ -58,7 +54,6 @@ public class CartServiceImpl extends AbstractService implements CartService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CartResp removeProductFromCart(CartDetailRemoveForm form) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var cartDetailIds = form.getCartDetailIds();

@@ -1,7 +1,7 @@
 package com.bachlinh.order.dto.proxy;
 
 import com.bachlinh.order.dto.adapter.DtoProxyInstanceAdapter;
-import com.bachlinh.order.exception.system.common.DtoProxyConvertException;
+import com.bachlinh.order.core.exception.system.common.DtoProxyConvertException;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;

@@ -1,12 +1,12 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.MessageSetting;
-import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.MessageSettingRepository;
@@ -15,9 +15,6 @@ import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingUpdateForm;
 import com.bachlinh.order.web.dto.resp.MessageSettingResp;
 import com.bachlinh.order.web.service.common.MessageSettingService;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -36,7 +33,6 @@ public class MessageSettingServiceImpl extends AbstractService implements Messag
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public MessageSettingResp saveMessageSetting(MessageSettingCreateForm form) {
         var entity = entityFactory.getEntity(MessageSetting.class);
         entity.setValue(form.getValue());
@@ -45,7 +41,6 @@ public class MessageSettingServiceImpl extends AbstractService implements Messag
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public MessageSettingResp updateMessageSetting(MessageSettingUpdateForm form) {
         var entity = messageSettingRepository.getMessageById(form.getId());
         entity.setValue(form.getValue());
@@ -54,7 +49,6 @@ public class MessageSettingServiceImpl extends AbstractService implements Messag
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public void deleteMessageSetting(MessageSettingDeleteForm form) {
         messageSettingRepository.deleteMessage(form.getId());
     }

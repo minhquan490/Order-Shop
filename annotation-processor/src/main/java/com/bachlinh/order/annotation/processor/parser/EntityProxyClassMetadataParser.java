@@ -1,9 +1,9 @@
 package com.bachlinh.order.annotation.processor.parser;
 
-import javax.lang.model.element.Element;
-import com.bachlinh.order.annotation.ActiveReflection;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 
+import javax.lang.model.element.Element;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;

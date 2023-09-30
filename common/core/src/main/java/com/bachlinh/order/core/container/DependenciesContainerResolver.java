@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.container;
 
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 public interface DependenciesContainerResolver {
     String getContainerClassName();

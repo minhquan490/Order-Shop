@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -111,41 +111,16 @@ public class ProductMedia extends AbstractEntity<Integer> {
         return this.product;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof ProductMedia other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProductMedia that)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$url = this.getUrl();
-        final Object other$url = other.getUrl();
-        if (!Objects.equals(this$url, other$url)) return false;
-        final Object this$contentType = this.getContentType();
-        final Object other$contentType = other.getContentType();
-        if (!Objects.equals(this$contentType, other$contentType))
-            return false;
-        final Object this$contentLength = this.getContentLength();
-        final Object other$contentLength = other.getContentLength();
-        return Objects.equals(this$contentLength, other$contentLength);
+        return com.google.common.base.Objects.equal(getId(), that.getId()) && com.google.common.base.Objects.equal(getUrl(), that.getUrl()) && com.google.common.base.Objects.equal(getContentType(), that.getContentType()) && com.google.common.base.Objects.equal(getContentLength(), that.getContentLength()) && com.google.common.base.Objects.equal(getProduct(), that.getProduct());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof ProductMedia;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $url = this.getUrl();
-        result = result * PRIME + ($url == null ? 43 : $url.hashCode());
-        final Object $contentType = this.getContentType();
-        result = result * PRIME + ($contentType == null ? 43 : $contentType.hashCode());
-        final Object $contentLength = this.getContentLength();
-        result = result * PRIME + ($contentLength == null ? 43 : $contentLength.hashCode());
-        return result;
+        return com.google.common.base.Objects.hashCode(super.hashCode(), getId(), getUrl(), getContentType(), getContentLength(), getProduct());
     }
 }

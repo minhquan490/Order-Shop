@@ -2,7 +2,7 @@ package com.bachlinh.order.core.http.parser.internal;
 
 import com.bachlinh.order.core.http.MultipartRequest;
 import com.bachlinh.order.core.http.parser.spi.RequestBodyParser;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 

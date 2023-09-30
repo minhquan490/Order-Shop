@@ -1,6 +1,6 @@
 package com.bachlinh.order.dto;
 
-import com.bachlinh.order.exception.system.dto.MappingNotFoundException;
+import com.bachlinh.order.core.exception.system.dto.MappingNotFoundException;
 
 import java.util.Collection;
 

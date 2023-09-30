@@ -3,7 +3,7 @@ package com.bachlinh.order.dto.internal;
 import com.bachlinh.order.dto.MappingContext;
 import com.bachlinh.order.dto.proxy.DtoProxyFactory;
 import com.bachlinh.order.dto.proxy.Proxy;
-import com.bachlinh.order.exception.system.dto.MappingNotFoundException;
+import com.bachlinh.order.core.exception.system.dto.MappingNotFoundException;
 
 import java.util.Collection;
 

@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
@@ -19,16 +19,12 @@ import com.bachlinh.order.entity.repository.query.SqlJoin;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.bachlinh.order.repository.LoginHistoryRepository;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Map;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -41,7 +37,6 @@ public class LoginHistoryRepositoryImpl extends AbstractRepository<Integer, Logi
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void saveHistory(LoginHistory loginHistory) {
         save(loginHistory);
     }
@@ -108,7 +103,6 @@ public class LoginHistoryRepositoryImpl extends AbstractRepository<Integer, Logi
     }
 
     @Override
-    @Transactional(isolation = READ_COMMITTED, propagation = MANDATORY)
     public void deleteLoginHistories(Collection<LoginHistory> loginHistories) {
         deleteAll(loginHistories);
     }

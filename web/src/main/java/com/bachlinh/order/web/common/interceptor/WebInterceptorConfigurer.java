@@ -2,7 +2,7 @@ package com.bachlinh.order.web.common.interceptor;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.interceptor.internal.DefaultWebInterceptorChain;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;

@@ -12,7 +12,7 @@ import org.springframework.util.StopWatch;
 public class ServiceMonitor {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Pointcut("@within(com.bachlinh.order.annotation.ServiceComponent)")
+    @Pointcut("@within(com.bachlinh.order.core.annotation.ServiceComponent)")
     private void servicePointcut() {
     }
 

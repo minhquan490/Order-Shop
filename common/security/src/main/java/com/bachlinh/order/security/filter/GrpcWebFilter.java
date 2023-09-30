@@ -7,7 +7,7 @@ import com.bachlinh.order.core.server.grpc.ServerInterceptor;
 import com.bachlinh.order.core.server.grpc.adapter.ServletRequestAdapter;
 import com.bachlinh.order.core.server.grpc.adapter.ServletResponseAdapter;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.security.helper.AuthenticationHelper;
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;

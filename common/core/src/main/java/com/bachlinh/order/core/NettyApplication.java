@@ -4,7 +4,7 @@ import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.server.netty.NettyServer;
 import com.bachlinh.order.core.server.netty.NettyServerFactory;
 import com.bachlinh.order.core.server.netty.SimpleNettyServerFactory;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.container.DependenciesResolver;
 
 public class NettyApplication {

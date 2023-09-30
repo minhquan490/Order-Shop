@@ -1,9 +1,14 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.BadVariableException;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.enums.OrderStatusValue;
@@ -14,17 +19,12 @@ import com.bachlinh.order.entity.model.OrderDetail;
 import com.bachlinh.order.entity.model.OrderStatus;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.transaction.spi.EntitySavePointManager;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.OrderRepository;
 import com.bachlinh.order.repository.ProductRepository;
-import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.admin.order.OrderChangeStatusForm;
 import com.bachlinh.order.web.dto.form.admin.order.OrderProductForm;
 import com.bachlinh.order.web.dto.form.customer.OrderCreateForm;
@@ -40,9 +40,6 @@ import com.bachlinh.order.web.service.common.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
@@ -84,7 +81,6 @@ public class OrderServiceImpl extends AbstractService implements OrderService, O
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void updateOrderStatus(OrderChangeStatusForm form) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderRepository.getOrder(form.orderId());
@@ -129,7 +125,6 @@ public class OrderServiceImpl extends AbstractService implements OrderService, O
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public OrderResp saveOrder(OrderCreateForm form) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Map<String, Product> productMap = productRepository.getProductsForSavingOrder(Stream.of(form.getDetails()).map(OrderCreateForm.Detail::getProductId).toList())
@@ -174,7 +169,6 @@ public class OrderServiceImpl extends AbstractService implements OrderService, O
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public OrderResp updateOrder(OrderProductForm form) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderRepository.getOrder(form.orderId());
@@ -233,7 +227,6 @@ public class OrderServiceImpl extends AbstractService implements OrderService, O
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public boolean deleteOrder(String orderId) {
         Order order = orderRepository.getOrder(orderId);
         if (order == null) {
@@ -290,7 +283,7 @@ public class OrderServiceImpl extends AbstractService implements OrderService, O
         var fourthStatement = "select count(o.id) from Order o where o.created_date between :fourthStart and :fourthEnd";
         var lastStatement = "select count(o.id) from Order o where o.created_date between :lastStart and :lastEnd";
         var query = MessageFormat.format(template, secondStatement, thirdStatement, fourthStatement, lastStatement);
-        var attributes = new HashMap<String, Object>(10);
+        Map<String, Object> attributes = HashMap.newHashMap(10);
         var now = LocalDateTime.now();
         var firstParam = Timestamp.valueOf(now.plusWeeks(-5));
         var secondParam = Timestamp.valueOf(now.plusWeeks(-4));

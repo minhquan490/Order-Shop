@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.BatchReport;
@@ -16,16 +16,12 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
 import com.bachlinh.order.repository.BatchReportRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -38,13 +34,11 @@ public class BatchReportRepositoryImpl extends AbstractRepository<Integer, Batch
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void saveAllReport(Collection<BatchReport> reports) {
         saveAll(reports);
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteReport(Collection<Integer> reportIds) {
         deleteAllById(reportIds);
     }

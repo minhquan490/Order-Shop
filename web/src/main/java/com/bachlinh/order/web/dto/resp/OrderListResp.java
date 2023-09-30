@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.bachlinh.order.annotation.Dto;
-import com.bachlinh.order.annotation.MappedDtoField;
+import com.bachlinh.order.core.annotation.Dto;
+import com.bachlinh.order.core.annotation.MappedDtoField;
 
 @Dto(forType = "com.bachlinh.order.entity.model.Order")
 public class OrderListResp {
@@ -20,9 +20,6 @@ public class OrderListResp {
 
     @MappedDtoField(targetField = "customer.getUsername", outputJsonField = "customer_name")
     private String customerName;
-
-    public OrderListResp() {
-    }
 
     public String getId() {
         return this.id;

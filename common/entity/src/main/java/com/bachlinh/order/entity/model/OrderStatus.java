@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,7 +11,6 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 
 import java.util.Collection;
-import java.util.Objects;
 
 @Entity
 @Table(name = "ORDER_STATUS")
@@ -71,30 +71,16 @@ public class OrderStatus extends AbstractEntity<Integer> {
         return this.order;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof OrderStatus other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderStatus that)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$status = this.getStatus();
-        final Object other$status = other.getStatus();
-        return Objects.equals(this$status, other$status);
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getStatus(), that.getStatus()) && Objects.equal(getOrder(), that.getOrder());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof OrderStatus;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $status = this.getStatus();
-        result = result * PRIME + ($status == null ? 43 : $status.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getStatus(), getOrder());
     }
 }

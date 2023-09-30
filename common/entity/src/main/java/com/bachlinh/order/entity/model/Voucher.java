@@ -1,9 +1,10 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.FullTextField;
+import com.bachlinh.order.core.annotation.Label;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,7 +19,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -202,64 +202,16 @@ public class Voucher extends AbstractEntity<String> {
         return this.customers;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Voucher other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Voucher voucher)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$name = this.getName();
-        final Object other$name = other.getName();
-        if (!Objects.equals(this$name, other$name)) return false;
-        final Object this$discountPercent = this.getDiscountPercent();
-        final Object other$discountPercent = other.getDiscountPercent();
-        if (!Objects.equals(this$discountPercent, other$discountPercent))
-            return false;
-        final Object this$timeStart = this.getTimeStart();
-        final Object other$timeStart = other.getTimeStart();
-        if (!Objects.equals(this$timeStart, other$timeStart)) return false;
-        final Object this$timeExpired = this.getTimeExpired();
-        final Object other$timeExpired = other.getTimeExpired();
-        if (!Objects.equals(this$timeExpired, other$timeExpired))
-            return false;
-        final Object this$voucherContent = this.getVoucherContent();
-        final Object other$voucherContent = other.getVoucherContent();
-        if (!Objects.equals(this$voucherContent, other$voucherContent))
-            return false;
-        final Object this$voucherCost = this.getVoucherCost();
-        final Object other$voucherCost = other.getVoucherCost();
-        if (!Objects.equals(this$voucherCost, other$voucherCost))
-            return false;
-        final Object this$active = this.getActive();
-        final Object other$active = other.getActive();
-        return Objects.equals(this$active, other$active);
+        return Objects.equal(getId(), voucher.getId()) && Objects.equal(getName(), voucher.getName()) && Objects.equal(getDiscountPercent(), voucher.getDiscountPercent()) && Objects.equal(getTimeStart(), voucher.getTimeStart()) && Objects.equal(getTimeExpired(), voucher.getTimeExpired()) && Objects.equal(getVoucherContent(), voucher.getVoucherContent()) && Objects.equal(getVoucherCost(), voucher.getVoucherCost()) && Objects.equal(isActive(), voucher.isActive()) && Objects.equal(getCustomers(), voucher.getCustomers());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Voucher;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $name = this.getName();
-        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-        final Object $discountPercent = this.getDiscountPercent();
-        result = result * PRIME + ($discountPercent == null ? 43 : $discountPercent.hashCode());
-        final Object $timeStart = this.getTimeStart();
-        result = result * PRIME + ($timeStart == null ? 43 : $timeStart.hashCode());
-        final Object $timeExpired = this.getTimeExpired();
-        result = result * PRIME + ($timeExpired == null ? 43 : $timeExpired.hashCode());
-        final Object $voucherContent = this.getVoucherContent();
-        result = result * PRIME + ($voucherContent == null ? 43 : $voucherContent.hashCode());
-        final Object $voucherCost = this.getVoucherCost();
-        result = result * PRIME + ($voucherCost == null ? 43 : $voucherCost.hashCode());
-        final Object $active = this.getActive();
-        result = result * PRIME + ($active == null ? 43 : $active.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getName(), getDiscountPercent(), getTimeStart(), getTimeExpired(), getVoucherContent(), getVoucherCost(), isActive(), getCustomers());
     }
 }

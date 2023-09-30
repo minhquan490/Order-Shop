@@ -12,7 +12,7 @@ import org.springframework.util.StopWatch;
 public class RepositoryMonitor {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Pointcut("@within(com.bachlinh.order.annotation.RepositoryComponent)")
+    @Pointcut("@within(com.bachlinh.order.core.annotation.RepositoryComponent)")
     private void repositoryPointcut() {
     }
 

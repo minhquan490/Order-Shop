@@ -7,7 +7,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import com.bachlinh.order.core.http.ssl.internal.CertificateFileSslStoreProvider;
 import com.bachlinh.order.core.http.ssl.spi.Ssl;
 import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
-import com.bachlinh.order.exception.system.mail.MailException;
+import com.bachlinh.order.core.exception.system.mail.MailException;
 
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;

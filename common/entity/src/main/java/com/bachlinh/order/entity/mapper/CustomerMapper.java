@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.mapper;
 
-import com.bachlinh.order.annotation.ResultMapper;
+import com.bachlinh.order.core.annotation.ResultMapper;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;

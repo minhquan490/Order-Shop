@@ -1,11 +1,11 @@
 package com.bachlinh.order.entity.repository.query;
 
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;

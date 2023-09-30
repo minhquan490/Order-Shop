@@ -4,16 +4,16 @@ import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.entity.transaction.internal.SpringTransactionManager;
+import com.bachlinh.order.entity.transaction.internal.DefaultTransactionManager;
 import com.bachlinh.order.entity.transaction.shaded.JpaTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionManager;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.web.common.entity.DefaultEntityFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -101,7 +101,7 @@ public class DataSourceBean {
 
     @Bean
     TransactionManager<?> applicationTransactionManager(DependenciesResolver resolver) {
-        return new SpringTransactionManager(resolver);
+        return new DefaultTransactionManager(resolver);
     }
 
     private Properties hibernateProperties() {

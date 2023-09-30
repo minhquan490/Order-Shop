@@ -1,9 +1,9 @@
 package com.bachlinh.order.entity;
 
-import com.bachlinh.order.entity.context.EntityContext;
-import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.entity.context.EntityContext;
+import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ public interface EntityFactory {
      */
     EntityContext getEntityContext(Class<?> entityType);
 
-    EntityTransactionManager getTransactionManager();
+    EntityTransactionManager<?> getTransactionManager();
 
     DependenciesResolver getResolver();
 

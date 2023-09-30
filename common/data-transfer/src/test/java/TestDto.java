@@ -1,5 +1,5 @@
-import com.bachlinh.order.annotation.Dto;
-import com.bachlinh.order.annotation.MappedDtoField;
+import com.bachlinh.order.core.annotation.Dto;
+import com.bachlinh.order.core.annotation.MappedDtoField;
 
 @Dto(forType = "TestEntity")
 public class TestDto {

@@ -1,11 +1,11 @@
 package com.bachlinh.order.handler.service;
 
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 import java.util.Arrays;
 import java.util.HashMap;

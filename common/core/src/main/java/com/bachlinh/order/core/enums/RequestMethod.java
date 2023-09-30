@@ -4,7 +4,8 @@ public enum RequestMethod {
     GET,
     PATCH,
     POST,
-    DELETE;
+    DELETE,
+    OPTION;
 
     public boolean match(String method) {
         if (method.equalsIgnoreCase("get")) {
@@ -14,6 +15,9 @@ public enum RequestMethod {
             return true;
         }
         if (method.equalsIgnoreCase("post")) {
+            return true;
+        }
+        if (method.equalsIgnoreCase("option")) {
             return true;
         }
         return method.equalsIgnoreCase("delete");

@@ -9,11 +9,7 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
-    implementation project(":common:annotation")
     implementation project(":common:core")
-    implementation project(":common:exception")
-    implementation project(":common:environment")
-    implementation project(":common:utils")
     implementation 'org.springframework:spring-context'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"

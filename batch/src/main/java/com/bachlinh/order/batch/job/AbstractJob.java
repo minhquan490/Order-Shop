@@ -2,10 +2,8 @@ package com.bachlinh.order.batch.job;
 
 import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.environment.Environment;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +29,6 @@ public abstract non-sealed class AbstractJob implements Job {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void execute() {
         inject();
         try {

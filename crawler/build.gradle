@@ -11,9 +11,6 @@ version = "${libs.versions.mainProject.get()}"
 dependencies {
     implementation "org.seleniumhq.selenium:selenium-java:${libs.versions.selenium.get()}"
     implementation project(":common:core")
-    implementation project(":common:environment")
-    implementation project(":common:exception")
-    implementation project(":common:utils")
     implementation project(":common:repository")
     implementation project(":common:entity")
     implementation 'com.fasterxml.jackson.core:jackson-databind'

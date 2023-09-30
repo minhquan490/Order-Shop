@@ -1,16 +1,16 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.BadVariableException;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.http.MultipartRequest;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.MessageSettingRepository;
@@ -23,9 +23,6 @@ import com.bachlinh.order.web.service.business.ImageCompressService;
 import com.bachlinh.order.web.service.common.ProductMediaService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
@@ -65,7 +62,6 @@ public class ProductMediaServiceImpl extends AbstractService implements ProductM
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public void catAndFlushFile(FileFlushForm form) throws IOException {
         Product product = productRepository.getProductForFileUpload(form.productId());
 
@@ -158,7 +154,6 @@ public class ProductMediaServiceImpl extends AbstractService implements ProductM
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void deleteMedia(String url) {
         if (!StringUtils.hasText(url)) {
             return;

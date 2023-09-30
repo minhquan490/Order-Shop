@@ -1,11 +1,11 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.Formula;
-import com.bachlinh.order.annotation.FullTextField;
-import com.bachlinh.order.annotation.Label;
-import com.bachlinh.order.annotation.QueryCache;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.Formula;
+import com.bachlinh.order.core.annotation.FullTextField;
+import com.bachlinh.order.core.annotation.Label;
+import com.bachlinh.order.core.annotation.QueryCache;
 import com.bachlinh.order.entity.enums.Gender;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.formula.CustomerEnableFormula;

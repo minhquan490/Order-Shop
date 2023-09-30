@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Formula;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.Formula;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.FieldUpdated;
 import com.bachlinh.order.entity.formula.CommonFieldSelectFormula;

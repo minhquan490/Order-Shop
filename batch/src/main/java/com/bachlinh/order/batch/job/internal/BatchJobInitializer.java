@@ -3,8 +3,8 @@ package com.bachlinh.order.batch.job.internal;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.utils.UnsafeUtils;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.utils.UnsafeUtils;
 
 public class BatchJobInitializer implements Initializer<AbstractJob> {
 

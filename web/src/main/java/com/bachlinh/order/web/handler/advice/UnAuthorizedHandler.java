@@ -1,18 +1,14 @@
 package com.bachlinh.order.web.handler.advice;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.exception.http.UnAuthorizationException;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
-import com.bachlinh.order.exception.http.UnAuthorizationException;
 import org.springframework.http.HttpStatus;
 
 @RouteExceptionHandler
 @ActiveReflection
 public class UnAuthorizedHandler extends ExceptionHandler {
-
-    @ActiveReflection
-    public UnAuthorizedHandler() {
-    }
 
     @Override
     protected int status() {

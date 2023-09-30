@@ -2,7 +2,7 @@ package com.bachlinh.order.core.http.ssl.internal;
 
 import com.bachlinh.order.core.http.ssl.spi.Ssl;
 import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

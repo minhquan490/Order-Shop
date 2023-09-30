@@ -1,6 +1,6 @@
 package com.bachlinh.order.batch.job.internal;
 
-import com.bachlinh.order.annotation.BatchJob;
+import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJobCenter;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobCenter;

@@ -1,7 +1,8 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.Label;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,7 +14,6 @@ import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Objects;
 
 @Entity
 @Table(name = "TEMPORARY_TOKEN", indexes = @Index(name = "idx_temporary_token_value", columnList = "VALUE"))
@@ -91,35 +91,16 @@ public class TemporaryToken extends AbstractEntity<Integer> {
         return this.assignCustomer;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof TemporaryToken other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TemporaryToken token)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$value = this.getValue();
-        final Object other$value = other.getValue();
-        if (!Objects.equals(this$value, other$value)) return false;
-        final Object this$expiryTime = this.getExpiryTime();
-        final Object other$expiryTime = other.getExpiryTime();
-        return Objects.equals(this$expiryTime, other$expiryTime);
+        return Objects.equal(getId(), token.getId()) && Objects.equal(getValue(), token.getValue()) && Objects.equal(getExpiryTime(), token.getExpiryTime()) && Objects.equal(getAssignCustomer(), token.getAssignCustomer());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof TemporaryToken;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $value = this.getValue();
-        result = result * PRIME + ($value == null ? 43 : $value.hashCode());
-        final Object $expiryTime = this.getExpiryTime();
-        result = result * PRIME + ($expiryTime == null ? 43 : $expiryTime.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getValue(), getExpiryTime(), getAssignCustomer());
     }
 }

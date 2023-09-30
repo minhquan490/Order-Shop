@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.handler.advice;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.http.handler.ErrorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +10,6 @@ import org.slf4j.LoggerFactory;
 @ActiveReflection
 public class GlobalErrorHandler extends ErrorHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @ActiveReflection
-    public GlobalErrorHandler() {
-    }
 
     @Override
     protected void executeOnError(Error error) {

@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
@@ -19,13 +19,10 @@ import com.bachlinh.order.entity.repository.query.SqlJoin;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.bachlinh.order.repository.EmailTemplateRepository;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.lang.Nullable;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,13 +38,11 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public EmailTemplate saveEmailTemplate(EmailTemplate emailTemplate) {
         return save(emailTemplate);
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate) {
         return save(emailTemplate);
     }
@@ -192,7 +187,6 @@ public class EmailTemplateRepositoryImpl extends AbstractRepository<String, Emai
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
     public void deleteEmailTemplate(EmailTemplate emailTemplate) {
         delete(emailTemplate);
     }

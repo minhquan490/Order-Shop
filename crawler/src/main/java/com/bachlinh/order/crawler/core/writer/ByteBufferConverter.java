@@ -2,7 +2,7 @@ package com.bachlinh.order.crawler.core.writer;
 
 import com.bachlinh.order.core.http.converter.spi.Converter;
 import com.bachlinh.order.crawler.core.visitor.InnerElementVisitor;
-import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
 import org.openqa.selenium.WebElement;
 
 import java.nio.ByteBuffer;

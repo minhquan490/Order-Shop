@@ -1,13 +1,13 @@
 package com.bachlinh.order.entity.trigger;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

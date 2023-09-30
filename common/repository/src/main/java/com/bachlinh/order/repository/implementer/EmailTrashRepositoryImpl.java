@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.AbstractEntity_;
@@ -22,12 +22,9 @@ import com.bachlinh.order.entity.repository.query.SqlJoin;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.bachlinh.order.repository.EmailTrashRepository;
 import jakarta.persistence.criteria.JoinType;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -45,13 +42,11 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<Integer, EmailT
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void saveEmailTrash(EmailTrash emailTrash) {
         save(emailTrash);
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public EmailTrash updateTrash(EmailTrash emailTrash) {
         return save(emailTrash);
     }
@@ -79,13 +74,11 @@ public class EmailTrashRepositoryImpl extends AbstractRepository<Integer, EmailT
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.MANDATORY)
     public void updateTrashes(Collection<EmailTrash> trashes) {
         saveAll(trashes);
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY, isolation = Isolation.READ_COMMITTED)
     public void deleteTrash(EmailTrash trash) {
         if (trash == null) {
             return;

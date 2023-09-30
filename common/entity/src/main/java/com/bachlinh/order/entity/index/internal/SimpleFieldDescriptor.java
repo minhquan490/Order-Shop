@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.index.internal;
 
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.FullTextField;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.FullTextField;
 import com.bachlinh.order.entity.index.spi.FieldDescriptor;
 import jakarta.persistence.PersistenceException;
 

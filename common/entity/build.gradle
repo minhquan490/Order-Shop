@@ -10,12 +10,7 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
-    implementation project(":common:annotation")
     implementation project(":common:core")
-    implementation project(":common:exception")
-    implementation project(":common:analyzer")
-    implementation project(":common:environment")
-    implementation project(":common:utils")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework:spring-aop'
     implementation 'org.springframework:spring-context'

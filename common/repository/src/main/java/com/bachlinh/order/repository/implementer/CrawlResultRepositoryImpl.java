@@ -1,8 +1,8 @@
 package com.bachlinh.order.repository.implementer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.RepositoryComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.CrawlResult;
@@ -15,9 +15,8 @@ import com.bachlinh.order.entity.repository.query.SqlBuilder;
 import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import com.bachlinh.order.repository.CrawlResultRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -27,9 +26,6 @@ import java.time.LocalTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @RepositoryComponent
 @ActiveReflection
@@ -43,13 +39,11 @@ public class CrawlResultRepositoryImpl extends AbstractRepository<Integer, Crawl
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void saveCrawlResult(CrawlResult crawlResult) {
         save(crawlResult);
     }
 
     @Override
-    @Transactional(propagation = MANDATORY, isolation = READ_COMMITTED)
     public void deleteCrawlResults(LocalDateTime localDateTime) {
         Select idSelect = Select.builder().column(CrawlResult_.ID).build();
         Where timeFinishWhere = Where.builder().attribute(CrawlResult_.TIME_FINISH).value(localDateTime).operation(Operation.LE).build();

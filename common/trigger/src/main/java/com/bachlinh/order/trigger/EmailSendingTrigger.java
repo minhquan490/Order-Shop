@@ -1,18 +1,18 @@
 package com.bachlinh.order.trigger;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.enums.TriggerExecution;
 import com.bachlinh.order.entity.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.exception.system.mail.MailException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.mail.MailException;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.service.GmailSendingService;
-import com.bachlinh.order.utils.JacksonUtils;
-import com.bachlinh.order.utils.ResourceUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.ResourceUtils;
 
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;

@@ -1,17 +1,18 @@
 package com.bachlinh.order.entity.transaction.internal;
 
-import com.bachlinh.order.entity.transaction.shaded.JpaTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
+import com.bachlinh.order.entity.utils.TransactionUtils;
+import jakarta.persistence.EntityManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionStatus;
 
 import java.sql.Connection;
 
 class SpringTransactionHolder implements TransactionHolder<TransactionStatus> {
 
     private final PlatformTransactionManager transactionManager;
+    private boolean isActive = false;
 
     SpringTransactionHolder(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
@@ -19,14 +20,21 @@ class SpringTransactionHolder implements TransactionHolder<TransactionStatus> {
 
     @Override
     public TransactionStatus getTransaction() {
+        this.isActive = true;
         return transactionManager.getTransaction(new SpringTransactionDefinition());
     }
 
     @Override
-    public void cleanup(Object transaction) {
-        DefaultTransactionStatus defaultTransactionStatus = (DefaultTransactionStatus) transaction;
-        JpaTransactionManager.JpaTransactionObject transactionObject = (JpaTransactionManager.JpaTransactionObject) defaultTransactionStatus.getTransaction();
-        transactionObject.getEntityManagerHolder().getEntityManager().close();
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @Override
+    public void cleanup(TransactionHolder<?> holder) {
+        EntityManager entityManager = TransactionUtils.extractEntityManager(holder);
+        if (entityManager != null) {
+            entityManager.close();
+        }
     }
 
     private static class SpringTransactionDefinition implements TransactionDefinition {
@@ -41,9 +49,5 @@ class SpringTransactionHolder implements TransactionHolder<TransactionStatus> {
             return Connection.TRANSACTION_READ_COMMITTED;
         }
 
-        @Override
-        public int getPropagationBehavior() {
-            return PROPAGATION_REQUIRES_NEW;
-        }
     }
 }

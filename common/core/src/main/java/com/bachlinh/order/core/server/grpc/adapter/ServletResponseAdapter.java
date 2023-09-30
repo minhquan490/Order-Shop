@@ -2,7 +2,7 @@ package com.bachlinh.order.core.server.grpc.adapter;
 
 import com.bachlinh.order.core.server.grpc.InboundMessage;
 import com.bachlinh.order.core.server.grpc.OutboundMessage;
-import com.bachlinh.order.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
 import com.google.protobuf.ByteString;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;

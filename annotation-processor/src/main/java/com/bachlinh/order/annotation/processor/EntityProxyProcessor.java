@@ -1,6 +1,9 @@
 package com.bachlinh.order.annotation.processor;
 
+import com.bachlinh.order.annotation.processor.writer.ClassWriter;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
 import com.google.auto.service.AutoService;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -11,9 +14,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import com.bachlinh.order.annotation.EnableFullTextSearch;
-import com.bachlinh.order.annotation.processor.writer.ClassWriter;
-
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Set;
