@@ -1,11 +1,11 @@
 package com.bachlinh.order.web.handler.rest.customer.product;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
-import com.bachlinh.order.utils.ValidateUtils;
+import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.common.ProductSearchForm;
 import com.bachlinh.order.web.dto.resp.ProductResp;
 import com.bachlinh.order.web.service.business.ProductSearchingService;

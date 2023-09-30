@@ -5,9 +5,9 @@ import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.utils.UnsafeUtils;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.utils.UnsafeUtils;
 
 class TriggerInitializer implements Initializer<EntityTrigger<? extends BaseEntity<?>>> {
     @Override

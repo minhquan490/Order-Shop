@@ -5,7 +5,7 @@ import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.proxy.AbstractEntityProxy;
 import com.bachlinh.order.entity.proxy.EntityProxy;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

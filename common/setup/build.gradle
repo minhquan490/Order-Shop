@@ -9,13 +9,9 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
-    implementation project(":common:annotation")
     implementation project(":common:core")
-    implementation project(":common:environment")
     implementation project(":common:entity")
-    implementation project(":common:exception")
     implementation project(':common:repository')
-    implementation project(":common:utils")
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework:spring-context'

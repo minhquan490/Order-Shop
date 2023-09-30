@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.dto.resp;
 
-import com.bachlinh.order.annotation.Dto;
-import com.bachlinh.order.annotation.MappedDtoField;
+import com.bachlinh.order.core.annotation.Dto;
+import com.bachlinh.order.core.annotation.MappedDtoField;
 
 @Dto(forType = "com.bachlinh.order.entity.model.Province")
 public class ProvinceResp {
@@ -11,9 +11,6 @@ public class ProvinceResp {
 
     @MappedDtoField(targetField = "name", outputJsonField = "name")
     private String name;
-
-    public ProvinceResp() {
-    }
 
     public String getId() {
         return this.id;

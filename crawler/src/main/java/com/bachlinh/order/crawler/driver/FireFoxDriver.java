@@ -15,7 +15,7 @@ import org.openqa.selenium.html5.LocalStorage;
 import org.openqa.selenium.html5.SessionStorage;
 import org.openqa.selenium.html5.WebStorage;
 import com.bachlinh.order.crawler.driver.option.FirefoxOption;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 import java.nio.file.Path;
 import java.util.Optional;

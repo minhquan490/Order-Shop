@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +21,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Set;
 
 @ActiveReflection
@@ -101,30 +101,16 @@ public class EmailTrash extends AbstractEntity<Integer> {
         return this.customer;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof EmailTrash other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EmailTrash that)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$emails = this.getEmails();
-        final Object other$emails = other.getEmails();
-        return Objects.equals(this$emails, other$emails);
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getEmails(), that.getEmails()) && Objects.equal(getCustomer(), that.getCustomer());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof EmailTrash;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $emails = this.getEmails();
-        result = result * PRIME + ($emails == null ? 43 : $emails.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getEmails(), getCustomer());
     }
 }

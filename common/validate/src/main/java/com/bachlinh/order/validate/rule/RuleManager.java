@@ -1,8 +1,8 @@
 package com.bachlinh.order.validate.rule;
 
 import org.springframework.lang.NonNull;
-import com.bachlinh.order.exception.http.ValidationFailureException;
-import com.bachlinh.order.exception.system.validate.ValidationRuleNotFoundException;
+import com.bachlinh.order.core.exception.http.ValidationFailureException;
+import com.bachlinh.order.core.exception.system.validate.ValidationRuleNotFoundException;
 import com.bachlinh.order.validate.base.ValidatedDto;
 
 import java.util.Collection;

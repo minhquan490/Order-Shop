@@ -1,11 +1,11 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
-import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.EmailFoldersRepository;
@@ -13,9 +13,6 @@ import com.bachlinh.order.web.dto.form.common.EmailFolderCreateForm;
 import com.bachlinh.order.web.dto.form.common.EmailFolderUpdateForm;
 import com.bachlinh.order.web.dto.resp.EmailFolderInfoResp;
 import com.bachlinh.order.web.service.common.EmailFolderService;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -37,7 +34,6 @@ public class EmailFolderServiceImpl extends AbstractService implements EmailFold
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void createDefaultFolders(Customer owner) {
         Collection<EmailFolders> emailFolders = HashSet.newHashSet(DEFAULT_FOLDER.size());
         DEFAULT_FOLDER.forEach(name -> {
@@ -52,13 +48,11 @@ public class EmailFolderServiceImpl extends AbstractService implements EmailFold
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void deleteEmailFolder(String folderId) {
         emailFoldersRepository.delete(folderId);
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public EmailFolderInfoResp createEmailFolder(EmailFolderCreateForm form, Customer owner) {
         var folder = entityFactory.getEntity(EmailFolders.class);
         folder.setName(folder.getName());
@@ -68,7 +62,6 @@ public class EmailFolderServiceImpl extends AbstractService implements EmailFold
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public EmailFolderInfoResp updateEmailFolder(EmailFolderUpdateForm form, Customer owner) {
         var folder = emailFoldersRepository.getEmailFolderById(form.getId(), owner);
         folder.setName(form.getName());

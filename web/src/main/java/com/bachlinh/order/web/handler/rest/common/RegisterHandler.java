@@ -1,11 +1,11 @@
 package com.bachlinh.order.web.handler.rest.common;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ValidationFailureException;
+import com.bachlinh.order.core.exception.http.BadVariableException;
+import com.bachlinh.order.core.exception.http.ValidationFailureException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.RegisterResp;

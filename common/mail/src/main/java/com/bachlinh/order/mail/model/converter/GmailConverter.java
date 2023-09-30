@@ -9,7 +9,7 @@ import org.apache.commons.codec.binary.Base64;
 import static jakarta.mail.Message.RecipientType.TO;
 import static java.text.MessageFormat.format;
 import com.bachlinh.order.core.http.converter.spi.Converter;
-import com.bachlinh.order.exception.system.mail.MailException;
+import com.bachlinh.order.core.exception.system.mail.MailException;
 import com.bachlinh.order.mail.model.GmailMessage;
 
 import java.io.ByteArrayOutputStream;

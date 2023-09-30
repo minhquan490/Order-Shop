@@ -1,16 +1,16 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailFolders;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CustomerRepository;
@@ -27,9 +27,6 @@ import com.bachlinh.order.web.service.business.EmailSearchingService;
 import com.bachlinh.order.web.service.business.EmailSendingService;
 import com.bachlinh.order.web.service.common.EmailService;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -59,7 +56,6 @@ public class EmailServiceImpl extends AbstractService implements EmailSendingSer
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public EmailSendingResp sendNormalEmail(NormalEmailSendingForm form, Customer sender) {
         var email = entityFactory.getEntity(Email.class);
         email.setContent(form.getContent());

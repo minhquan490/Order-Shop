@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.mapper;
 
-import com.bachlinh.order.annotation.ResultMapper;
+import com.bachlinh.order.core.annotation.ResultMapper;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Province;
 import jakarta.persistence.Table;

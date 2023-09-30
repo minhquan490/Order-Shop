@@ -1,10 +1,10 @@
 pluginManagement {
     plugins {
-        id 'org.springframework.boot' version '3.1.3'
+        id 'org.springframework.boot' version '3.1.4'
         id 'io.spring.dependency-management' version '1.1.3'
         id 'org.graalvm.buildtools.native' version '0.9.25'
         id 'com.google.protobuf' version '0.9.4'
-        id "org.hibernate.orm" version "6.3.0.Final"
+        id "org.hibernate.orm" version "6.2.9.Final"
     }
 }
 
@@ -15,10 +15,10 @@ dependencyResolutionManagement {
             version('gmailApi', 'v1-rev20230515-2.0.0')
             version('guavaVersion', '31.1-jre')
             version('googleLib', '2.2.0')
-            version('googleOauth', '1.16.1')
+            version('googleOauth', '1.4.0')
             version('jakartaMail', '2.1.1')
             version('commonLang3Version', '3.12.0')
-            version('errorprone', '2.16')
+            version('errorprone', '2.7.1')
             version('ehcacheVersion', '3.10.8')
             version('findbugs', '3.0.2')
             version('disruptor', '3.4.4')
@@ -30,7 +30,7 @@ dependencyResolutionManagement {
             version('opentelemetry', '1.28.0')
             version('logback', '1.4.8')
             version('slf4j', '2.0.7')
-            version('googleAutoService', '1.1.0')
+            version('googleAutoService', '1.0.1')
             version('netty', '4.1.98.Final')
             version('nettyQuic', '0.0.20.Final')
             version('mainProject', '1.0.0')
@@ -54,14 +54,9 @@ include 'crawler'
 include 'annotation-processor'
 include 'aot'
 include 'common:repository'
-include 'common:exception'
 include 'common:core'
 include 'common:mail'
-include 'common:analyzer'
-include 'common:annotation'
 include 'common:data-transfer'
-include 'common:environment'
-include 'common:utils'
 include 'common:security'
 include 'common:validate'
 include 'common:entity'
@@ -70,12 +65,7 @@ include 'common:trigger'
 include 'common:setup'
 findProject(':common:core')?.name = 'core'
 findProject(':common:mail')?.name = 'mail'
-findProject(':common:utils')?.name = 'utils'
-findProject(':common:analyzer')?.name = 'analyzer'
-findProject(':common:environment')?.name = 'environment'
-findProject(':common:annotation')?.name = 'annotation'
 findProject(':common:data-transfer')?.name = 'data-transfer'
-findProject(':common:exception')?.name = 'exception'
 findProject(':common:security')?.name = 'security'
 findProject(':common:repository')?.name = 'repository'
 findProject(':common:validate')?.name = 'validate'

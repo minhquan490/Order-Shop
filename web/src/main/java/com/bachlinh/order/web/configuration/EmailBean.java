@@ -1,6 +1,6 @@
 package com.bachlinh.order.web.configuration;
 
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.mail.oauth2.CredentialAdapter;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.mail.template.EmailTemplateProcessor;

@@ -4,7 +4,7 @@ import org.openqa.selenium.safari.HasDebugger;
 import org.openqa.selenium.safari.HasPermissions;
 import org.openqa.selenium.safari.SafariDriverService;
 import org.openqa.selenium.safari.SafariOptions;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 import java.util.Map;
 

@@ -1,13 +1,13 @@
 package com.bachlinh.order.web.common.interceptor;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.entity.Permit;
 import com.bachlinh.order.entity.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
-import com.bachlinh.order.exception.http.AccessDeniedException;
+import com.bachlinh.order.core.exception.http.AccessDeniedException;
 import com.bachlinh.order.handler.controller.ControllerContextHolder;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.repository.MessageSettingRepository;

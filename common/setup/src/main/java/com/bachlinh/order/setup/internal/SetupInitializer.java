@@ -2,9 +2,9 @@ package com.bachlinh.order.setup.internal;
 
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.container.ContainerWrapper;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.setup.spi.AbstractSetup;
-import com.bachlinh.order.utils.UnsafeUtils;
+import com.bachlinh.order.core.utils.UnsafeUtils;
 
 class SetupInitializer implements Initializer<AbstractSetup> {
     @Override

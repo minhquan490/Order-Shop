@@ -8,12 +8,8 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
-    implementation project(":common:annotation")
     implementation project(":common:entity")
     implementation project(":common:core")
-    implementation project(":common:utils")
-    implementation project(":common:exception")
-    implementation project(":common:environment")
     implementation project(":common:validate")
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"

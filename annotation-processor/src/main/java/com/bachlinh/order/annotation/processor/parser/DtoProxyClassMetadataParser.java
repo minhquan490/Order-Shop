@@ -1,8 +1,8 @@
 package com.bachlinh.order.annotation.processor.parser;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.DtoProxy;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DtoProxy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,7 +24,7 @@ class DtoProxyClassMetadataParser implements ClassMetadataParser {
         this.packageName = elements.getPackageOf(element).getQualifiedName().toString();
         this.delegateType = delegateType;
     }
-    
+
     @Override
     public String getPackage() {
         return packageName;

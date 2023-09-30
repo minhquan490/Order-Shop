@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.handler.rest.common;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.Payload;

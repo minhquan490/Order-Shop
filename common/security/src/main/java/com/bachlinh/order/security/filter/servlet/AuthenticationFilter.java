@@ -3,7 +3,7 @@ package com.bachlinh.order.security.filter.servlet;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
-import com.bachlinh.order.exception.http.UnAuthorizationException;
+import com.bachlinh.order.core.exception.http.UnAuthorizationException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.PrincipalHolder;
 import com.bachlinh.order.security.auth.spi.TokenManager;

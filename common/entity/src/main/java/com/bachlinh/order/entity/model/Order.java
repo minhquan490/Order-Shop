@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.Label;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -119,7 +119,7 @@ public class Order extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
-        if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
+        if (this.customer != null && !Objects.requireNonNull(this.customer.getId()).equals(customer.getId())) {
             trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
@@ -171,35 +171,16 @@ public class Order extends AbstractEntity<String> {
         return this.orderDetails;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Order other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Order order)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$timeOrder = this.getTimeOrder();
-        final Object other$timeOrder = other.getTimeOrder();
-        if (!Objects.equals(this$timeOrder, other$timeOrder)) return false;
-        final Object this$bankTransactionCode = this.getBankTransactionCode();
-        final Object other$bankTransactionCode = other.getBankTransactionCode();
-        return Objects.equals(this$bankTransactionCode, other$bankTransactionCode);
+        return com.google.common.base.Objects.equal(getId(), order.getId()) && com.google.common.base.Objects.equal(getTimeOrder(), order.getTimeOrder()) && com.google.common.base.Objects.equal(getBankTransactionCode(), order.getBankTransactionCode()) && com.google.common.base.Objects.equal(getOrderStatus(), order.getOrderStatus()) && com.google.common.base.Objects.equal(getOrderHistory(), order.getOrderHistory()) && com.google.common.base.Objects.equal(getCustomer(), order.getCustomer()) && com.google.common.base.Objects.equal(getOrderDetails(), order.getOrderDetails());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Order;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $timeOrder = this.getTimeOrder();
-        result = result * PRIME + ($timeOrder == null ? 43 : $timeOrder.hashCode());
-        final Object $bankTransactionCode = this.getBankTransactionCode();
-        result = result * PRIME + ($bankTransactionCode == null ? 43 : $bankTransactionCode.hashCode());
-        return result;
+        return com.google.common.base.Objects.hashCode(super.hashCode(), getId(), getTimeOrder(), getBankTransactionCode(), getOrderStatus(), getOrderHistory(), getCustomer(), getOrderDetails());
     }
 }

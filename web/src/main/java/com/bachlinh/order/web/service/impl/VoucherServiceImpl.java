@@ -1,8 +1,11 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.MessageSetting;
@@ -10,13 +13,10 @@ import com.bachlinh.order.entity.model.Voucher;
 import com.bachlinh.order.entity.model.Voucher_;
 import com.bachlinh.order.entity.repository.query.Operation;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.VoucherRepository;
-import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherCreateForm;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherSearchForm;
@@ -27,9 +27,6 @@ import com.bachlinh.order.web.service.business.VoucherSearchService;
 import com.bachlinh.order.web.service.common.VoucherService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
@@ -53,7 +50,6 @@ public class VoucherServiceImpl extends AbstractService implements VoucherServic
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public VoucherResp createVoucher(VoucherCreateForm form) {
         var voucher = entityFactory.getEntity(Voucher.class);
         voucher.setName(form.getName());

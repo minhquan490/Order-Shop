@@ -1,9 +1,9 @@
 package com.bachlinh.order.annotation.processor.writer;
 
-import com.bachlinh.order.annotation.MappedDtoField;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
 import com.bachlinh.order.annotation.processor.parser.ClassMetadataParser;
 import com.bachlinh.order.annotation.processor.parser.GetterMetadataParser;
+import com.bachlinh.order.core.annotation.MappedDtoField;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;

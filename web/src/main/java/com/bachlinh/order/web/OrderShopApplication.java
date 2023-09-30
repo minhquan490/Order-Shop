@@ -1,6 +1,6 @@
 package com.bachlinh.order.web;
 
-import com.bachlinh.order.annotation.NettyApplication;
+import com.bachlinh.order.core.annotation.NettyApplication;
 import com.bachlinh.order.aot.EntityManagerRuntimeHints;
 import com.bachlinh.order.aot.GlobalReflectiveRuntimeHint;
 import com.bachlinh.order.aot.HibernateRuntimeHints;

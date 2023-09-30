@@ -15,8 +15,8 @@ import static org.springframework.aot.hint.MemberCategory.INVOKE_DECLARED_METHOD
 import static org.springframework.aot.hint.MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS;
 import static org.springframework.aot.hint.MemberCategory.INVOKE_PUBLIC_METHODS;
 import static org.springframework.aot.hint.MemberCategory.PUBLIC_FIELDS;
-import com.bachlinh.order.annotation.Native;
-import com.bachlinh.order.annotation.Reachable;
+import com.bachlinh.order.core.annotation.Native;
+import com.bachlinh.order.core.annotation.Reachable;
 import com.bachlinh.order.aot.locator.ObjectReflectiveLocator;
 import com.bachlinh.order.aot.metadata.ClassMetadata;
 import com.bachlinh.order.aot.metadata.ConstructorMetadata;

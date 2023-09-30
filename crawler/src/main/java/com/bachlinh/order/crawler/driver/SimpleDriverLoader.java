@@ -6,7 +6,7 @@ import com.bachlinh.order.crawler.driver.option.ChromeOption;
 import com.bachlinh.order.crawler.driver.option.EdgeOption;
 import com.bachlinh.order.crawler.driver.option.FirefoxOption;
 import com.bachlinh.order.crawler.loader.DriverLoader;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 public class SimpleDriverLoader implements DriverLoader {
     private static final String CHROME_DRIVER_NAME = "chromedriver";

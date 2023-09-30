@@ -1,12 +1,23 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.BadVariableException;
+import com.bachlinh.order.core.exception.http.InvalidTokenException;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
+import com.bachlinh.order.core.exception.http.TemporaryTokenExpiredException;
+import com.bachlinh.order.core.exception.http.UnAuthorizationException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.core.utils.DateTimeUtils;
+import com.bachlinh.order.core.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.ResourceUtils;
+import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.FieldUpdated;
@@ -26,13 +37,6 @@ import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.model.TemporaryToken;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.repository.query.OrderBy;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.InvalidTokenException;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.exception.http.TemporaryTokenExpiredException;
-import com.bachlinh.order.exception.http.UnAuthorizationException;
-import com.bachlinh.order.exception.system.common.CriticalException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.handler.service.ServiceManager;
@@ -51,10 +55,6 @@ import com.bachlinh.order.repository.TemporaryTokenRepository;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.utils.DateTimeUtils;
-import com.bachlinh.order.utils.JacksonUtils;
-import com.bachlinh.order.utils.ResourceUtils;
-import com.bachlinh.order.utils.ValidateUtils;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateInfoForm;
@@ -91,9 +91,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.FileNotFoundException;
@@ -176,7 +173,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerResp saveCustomer(CustomerCreateForm customerCreateForm) {
         lazyInitServiceManager();
         var customer = dtoMapper.map(customerCreateForm, Customer.class);
@@ -187,7 +183,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerResp updateCustomer(CustomerUpdateForm customerUpdateForm) {
         var customer = customerRepository.getCustomerInfoForUpdate(customerUpdateForm.getId());
         var oldCustomer = customer.clone();
@@ -203,7 +198,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerInfoResp updateCustomerFromAdminScreen(CustomerUpdateInfoForm customerUpdateInfoForm) {
         Customer customer = customerRepository.getCustomerInfoForUpdate(customerUpdateInfoForm.getId());
         customer.setFirstName(customerUpdateInfoForm.getFirstName());
@@ -240,7 +234,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CustomerResp deleteCustomer(CustomerDeleteForm customerDeleteForm) {
         var customer = customerRepository.getCustomerForDelete(customerDeleteForm.customerId());
         customerRepository.deleteCustomer(customer);
@@ -296,7 +289,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public LoginResp login(LoginForm loginForm, NativeRequest<?> request) {
         Customer customer = customerRepository.getCustomerForLogin(loginForm.username());
         if (customer == null) {
@@ -319,13 +311,12 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
             refreshToken.setTimeExpired(DateTimeUtils.calculateTimeRefreshTokenExpired(timeCreated));
             refreshToken.setRefreshTokenValue(tokenValue);
         }
-        refreshTokenRepository.saveRefreshToken(refreshToken);
+        refreshTokenRepository.updateRefreshToken(refreshToken);
         saveHistory(customer, request, true);
         return new LoginResp(refreshToken.getRefreshTokenValue(), accessToken, true, "");
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public RegisterResp register(RegisterForm registerForm) {
         Customer customer = dtoMapper.map(registerForm, Customer.class);
         try {
@@ -337,7 +328,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean logout(Customer customer) {
         RefreshToken refreshToken = refreshTokenRepository.getRefreshTokenByCustomer(customer);
         refreshToken.setRefreshTokenValue(null);
@@ -346,7 +336,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
         return refreshTokenRepository.saveRefreshToken(refreshToken) != null;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void saveHistory(Customer customer, NativeRequest<?> request, boolean isSuccess) {
         threadPoolManager.execute(() -> {
             LoginHistory loginHistory = entityFactory.getEntity(LoginHistory.class);
@@ -389,7 +378,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void resetPassword(String temporaryToken, String newPassword) {
         TemporaryToken token = temporaryTokenRepository.getTemporaryToken(temporaryToken);
         if (token == null) {
@@ -478,7 +466,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public ConfirmEmailResp confirmEmail(String temporaryToken) {
         TemporaryToken token = temporaryTokenRepository.getTemporaryToken(temporaryToken);
         if (token == null) {

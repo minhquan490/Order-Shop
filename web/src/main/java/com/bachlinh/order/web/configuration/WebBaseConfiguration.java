@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.configuration;
 
-import com.bachlinh.order.annotation.DependenciesInitialize;
-import com.bachlinh.order.annotation.DtoValidationRule;
+import com.bachlinh.order.core.annotation.DependenciesInitialize;
+import com.bachlinh.order.core.annotation.DtoValidationRule;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
@@ -16,7 +16,7 @@ import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.entity.repository.query.SqlBuilder;
 import com.bachlinh.order.entity.repository.query.SqlBuilderFactory;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.handler.service.DefaultServiceManager;

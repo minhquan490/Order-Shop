@@ -4,7 +4,7 @@ import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.batch.job.AbstractJobCenter;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobType;
-import com.bachlinh.order.exception.system.batch.JobNotFoundException;
+import com.bachlinh.order.core.exception.system.batch.JobNotFoundException;
 import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.Collection;

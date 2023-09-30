@@ -2,7 +2,7 @@ package com.bachlinh.order.entity.repository.cache;
 
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.repository.query.CacheableQuery;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
+import com.bachlinh.order.entity.utils.QueryUtils;
 
 import java.util.Collection;
 import java.util.Map;

@@ -1,10 +1,10 @@
 package com.bachlinh.order.web.dto.strategy;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.model.EmailTrash;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.web.dto.resp.EmailTrashResp;
 

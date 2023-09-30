@@ -1,9 +1,9 @@
 package com.bachlinh.order.validate.rule;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import org.springframework.lang.NonNull;
 

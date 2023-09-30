@@ -1,7 +1,7 @@
 package com.bachlinh.order.validate.validator.internal;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ApplyOn;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import com.bachlinh.order.entity.model.MessageSetting;

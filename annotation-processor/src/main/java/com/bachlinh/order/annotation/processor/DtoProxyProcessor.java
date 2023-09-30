@@ -1,7 +1,7 @@
 package com.bachlinh.order.annotation.processor;
 
-import com.bachlinh.order.annotation.Dto;
 import com.bachlinh.order.annotation.processor.writer.ClassWriter;
+import com.bachlinh.order.core.annotation.Dto;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -69,7 +69,7 @@ public class DtoProxyProcessor extends AbstractProcessor {
     private TypeElement load(String className, Elements elements) {
         return elements.getTypeElement(className);
     }
-    
+
     private void write(Element element, String sourceTemplate) throws IOException {
         var annotation = element.getAnnotation(Dto.class);
         var sourceName = MessageFormat.format(sourceTemplate, elements.getPackageOf(element).getQualifiedName().toString(), element.getSimpleName());

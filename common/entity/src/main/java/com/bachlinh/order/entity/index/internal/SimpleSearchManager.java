@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.index.internal;
 
-import com.bachlinh.order.annotation.EnableFullTextSearch;
+import com.bachlinh.order.core.annotation.EnableFullTextSearch;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.index.spi.EntityIndexer;
 import com.bachlinh.order.entity.index.spi.EntitySearcher;

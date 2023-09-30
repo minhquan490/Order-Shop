@@ -1,8 +1,8 @@
 package com.bachlinh.order.web.common.entity;
 
-import com.bachlinh.order.annotation.ApplyOn;
-import com.bachlinh.order.annotation.Formula;
-import com.bachlinh.order.annotation.Label;
+import com.bachlinh.order.core.annotation.ApplyOn;
+import com.bachlinh.order.core.annotation.Formula;
+import com.bachlinh.order.core.annotation.Label;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
@@ -26,9 +26,9 @@ import com.bachlinh.order.entity.repository.AbstractRepository;
 import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.entity.repository.query.JoinMetadata;
 import com.bachlinh.order.entity.repository.query.JoinMetadataHolder;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.system.common.CriticalException;
-import com.bachlinh.order.exception.system.common.NoTransactionException;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.NoTransactionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

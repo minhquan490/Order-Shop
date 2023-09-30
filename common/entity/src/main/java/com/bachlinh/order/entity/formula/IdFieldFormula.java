@@ -1,13 +1,13 @@
 package com.bachlinh.order.entity.formula;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.formula.adapter.SelectFormulaAdapter;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.repository.query.FunctionDialect;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import org.springframework.core.Ordered;
 
 import java.text.MessageFormat;

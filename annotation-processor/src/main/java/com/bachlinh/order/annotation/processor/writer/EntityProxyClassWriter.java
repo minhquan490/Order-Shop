@@ -1,11 +1,11 @@
 package com.bachlinh.order.annotation.processor.writer;
 
-import javax.lang.model.element.Element;
-import javax.tools.JavaFileObject;
-import com.bachlinh.order.annotation.FullTextField;
 import com.bachlinh.order.annotation.processor.meta.FieldMeta;
 import com.bachlinh.order.annotation.processor.parser.ClassMetadataParser;
+import com.bachlinh.order.core.annotation.FullTextField;
 
+import javax.lang.model.element.Element;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.MessageFormat;

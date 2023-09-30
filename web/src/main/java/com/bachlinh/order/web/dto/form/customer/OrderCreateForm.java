@@ -1,6 +1,6 @@
 package com.bachlinh.order.web.dto.form.customer;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
@@ -12,10 +12,6 @@ public class OrderCreateForm implements ValidatedDto {
 
     @JsonAlias("details")
     private Detail[] details;
-
-    @ActiveReflection
-    public OrderCreateForm() {
-    }
 
     @ActiveReflection
     public void setBankTransactionCode(String bankTransactionCode) {
@@ -46,10 +42,6 @@ public class OrderCreateForm implements ValidatedDto {
 
         @JsonAlias("product_id")
         private String productId;
-
-        @ActiveReflection
-        public Detail() {
-        }
 
         @ActiveReflection
         public void setAmount(String amount) {

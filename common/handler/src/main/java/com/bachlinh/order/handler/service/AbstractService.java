@@ -2,7 +2,7 @@ package com.bachlinh.order.handler.service;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 public abstract non-sealed class AbstractService implements ServiceBase {
 

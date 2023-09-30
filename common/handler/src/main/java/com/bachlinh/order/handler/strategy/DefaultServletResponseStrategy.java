@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.converter.spi.ServletCookieConverter;
-import com.bachlinh.order.utils.map.LinkedMultiValueMap;
-import com.bachlinh.order.utils.map.MultiValueMap;
+import com.bachlinh.order.core.utils.map.LinkedMultiValueMap;
+import com.bachlinh.order.core.utils.map.MultiValueMap;
 
 class DefaultServletResponseStrategy implements ServletResponseStrategy {
     private final ServletCookieConverter<NativeCookie> nativeCookieConverter = ServletCookieConverter.servletCookieConverter();

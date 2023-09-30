@@ -1,12 +1,12 @@
 package com.bachlinh.order.web.common.interceptor;
 
-import com.bachlinh.order.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.utils.HeaderUtils;
+import com.bachlinh.order.core.utils.HeaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;

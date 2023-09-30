@@ -1,17 +1,17 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.BadVariableException;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.BadVariableException;
-import com.bachlinh.order.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.mail.template.BindingModel;
@@ -31,9 +31,6 @@ import com.bachlinh.order.web.service.business.EmailTemplateSearchService;
 import com.bachlinh.order.web.service.business.EmailTemplateSendingService;
 import com.bachlinh.order.web.service.common.EmailTemplateService;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
@@ -65,7 +62,6 @@ public class EmailTemplateServiceImpl extends AbstractService implements EmailTe
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public EmailTemplateInfoResp saveEmailTemplate(EmailTemplateCreateForm form, Customer owner) {
         var emailTemplate = entityFactory.getEntity(EmailTemplate.class);
         emailTemplate.setName(form.getName());
@@ -90,7 +86,6 @@ public class EmailTemplateServiceImpl extends AbstractService implements EmailTe
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public EmailTemplateInfoResp updateEmailTemplate(EmailTemplateUpdateForm form, Customer owner) {
         var emailTemplate = emailTemplateRepository.getEmailTemplateById(form.getId(), owner);
         emailTemplate.setName(form.getName());

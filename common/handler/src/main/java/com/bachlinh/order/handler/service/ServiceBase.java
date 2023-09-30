@@ -1,7 +1,7 @@
 package com.bachlinh.order.handler.service;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.environment.Environment;
+import com.bachlinh.order.core.environment.Environment;
 
 public sealed interface ServiceBase permits AbstractService {
     DependenciesResolver getResolver();

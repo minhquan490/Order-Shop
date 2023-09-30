@@ -1,13 +1,13 @@
 package com.bachlinh.order.web.common.entity;
 
-import com.bachlinh.order.annotation.ResultMapper;
+import com.bachlinh.order.core.annotation.ResultMapper;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.entity.mapper.AbstractEntityMapper;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;

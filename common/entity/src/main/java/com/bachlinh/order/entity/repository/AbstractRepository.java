@@ -1,7 +1,9 @@
 package com.bachlinh.order.entity.repository;
 
-import com.bachlinh.order.annotation.QueryCache;
+import com.bachlinh.order.core.annotation.QueryCache;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.ValidationFailureException;
 import com.bachlinh.order.core.function.TransactionCallback;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityManagerHolder;
@@ -27,9 +29,8 @@ import com.bachlinh.order.entity.repository.query.SqlSelect;
 import com.bachlinh.order.entity.repository.query.SqlUpdate;
 import com.bachlinh.order.entity.repository.query.SqlWhere;
 import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.repository.utils.QueryUtils;
-import com.bachlinh.order.environment.Environment;
-import com.bachlinh.order.exception.http.ValidationFailureException;
+import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
+import com.bachlinh.order.entity.utils.QueryUtils;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -49,7 +50,6 @@ import jakarta.persistence.metamodel.Metamodel;
 import org.hibernate.SessionFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -132,15 +132,13 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     @Override
-    @Transactional
     public <S extends U> S save(S entity) {
         if (entity.isNew()) {
-            EntityManager entityManager = getEntityManager();
-            EntityTransaction entityTransaction = entityManager.getTransaction();
+            TransactionHolder<?> transactionHolder = entityFactory.getTransactionManager().getCurrentTransaction();
 
-            Supplier<S> task = getSaveSupplier(entity, entityManager);
 
-            if (entityTransaction.isActive()) {
+            if (transactionHolder != null && transactionHolder.isActive()) {
+                Supplier<S> task = getSaveSupplier(entity, getEntityManager());
                 EntityContext entityContext = entityFactory.getEntityContext(getDomainClass());
                 try {
                     entityContext.beginTransaction();
@@ -152,6 +150,8 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
                     throw new PersistenceException(e);
                 }
             } else {
+                EntityManager entityManager = getEntityManager();
+                Supplier<S> task = getSaveSupplier(entity, entityManager);
                 return execute(entityManager, task);
             }
         } else {
@@ -160,26 +160,24 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     @Override
-    @Transactional
     public <S extends U> S update(S entity) {
         if (entity.isNew()) {
             return save(entity);
         } else {
-            EntityManager entityManager = getEntityManager();
-            EntityTransaction entityTransaction = entityManager.getTransaction();
+            TransactionHolder<?> transactionHolder = entityFactory.getTransactionManager().getCurrentTransaction();
 
-            Supplier<S> task = getUpdateSupplier(entity, entityManager);
-
-            if (entityTransaction.isActive()) {
+            if (transactionHolder.isActive()) {
+                Supplier<S> task = getUpdateSupplier(entity, getEntityManager());
                 return task.get();
             } else {
+                EntityManager entityManager = getEntityManager();
+                Supplier<S> task = getUpdateSupplier(entity, getEntityManager());
                 return execute(entityManager, task);
             }
         }
     }
 
     @Override
-    @Transactional
     public <S extends U> Collection<S> saveAll(Iterable<S> entities) {
         Collection<S> results = new LinkedList<>();
         entities.forEach(entity -> results.add(save(entity)));
@@ -187,7 +185,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     @Override
-    @Transactional
     public <S extends U> Collection<S> updateAll(Iterable<S> entities) {
         Collection<S> results = new LinkedList<>();
         entities.forEach(entity -> results.add(update(entity)));
@@ -239,7 +236,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     @Override
-    @Transactional
     public void deleteById(T id) {
         U target = loadCustomerForDelete(id);
 
@@ -247,7 +243,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     @Override
-    @Transactional
     public void delete(U entity) {
         EntityManager entityManager = getEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -279,19 +274,16 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     @Override
-    @Transactional
     public void deleteAllById(Iterable<? extends T> ids) {
         ids.forEach(this::deleteById);
     }
 
     @Override
-    @Transactional
     public void deleteAll(Iterable<? extends U> entities) {
         entities.forEach(this::delete);
     }
 
     @Override
-    @Transactional
     public void deleteAll() {
 
         @SuppressWarnings("unchecked")
@@ -386,11 +378,11 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         transaction.begin();
         try {
             S result = task.get();
+            transaction.commit();
+            entityContext.commit();
             if (callback != null) {
                 callback.execute();
             }
-            transaction.commit();
-            entityContext.commit();
             return result;
         } catch (Exception e) {
             transaction.rollback();
@@ -576,10 +568,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     private <S extends U> S execute(EntityManager entityManager, Supplier<S> task) {
-        return doInTransaction(entityManager.getTransaction(), task, () -> {
-            entityManager.flush();
-            closeEntityManager(entityManager);
-        });
+        return doInTransaction(entityManager.getTransaction(), task, () -> closeEntityManager(entityManager));
     }
 
     private void closeEntityManager(EntityManager entityManager) {

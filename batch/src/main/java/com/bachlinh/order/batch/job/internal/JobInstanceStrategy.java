@@ -1,11 +1,11 @@
 package com.bachlinh.order.batch.job.internal;
 
-import com.bachlinh.order.annotation.BatchJob;
+import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.exception.system.batch.JobBuilderException;
+import com.bachlinh.order.core.exception.system.batch.JobBuilderException;
 
 final class JobInstanceStrategy {
     private final Class<? extends Job> jobType;

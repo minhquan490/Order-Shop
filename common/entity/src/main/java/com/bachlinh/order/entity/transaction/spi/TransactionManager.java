@@ -6,4 +6,6 @@ public interface TransactionManager<T> {
     void commit(TransactionHolder<T> holder);
 
     void rollback(TransactionHolder<T> holder);
+
+    TransactionHolder<T> getCurrentTransaction();
 }

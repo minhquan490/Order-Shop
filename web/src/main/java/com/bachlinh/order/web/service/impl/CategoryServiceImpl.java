@@ -1,11 +1,11 @@
 package com.bachlinh.order.web.service.impl;
 
-import com.bachlinh.order.annotation.ServiceComponent;
+import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Category;
-import com.bachlinh.order.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
 import com.bachlinh.order.repository.CategoryRepository;
@@ -14,9 +14,6 @@ import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;
 import com.bachlinh.order.web.dto.resp.CategoryResp;
 import com.bachlinh.order.web.service.common.CategoryService;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -39,7 +36,6 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CategoryResp saveCategory(CategoryCreateForm form) {
         var category = entityFactory.getEntity(Category.class);
         category.setName(form.name());
@@ -48,7 +44,6 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public CategoryResp updateCategory(CategoryUpdateForm form) {
         var category = categoryRepository.getCategoryById(form.id());
         category.setName(form.name());
@@ -57,7 +52,6 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public boolean deleteCategory(CategoryDeleteForm form) {
         var category = categoryRepository.getCategoryById(form.id());
         if (category == null) {

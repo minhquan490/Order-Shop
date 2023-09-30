@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.filter.grpc;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.exception.http.AccessDeniedException;
+import com.bachlinh.order.core.exception.http.AccessDeniedException;
 import com.bachlinh.order.security.auth.spi.CsrfTokenMatcher;
 import com.bachlinh.order.security.auth.spi.InMemoryCsrfTokenCaching;
 import com.bachlinh.order.security.filter.GrpcWebFilter;

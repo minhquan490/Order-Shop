@@ -1,9 +1,9 @@
 package com.bachlinh.order.aot.locator;
 
 import org.springframework.lang.NonNull;
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.Native;
-import com.bachlinh.order.annotation.Reachable;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.Native;
+import com.bachlinh.order.core.annotation.Reachable;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 
 import java.io.Serializable;

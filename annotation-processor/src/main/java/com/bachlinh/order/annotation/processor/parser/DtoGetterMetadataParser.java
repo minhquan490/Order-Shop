@@ -1,11 +1,11 @@
 package com.bachlinh.order.annotation.processor.parser;
 
+import com.bachlinh.order.annotation.processor.meta.GetterMetadata;
+import com.bachlinh.order.core.annotation.MappedDtoField;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import com.bachlinh.order.annotation.MappedDtoField;
-import com.bachlinh.order.annotation.processor.meta.GetterMetadata;
-
 import java.util.List;
 import java.util.regex.Pattern;
 

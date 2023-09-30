@@ -2,7 +2,7 @@ package com.bachlinh.order.mail.http;
 
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.function.Decorator;
-import com.bachlinh.order.exception.system.mail.MailException;
+import com.bachlinh.order.core.exception.system.mail.MailException;
 import com.google.api.client.http.LowLevelHttpRequest;
 import com.google.api.client.http.LowLevelHttpResponse;
 import com.google.common.net.HttpHeaders;

@@ -1,7 +1,7 @@
 package com.bachlinh.order.batch.job.handler;
 
-import com.bachlinh.order.annotation.ActiveReflection;
-import com.bachlinh.order.annotation.BatchJob;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.batch.job.AbstractJob;
 import com.bachlinh.order.batch.job.JobType;
 import com.bachlinh.order.core.container.DependenciesResolver;

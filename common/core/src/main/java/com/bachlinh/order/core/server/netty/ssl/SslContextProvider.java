@@ -12,7 +12,7 @@ import io.netty.incubator.codec.quic.QuicSslContextBuilder;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
 import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
-import com.bachlinh.order.exception.system.common.CriticalException;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
