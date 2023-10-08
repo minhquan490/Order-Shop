@@ -1,15 +1,34 @@
 package com.bachlinh.order.core.server.netty.listener;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.http.handler.Router;
+import com.bachlinh.order.core.server.netty.channel.security.FilterChainAdapter;
 
-public abstract class AbstractHttpFrameListenerFactory<T> implements HttpFrameListenerFactory<T> {
-    private final DependenciesResolver resolver;
+public abstract class AbstractHttpFrameListenerFactory<T> extends AbstractFrameListenerFactory<T> {
+
+    private Router<?, ?> router;
+    private FilterChainAdapter filterChainAdapter;
 
     protected AbstractHttpFrameListenerFactory(DependenciesResolver resolver) {
-        this.resolver = resolver;
+        super(resolver);
     }
 
-    protected DependenciesResolver getResolver() {
-        return resolver;
+    @Override
+    protected final void inject() {
+        if (this.router == null) {
+            this.router = (Router<?, ?>) getResolver().resolveDependencies("router");
+        }
+        if (this.filterChainAdapter == null) {
+            this.filterChainAdapter = getResolver().resolveDependencies(FilterChainAdapter.class);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Router<Object, Object> getRouter() {
+        return (Router<Object, Object>) router;
+    }
+
+    protected FilterChainAdapter getFilterChainAdapter() {
+        return filterChainAdapter;
     }
 }

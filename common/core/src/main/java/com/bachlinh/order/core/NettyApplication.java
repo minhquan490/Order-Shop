@@ -1,11 +1,11 @@
 package com.bachlinh.order.core;
 
 import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.server.netty.NettyServer;
 import com.bachlinh.order.core.server.netty.NettyServerFactory;
 import com.bachlinh.order.core.server.netty.SimpleNettyServerFactory;
-import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.container.DependenciesResolver;
 
 public class NettyApplication {
 
@@ -30,10 +30,11 @@ public class NettyApplication {
                 .port(Integer.parseInt(environment.getProperty("server.port")))
                 .hostName(environment.getProperty("server.address"))
                 .resolver(resolver)
-                .threadFactory(threadPoolOptionHolder.getThreadOption().getVirtualThreadFactory())
+                .threadFactory(threadPoolOptionHolder.getThreadOption().getThreadFactory())
                 .numberOfThread(15)
                 .certPath(environment.getProperty("server.ssl.certificate"))
                 .keyPath(environment.getProperty("server.ssl.certificate-private-key"))
+                .environment(environment)
                 .build();
     }
 }

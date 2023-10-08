@@ -1,19 +1,42 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Province;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class ProvinceMapper extends AbstractEntityMapper<Province> {
+
+    @Override
+    protected void assignMultiTable(Province target, Collection<BaseEntity<?>> results) {
+        Set<District> districtSet = new LinkedHashSet<>();
+
+        for (BaseEntity<?> result : results) {
+            District district = (District) result;
+            district.setProvince(target);
+            districtSet.add(district);
+        }
+
+        target.setDistricts(new LinkedList<>(districtSet));
+    }
+
+    @Override
+    protected void assignSingleTable(Province target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return Province.class.getAnnotation(Table.class).name();
@@ -21,39 +44,20 @@ public class ProvinceMapper extends AbstractEntityMapper<Province> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Province result = getEntityFactory().getEntity(Province.class);
         result.setDistricts(Collections.emptyList());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("PROVINCE")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(District.class);
-            List<District> districtSet = new LinkedList<>();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("DISTRICT")) {
-                    var district = mapper.map(resultSet);
-                    if (district != null) {
-                        district.setProvince(result);
-                        districtSet.add(district);
-                    }
-                } else {
-                    break;
-                }
-            }
-            result.setDistricts(districtSet);
+            List<BaseEntity<?>> districtSet = new LinkedList<>();
+
+            mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, districtSet, "DISTRICT");
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

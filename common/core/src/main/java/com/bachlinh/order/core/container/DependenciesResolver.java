@@ -1,6 +1,6 @@
 package com.bachlinh.order.core.container;
 
-public interface DependenciesResolver {
+public sealed interface DependenciesResolver permits AbstractDependenciesResolver {
 
     <T> T resolveDependencies(Class<T> type);
 

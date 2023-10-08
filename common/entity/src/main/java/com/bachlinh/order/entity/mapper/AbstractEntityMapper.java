@@ -45,20 +45,65 @@ public abstract class AbstractEntityMapper<T extends BaseEntity<?>> implements E
         return testTarget.stream().anyMatch(columnNameMatcher);
     }
 
+    public void setEntityFactory(EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
+
+    public void setEntityMapperFactory(EntityMapperFactory entityMapperFactory) {
+        this.entityMapperFactory = entityMapperFactory;
+    }
+
+    protected void mapCurrentTable(Queue<MappingObject> resultSet, AtomicBoolean wrapped, T target) {
+        MappingObject hook;
+        while (!resultSet.isEmpty()) {
+            hook = resultSet.peek();
+            if (hook.columnName().split("\\.")[0].equals(getTableName())) {
+                hook = resultSet.poll();
+                setData(target, hook, wrapped);
+            } else {
+                break;
+            }
+        }
+    }
+
+    protected void mapSingleTable(AbstractEntityMapper<?> mapper, Queue<MappingObject> resultSet, T target) {
+        if (mapper.canMap(resultSet)) {
+            var mapped = mapper.map(resultSet);
+            if (mapped != null) {
+                assignSingleTable(target, mapped);
+            }
+        }
+    }
+
+    protected void mapMultiTables(AbstractEntityMapper<?> mapper, Queue<MappingObject> resultSet, T target, Collection<BaseEntity<?>> results, String tableName) {
+        MappingObject hook;
+        while (!resultSet.isEmpty()) {
+            hook = resultSet.peek();
+            if (hook.columnName().split("\\.")[0].equals(tableName)) {
+                var mapped = mapper.map(resultSet);
+                if (mapped != null) {
+                    results.add(mapped);
+                }
+            }
+        }
+        assignMultiTable(target, results);
+    }
+
+    protected EntityWrapper wrap(T result, boolean isTouched) {
+        EntityWrapper wrapper = new EntityWrapper(result);
+        wrapper.setTouched(isTouched);
+        return wrapper;
+    }
+
+    protected abstract void assignMultiTable(T target, Collection<BaseEntity<?>> results);
+
+    protected abstract void assignSingleTable(T target, BaseEntity<?> mapped);
+
     protected abstract String getTableName();
 
     protected abstract EntityWrapper internalMapping(Queue<MappingObject> resultSet);
 
     protected abstract void setData(T target, MappingObject mappingObject, AtomicBoolean wrappedTouched);
-
-    private Queue<MappingObject> parseTuple(Tuple target) {
-        Queue<MappingObject> mappingObjectQueue = new LinkedList<>();
-        for (var ele : target.getElements()) {
-            var mappedObject = new MappingObject(ele.getAlias(), target.get(ele.getAlias(), ele.getJavaType()));
-            mappingObjectQueue.add(mappedObject);
-        }
-        return mappingObjectQueue;
-    }
 
     protected EntityFactory getEntityFactory() {
         return this.entityFactory;
@@ -68,12 +113,13 @@ public abstract class AbstractEntityMapper<T extends BaseEntity<?>> implements E
         return this.entityMapperFactory;
     }
 
-    public void setEntityFactory(EntityFactory entityFactory) {
-        this.entityFactory = entityFactory;
-    }
-
-    public void setEntityMapperFactory(EntityMapperFactory entityMapperFactory) {
-        this.entityMapperFactory = entityMapperFactory;
+    private Queue<MappingObject> parseTuple(Tuple target) {
+        Queue<MappingObject> mappingObjectQueue = new LinkedList<>();
+        for (var ele : target.getElements()) {
+            var mappedObject = new MappingObject(ele.getAlias(), target.get(ele.getAlias(), ele.getJavaType()));
+            mappingObjectQueue.add(mappedObject);
+        }
+        return mappingObjectQueue;
     }
 
     protected class EntityWrapper {

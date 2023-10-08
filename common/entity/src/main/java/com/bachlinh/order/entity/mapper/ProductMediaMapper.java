@@ -1,16 +1,31 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class ProductMediaMapper extends AbstractEntityMapper<ProductMedia> {
+
+    @Override
+    protected void assignMultiTable(ProductMedia target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(ProductMedia target, BaseEntity<?> mapped) {
+        Product product = (Product) mapped;
+        product.getMedias().add(target);
+        target.setProduct(product);
+    }
+
     @Override
     protected String getTableName() {
         return ProductMedia.class.getAnnotation(Table.class).name();
@@ -18,31 +33,18 @@ public class ProductMediaMapper extends AbstractEntityMapper<ProductMedia> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         ProductMedia result = getEntityFactory().getEntity(ProductMedia.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("PRODUCT_MEDIA")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Product.class);
-            if (mapper.canMap(resultSet)) {
-                var product = mapper.map(resultSet);
-                if (product != null) {
-                    product.getMedias().add(result);
-                    result.setProduct(product);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

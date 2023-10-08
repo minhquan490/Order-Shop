@@ -73,7 +73,7 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
         for (Map.Entry<String, List<Object>> entry : filteredHeaders) {
             defaultH2Header.set(entry.getKey().toLowerCase(), entry.getValue().stream().map(Object::toString).toList());
         }
-        return new DefaultHttp2HeadersFrame(defaultH2Header);
+        return new DefaultHttp2HeadersFrame(defaultH2Header, bodyData == null);
     }
 
     @Override
@@ -95,25 +95,21 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
     @Override
     public Http2DataFrame[] toH2DataFrame(Http2FrameStream stream, long frameSize) {
         byte[] data = bodyData;
-        if (data == null) {
-            return new Http2DataFrame[0];
+        if (data == null || data.length == 0) {
+            return createEmptyBody();
         }
         int part = (int) (data.length / frameSize);
         Deque<Http2DataFrame> frames = new LinkedList<>();
         for (int i = 0; i < part; i++) {
-            byte[] chunk = Arrays.copyOfRange(data, (int) (i * frameSize), (int) ((i * frameSize) + frameSize));
-            Http2DataFrame dataFrame = new DefaultHttp2DataFrame(Unpooled.copiedBuffer(chunk)).stream(stream);
-            frames.add(dataFrame);
+            copyData(data, (int) (i * frameSize), (int) ((i * frameSize) + frameSize), frames, stream);
         }
         int remain = (int) (data.length % frameSize);
         if (remain > 0) {
-            byte[] chunk = Arrays.copyOfRange(data, data.length - remain, data.length);
-            Http2DataFrame dataFrame = new DefaultHttp2DataFrame(Unpooled.copiedBuffer(chunk)).stream(stream);
-            frames.add(dataFrame);
+            copyData(data, data.length - remain, data.length, frames, stream);
         }
         Http2DataFrame lastFrame = frames.pollLast();
         if (lastFrame == null) {
-            return new Http2DataFrame[0];
+            return createEmptyBody();
         }
         Http2DataFrame newLastFrame = new DefaultHttp2DataFrame(lastFrame.content(), true).stream(stream);
         frames.addLast(newLastFrame);
@@ -215,16 +211,20 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public void setDateHeader(String name, long date) {
-        computed(HttpHeaderNames.DATE.toString(), date);
+        setHeader(name, String.valueOf(date));
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        computed(HttpHeaderNames.DATE.toString(), date);
+        addHeader(HttpHeaderNames.DATE.toString(), String.valueOf(date));
     }
 
     @Override
     public void setHeader(String name, String value) {
+        var values = headers.get(name);
+        if (values != null) {
+            values.clear();
+        }
         computed(name, value);
     }
 
@@ -235,12 +235,12 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public void setIntHeader(String name, int value) {
-        computed(name, value);
+        setHeader(name, String.valueOf(value));
     }
 
     @Override
     public void addIntHeader(String name, int value) {
-        computed(name, value);
+        addHeader(name, String.valueOf(value));
     }
 
     @Override
@@ -326,22 +326,22 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
 
     @Override
     public void setCharacterEncoding(String charset) {
-        computed(HttpHeaderNames.CONTENT_ENCODING.toString(), charset);
+        setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), charset);
     }
 
     @Override
     public void setContentLength(int len) {
-        computed(HttpHeaderNames.CONTENT_LENGTH.toString(), len);
+        setIntHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), len);
     }
 
     @Override
     public void setContentLengthLong(long len) {
-        computed(HttpHeaderNames.CONTENT_LENGTH.toString(), len);
+        setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(len));
     }
 
     @Override
     public void setContentType(String type) {
-        computed(HttpHeaderNames.CONTENT_TYPE.toString(), type);
+        setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), type);
     }
 
     @Override
@@ -402,5 +402,15 @@ public class NettyServletResponseAdapter implements HttpServletResponse, NettyHt
             }
             return strings;
         });
+    }
+
+    private void copyData(byte[] data, int from, int to, Deque<Http2DataFrame> frames, Http2FrameStream stream) {
+        byte[] chunk = Arrays.copyOfRange(data, from, to);
+        Http2DataFrame dataFrame = new DefaultHttp2DataFrame(Unpooled.copiedBuffer(chunk)).stream(stream);
+        frames.add(dataFrame);
+    }
+
+    private Http2DataFrame[] createEmptyBody() {
+        return new Http2DataFrame[0];
     }
 }

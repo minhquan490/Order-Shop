@@ -2,9 +2,11 @@ package com.bachlinh.order.web.handler.rest.admin.files;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.common.FileFlushForm;
 import com.bachlinh.order.web.service.business.FileUploadService;
@@ -29,6 +31,7 @@ public class FlushFileUploadHandler extends AbstractController<Map<String, Objec
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected Map<String, Object> internalHandler(Payload<FileFlushForm> request) {
         try {
             fileUploadService.catAndFlushFile(request.data());

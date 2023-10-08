@@ -2,8 +2,8 @@ package com.bachlinh.order.trigger;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
-import com.bachlinh.order.entity.enums.TriggerExecution;
-import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 import com.bachlinh.order.repository.ProductCartRepository;

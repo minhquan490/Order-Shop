@@ -3,7 +3,7 @@ package com.bachlinh.order.validate.validator.internal;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.entity.ValidateResult;
-import com.bachlinh.order.entity.enums.Gender;
+import com.bachlinh.order.core.enums.Gender;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.CustomerRepository;

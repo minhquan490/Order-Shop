@@ -1,9 +1,10 @@
 package com.bachlinh.order.core.server.netty;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.server.netty.channel.http2.Http2ServerInitializer;
 import com.bachlinh.order.core.server.netty.channel.http3.Http3ServerInitializer;
 import com.bachlinh.order.core.server.netty.ssl.SslContextProvider;
-import com.bachlinh.order.core.container.DependenciesResolver;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import org.springframework.util.StringUtils;
 
@@ -17,8 +18,9 @@ public class SimpleNettyServerFactory implements NettyServerFactory {
     private final int numberOfThread;
     private final String hostName;
     private final int port;
+    private final Environment environment;
 
-    private SimpleNettyServerFactory(String certPath, String keyPath, DependenciesResolver resolver, ThreadFactory threadFactory, int numberOfThread, String hostName, int port) {
+    private SimpleNettyServerFactory(String certPath, String keyPath, DependenciesResolver resolver, Environment environment, ThreadFactory threadFactory, int numberOfThread, String hostName, int port) {
         this.certPath = certPath;
         this.keyPath = keyPath;
         this.resolver = resolver;
@@ -26,12 +28,13 @@ public class SimpleNettyServerFactory implements NettyServerFactory {
         this.numberOfThread = numberOfThread;
         this.hostName = hostName;
         this.port = port;
+        this.environment = environment;
     }
 
     @Override
     public NettyServer getServer() {
         SslContextProvider sslContextProvider = new SslContextProvider(certPath, keyPath);
-        Http2ServerInitializer http2ServerInitializer = new Http2ServerInitializer(resolver, sslContextProvider);
+        Http2ServerInitializer http2ServerInitializer = new Http2ServerInitializer(resolver, environment, sslContextProvider);
         Http3ServerInitializer http3ServerInitializer = new Http3ServerInitializer(resolver);
         EpollEventLoopGroup eventExecutors = new EpollEventLoopGroup(numberOfThread, threadFactory);
         return new SimpleNettyServer(http2ServerInitializer, http3ServerInitializer, eventExecutors, hostName, port, sslContextProvider);
@@ -49,6 +52,7 @@ public class SimpleNettyServerFactory implements NettyServerFactory {
         private int numberOfThread;
         private String hostName;
         private int port;
+        private Environment environment;
 
         @Override
         public Builder certPath(String certPath) {
@@ -93,9 +97,15 @@ public class SimpleNettyServerFactory implements NettyServerFactory {
         }
 
         @Override
+        public Builder environment(Environment environment) {
+            this.environment = environment;
+            return this;
+        }
+
+        @Override
         public NettyServerFactory build() {
             validate();
-            return new SimpleNettyServerFactory(certPath, keyPath, resolver, threadFactory, numberOfThread, hostName, port);
+            return new SimpleNettyServerFactory(certPath, keyPath, resolver, environment, threadFactory, numberOfThread, hostName, port);
         }
 
         private void validate() {
@@ -119,6 +129,9 @@ public class SimpleNettyServerFactory implements NettyServerFactory {
             }
             if (port == 0) {
                 createException("Port must be specify");
+            }
+            if (environment == null) {
+                createException("Environment must be specify");
             }
         }
 

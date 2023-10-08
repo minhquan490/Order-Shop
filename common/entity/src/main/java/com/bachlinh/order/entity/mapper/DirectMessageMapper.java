@@ -1,17 +1,30 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.DirectMessage;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class DirectMessageMapper extends AbstractEntityMapper<DirectMessage> {
+
+    @Override
+    protected void assignMultiTable(DirectMessage target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(DirectMessage target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return DirectMessage.class.getAnnotation(Table.class).name();
@@ -19,27 +32,19 @@ public class DirectMessageMapper extends AbstractEntityMapper<DirectMessage> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         DirectMessage result = getEntityFactory().getEntity(DirectMessage.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("DIRECT_MESSAGE")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             assignFromCustomer(resultSet, result);
         }
         if (!resultSet.isEmpty()) {
             assignToCustomer(resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

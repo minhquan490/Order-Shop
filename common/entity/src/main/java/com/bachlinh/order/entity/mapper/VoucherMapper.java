@@ -1,11 +1,13 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Voucher;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -14,6 +16,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class VoucherMapper extends AbstractEntityMapper<Voucher> {
+
+    @Override
+    protected void assignMultiTable(Voucher target, Collection<BaseEntity<?>> results) {
+        Set<Customer> customerSet = new LinkedHashSet<>();
+
+        for (BaseEntity<?> result : results) {
+            Customer customer = (Customer) result;
+            customer.getAssignedVouchers().add(target);
+        }
+
+        target.setCustomers(customerSet);
+    }
+
+    @Override
+    protected void assignSingleTable(Voucher target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return Voucher.class.getAnnotation(Table.class).name();
@@ -21,37 +41,20 @@ public class VoucherMapper extends AbstractEntityMapper<Voucher> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Voucher result = getEntityFactory().getEntity(Voucher.class);
         result.setCustomers(Collections.emptySet());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("VOUCHER")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            Set<Customer> customerSet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("CUSTOMER")) {
-                    var customer = mapper.map(resultSet);
-                    if (customer != null) {
-                        result.getCustomers().add(customer);
-                        customerSet.add(customer);
-                    }
-                }
-            }
-            result.setCustomers(customerSet);
+            Set<BaseEntity<?>> customerSet = new LinkedHashSet<>();
+
+            mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, customerSet, "CUSTOMER");
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

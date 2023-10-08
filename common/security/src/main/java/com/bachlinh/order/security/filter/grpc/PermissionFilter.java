@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.filter.grpc;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.core.exception.http.AccessDeniedException;
 import com.bachlinh.order.security.filter.GrpcWebFilter;

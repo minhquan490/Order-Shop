@@ -47,4 +47,6 @@ public interface TokenManager extends JwtDecoder, JwtEncoder {
      * @return refresh token holder hold refresh token or none.
      */
     RefreshTokenHolder validateRefreshToken(String token);
+
+    String revokeAccessToken(String refreshToken);
 }

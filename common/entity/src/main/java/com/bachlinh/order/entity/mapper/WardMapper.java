@@ -1,16 +1,31 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Ward;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class WardMapper extends AbstractEntityMapper<Ward> {
+
+    @Override
+    protected void assignMultiTable(Ward target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(Ward target, BaseEntity<?> mapped) {
+        District district = (District) mapped;
+        district.getWards().add(target);
+        target.setDistrict(district);
+    }
+
     @Override
     protected String getTableName() {
         return Ward.class.getAnnotation(Table.class).name();
@@ -18,31 +33,18 @@ public class WardMapper extends AbstractEntityMapper<Ward> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Ward result = getEntityFactory().getEntity(Ward.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("WARD")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(District.class);
-            if (mapper.canMap(resultSet)) {
-                var district = mapper.map(resultSet);
-                if (district != null) {
-                    district.getWards().add(result);
-                    result.setDistrict(district);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

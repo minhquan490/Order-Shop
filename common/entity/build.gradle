@@ -4,6 +4,7 @@ plugins {
     id 'io.spring.dependency-management'
     id 'java-library'
     id "org.hibernate.orm"
+    id "io.freefair.aspectj"
 }
 
 group = 'com.bachlinh.order'
@@ -32,11 +33,19 @@ dependencies {
 
     annotationProcessor project(":annotation-processor")
     annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'
+
+    runtimeOnly 'org.aspectj:aspectjweaver'
+    runtimeOnly 'org.aspectj:aspectjrt'
 }
 
 
 test {
     useJUnitPlatform()
+    jvmArgs(['--enable-preview'])
+}
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
 }
 
 bootJar {

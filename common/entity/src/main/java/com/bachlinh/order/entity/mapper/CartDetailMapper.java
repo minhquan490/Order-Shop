@@ -1,17 +1,36 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.model.Product;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class CartDetailMapper extends AbstractEntityMapper<CartDetail> {
+
+    @Override
+    protected void assignMultiTable(CartDetail target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(CartDetail target, BaseEntity<?> mapped) {
+        if (mapped instanceof Product product) {
+            target.setProduct(product);
+        }
+        if (mapped instanceof Cart cart) {
+            target.setCart(cart);
+            cart.getCartDetails().add(target);
+        }
+    }
+
     @Override
     protected String getTableName() {
         return CartDetail.class.getAnnotation(Table.class).name();
@@ -19,18 +38,11 @@ public class CartDetailMapper extends AbstractEntityMapper<CartDetail> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         CartDetail result = getEntityFactory().getEntity(CartDetail.class);
         AtomicBoolean wrapped = new AtomicBoolean(true);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CART_DETAIL")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             assignProduct(result, resultSet);
         }
@@ -78,22 +90,13 @@ public class CartDetailMapper extends AbstractEntityMapper<CartDetail> {
 
     private void assignProduct(CartDetail result, Queue<MappingObject> resultSet) {
         var mapper = getEntityMapperFactory().createMapper(Product.class);
-        if (mapper.canMap(resultSet)) {
-            var product = mapper.map(resultSet);
-            if (product != null) {
-                result.setProduct(product);
-            }
-        }
+
+        mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
     }
 
     private void assignCart(CartDetail result, Queue<MappingObject> resultSet) {
         var mapper = getEntityMapperFactory().createMapper(Cart.class);
-        if (mapper.canMap(resultSet)) {
-            var cart = mapper.map(resultSet);
-            if (cart != null) {
-                cart.getCartDetails().add(result);
-                result.setCart(cart);
-            }
-        }
+
+        mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
     }
 }

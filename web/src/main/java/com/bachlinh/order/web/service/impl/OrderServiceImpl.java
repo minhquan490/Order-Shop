@@ -11,7 +11,7 @@ import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.enums.OrderStatusValue;
+import com.bachlinh.order.core.enums.OrderStatusValue;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.entity.model.Order;

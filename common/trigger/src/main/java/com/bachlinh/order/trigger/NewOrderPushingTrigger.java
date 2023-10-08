@@ -2,13 +2,12 @@ package com.bachlinh.order.trigger;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
-import com.bachlinh.order.entity.enums.TriggerExecution;
-import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
+import com.bachlinh.order.core.server.netty.channel.stomp.publisher.NotificationPublisher;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
-import com.bachlinh.order.handler.tcp.context.WebSocketSessionManager;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +15,8 @@ import java.util.Map;
 @ApplyOn(entity = Order.class)
 public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
 
-    private WebSocketSessionManager webSocketSessionManager;
+    private NotificationPublisher notificationPublisher;
+    private String subscribePath;
 
     @Override
     public String getTriggerName() {
@@ -38,17 +38,17 @@ public class NewOrderPushingTrigger extends AbstractTrigger<Order> {
         Map<String, String> message = HashMap.newHashMap(2);
         message.put("order_id", (entity).getId());
         message.put("time_order", entity.getTimeOrder().toString());
-        try {
-            webSocketSessionManager.pushMessageToAllAdmin(message);
-        } catch (IOException e) {
-            log.error("Can not push notification to admin", e);
-        }
+
+        notificationPublisher.pushNotification(message);
     }
 
     @Override
     protected void inject() {
-        if (webSocketSessionManager == null) {
-            webSocketSessionManager = resolveDependencies(WebSocketSessionManager.class);
+        if (notificationPublisher == null) {
+            notificationPublisher = (NotificationPublisher) getDependenciesResolver().resolveDependencies("nettyConnectionManager");
+        }
+        if (subscribePath == null) {
+            subscribePath = getEnvironment().getProperty("server.stomp.subscribe.path");
         }
     }
 }

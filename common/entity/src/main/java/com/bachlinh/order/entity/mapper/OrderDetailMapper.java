@@ -1,16 +1,35 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderDetail;
 import com.bachlinh.order.entity.model.Product;
 import jakarta.persistence.Table;
 
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class OrderDetailMapper extends AbstractEntityMapper<OrderDetail> {
+
+    @Override
+    protected void assignMultiTable(OrderDetail target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(OrderDetail target, BaseEntity<?> mapped) {
+        if (mapped instanceof Product product) {
+            target.setProduct(product);
+        }
+        if (mapped instanceof Order order) {
+            order.getOrderDetails().add(target);
+            target.setOrder(order);
+        }
+    }
+
     @Override
     protected String getTableName() {
         return OrderDetail.class.getAnnotation(Table.class).name();
@@ -18,40 +37,24 @@ public class OrderDetailMapper extends AbstractEntityMapper<OrderDetail> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         OrderDetail result = getEntityFactory().getEntity(OrderDetail.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("ORDER_DETAIL")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Product.class);
-            if (mapper.canMap(resultSet)) {
-                var product = mapper.map(resultSet);
-                if (product != null) {
-                    result.setProduct(product);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Order.class);
-            if (mapper.canMap(resultSet)) {
-                var order = mapper.map(resultSet);
-                if (order != null) {
-                    order.getOrderDetails().add(result);
-                    result.setOrder(order);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

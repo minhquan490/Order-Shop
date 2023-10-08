@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.transaction.internal;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.entity.transaction.spi.AbstractTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
 import com.bachlinh.order.entity.utils.TransactionUtils;
@@ -39,7 +40,13 @@ public class DefaultTransactionManager extends AbstractTransactionManager<Transa
 
     @Override
     public TransactionHolder<TransactionStatus> beginTransaction() {
+        return beginTransaction(null, -1);
+    }
+
+    @Override
+    public TransactionHolder<TransactionStatus> beginTransaction(Isolation isolation, int timeOut) {
         SpringTransactionHolder transactionHolder = new SpringTransactionHolder(platformTransactionManager);
+        transactionHolder.getTransaction(isolation, timeOut);
         assignTransactionStatus(transactionHolder);
         DefaultSavePointManager defaultSavePointManager = (DefaultSavePointManager) getSavePointManager();
 

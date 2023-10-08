@@ -2,6 +2,7 @@ package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
 import com.bachlinh.order.entity.EntityMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailFolders;
@@ -9,12 +10,24 @@ import com.bachlinh.order.entity.model.EmailTrash;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class EmailMapper extends AbstractEntityMapper<Email> {
+
+    @Override
+    protected void assignMultiTable(Email target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(Email target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return Email.class.getAnnotation(Table.class).name();
@@ -22,24 +35,18 @@ public class EmailMapper extends AbstractEntityMapper<Email> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Email result = getEntityFactory().getEntity(Email.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             assignFromCustomer(resultSet, result);
         }
         if (!resultSet.isEmpty()) {
             assignToCustomer(resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(EmailFolders.class);
             if (mapper.canMap(resultSet)) {
@@ -49,6 +56,7 @@ public class EmailMapper extends AbstractEntityMapper<Email> {
                 }
             }
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(EmailTrash.class);
             if (mapper.canMap(resultSet)) {
@@ -59,9 +67,8 @@ public class EmailMapper extends AbstractEntityMapper<Email> {
                 }
             }
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.bachlinh.order.security.filter.grpc;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
 import com.bachlinh.order.entity.model.Customer_;

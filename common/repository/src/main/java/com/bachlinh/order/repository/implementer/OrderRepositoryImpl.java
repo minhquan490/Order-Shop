@@ -4,7 +4,7 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.DependenciesInitialize;
 import com.bachlinh.order.core.annotation.RepositoryComponent;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
-import com.bachlinh.order.entity.enums.OrderStatusValue;
+import com.bachlinh.order.core.enums.OrderStatusValue;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.Order;

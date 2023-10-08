@@ -1,15 +1,28 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.MessageSetting;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class MessageSettingMapper extends AbstractEntityMapper<MessageSetting> {
+
+    @Override
+    protected void assignMultiTable(MessageSetting target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(MessageSetting target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return MessageSetting.class.getAnnotation(Table.class).name();
@@ -17,18 +30,11 @@ public class MessageSettingMapper extends AbstractEntityMapper<MessageSetting> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         MessageSetting result = getEntityFactory().getEntity(MessageSetting.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("MESSAGE_SETTING")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         EntityWrapper entityWrapper = new EntityWrapper(result);
         entityWrapper.setTouched(wrapped.get());
         return entityWrapper;

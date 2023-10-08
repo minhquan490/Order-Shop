@@ -1,17 +1,36 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplate;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class EmailTemplateMapper extends AbstractEntityMapper<EmailTemplate> {
+
+    @Override
+    protected void assignMultiTable(EmailTemplate target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(EmailTemplate target, BaseEntity<?> mapped) {
+        if (mapped instanceof Customer owner) {
+            target.setOwner(owner);
+        }
+        if (mapped instanceof EmailTemplateFolder folder) {
+            folder.getEmailTemplates().add(target);
+            target.setFolder(folder);
+        }
+    }
+
     @Override
     protected String getTableName() {
         return EmailTemplate.class.getAnnotation(Table.class).name();
@@ -19,40 +38,24 @@ public class EmailTemplateMapper extends AbstractEntityMapper<EmailTemplate> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         EmailTemplate result = getEntityFactory().getEntity(EmailTemplate.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("EMAIL_TEMPLATE")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var owner = mapper.map(resultSet);
-                if (owner != null) {
-                    result.setOwner(owner);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(EmailTemplateFolder.class);
-            if (mapper.canMap(resultSet)) {
-                var emailTemplateFolder = mapper.map(resultSet);
-                if (emailTemplateFolder != null) {
-                    emailTemplateFolder.getEmailTemplates().add(result);
-                    result.setFolder(emailTemplateFolder);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

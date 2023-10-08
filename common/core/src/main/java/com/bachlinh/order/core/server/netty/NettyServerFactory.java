@@ -1,6 +1,7 @@
 package com.bachlinh.order.core.server.netty;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -21,6 +22,8 @@ public interface NettyServerFactory {
         Builder hostName(String hostName);
 
         Builder port(int port);
+
+        Builder environment(Environment environment);
 
         NettyServerFactory build();
     }

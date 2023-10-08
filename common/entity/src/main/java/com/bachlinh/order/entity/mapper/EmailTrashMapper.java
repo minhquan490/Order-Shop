@@ -1,12 +1,14 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailTrash;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -15,6 +17,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class EmailTrashMapper extends AbstractEntityMapper<EmailTrash> {
+
+    @Override
+    protected void assignMultiTable(EmailTrash target, Collection<BaseEntity<?>> results) {
+        Set<Email> emailSet = new LinkedHashSet<>();
+
+        for (BaseEntity<?> result : results) {
+            Email email = (Email) result;
+            email.setEmailTrash(target);
+            emailSet.add(email);
+        }
+
+        target.setEmails(emailSet);
+    }
+
+    @Override
+    protected void assignSingleTable(EmailTrash target, BaseEntity<?> mapped) {
+        Customer customer = (Customer) mapped;
+        customer.setEmailTrash(target);
+        target.setCustomer(customer);
+    }
+
     @Override
     protected String getTableName() {
         return EmailTrash.class.getAnnotation(Table.class).name();
@@ -22,49 +45,26 @@ public class EmailTrashMapper extends AbstractEntityMapper<EmailTrash> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         EmailTrash result = getEntityFactory().getEntity(EmailTrash.class);
         result.setEmails(Collections.emptySet());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("EMAIL_TRASH")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Email.class);
-            Set<Email> emailSet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
-                    var email = mapper.map(resultSet);
-                    if (email != null) {
-                        email.setEmailTrash(result);
-                        emailSet.add(email);
-                    }
-                } else {
-                    break;
-                }
-            }
-            result.setEmails(emailSet);
+            Set<BaseEntity<?>> emailSet = new LinkedHashSet<>();
+
+            mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, emailSet, "EMAILS");
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    customer.setEmailTrash(result);
-                    result.setCustomer(customer);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

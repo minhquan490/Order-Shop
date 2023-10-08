@@ -35,7 +35,8 @@ class DtoGetterMetadataParser implements GetterMetadataParser {
                     var field = findField(fieldName, parent);
                     MappedDtoField mappedDtoField = field.getAnnotation(MappedDtoField.class);
                     if (mappedDtoField == null) {
-                        throw new IllegalStateException(String.format("MappedDtoField missing on field %s of element %s", field.getSimpleName().toString(), parent.getSimpleName().toString()));
+                        String message = STR. "MappedDtoField missing on field \{ field.getSimpleName().toString() } of element \{ parent.getSimpleName().toString() }" ;
+                        throw new IllegalStateException(message);
                     }
                     return new GetterMetadata(methodName, executable.getReturnType(), mappedDtoField);
                 })

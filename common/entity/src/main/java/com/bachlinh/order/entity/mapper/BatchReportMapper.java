@@ -1,15 +1,28 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.BatchReport;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class BatchReportMapper extends AbstractEntityMapper<BatchReport> {
+
+    @Override
+    protected void assignMultiTable(BatchReport target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(BatchReport target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return BatchReport.class.getAnnotation(Table.class).name();
@@ -17,21 +30,12 @@ public class BatchReportMapper extends AbstractEntityMapper<BatchReport> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         BatchReport result = getEntityFactory().getEntity(BatchReport.class);
         AtomicBoolean wrappedTouched = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("BATCH_REPORT")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrappedTouched);
-            } else {
-                break;
-            }
-        }
-        EntityWrapper wrapper = new EntityWrapper(result);
-        wrapper.setTouched(wrappedTouched.get());
-        return wrapper;
+
+        mapCurrentTable(resultSet, wrappedTouched, result);
+
+        return wrap(result, wrappedTouched.get());
     }
 
     @Override

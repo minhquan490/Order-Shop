@@ -199,7 +199,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
      * neither is it for a sequence of JDBC insert/update/delete operations.
      * <p><b>Note:</b>This flag only applies to an explicit rollback attempt for a
      * sub-transaction, typically caused by an exception thrown by a data access operation
-     * (where TransactionInterceptor will trigger a {@code PlatformTransactionManager.rollback()}
+     * (where com.bachlinh.order.entity.TransactionInterceptor will trigger a {@code PlatformTransactionManager.rollback()}
      * call according to a rollback rule). If the flag is off, the caller can handle the exception
      * and decide on a rollback, independent of the rollback rules of the sub-transaction.
      * This flag does, however, <i>not</i> apply to explicit {@code setRollbackOnly}

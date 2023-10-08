@@ -2,6 +2,7 @@ package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
 import com.bachlinh.order.entity.model.Address;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
@@ -14,6 +15,7 @@ import com.bachlinh.order.entity.model.Voucher;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -22,6 +24,74 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class CustomerMapper extends AbstractEntityMapper<Customer> {
+
+    @Override
+    protected void assignMultiTable(Customer target, Collection<BaseEntity<?>> results) {
+        String name = "";
+        for (BaseEntity<?> result : results) {
+            if (result instanceof Address address) {
+                name = "address";
+                address.setCustomer(target);
+            }
+            if (result instanceof Order order) {
+                name = "order";
+                order.setCustomer(target);
+            }
+            if (result instanceof CustomerAccessHistory accessHistory) {
+                name = "customerAccessHistory";
+                accessHistory.setCustomer(target);
+            }
+            if (result instanceof Voucher voucher) {
+                name = "voucher";
+                voucher.getCustomers().add(target);
+            }
+        }
+
+        switch (name) {
+            case "address" -> {
+                Set<Address> addressSet = new LinkedHashSet<>(results.stream().map(Address.class::cast).toList());
+                target.setAddresses(addressSet);
+            }
+            case "order" -> {
+                Set<Order> orderSet = new LinkedHashSet<>(results.stream().map(Order.class::cast).toList());
+                target.setOrders(orderSet);
+            }
+            case "customerAccessHistory" -> {
+                Set<CustomerAccessHistory> customerAccessHistories = new LinkedHashSet<>(results.stream().map(CustomerAccessHistory.class::cast).toList());
+                target.setHistories(customerAccessHistories);
+            }
+            case "voucher" -> {
+                Set<Voucher> voucherSet = new LinkedHashSet<>(results.stream().map(Voucher.class::cast).toList());
+                target.setAssignedVouchers(voucherSet);
+            }
+            default -> {/* Do nothing */}
+        }
+    }
+
+    @Override
+    protected void assignSingleTable(Customer target, BaseEntity<?> mapped) {
+        if (mapped instanceof Cart cart) {
+            cart.setCustomer(target);
+            target.setCart(cart);
+        }
+        if (mapped instanceof RefreshToken refreshToken) {
+            refreshToken.setCustomer(target);
+            target.setRefreshToken(refreshToken);
+        }
+        if (mapped instanceof EmailTrash emailTrash) {
+            emailTrash.setCustomer(target);
+            target.setEmailTrash(emailTrash);
+        }
+        if (mapped instanceof CustomerMedia customerMedia) {
+            customerMedia.setCustomer(target);
+            target.setCustomerMedia(customerMedia);
+        }
+        if (mapped instanceof TemporaryToken token) {
+            token.setAssignCustomer(target);
+            target.setTemporaryToken(token);
+        }
+    }
+
     @Override
     protected String getTableName() {
         return Customer.class.getAnnotation(Table.class).name();
@@ -29,22 +99,15 @@ public class CustomerMapper extends AbstractEntityMapper<Customer> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Customer result = getEntityFactory().getEntity(Customer.class);
         result.setAddresses(Collections.emptySet());
         result.setOrders(Collections.emptySet());
         result.setHistories(Collections.emptySet());
         result.setAssignedVouchers(Collections.emptySet());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CUSTOMER")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             assignCart(resultSet, result);
         }
@@ -72,9 +135,8 @@ public class CustomerMapper extends AbstractEntityMapper<Customer> {
         if (!resultSet.isEmpty()) {
             assignVouchers(resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override
@@ -174,118 +236,54 @@ public class CustomerMapper extends AbstractEntityMapper<Customer> {
 
     private void assignCart(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(Cart.class);
-        if (mapper.canMap(resultSet)) {
-            var cart = mapper.map(resultSet);
-            if (cart != null) {
-                result.setCart(cart);
-                cart.setCustomer(result);
-            }
-        }
+
+        mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
     }
 
     private void assignEmailTrash(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(EmailTrash.class);
-        if (mapper.canMap(resultSet)) {
-            var emailTrash = mapper.map(resultSet);
-            if (emailTrash != null) {
-                result.setEmailTrash(emailTrash);
-                emailTrash.setCustomer(result);
-            }
-        }
+
+        mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
     }
 
     private void assignCustomerMedia(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(CustomerMedia.class);
-        if (mapper.canMap(resultSet)) {
-            var customerMedia = mapper.map(resultSet);
-            if (customerMedia != null) {
-                result.setCustomerMedia(customerMedia);
-                customerMedia.setCustomer(result);
-            }
-        }
+
+        mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
     }
 
     private void assignTemporaryToken(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(TemporaryToken.class);
-        if (mapper.canMap(resultSet)) {
-            var temporaryToken = mapper.map(resultSet);
-            if (temporaryToken != null) {
-                result.setTemporaryToken(temporaryToken);
-                temporaryToken.setAssignCustomer(result);
-            }
-        }
+
+        mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
     }
 
     private void assignAddress(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(Address.class);
-        Set<Address> addressSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("ADDRESS")) {
-                var address = mapper.map(resultSet);
-                if (address != null) {
-                    address.setCustomer(result);
-                    addressSet.add(address);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setAddresses(addressSet);
+        Set<BaseEntity<?>> addressSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, addressSet, "ADDRESS");
     }
 
     private void assignOrders(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(Order.class);
-        Set<Order> orderSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("ORDERS")) {
-                var order = mapper.map(resultSet);
-                if (order != null) {
-                    order.setCustomer(result);
-                    orderSet.add(order);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setOrders(orderSet);
+        Set<BaseEntity<?>> orderSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, orderSet, "ORDERS");
     }
 
     private void assignHistories(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(CustomerAccessHistory.class);
-        Set<CustomerAccessHistory> historySet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CUSTOMER_ACCESS_HISTORY")) {
-                var customerAccessHistory = mapper.map(resultSet);
-                if (customerAccessHistory != null) {
-                    customerAccessHistory.setCustomer(result);
-                    historySet.add(customerAccessHistory);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setHistories(historySet);
+        Set<BaseEntity<?>> historySet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, historySet, "CUSTOMER_ACCESS_HISTORY");
     }
 
     private void assignVouchers(Queue<MappingObject> resultSet, Customer result) {
         var mapper = getEntityMapperFactory().createMapper(Voucher.class);
-        Set<Voucher> voucherSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("VOUCHER")) {
-                var voucher = mapper.map(resultSet);
-                if (voucher != null) {
-                    voucher.getCustomers().add(result);
-                    voucherSet.add(voucher);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setAssignedVouchers(voucherSet);
+        Set<BaseEntity<?>> voucherSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, voucherSet, "VOUCHER");
     }
 
 }

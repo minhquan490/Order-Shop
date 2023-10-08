@@ -11,8 +11,7 @@ public final class TransactionUtils {
     }
 
     public static EntityManager extractEntityManager(TransactionHolder<?> transactionHolder) {
-        if (transactionHolder.getTransaction() instanceof DefaultTransactionStatus) {
-            DefaultTransactionStatus transactionStatus = (DefaultTransactionStatus) transactionHolder.getTransaction();
+        if (transactionHolder.getTransaction() instanceof DefaultTransactionStatus transactionStatus) {
             JpaTransactionManager.JpaTransactionObject transactionObject = (JpaTransactionManager.JpaTransactionObject) transactionStatus.getTransaction();
             return transactionObject.getEntityManagerHolder().getEntityManager();
         }

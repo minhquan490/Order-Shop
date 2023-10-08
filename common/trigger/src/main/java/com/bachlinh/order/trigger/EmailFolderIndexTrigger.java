@@ -5,8 +5,8 @@ import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.enums.TriggerExecution;
-import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 
