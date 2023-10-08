@@ -17,16 +17,19 @@ import java.util.Map;
 class SpringRepositoryManager implements RepositoryManager {
 
     private final Map<Class<?>, RepositoryBase> repositoryBaseMap = new HashMap<>();
+    private final EntityManagerProxyOperator entityManagerProxyOperator;
 
     SpringRepositoryManager(DependenciesContainerResolver containerResolver) {
         ApplicationScanner scanner = new ApplicationScanner();
         Initializer<RepositoryBase> repositoryBaseInitializer = new RepositoryInitializer();
+        InjectableEntityManager injectableEntityManager = new InjectableEntityManager();
         scanner.findComponents()
                 .stream()
                 .filter(RepositoryBase.class::isAssignableFrom)
                 .filter(clazz -> clazz.isAnnotationPresent(RepositoryComponent.class))
-                .map(type -> repositoryBaseInitializer.getObject(type, containerResolver))
+                .map(type -> repositoryBaseInitializer.getObject(type, containerResolver, injectableEntityManager))
                 .forEach(this::computedRepository);
+        this.entityManagerProxyOperator = injectableEntityManager;
     }
 
     @Override
@@ -45,12 +48,12 @@ class SpringRepositoryManager implements RepositoryManager {
     @Override
     public void assignTransaction(TransactionHolder<?> transactionHolder) {
         EntityManager entityManager = TransactionUtils.extractEntityManager(transactionHolder);
-        repositoryBaseMap.forEach((aClass, repositoryBase) -> repositoryBase.setEntityManager(entityManager));
+        entityManagerProxyOperator.assignEntityManager(entityManager);
     }
 
     @Override
     public void releaseTransaction(TransactionHolder<?> transactionHolder) {
-        repositoryBaseMap.forEach((aClass, repositoryBase) -> repositoryBase.setEntityManager(null));
+        entityManagerProxyOperator.releaseEntityManager();
         transactionHolder.cleanup(transactionHolder);
     }
 
@@ -70,7 +73,9 @@ class SpringRepositoryManager implements RepositoryManager {
         public RepositoryBase getObject(Class<?> type, Object... params) {
             try {
                 RepositoryBase dummy = (RepositoryBase) UnsafeUtils.allocateInstance(type);
-                return dummy.getInstance((DependenciesContainerResolver) params[0]);
+                RepositoryBase result = dummy.getInstance((DependenciesContainerResolver) params[0]);
+                result.setEntityManager((EntityManager) params[1]);
+                return result;
             } catch (InstantiationException e) {
                 throw new CriticalException(e);
             }

@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface SqlBuilderFactory {
     SqlBuilder getQueryBuilder();
 
-    static SqlBuilderFactory defaultInstance(Collection<EntityContext> contexts) {
-        return new DefaultSqlBuilderFactory(contexts);
+    static SqlBuilderFactory defaultInstance(Collection<EntityContext> contexts, String driverClassName) {
+        return new DefaultSqlBuilderFactory(contexts, driverClassName);
     }
 }

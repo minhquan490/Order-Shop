@@ -66,7 +66,7 @@ public class ExecutorContainer implements ExecutorHolder {
         var executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(coreSize);
         executor.initialize();
-        executor.setThreadFactory(this.option.getVirtualThreadFactory());
+        executor.setThreadFactory(this.option.getThreadFactory());
         return executor;
     }
 
@@ -74,7 +74,7 @@ public class ExecutorContainer implements ExecutorHolder {
         var scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(coreSize);
         scheduler.initialize();
-        scheduler.setThreadFactory(this.option.getVirtualThreadFactory());
+        scheduler.setThreadFactory(this.option.getThreadFactory());
         return scheduler;
     }
 

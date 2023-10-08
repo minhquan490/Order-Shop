@@ -3,10 +3,12 @@ package com.bachlinh.order.web.handler.rest.customer.cart;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.EnableCsrf;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.entity.Permit;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.annotation.Permit;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.customer.CartDetailRemoveForm;
 import com.bachlinh.order.web.dto.resp.CartResp;
@@ -31,6 +33,7 @@ public class CartProductRemoveHandler extends AbstractController<CartResp, CartD
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected CartResp internalHandler(Payload<CartDetailRemoveForm> request) {
         return cartService.removeProductFromCart(request.data());
     }

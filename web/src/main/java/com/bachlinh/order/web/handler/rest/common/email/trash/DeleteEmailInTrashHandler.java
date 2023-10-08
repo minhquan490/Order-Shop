@@ -3,6 +3,8 @@ package com.bachlinh.order.web.handler.rest.common.email.trash;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.EnableCsrf;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.model.Customer;
@@ -32,6 +34,7 @@ public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Ob
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected Map<String, Object> internalHandler(Payload<DeleteEmailInTrashForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         emailInTrashService.removeEmailsFromTrash(Arrays.asList(request.data().getEmailId()), customer);

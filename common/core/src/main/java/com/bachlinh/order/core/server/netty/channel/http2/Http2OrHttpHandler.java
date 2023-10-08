@@ -1,14 +1,15 @@
 package com.bachlinh.order.core.server.netty.channel.http2;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.server.netty.Http2CompressFrameCodecBuilder;
 import com.bachlinh.order.core.server.netty.listener.HttpFrameListenerFactory;
+import com.bachlinh.order.core.server.netty.shaded.Http2FrameCodec;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http2.Http2Frame;
-import io.netty.handler.codec.http2.Http2FrameCodec;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import org.slf4j.Logger;
@@ -18,13 +19,14 @@ import org.slf4j.LoggerFactory;
 public class Http2OrHttpHandler extends ApplicationProtocolNegotiationHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final int MAX_CONTENT_LENGTH = 1024 * 100;
+    private final int maxBodyLength;
     private final HttpFrameListenerFactory<Http2Frame> listenerFactory;
 
     @SuppressWarnings("unchecked")
-    public Http2OrHttpHandler(DependenciesResolver resolver) {
+    public Http2OrHttpHandler(DependenciesResolver resolver, Environment environment) {
         super(ApplicationProtocolNames.HTTP_1_1);
         this.listenerFactory = (HttpFrameListenerFactory<Http2Frame>) resolver.resolveDependencies("http2FrameListener");
+        this.maxBodyLength = Integer.parseInt(environment.getProperty("server.request.body.size"));
     }
 
     @Override
@@ -36,7 +38,10 @@ public class Http2OrHttpHandler extends ApplicationProtocolNegotiationHandler {
             return;
         }
         if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
-            ctx.pipeline().addLast(new HttpServerCodec(), new HttpObjectAggregator(MAX_CONTENT_LENGTH), new DefaultHttp2Handler(listenerFactory));
+            ctx.pipeline()
+                    .addLast(new HttpServerCodec())
+                    .addLast(new HttpObjectAggregator(maxBodyLength))
+                    .addLast(new DefaultHttp2Handler(listenerFactory));
         }
     }
 

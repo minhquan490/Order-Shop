@@ -21,8 +21,8 @@ import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.context.FieldUpdated;
-import com.bachlinh.order.entity.enums.Gender;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.enums.Gender;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Address;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerAccessHistory;
@@ -52,7 +52,6 @@ import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
-import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
@@ -444,14 +443,8 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public RevokeTokenResp revokeToken(String refreshToken) {
-        RefreshTokenHolder holder = tokenManager.validateRefreshToken(refreshToken);
-        String jwt;
-        if (holder.isNonNull()) {
-            Customer customer = holder.getValue().getCustomer();
-            tokenManager.encode(Customer_.ID, customer.getId());
-            tokenManager.encode(Customer_.USERNAME, customer.getUsername());
-            jwt = tokenManager.getTokenValue();
-        } else {
+        String jwt = tokenManager.revokeAccessToken(refreshToken);
+        if (jwt.isEmpty()) {
             throw new UnAuthorizationException("Token is expired", "");
         }
         return new RevokeTokenResp(jwt, refreshToken);

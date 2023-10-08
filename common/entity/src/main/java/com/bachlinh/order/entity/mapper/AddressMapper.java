@@ -2,15 +2,30 @@ package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
 import com.bachlinh.order.entity.model.Address;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class AddressMapper extends AbstractEntityMapper<Address> {
+
+    @Override
+    protected void assignMultiTable(Address target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(Address target, BaseEntity<?> mapped) {
+        if (mapped instanceof Customer customer) {
+            target.setCustomer(customer);
+            customer.getAddresses().add(target);
+        }
+    }
 
     @Override
     protected String getTableName() {
@@ -19,30 +34,17 @@ public class AddressMapper extends AbstractEntityMapper<Address> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Address result = getEntityFactory().getEntity(Address.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("ADDRESS")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    result.setCustomer(customer);
-                }
-            }
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper wrapper = new EntityWrapper(result);
-        wrapper.setTouched(wrapped.get());
-        return wrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
 

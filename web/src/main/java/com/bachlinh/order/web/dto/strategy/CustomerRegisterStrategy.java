@@ -4,7 +4,7 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.dto.strategy.AbstractDtoStrategy;
 import com.bachlinh.order.dto.strategy.DtoStrategy;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.container.DependenciesResolver;

@@ -1,26 +1,27 @@
 package com.bachlinh.order.web.common.listener;
 
+import com.bachlinh.order.core.http.handler.Router;
 import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletResponseAdapter;
 import com.bachlinh.order.core.server.netty.channel.security.FilterChainAdapter;
 import com.bachlinh.order.core.server.netty.collector.Http3FrameCollector;
 import com.bachlinh.order.core.server.netty.listener.HttpFrameListener;
-import com.bachlinh.order.core.server.netty.utils.HandlerUtils;
-import com.bachlinh.order.web.common.servlet.ServletRouter;
+import com.bachlinh.order.core.utils.HandlerUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.incubator.codec.http3.Http3DataFrame;
 import io.netty.incubator.codec.http3.Http3Frame;
 import io.netty.incubator.codec.http3.Http3Headers;
 import io.netty.incubator.codec.http3.Http3HeadersFrame;
+import io.netty.incubator.codec.quic.QuicStreamChannel;
 
 class DefaultHttp3Listener implements HttpFrameListener<Http3Frame> {
     private static final int FRAME_SIZE = 8000;
 
-    private final ServletRouter servletRouter;
+    private final Router<Object, Object> servletRouter;
     private final FilterChainAdapter filterChainAdapter;
 
     private Http3FrameCollector frameCollector;
 
-    DefaultHttp3Listener(ServletRouter servletRouter, FilterChainAdapter filterChainAdapter) {
+    DefaultHttp3Listener(Router<Object, Object> servletRouter, FilterChainAdapter filterChainAdapter) {
         this.servletRouter = servletRouter;
         this.filterChainAdapter = filterChainAdapter;
     }
@@ -95,9 +96,19 @@ class DefaultHttp3Listener implements HttpFrameListener<Http3Frame> {
             NettyServletResponseAdapter adapter = HandlerUtils.handle(frameCollector, filterChainAdapter, ctx, (servletRouter::handleRequest));
             Http3HeadersFrame http3HeadersFrame = adapter.toH3HeaderFrame();
             Http3DataFrame[] http3DataFrames = adapter.toH3DataFrames(FRAME_SIZE);
-            ctx.write(http3HeadersFrame);
-            for (Http3DataFrame frame : http3DataFrames) {
-                ctx.write(frame);
+            if (http3DataFrames == null || http3DataFrames.length == 0) {
+                ctx.writeAndFlush(http3DataFrames).addListener(QuicStreamChannel.SHUTDOWN_OUTPUT);
+            } else {
+                ctx.write(http3HeadersFrame);
+                for (int i = 0; i < http3DataFrames.length; i++) {
+                    Http3DataFrame frame = http3DataFrames[i];
+                    if (i == http3DataFrames.length - 1) {
+                        ctx.writeAndFlush(frame).addListener(QuicStreamChannel.SHUTDOWN_OUTPUT);
+                    } else {
+                        ctx.write(frame);
+                    }
+                }
+                ctx.flush();
             }
         } catch (Exception e) {
             closeConnection(ctx);

@@ -1,15 +1,28 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.CrawlResult;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class CrawlResultMapper extends AbstractEntityMapper<CrawlResult> {
+
+    @Override
+    protected void assignMultiTable(CrawlResult target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(CrawlResult target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return CrawlResult.class.getAnnotation(Table.class).name();
@@ -17,21 +30,12 @@ public class CrawlResultMapper extends AbstractEntityMapper<CrawlResult> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         CrawlResult result = getEntityFactory().getEntity(CrawlResult.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CRAWL_RESULT")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        mapCurrentTable(resultSet, wrapped, result);
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

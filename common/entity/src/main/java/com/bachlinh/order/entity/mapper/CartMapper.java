@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.CartDetail;
 import com.bachlinh.order.entity.model.Customer;
@@ -8,6 +9,7 @@ import com.bachlinh.order.entity.model.Product;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -23,38 +25,60 @@ public class CartMapper extends AbstractEntityMapper<Cart> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Cart result = getEntityFactory().getEntity(Cart.class);
         result.setCartDetails(Collections.emptyList());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CART")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
-            var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    customer.setCart(result);
-                    result.setCustomer(customer);
-                }
-            }
+            AbstractEntityMapper<?> mapper = (AbstractEntityMapper<?>) getEntityMapperFactory().createMapper(Customer.class);
+            mapSingleTable(mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             assignCartDetails(resultSet, result);
         }
         if (!resultSet.isEmpty()) {
             assignProducts(resultSet, result);
         }
-        EntityWrapper wrapper = new EntityWrapper(result);
-        wrapper.setTouched(wrapped.get());
-        return wrapper;
+
+        return wrap(result, wrapped.get());
+    }
+
+    @Override
+    protected void assignSingleTable(Cart target, BaseEntity<?> mapped) {
+        if (mapped instanceof Customer customer) {
+            customer.setCart(target);
+            target.setCustomer(customer);
+        }
+    }
+
+    @Override
+    protected void assignMultiTable(Cart target, Collection<BaseEntity<?>> results) {
+        String name = "";
+        for (BaseEntity<?> result : results) {
+            if (result instanceof Product product) {
+                name = "product";
+                product.getCarts().add(target);
+            }
+            if (result instanceof CartDetail cartDetail) {
+                name = "cartDetail";
+                cartDetail.setCart(target);
+            }
+        }
+
+        switch (name) {
+            case "product" -> {
+                Set<Product> productSet = new LinkedHashSet<>(results.stream().map(Product.class::cast).toList());
+                target.setProducts(productSet);
+            }
+            case "cartDetail" -> {
+                Set<CartDetail> cartDetailSet = new LinkedHashSet<>(results.stream().map(CartDetail.class::cast).toList());
+                target.setCartDetails(cartDetailSet);
+            }
+            default -> {/* Do nothing */}
+        }
     }
 
     @Override
@@ -89,37 +113,15 @@ public class CartMapper extends AbstractEntityMapper<Cart> {
 
     private void assignCartDetails(Queue<MappingObject> resultSet, Cart result) {
         var mapper = getEntityMapperFactory().createMapper(CartDetail.class);
-        Set<CartDetail> cartDetailSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CART_DETAIL")) {
-                var cartDetail = mapper.map(resultSet);
-                if (cartDetail != null) {
-                    cartDetail.setCart(result);
-                    cartDetailSet.add(cartDetail);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setCartDetails(cartDetailSet);
+        Set<BaseEntity<?>> cartDetailSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, cartDetailSet, "CART_DETAIL");
     }
 
     private void assignProducts(Queue<MappingObject> resultSet, Cart result) {
         var mapper = getEntityMapperFactory().createMapper(Product.class);
-        Set<Product> productSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("PRODUCT")) {
-                var product = mapper.map(resultSet);
-                if (product != null) {
-                    product.getCarts().add(result);
-                    productSet.add(product);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setProducts(productSet);
+        Set<BaseEntity<?>> productSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, productSet, "PRODUCT");
     }
 }

@@ -22,7 +22,7 @@ public final class UnAuthorizationHandler {
             logger.debug("Un authorized cause", exception);
         }
         int code = HttpStatus.UNAUTHORIZED.value();
-        Map<String, Object> res = new HashMap<>();
+        Map<String, Object> res = HashMap.newHashMap(2);
         res.put("messages", new String[]{exception.getMessage()});
         res.put("code", code);
         response.setStatus(code);

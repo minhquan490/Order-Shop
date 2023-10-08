@@ -14,7 +14,7 @@ import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.context.EntityContext;
-import com.bachlinh.order.entity.enums.FormulaApplyOn;
+import com.bachlinh.order.core.enums.FormulaApplyOn;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.formula.processor.JoinFormulaProcessor;
 import com.bachlinh.order.entity.formula.processor.SelectFormulaProcessor;

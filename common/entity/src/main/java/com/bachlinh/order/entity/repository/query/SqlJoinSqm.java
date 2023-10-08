@@ -28,6 +28,7 @@ class SqlJoinSqm extends AbstractSql<SqlJoin> implements SqlJoin {
     private final List<JoinFormulaProcessor> joinFormulaProcessors = new LinkedList<>();
 
     public SqlJoinSqm(TableMetadataHolder targetMetadata, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata, String selectQuery, Queue<String> orderByStatements, FormulaMetadata formulaMetadata) {
+        super(targetMetadata);
         this.targetMetadata = targetMetadata;
         this.tableMetadata = tableMetadata;
         this.selectQuery = selectQuery;

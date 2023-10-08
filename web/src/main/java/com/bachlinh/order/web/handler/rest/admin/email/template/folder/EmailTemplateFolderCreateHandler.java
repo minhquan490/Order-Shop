@@ -3,10 +3,12 @@ package com.bachlinh.order.web.handler.rest.admin.email.template.folder;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.EnableCsrf;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.entity.Permit;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.annotation.Permit;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderCreateForm;
@@ -32,6 +34,7 @@ public class EmailTemplateFolderCreateHandler extends AbstractController<EmailTe
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected EmailTemplateFolderInfoResp internalHandler(Payload<EmailTemplateFolderCreateForm> request) {
         var customer = ((Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return emailTemplateFolderService.createEmailTemplateFolder(request.data(), customer);

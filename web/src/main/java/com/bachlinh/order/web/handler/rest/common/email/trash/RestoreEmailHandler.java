@@ -2,6 +2,8 @@ package com.bachlinh.order.web.handler.rest.common.email.trash;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.model.Customer;
@@ -29,6 +31,7 @@ public class RestoreEmailHandler extends AbstractController<EmailTrashResp, Rest
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected EmailTrashResp internalHandler(Payload<RestoreEmailForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailInTrashService.restoreEmailFromTrash(Arrays.asList(request.data().getEmailIds()), customer);

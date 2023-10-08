@@ -41,7 +41,7 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
         return singleton;
     }
 
-    private static class SpringDependenciesResolver implements DependenciesResolver {
+    private static class SpringDependenciesResolver extends AbstractDependenciesResolver {
         private final ApplicationContext context;
 
         SpringDependenciesResolver(Object container) {
@@ -50,6 +50,7 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
             } else {
                 throw new CriticalException("Only spring context is allowed");
             }
+            selfAssign(this);
         }
 
         @Override

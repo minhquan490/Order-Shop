@@ -1,11 +1,13 @@
 package com.bachlinh.order.security.auth.internal;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.utils.DateTimeUtils;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Customer;
+import com.bachlinh.order.entity.model.Customer_;
 import com.bachlinh.order.entity.model.RefreshToken;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.security.auth.spi.JwtDecoder;
@@ -14,7 +16,6 @@ import com.bachlinh.order.security.auth.spi.RefreshTokenGenerator;
 import com.bachlinh.order.security.auth.spi.RefreshTokenHolder;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.core.utils.DateTimeUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
@@ -75,10 +76,13 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
     @Override
     public Map<String, Object> getClaimsFromToken(String token) {
         try {
-            return getJwtDecoder().decode(token).getClaims();
+            if (!isJwtExpired(token)) {
+                return getJwtDecoder().decode(token).getClaims();
+            }
         } catch (JwtException e) {
-            return HashMap.newHashMap(0);
+            // Jwt is expired, etc...
         }
+        return HashMap.newHashMap(0);
     }
 
     @Override
@@ -105,6 +109,19 @@ class DefaultTokenManager implements TokenManager, RefreshTokenGenerator, Tempor
             return new RefreshTokenHolder(refreshToken);
         }
         return new RefreshTokenHolder(null);
+    }
+
+    @Override
+    public String revokeAccessToken(String refreshToken) {
+        RefreshTokenHolder holder = validateRefreshToken(refreshToken);
+        RefreshToken token = holder.getValue();
+        if (token == null) {
+            return "";
+        } else {
+            encode(Customer_.ID, token.getCustomer().getId());
+            encode(Customer_.USERNAME, token.getCustomer().getUsername());
+            return getTokenValue();
+        }
     }
 
     @Override

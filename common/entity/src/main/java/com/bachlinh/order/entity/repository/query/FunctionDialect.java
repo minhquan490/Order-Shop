@@ -1,5 +1,7 @@
 package com.bachlinh.order.entity.repository.query;
 
+import com.bachlinh.order.entity.repository.query.mssql.MssqlFunctionDialect;
+
 import java.util.Collection;
 
 public interface FunctionDialect {

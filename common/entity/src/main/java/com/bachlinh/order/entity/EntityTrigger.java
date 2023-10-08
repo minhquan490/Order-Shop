@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity;
 
-import com.bachlinh.order.entity.enums.TriggerExecution;
-import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.core.container.DependenciesResolver;
 

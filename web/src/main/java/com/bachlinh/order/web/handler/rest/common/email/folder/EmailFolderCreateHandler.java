@@ -3,6 +3,8 @@ package com.bachlinh.order.web.handler.rest.common.email.folder;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.EnableCsrf;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.http.Payload;
 import com.bachlinh.order.entity.model.Customer;
@@ -29,6 +31,7 @@ public class EmailFolderCreateHandler extends AbstractController<EmailFolderInfo
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected EmailFolderInfoResp internalHandler(Payload<EmailFolderCreateForm> request) {
         var customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return emailFolderService.createEmailFolder(request.data(), customer);

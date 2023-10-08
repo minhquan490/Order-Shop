@@ -1,16 +1,32 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.CustomerMedia;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class CustomerMediaMapper extends AbstractEntityMapper<CustomerMedia> {
+
+    @Override
+    protected void assignMultiTable(CustomerMedia target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(CustomerMedia target, BaseEntity<?> mapped) {
+        if (mapped instanceof Customer customer) {
+            target.setCustomer(customer);
+            customer.setCustomerMedia(target);
+        }
+    }
+
     @Override
     protected String getTableName() {
         return CustomerMedia.class.getAnnotation(Table.class).name();
@@ -18,31 +34,18 @@ public class CustomerMediaMapper extends AbstractEntityMapper<CustomerMedia> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         CustomerMedia result = getEntityFactory().getEntity(CustomerMedia.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CUSTOMER_MEDIA")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    customer.setCustomerMedia(result);
-                    result.setCustomer(customer);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

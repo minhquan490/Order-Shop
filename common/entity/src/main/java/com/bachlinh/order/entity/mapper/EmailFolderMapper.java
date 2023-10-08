@@ -1,12 +1,14 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Email;
 import com.bachlinh.order.entity.model.EmailFolders;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -15,6 +17,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class EmailFolderMapper extends AbstractEntityMapper<EmailFolders> {
+
+    @Override
+    protected void assignMultiTable(EmailFolders target, Collection<BaseEntity<?>> results) {
+
+        for (BaseEntity<?> result : results) {
+            Email email = (Email) result;
+            email.setFolder(target);
+        }
+
+        Set<Email> emailSet = new LinkedHashSet<>(results.stream().map(Email.class::cast).toList());
+        target.setEmails(emailSet);
+    }
+
+    @Override
+    protected void assignSingleTable(EmailFolders target, BaseEntity<?> mapped) {
+        Customer customer = (Customer) mapped;
+        target.setOwner(customer);
+    }
+
     @Override
     protected String getTableName() {
         return EmailFolders.class.getAnnotation(Table.class).name();
@@ -22,48 +43,26 @@ public class EmailFolderMapper extends AbstractEntityMapper<EmailFolders> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         EmailFolders result = getEntityFactory().getEntity(EmailFolders.class);
         result.setEmails(Collections.emptySet());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("EMAIL_FOLDER")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    result.setOwner(customer);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Email.class);
-            Set<Email> emailSet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("EMAILS")) {
-                    var email = mapper.map(resultSet);
-                    if (email != null) {
-                        email.setFolder(result);
-                        emailSet.add(email);
-                    }
-                } else {
-                    break;
-                }
-            }
-            result.setEmails(emailSet);
+            Set<BaseEntity<?>> emailSet = new LinkedHashSet<>();
+
+            mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, emailSet, "EMAILS");
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

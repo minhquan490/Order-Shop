@@ -1,6 +1,7 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderDetail;
@@ -9,6 +10,7 @@ import com.bachlinh.order.entity.model.OrderStatus;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -17,6 +19,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class OrderMapper extends AbstractEntityMapper<Order> {
+
+    @Override
+    protected void assignMultiTable(Order target, Collection<BaseEntity<?>> results) {
+        Set<OrderDetail> orderDetailSet = new LinkedHashSet<>();
+
+        for (BaseEntity<?> result : results) {
+            OrderDetail orderDetail = (OrderDetail) result;
+            orderDetail.setOrder(target);
+            orderDetailSet.add(orderDetail);
+        }
+
+        target.setOrderDetails(orderDetailSet);
+    }
+
+    @Override
+    protected void assignSingleTable(Order target, BaseEntity<?> mapped) {
+        if (mapped instanceof OrderStatus orderStatus) {
+            target.setOrderStatus(orderStatus);
+            orderStatus.setOrder(target);
+        }
+        if (mapped instanceof OrderHistory orderHistory) {
+            orderHistory.setOrder(target);
+            target.setOrderHistory(orderHistory);
+        }
+        if (mapped instanceof Customer customer) {
+            customer.getOrders().add(target);
+            target.setCustomer(customer);
+        }
+    }
+
     @Override
     protected String getTableName() {
         return Order.class.getAnnotation(Table.class).name();
@@ -24,69 +56,38 @@ public class OrderMapper extends AbstractEntityMapper<Order> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Order result = getEntityFactory().getEntity(Order.class);
         result.setOrderDetails(Collections.emptySet());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("ORDERS")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(OrderStatus.class);
-            if (mapper.canMap(resultSet)) {
-                var orderStatus = mapper.map(resultSet);
-                if (orderStatus != null) {
-                    orderStatus.setOrder(result);
-                    result.setOrderStatus(orderStatus);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(OrderHistory.class);
-            if (mapper.canMap(resultSet)) {
-                var orderHistory = mapper.map(resultSet);
-                if (orderHistory != null) {
-                    orderHistory.setOrder(result);
-                    result.setOrderHistory(orderHistory);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    customer.getOrders().add(result);
-                    result.setCustomer(customer);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(OrderDetail.class);
-            Set<OrderDetail> orderDetailSet = new LinkedHashSet<>();
-            while (!resultSet.isEmpty()) {
-                hook = resultSet.peek();
-                if (hook.columnName().split("\\.")[0].equals("ORDER_DETAIL")) {
-                    var orderDetails = mapper.map(resultSet);
-                    if (orderDetails != null) {
-                        orderDetails.setOrder(result);
-                        orderDetailSet.add(orderDetails);
-                    }
-                } else {
-                    break;
-                }
-            }
-            result.setOrderDetails(orderDetailSet);
+            Set<BaseEntity<?>> orderDetailSet = new LinkedHashSet<>();
+
+            mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, orderDetailSet, "ORDER_DETAIL");
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

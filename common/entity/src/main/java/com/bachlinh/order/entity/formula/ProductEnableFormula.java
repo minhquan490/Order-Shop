@@ -1,7 +1,7 @@
 package com.bachlinh.order.entity.formula;
 
 import com.bachlinh.order.entity.TableMetadataHolder;
-import com.bachlinh.order.entity.enums.Role;
+import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.formula.adapter.WhereFormulaAdapter;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;

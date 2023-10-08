@@ -1,16 +1,30 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.RefreshToken;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class RefreshTokenMapper extends AbstractEntityMapper<RefreshToken> {
+    @Override
+    protected void assignMultiTable(RefreshToken target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(RefreshToken target, BaseEntity<?> mapped) {
+        Customer customer = (Customer) mapped;
+        customer.setRefreshToken(target);
+        target.setCustomer(customer);
+    }
+
     @Override
     protected String getTableName() {
         return RefreshToken.class.getAnnotation(Table.class).name();
@@ -18,31 +32,18 @@ public class RefreshTokenMapper extends AbstractEntityMapper<RefreshToken> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         RefreshToken result = getEntityFactory().getEntity(RefreshToken.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("REFRESH_TOKEN")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Customer.class);
-            if (mapper.canMap(resultSet)) {
-                var customer = mapper.map(resultSet);
-                if (customer != null) {
-                    customer.setRefreshToken(result);
-                    result.setCustomer(customer);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override

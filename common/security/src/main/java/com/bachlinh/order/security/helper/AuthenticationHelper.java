@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.helper;
 
-import com.bachlinh.order.security.auth.spi.TokenManager;
 import com.bachlinh.order.core.utils.HeaderUtils;
+import com.bachlinh.order.security.auth.spi.TokenManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,8 +30,17 @@ public final class AuthenticationHelper {
     public static Map<String, Object> parseAuthentication(HttpServletRequest request, HttpServletResponse response, TokenManager tokenManager) {
         Map<String, Object> claims;
         String jwtToken = HeaderUtils.getAuthorizeHeader(request);
+        String refreshToken = HeaderUtils.getRefreshHeader(request);
         claims = parseAuthentication(jwtToken, tokenManager);
-        response.addHeader(HeaderUtils.getAuthorizeHeader(), jwtToken);
+        if (claims.isEmpty()) {
+            jwtToken = tokenManager.revokeAccessToken(refreshToken);
+            if (jwtToken.isEmpty()) {
+                return HashMap.newHashMap(0);
+            }
+            claims = parseAuthentication(jwtToken, tokenManager);
+        }
+        response.setHeader(HeaderUtils.getAuthorizeHeader(), jwtToken);
+        response.setHeader(HeaderUtils.getRefreshHeader(), refreshToken);
         return claims;
     }
 

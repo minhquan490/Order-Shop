@@ -1,12 +1,14 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Cart;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
 import jakarta.persistence.Table;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Queue;
@@ -15,6 +17,48 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class ProductMapper extends AbstractEntityMapper<Product> {
+
+    @Override
+    protected void assignMultiTable(Product target, Collection<BaseEntity<?>> results) {
+        String name = "";
+
+        for (BaseEntity<?> result : results) {
+            if (result instanceof ProductMedia productMedia) {
+                name = "productMedia";
+                productMedia.setProduct(target);
+            }
+            if (result instanceof Category category) {
+                name = "category";
+                category.getProducts().add(target);
+            }
+            if (result instanceof Cart cart) {
+                name = "cart";
+                cart.getProducts().add(target);
+            }
+        }
+
+        switch (name) {
+            case "productMedia" -> {
+                Set<ProductMedia> productMediaSet = new LinkedHashSet<>(results.stream().map(ProductMedia.class::cast).toList());
+                target.setMedias(productMediaSet);
+            }
+            case "category" -> {
+                Set<Category> categorySet = new LinkedHashSet<>(results.stream().map(Category.class::cast).toList());
+                target.setCategories(categorySet);
+            }
+            case "cart" -> {
+                Set<Cart> cartSet = new LinkedHashSet<>(results.stream().map(Cart.class::cast).toList());
+                target.setCarts(cartSet);
+            }
+            default -> {/* Do nothing */}
+        }
+    }
+
+    @Override
+    protected void assignSingleTable(Product target, BaseEntity<?> mapped) {
+        // Do nothing
+    }
+
     @Override
     protected String getTableName() {
         return Product.class.getAnnotation(Table.class).name();
@@ -22,21 +66,14 @@ public class ProductMapper extends AbstractEntityMapper<Product> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         Product result = getEntityFactory().getEntity(Product.class);
         result.setMedias(Collections.emptySet());
         result.setCarts(Collections.emptySet());
         result.setCategories(Collections.emptySet());
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("PRODUCT")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             assignMedias(resultSet, result);
         }
@@ -46,9 +83,8 @@ public class ProductMapper extends AbstractEntityMapper<Product> {
         if (!resultSet.isEmpty()) {
             assignCarts(resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+        
+        return wrap(result, wrapped.get());
     }
 
     @Override
@@ -99,51 +135,22 @@ public class ProductMapper extends AbstractEntityMapper<Product> {
 
     private void assignMedias(Queue<MappingObject> resultSet, Product result) {
         var mapper = getEntityMapperFactory().createMapper(ProductMedia.class);
-        Set<ProductMedia> productMediaSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("PRODUCT_MEDIA")) {
-                var productMedia = mapper.map(resultSet);
-                if (productMedia != null) {
-                    productMedia.setProduct(result);
-                    productMediaSet.add(productMedia);
-                }
-            } else {
-                break;
-            }
-        }
-        result.setMedias(productMediaSet);
+        Set<BaseEntity<?>> productMediaSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, productMediaSet, "PRODUCT_MEDIA");
     }
 
     private void assignCategories(Queue<MappingObject> resultSet, Product result) {
         var mapper = getEntityMapperFactory().createMapper(Category.class);
-        Set<Category> categorySet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CATEGORY")) {
-                var category = mapper.map(resultSet);
-                if (category != null) {
-                    category.getProducts().add(result);
-                    categorySet.add(category);
-                }
-            }
-        }
-        result.setCategories(categorySet);
+        Set<BaseEntity<?>> categorySet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, categorySet, "CATEGORY");
     }
 
     private void assignCarts(Queue<MappingObject> resultSet, Product result) {
         var mapper = getEntityMapperFactory().createMapper(Cart.class);
-        Set<Cart> cartSet = new LinkedHashSet<>();
-        while (!resultSet.isEmpty()) {
-            MappingObject hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("CART")) {
-                var cart = mapper.map(resultSet);
-                if (cart != null) {
-                    cart.getProducts().add(result);
-                    cartSet.add(cart);
-                }
-            }
-        }
-        result.setCarts(cartSet);
+        Set<BaseEntity<?>> cartSet = new LinkedHashSet<>();
+
+        mapMultiTables((AbstractEntityMapper<?>) mapper, resultSet, result, cartSet, "CART");
     }
 }

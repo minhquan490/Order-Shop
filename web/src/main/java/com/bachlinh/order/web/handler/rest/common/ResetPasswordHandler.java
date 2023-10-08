@@ -2,10 +2,12 @@ package com.bachlinh.order.web.handler.rest.common;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteProvider;
+import com.bachlinh.order.core.annotation.Transactional;
+import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
+import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.service.business.ForgotPasswordService;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, 
 
     @Override
     @ActiveReflection
+    @Transactional(isolation = Isolation.READ_COMMITTED, timeOut = 10)
     protected NativeResponse<?> internalHandler(Payload<Map<String, Object>> request) {
         var token = (String) request.data().get("token");
         if (token == null || token.isEmpty()) {

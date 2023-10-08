@@ -1,5 +1,9 @@
 package com.bachlinh.order.core.server.netty;
 
+import com.bachlinh.order.core.server.netty.channel.http2.ProxiedHttp2Connection;
+import com.bachlinh.order.core.server.netty.listener.Http2StreamListener;
+import com.bachlinh.order.core.server.netty.shaded.Http2FrameCodec;
+import com.bachlinh.order.core.server.netty.shaded.Http2FrameCodecBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.compression.StandardCompressionOptions;
 import io.netty.handler.codec.http2.CompressorHttp2ConnectionEncoder;
@@ -12,8 +16,6 @@ import io.netty.handler.codec.http2.DefaultHttp2HeadersDecoder;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2FrameCodec;
-import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
 import io.netty.handler.codec.http2.Http2FrameReader;
 import io.netty.handler.codec.http2.Http2FrameWriter;
 import io.netty.handler.codec.http2.Http2Headers;
@@ -37,7 +39,11 @@ public class Http2CompressFrameCodecBuilder extends Http2FrameCodecBuilder {
     }
 
     private Http2Connection buildConnection() {
-        return new DefaultHttp2Connection(true, 1000);
+        Http2Connection delegate = new DefaultHttp2Connection(true, 1000);
+        var proxiedConnection = new ProxiedHttp2Connection(delegate);
+        Http2StreamListener listener = new Http2StreamListener();
+        proxiedConnection.addListener(listener);
+        return proxiedConnection;
     }
 
     private Http2FrameReader buildFrameReader() {

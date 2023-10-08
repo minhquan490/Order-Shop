@@ -1,6 +1,9 @@
 package com.bachlinh.order.entity.repository.query;
 
+import com.bachlinh.order.entity.TableMetadataHolder;
+import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+import com.bachlinh.order.entity.model.AbstractEntity;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -11,10 +14,15 @@ import java.util.Queue;
 
 public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T>, NativeQueryHolder {
 
+    private final TableMetadataHolder targetMetadata;
     private final Queue<String> orderByStatements = new LinkedList<>();
     private final Queue<OtherOrderBy> otherOrderByStatements = new LinkedList<>();
     private long limit = -1;
     private long offset = -1;
+
+    protected AbstractSql(TableMetadataHolder targetMetadata) {
+        this.targetMetadata = targetMetadata;
+    }
 
     @Override
     public final String getNativeQuery() {
@@ -96,6 +104,15 @@ public abstract class AbstractSql<T> implements SqlOrderBy<T>, SqlLimitOffset<T>
             processedOrder.add(processed);
         }
         return processedOrder;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Class<? extends AbstractEntity<?>> getCurrentTable() {
+        return (Class<? extends AbstractEntity<?>>) ((EntityContext) targetMetadata).getEntity().getClass();
+    }
+
+    protected TableMetadataHolder getTargetMetadata() {
+        return targetMetadata;
     }
 
     protected abstract String createQuery();

@@ -1,6 +1,7 @@
 package com.bachlinh.order.core.server.netty.channel.http3;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.server.netty.shaded.IdleStateHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.incubator.codec.http3.Http3ServerConnectionHandler;
 import io.netty.incubator.codec.quic.QuicChannel;
@@ -15,6 +16,7 @@ public class Http3ServerInitializer extends ChannelInitializer<QuicChannel> {
 
     @Override
     protected void initChannel(QuicChannel ch) {
+        ch.pipeline().addLast(new IdleStateHandler(0, 0, 60));
         ch.pipeline().addLast(new Http3ServerConnectionHandler(new Http3ChannelInitializer(resolver)));
     }
 }

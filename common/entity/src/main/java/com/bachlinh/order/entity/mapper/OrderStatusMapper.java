@@ -1,16 +1,31 @@
 package com.bachlinh.order.entity.mapper;
 
 import com.bachlinh.order.core.annotation.ResultMapper;
+import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.model.OrderStatus;
 import jakarta.persistence.Table;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResultMapper
 public class OrderStatusMapper extends AbstractEntityMapper<OrderStatus> {
+
+    @Override
+    protected void assignMultiTable(OrderStatus target, Collection<BaseEntity<?>> results) {
+        // Do nothing
+    }
+
+    @Override
+    protected void assignSingleTable(OrderStatus target, BaseEntity<?> mapped) {
+        Order order = (Order) mapped;
+        order.setOrderStatus(target);
+        target.setOrder(order);
+    }
+
     @Override
     protected String getTableName() {
         return OrderStatus.class.getAnnotation(Table.class).name();
@@ -18,31 +33,18 @@ public class OrderStatusMapper extends AbstractEntityMapper<OrderStatus> {
 
     @Override
     protected EntityWrapper internalMapping(Queue<MappingObject> resultSet) {
-        MappingObject hook;
         OrderStatus result = getEntityFactory().getEntity(OrderStatus.class);
         AtomicBoolean wrapped = new AtomicBoolean(false);
-        while (!resultSet.isEmpty()) {
-            hook = resultSet.peek();
-            if (hook.columnName().split("\\.")[0].equals("ORDER_STATUS")) {
-                hook = resultSet.poll();
-                setData(result, hook, wrapped);
-            } else {
-                break;
-            }
-        }
+
+        mapCurrentTable(resultSet, wrapped, result);
+
         if (!resultSet.isEmpty()) {
             var mapper = getEntityMapperFactory().createMapper(Order.class);
-            if (mapper.canMap(resultSet)) {
-                var order = mapper.map(resultSet);
-                if (order != null) {
-                    order.setOrderStatus(result);
-                    result.setOrder(order);
-                }
-            }
+
+            mapSingleTable((AbstractEntityMapper<?>) mapper, resultSet, result);
         }
-        EntityWrapper entityWrapper = new EntityWrapper(result);
-        entityWrapper.setTouched(wrapped.get());
-        return entityWrapper;
+
+        return wrap(result, wrapped.get());
     }
 
     @Override

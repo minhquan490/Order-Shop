@@ -11,8 +11,8 @@ import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.context.EntityContext;
-import com.bachlinh.order.entity.enums.TriggerExecution;
-import com.bachlinh.order.entity.enums.TriggerMode;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.cache.Cache;
@@ -95,7 +95,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         if (springActualTransactionActive && em != null && em.isOpen()) {
             return em;
         } else {
-            return new EntityMangerProxy(sessionFactory.createEntityManager());
+            return new OutboundThreadEntityManager(sessionFactory.createEntityManager());
         }
     }
 
@@ -360,7 +360,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         attributes.forEach(typedQuery::setParameter);
         var processing = ResultListProcessing.nativeProcessing(getEntityFactory(), getDomainClass());
         var results = processing.process(typedQuery::getResultList);
-        closeEntityManager(entityManager);
         return results.stream().map(receiverType::cast).toList();
     }
 
@@ -572,15 +571,15 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     private void closeEntityManager(EntityManager entityManager) {
-        if (entityManager instanceof EntityMangerProxy proxy) {
+        if (entityManager instanceof AbstractRepository.OutboundThreadEntityManager proxy) {
             proxy.close();
         }
     }
 
-    private static class EntityMangerProxy implements EntityManager {
+    private static class OutboundThreadEntityManager implements EntityManager {
         private final EntityManager delegate;
 
-        EntityMangerProxy(EntityManager delegate) {
+        OutboundThreadEntityManager(EntityManager delegate) {
             this.delegate = delegate;
         }
 
