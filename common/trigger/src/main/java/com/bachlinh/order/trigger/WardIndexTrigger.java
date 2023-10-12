@@ -4,10 +4,10 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.core.enums.TriggerExecution;
 import com.bachlinh.order.core.enums.TriggerMode;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 
@@ -19,7 +19,7 @@ import java.util.Collections;
 @ApplyOn(entity = Ward.class)
 public class WardIndexTrigger extends AbstractTrigger<Ward> {
     private static final int TOTAL_WARD = 10598;
-    private final Collection<Ward> caches = Collections.synchronizedList(new ArrayList<>(TOTAL_WARD));
+    private Collection<Ward> caches;
 
     private EntityFactory entityFactory;
 
@@ -41,6 +41,9 @@ public class WardIndexTrigger extends AbstractTrigger<Ward> {
 
     @Override
     protected void inject() {
+        if (caches == null) {
+            caches = Collections.synchronizedList(new ArrayList<>(TOTAL_WARD));
+        }
         if (entityFactory == null) {
             entityFactory = resolveDependencies(EntityFactory.class);
         }

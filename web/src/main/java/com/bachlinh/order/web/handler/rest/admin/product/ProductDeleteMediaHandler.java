@@ -26,6 +26,7 @@ public class ProductDeleteMediaHandler extends AbstractController<Map<String, Ob
     private ProductMediaService productMediaService;
 
     private ProductDeleteMediaHandler() {
+        super();
     }
 
     @Override

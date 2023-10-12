@@ -1,5 +1,11 @@
 package com.bachlinh.order.web.configuration;
 
+import com.google.api.services.gmail.GmailScopes;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http2.Http2Frame;
+import io.netty.incubator.codec.http3.Http3Frame;
+import jakarta.persistence.EntityManagerFactory;
+
 import com.bachlinh.order.batch.boot.JobCenterBooster;
 import com.bachlinh.order.batch.job.JobManager;
 import com.bachlinh.order.batch.job.internal.SimpleJobManagerBuilder;
@@ -12,18 +18,18 @@ import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.core.http.server.channel.security.FilterChainAdapter;
+import com.bachlinh.order.core.http.server.channel.stomp.NettyConnectionManager;
+import com.bachlinh.order.core.http.server.channel.stomp.NettySocketConnectionHolder;
+import com.bachlinh.order.core.http.server.channel.stomp.StompConnectionManager;
+import com.bachlinh.order.core.http.server.listener.HttpFrameListenerFactory;
+import com.bachlinh.order.core.http.server.listener.StompFrameListenerFactory;
 import com.bachlinh.order.core.http.template.internal.DefaultRestTemplateFactory;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.core.http.template.spi.RestTemplateFactory;
 import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
 import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.core.server.netty.channel.security.FilterChainAdapter;
-import com.bachlinh.order.core.server.netty.channel.stomp.NettyConnectionManager;
-import com.bachlinh.order.core.server.netty.channel.stomp.NettySocketConnectionHolder;
-import com.bachlinh.order.core.server.netty.channel.stomp.StompConnectionManager;
-import com.bachlinh.order.core.server.netty.listener.HttpFrameListenerFactory;
-import com.bachlinh.order.core.server.netty.listener.StompFrameListenerFactory;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapperFactory;
@@ -43,8 +49,8 @@ import com.bachlinh.order.mail.oauth2.CredentialAdapter;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.mail.template.EmailTemplateProcessor;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.filter.servlet.AuthenticationFilter;
-import com.bachlinh.order.security.filter.servlet.LoggingRequestFilter;
+import com.bachlinh.order.security.filter.AuthenticationFilter;
+import com.bachlinh.order.security.filter.LoggingRequestFilter;
 import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
 import com.bachlinh.order.validate.base.ValidatedDto;
@@ -58,11 +64,12 @@ import com.bachlinh.order.web.common.listener.Netty3FrameListenerFactory;
 import com.bachlinh.order.web.common.listener.NettyWebSocketFrameListenerFactory;
 import com.bachlinh.order.web.common.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.common.servlet.ServletRouter;
-import com.google.api.services.gmail.GmailScopes;
-import io.netty.channel.Channel;
-import io.netty.handler.codec.http2.Http2Frame;
-import io.netty.incubator.codec.http3.Http3Frame;
-import jakarta.persistence.EntityManagerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
@@ -78,13 +85,8 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.PathMatcher;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 @Configuration
-public class BeanDeclaration extends SecurityModuleConfigurer {
+public class BeanDeclaration extends SecurityModuleConfigure {
 
     public BeanDeclaration() {
         super(new ApplicationScanner());

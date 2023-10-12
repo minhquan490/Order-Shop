@@ -15,6 +15,7 @@ public class OrderNewInMonthHandler extends AbstractController<AnalyzeOrderNewIn
     private String url;
 
     private OrderNewInMonthHandler() {
+        super();
     }
 
     @Override

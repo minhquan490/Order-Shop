@@ -15,6 +15,7 @@ public class CustomerNewInMonthHandler extends AbstractController<AnalyzeCustome
     private String url;
 
     private CustomerNewInMonthHandler() {
+        super();
     }
 
     @Override

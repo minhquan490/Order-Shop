@@ -18,6 +18,7 @@ public class EmailSearchHandler extends AbstractController<Collection<EmailInfoR
     private EmailSearchingService emailService;
 
     private EmailSearchHandler() {
+        super();
     }
 
     @Override

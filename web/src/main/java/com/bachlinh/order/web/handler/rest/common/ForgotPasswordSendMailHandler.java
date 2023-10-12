@@ -18,6 +18,7 @@ public class ForgotPasswordSendMailHandler extends AbstractController<NativeResp
     private ForgotPasswordService forgotPasswordService;
 
     private ForgotPasswordSendMailHandler() {
+        super();
     }
 
     @Override

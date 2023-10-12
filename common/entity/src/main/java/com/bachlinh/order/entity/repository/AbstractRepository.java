@@ -1,36 +1,5 @@
 package com.bachlinh.order.entity.repository;
 
-import com.bachlinh.order.core.annotation.QueryCache;
-import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.exception.http.ValidationFailureException;
-import com.bachlinh.order.core.function.TransactionCallback;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.EntityManagerHolder;
-import com.bachlinh.order.entity.EntityTrigger;
-import com.bachlinh.order.entity.EntityValidator;
-import com.bachlinh.order.entity.ValidateResult;
-import com.bachlinh.order.entity.context.EntityContext;
-import com.bachlinh.order.core.enums.TriggerExecution;
-import com.bachlinh.order.core.enums.TriggerMode;
-import com.bachlinh.order.entity.model.AbstractEntity;
-import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.repository.cache.Cache;
-import com.bachlinh.order.entity.repository.cache.CacheManager;
-import com.bachlinh.order.entity.repository.cache.CacheReader;
-import com.bachlinh.order.entity.repository.cache.CacheWriter;
-import com.bachlinh.order.entity.repository.query.CacheableQuery;
-import com.bachlinh.order.entity.repository.query.FunctionDialect;
-import com.bachlinh.order.entity.repository.query.Operation;
-import com.bachlinh.order.entity.repository.query.ResultListProcessing;
-import com.bachlinh.order.entity.repository.query.Select;
-import com.bachlinh.order.entity.repository.query.SqlBuilder;
-import com.bachlinh.order.entity.repository.query.SqlSelect;
-import com.bachlinh.order.entity.repository.query.SqlUpdate;
-import com.bachlinh.order.entity.repository.query.SqlWhere;
-import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
-import com.bachlinh.order.entity.utils.QueryUtils;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -48,10 +17,40 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.metamodel.Metamodel;
 import org.hibernate.SessionFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
-import java.text.MessageFormat;
+import com.bachlinh.order.core.annotation.QueryCache;
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.enums.TriggerExecution;
+import com.bachlinh.order.core.enums.TriggerMode;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.http.ValidationFailureException;
+import com.bachlinh.order.core.function.TransactionCallback;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.EntityManagerHolder;
+import com.bachlinh.order.entity.EntityTrigger;
+import com.bachlinh.order.entity.EntityValidator;
+import com.bachlinh.order.entity.ValidateResult;
+import com.bachlinh.order.entity.context.EntityContext;
+import com.bachlinh.order.entity.model.AbstractEntity;
+import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.entity.repository.cache.Cache;
+import com.bachlinh.order.entity.repository.cache.CacheManager;
+import com.bachlinh.order.entity.repository.cache.CacheReader;
+import com.bachlinh.order.entity.repository.cache.CacheWriter;
+import com.bachlinh.order.entity.repository.query.CacheableQuery;
+import com.bachlinh.order.entity.repository.query.FunctionDialect;
+import com.bachlinh.order.entity.repository.query.Operation;
+import com.bachlinh.order.entity.repository.query.ResultListProcessing;
+import com.bachlinh.order.entity.repository.query.Select;
+import com.bachlinh.order.entity.repository.query.SqlBuilder;
+import com.bachlinh.order.entity.repository.query.SqlDelete;
+import com.bachlinh.order.entity.repository.query.SqlSelect;
+import com.bachlinh.order.entity.repository.query.SqlUpdate;
+import com.bachlinh.order.entity.repository.query.SqlWhere;
+import com.bachlinh.order.entity.repository.query.Where;
+import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
+import com.bachlinh.order.entity.utils.QueryUtils;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,9 +62,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements EntityManagerHolder, NativeQueryRepository, CrudRepository<T, U>, RepositoryBase {
 
-    private static final String ID_PROPERTY = "id";
+    private static final String ID_PROPERTY = QueryUtils.getIdProperty();
 
     private final Class<U> domainClass;
     private final SessionFactory sessionFactory;
@@ -136,7 +138,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         if (entity.isNew()) {
             TransactionHolder<?> transactionHolder = entityFactory.getTransactionManager().getCurrentTransaction();
 
-
             if (transactionHolder != null && transactionHolder.isActive()) {
                 Supplier<S> task = getSaveSupplier(entity, getEntityManager());
                 EntityContext entityContext = entityFactory.getEntityContext(getDomainClass());
@@ -165,13 +166,12 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
             return save(entity);
         } else {
             TransactionHolder<?> transactionHolder = entityFactory.getTransactionManager().getCurrentTransaction();
+            Supplier<S> task = getUpdateSupplier(entity, getEntityManager());
 
             if (transactionHolder.isActive()) {
-                Supplier<S> task = getUpdateSupplier(entity, getEntityManager());
                 return task.get();
             } else {
                 EntityManager entityManager = getEntityManager();
-                Supplier<S> task = getUpdateSupplier(entity, getEntityManager());
                 return execute(entityManager, task);
             }
         }
@@ -246,8 +246,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     public void delete(U entity) {
         EntityManager entityManager = getEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        EntityContext entityContext = entityFactory.getEntityContext(getDomainClass());
-        Supplier<U> task = getTask(entity, entityContext, entityManager);
+        Supplier<U> task = getDeleteTask(entity, entityManager);
 
         if (entityTransaction.isActive()) {
             task.get();
@@ -257,18 +256,29 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         evictCache();
     }
 
-    private Supplier<U> getTask(U entity, EntityContext entityContext, EntityManager entityManager) {
+    private Supplier<U> getDeleteTask(U entity, EntityManager entityManager) {
         Collection<EntityTrigger<U>> beforeDeleteTriggers = getBeforeDeleteTriggers();
         Collection<EntityTrigger<U>> afterDeleteTriggers = getAfterDeleteTriggers();
 
         return () -> {
-            String deleteQuery = getDeleteQuery(entityContext.getTableName());
+            @SuppressWarnings("unchecked")
+            Class<? extends AbstractEntity<?>> table = (Class<? extends AbstractEntity<?>>) getDomainClass();
+
+            SqlBuilder queryBuilder = getSqlBuilder();
+            SqlDelete sqlDelete = queryBuilder.deleteQueryFor(table);
+            sqlDelete.delete((AbstractEntity<?>) entity);
+            String deleteQuery = sqlDelete.getNativeQuery();
+
             Query query = entityManager.createNativeQuery(deleteQuery);
-            query.setParameter(ID_PROPERTY, entity.getId());
+            for (var param : sqlDelete.getQueryBindings()) {
+                query.setParameter(param.attribute(), param.value());
+            }
 
             beforeDeleteTriggers.forEach(trigger -> trigger.execute(entity));
             query.executeUpdate();
             afterDeleteTriggers.forEach(trigger -> trigger.execute(entity));
+
+            // Skip result so return null
             return null;
         };
     }
@@ -293,7 +303,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         SqlSelect sqlSelect = sqlBuilder.from(table);
 
         String query = sqlSelect.getNativeQuery();
-        Map<String, Object> attributes = QueryUtils.parse(sqlSelect.getQueryBindings());
+        Map<String, Object> attributes = Collections.emptyMap();
 
         List<U> results = getResultList(query, attributes, getDomainClass(), true);
 
@@ -342,7 +352,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         String alias = QueryUtils.parseQueryToEntitySimpleName(query);
         String processedQuery = QueryUtils.bindAttributes(query, attributes);
         Collection<AbstractEntity<?>> results = ((CacheReader<String, Collection<AbstractEntity<?>>>) cacheManager).readCache(alias, processedQuery);
-        if (results == null) {
+        if (results == null || results.isEmpty()) {
             List<K> data = queryDatabase(query, attributes, receiverType);
             CacheableQuery cacheableQuery = new CacheableQuery(query, attributes);
             if (!data.isEmpty()) {
@@ -388,11 +398,6 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
             entityContext.rollback();
             throw new PersistenceException(e);
         }
-    }
-
-    private String getDeleteQuery(String tableName) {
-        String template = "DELETE FROM {0} WHERE ID = :" + ID_PROPERTY;
-        return MessageFormat.format(template, tableName);
     }
 
     @SuppressWarnings("unchecked")
@@ -571,17 +576,12 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     private void closeEntityManager(EntityManager entityManager) {
-        if (entityManager instanceof AbstractRepository.OutboundThreadEntityManager proxy) {
+        if (entityManager instanceof OutboundThreadEntityManager proxy) {
             proxy.close();
         }
     }
 
-    private static class OutboundThreadEntityManager implements EntityManager {
-        private final EntityManager delegate;
-
-        OutboundThreadEntityManager(EntityManager delegate) {
-            this.delegate = delegate;
-        }
+    private record OutboundThreadEntityManager(EntityManager delegate) implements EntityManager {
 
         @Override
         public void persist(Object entity) {

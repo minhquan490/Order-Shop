@@ -24,6 +24,7 @@ public class CustomerUpdateInfoHandler extends AbstractController<CustomerInfoRe
     private String url;
 
     private CustomerUpdateInfoHandler() {
+        super();
     }
 
     @Override

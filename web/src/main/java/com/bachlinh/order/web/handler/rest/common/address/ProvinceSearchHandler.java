@@ -18,6 +18,7 @@ public class ProvinceSearchHandler extends AbstractController<Collection<Provinc
     private String url;
 
     private ProvinceSearchHandler() {
+        super();
     }
 
     @Override

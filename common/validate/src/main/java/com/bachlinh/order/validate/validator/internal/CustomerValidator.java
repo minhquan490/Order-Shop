@@ -2,18 +2,19 @@ package com.bachlinh.order.validate.validator.internal;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
-import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.core.enums.Gender;
+import com.bachlinh.order.core.utils.ValidateUtils;
+import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.CustomerRepository;
 import com.bachlinh.order.repository.MessageSettingRepository;
-import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
-import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
+
+import org.springframework.util.StringUtils;
 
 @ActiveReflection
 @ApplyOn(entity = Customer.class)

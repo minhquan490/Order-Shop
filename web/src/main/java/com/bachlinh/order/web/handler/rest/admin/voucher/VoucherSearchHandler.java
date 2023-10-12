@@ -21,6 +21,7 @@ public class VoucherSearchHandler extends AbstractController<Collection<VoucherR
     private VoucherSearchService voucherSearchService;
 
     private VoucherSearchHandler() {
+        super();
     }
 
     @Override

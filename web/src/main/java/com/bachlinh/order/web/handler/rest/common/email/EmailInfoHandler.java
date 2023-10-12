@@ -19,6 +19,7 @@ public class EmailInfoHandler extends AbstractController<EmailInfoResp, Void> {
     private EmailService emailService;
 
     private EmailInfoHandler() {
+        super();
     }
 
     @Override

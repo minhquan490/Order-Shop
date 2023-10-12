@@ -26,6 +26,7 @@ public class ProductDeleteHandler extends AbstractController<Map<String, Object>
     private ProductService productService;
 
     private ProductDeleteHandler() {
+        super();
     }
 
     @Override

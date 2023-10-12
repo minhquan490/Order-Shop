@@ -23,6 +23,7 @@ public class VoucherCreateHandler extends AbstractController<VoucherResp, Vouche
     private VoucherService voucherService;
 
     private VoucherCreateHandler() {
+        super();
     }
 
     @Override

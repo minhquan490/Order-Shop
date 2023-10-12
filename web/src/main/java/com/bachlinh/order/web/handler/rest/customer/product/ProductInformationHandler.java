@@ -17,6 +17,7 @@ public class ProductInformationHandler extends AbstractController<ProductResp, V
     private ProductService productService;
 
     private ProductInformationHandler() {
+        super();
     }
 
     @Override

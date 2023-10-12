@@ -18,6 +18,7 @@ public class EmailTemplateFolderListHandler extends AbstractController<Collectio
     private EmailTemplateFolderService emailTemplateFolderService;
 
     private EmailTemplateFolderListHandler() {
+        super();
     }
 
     @Override

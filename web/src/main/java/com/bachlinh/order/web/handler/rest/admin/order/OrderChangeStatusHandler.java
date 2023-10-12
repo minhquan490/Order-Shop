@@ -25,6 +25,7 @@ public class OrderChangeStatusHandler extends AbstractController<Map<String, Obj
     private OrderChangeStatusService statusService;
 
     private OrderChangeStatusHandler() {
+        super();
     }
 
     @Override

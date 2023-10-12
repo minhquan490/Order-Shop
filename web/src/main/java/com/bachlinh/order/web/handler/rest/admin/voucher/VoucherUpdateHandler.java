@@ -23,6 +23,7 @@ public class VoucherUpdateHandler extends AbstractController<VoucherResp, Vouche
     private VoucherService voucherService;
 
     private VoucherUpdateHandler() {
+        super();
     }
 
     @Override

@@ -22,6 +22,7 @@ public class ProductListHandler extends AbstractController<Collection<ProductRes
     private String productListUrl;
 
     private ProductListHandler() {
+        super();
     }
 
     @Override

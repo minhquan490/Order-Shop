@@ -1,8 +1,16 @@
 package com.bachlinh.order.core.scanner;
 
-import com.bachlinh.order.core.annotation.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.bachlinh.order.core.annotation.Ignore;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.AnnotationMetadata;
@@ -11,12 +19,6 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.lang.NonNull;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
 public final class ApplicationScanner extends ClassPathScanningCandidateComponentProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());

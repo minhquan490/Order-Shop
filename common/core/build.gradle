@@ -28,12 +28,13 @@ dependencies {
     implementation "io.netty:netty-all:${libs.versions.netty.get()}"
     implementation "io.netty.incubator:netty-incubator-codec-http3:${libs.versions.nettyQuic.get()}"
     implementation "com.google.guava:guava:${libs.versions.guavaVersion.get()}"
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation "org.apache.lucene:lucene-core:${libs.versions.lunceneVersion.get()}"
+    implementation "io.perfmark:perfmark-api:${libs.versions.perfmark.get()}"
     compileOnly "jakarta.servlet:jakarta.servlet-api"
     compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
     compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
     compileOnly 'org.springframework.security:spring-security-web'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation "org.apache.lucene:lucene-core:${libs.versions.lunceneVersion.get()}"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

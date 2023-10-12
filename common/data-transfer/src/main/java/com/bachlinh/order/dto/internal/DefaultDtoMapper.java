@@ -1,11 +1,11 @@
 package com.bachlinh.order.dto.internal;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.dto.MappingNotFoundException;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.dto.MappingContext;
-import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.exception.system.dto.MappingNotFoundException;
-import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,9 @@ public class DefaultDtoMapper implements DtoMapper {
         if (strategiesContext.canMap(type)) {
             return mapWithStrategy(source, type);
         }
-        throw new MappingNotFoundException(String.format("Can not map type [%s]. Missing proxy and strategy", type.getName()));
+
+        String message = STR. "Can not map type [\{ type.getName() }]. Missing proxy and strategy" ;
+        throw new MappingNotFoundException(message);
     }
 
     @Override
@@ -38,7 +40,8 @@ public class DefaultDtoMapper implements DtoMapper {
     @Override
     public <T, U> T mapWithProxy(U source, Class<T> type) throws MappingNotFoundException {
         if (!proxyContext.canMap(type)) {
-            throw new MappingNotFoundException(String.format("Can not map type [%s]. Missing proxy", type.getName()));
+            String message = STR. "Can not map type [\{ type.getName() }]. Missing proxy" ;
+            throw new MappingNotFoundException(message);
         }
         return proxyContext.map(source, type);
     }
@@ -53,7 +56,8 @@ public class DefaultDtoMapper implements DtoMapper {
     @Override
     public <T, U> T mapWithStrategy(U source, Class<T> type) throws MappingNotFoundException {
         if (!strategiesContext.canMap(type)) {
-            throw new MappingNotFoundException(String.format("Can not map type [%s]. Missing strategy", type.getName()));
+            String message = STR. "Can not map type [\{ type.getName() }]. Missing strategy" ;
+            throw new MappingNotFoundException(message);
         }
         return strategiesContext.map(source, type);
     }

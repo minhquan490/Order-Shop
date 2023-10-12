@@ -23,6 +23,7 @@ public class OrderCreateHandler extends AbstractController<OrderResp, OrderCreat
     private OrderService orderService;
 
     private OrderCreateHandler() {
+        super();
     }
 
     @Override

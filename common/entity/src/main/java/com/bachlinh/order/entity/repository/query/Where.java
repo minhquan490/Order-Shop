@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.repository.query;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public class Where {
     private final Operation operation;
@@ -29,35 +29,16 @@ public class Where {
         return this.value;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Where other)) return false;
-        if (!other.canEqual(this)) return false;
-        final Object this$operation = this.getOperation();
-        final Object other$operation = other.getOperation();
-        if (!Objects.equals(this$operation, other$operation)) return false;
-        final Object this$attribute = this.getAttribute();
-        final Object other$attribute = other.getAttribute();
-        if (!Objects.equals(this$attribute, other$attribute)) return false;
-        final Object this$value = this.getValue();
-        final Object other$value = other.getValue();
-        return Objects.equals(this$value, other$value);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Where where)) return false;
+        return getOperation() == where.getOperation() && Objects.equal(getAttribute(), where.getAttribute()) && Objects.equal(getValue(), where.getValue());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Where;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $operation = this.getOperation();
-        result = result * PRIME + ($operation == null ? 43 : $operation.hashCode());
-        final Object $attribute = this.getAttribute();
-        result = result * PRIME + ($attribute == null ? 43 : $attribute.hashCode());
-        final Object $value = this.getValue();
-        result = result * PRIME + ($value == null ? 43 : $value.hashCode());
-        return result;
+        return Objects.hashCode(getOperation(), getAttribute(), getValue());
     }
 
     public static class WhereBuilder {

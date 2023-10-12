@@ -101,7 +101,8 @@ final class PrivateKeyParser {
             }
             throw new IllegalStateException("Unrecognized private key format");
         } catch (Exception ex) {
-            throw new IllegalStateException("Error loading private key file " + resource, ex);
+            String message = STR. "Error loading private key file \{ resource }" ;
+            throw new IllegalStateException(message, ex);
         }
     }
 

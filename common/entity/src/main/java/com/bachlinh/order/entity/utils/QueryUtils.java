@@ -82,4 +82,8 @@ public final class QueryUtils {
             return false;
         }
     }
+
+    public static String getIdProperty() {
+        return "id";
+    }
 }

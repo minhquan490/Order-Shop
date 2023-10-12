@@ -3,12 +3,17 @@ package com.bachlinh.order.web.handler.advice;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.exception.http.TemporaryTokenExpiredException;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
+import com.bachlinh.order.core.http.handler.ThrowableHandler;
+
 import org.springframework.http.HttpStatus;
 
 @RouteExceptionHandler
 @ActiveReflection
 public class GoneRequestHandler extends ExceptionHandler {
+
+    private GoneRequestHandler() {}
 
     @Override
     protected int status() {
@@ -34,5 +39,10 @@ public class GoneRequestHandler extends ExceptionHandler {
     @Override
     public boolean isErrorHandler() {
         return false;
+    }
+
+    @Override
+    public ThrowableHandler<Exception, NativeResponse<byte[]>> newInstance() {
+        return new GoneRequestHandler();
     }
 }

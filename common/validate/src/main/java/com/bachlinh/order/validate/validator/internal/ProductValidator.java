@@ -10,10 +10,11 @@ import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.repository.ProductRepository;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
-import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Collection;
+
+import org.springframework.util.StringUtils;
 
 @ActiveReflection
 @ApplyOn(entity = Product.class)

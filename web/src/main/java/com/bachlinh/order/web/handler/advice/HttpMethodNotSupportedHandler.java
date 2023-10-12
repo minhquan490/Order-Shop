@@ -3,12 +3,17 @@ package com.bachlinh.order.web.handler.advice;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteExceptionHandler;
 import com.bachlinh.order.core.exception.http.HttpRequestMethodNotSupportedException;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
+import com.bachlinh.order.core.http.handler.ThrowableHandler;
+
 import org.springframework.http.HttpStatus;
 
 @ActiveReflection
 @RouteExceptionHandler
 public class HttpMethodNotSupportedHandler extends ExceptionHandler {
+
+    private HttpMethodNotSupportedHandler() {}
 
     @Override
     protected int status() {
@@ -36,5 +41,10 @@ public class HttpMethodNotSupportedHandler extends ExceptionHandler {
     @Override
     public boolean isErrorHandler() {
         return false;
+    }
+
+    @Override
+    public ThrowableHandler<Exception, NativeResponse<byte[]>> newInstance() {
+        return new HttpMethodNotSupportedHandler();
     }
 }

@@ -22,6 +22,7 @@ public class FlushFileUploadHandler extends AbstractController<Map<String, Objec
     private FileUploadService fileUploadService;
 
     private FlushFileUploadHandler() {
+        super();
     }
 
     @Override

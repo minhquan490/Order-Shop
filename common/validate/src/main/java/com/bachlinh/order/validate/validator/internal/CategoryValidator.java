@@ -8,9 +8,10 @@ import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
 import com.bachlinh.order.validate.validator.spi.AbstractValidator;
 import com.bachlinh.order.validate.validator.spi.Result;
-import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
+
+import org.springframework.util.StringUtils;
 
 @ActiveReflection
 @ApplyOn(entity = Category.class)

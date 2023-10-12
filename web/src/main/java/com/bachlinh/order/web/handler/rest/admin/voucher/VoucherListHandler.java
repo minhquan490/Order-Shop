@@ -20,6 +20,7 @@ public class VoucherListHandler extends AbstractController<Collection<VoucherRes
     private String url;
 
     private VoucherListHandler() {
+        super();
     }
 
     @Override

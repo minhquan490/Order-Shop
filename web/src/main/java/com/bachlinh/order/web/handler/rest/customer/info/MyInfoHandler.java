@@ -17,6 +17,7 @@ public class MyInfoHandler extends AbstractController<MyInfoResp, Object> {
     private CustomerService customerService;
 
     private MyInfoHandler() {
+        super();
     }
 
     @Override

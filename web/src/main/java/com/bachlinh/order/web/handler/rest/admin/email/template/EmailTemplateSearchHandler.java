@@ -20,6 +20,7 @@ public class EmailTemplateSearchHandler extends AbstractController<Collection<Em
     private EmailTemplateSearchService emailTemplateSearchService;
 
     private EmailTemplateSearchHandler() {
+        super();
     }
 
     @Override

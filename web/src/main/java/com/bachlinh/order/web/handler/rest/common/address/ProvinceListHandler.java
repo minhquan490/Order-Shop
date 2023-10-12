@@ -17,6 +17,7 @@ public class ProvinceListHandler extends AbstractController<Collection<ProvinceR
     private ProvinceService provinceService;
 
     private ProvinceListHandler() {
+        super();
     }
 
     @Override

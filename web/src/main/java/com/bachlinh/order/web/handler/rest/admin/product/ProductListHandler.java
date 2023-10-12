@@ -22,6 +22,7 @@ public class ProductListHandler extends AbstractController<Collection<AdminProdu
     private ProductService productService;
 
     private ProductListHandler() {
+        super();
     }
 
     @Override

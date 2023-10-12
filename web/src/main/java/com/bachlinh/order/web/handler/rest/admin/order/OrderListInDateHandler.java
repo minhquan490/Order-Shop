@@ -20,6 +20,7 @@ public class OrderListInDateHandler extends AbstractController<Collection<OrderL
     private String url;
 
     private OrderListInDateHandler() {
+        super();
     }
 
     @Override

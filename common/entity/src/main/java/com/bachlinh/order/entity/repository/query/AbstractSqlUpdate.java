@@ -3,6 +3,7 @@ package com.bachlinh.order.entity.repository.query;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
+import com.bachlinh.order.entity.repository.query.mssql.MssqlUpdate;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -11,7 +12,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AbstractSqlUpdate implements SqlUpdate {
+/**
+ * Base object for all database sql update processor.
+ *
+ * @author MinhQuan
+ * @see MssqlUpdate
+ * */
+public abstract non-sealed class AbstractSqlUpdate implements SqlUpdate {
     private final TableMetadataHolder metadataHolder;
     private final List<UpdatedFieldHolder> updatedFieldHolders = new LinkedList<>();
     private final Set<QueryBinding> bindingSet = new LinkedHashSet<>();

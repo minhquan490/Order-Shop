@@ -17,6 +17,7 @@ public class OrderNewInDateHandler extends AbstractController<Integer, Object> {
     private OrderInDateService orderInDateService;
 
     private OrderNewInDateHandler() {
+        super();
     }
 
     @Override

@@ -19,6 +19,7 @@ public class EmailTemplateListHandler extends AbstractController<Collection<Emai
     private EmailTemplateService emailTemplateService;
 
     private EmailTemplateListHandler() {
+        super();
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.utils.QueryUtils;
+
 import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
@@ -22,6 +23,7 @@ public abstract class AbstractSqlSelection extends AbstractSql<SqlSelect> implem
     private final Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata;
     private final Queue<SelectHolder> selects = new LinkedList<>();
     private final Queue<FormulaProcessor> formulaProcessors = new LinkedList<>();
+    private String tableAlias;
 
     protected AbstractSqlSelection(TableMetadataHolder targetMetadata, FormulaMetadata formulaMetadata, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata) {
         super(targetMetadata);
@@ -104,6 +106,10 @@ public abstract class AbstractSqlSelection extends AbstractSql<SqlSelect> implem
         return new SqlWhereSqm(combineOrderBy(), metadataHolder, selectFromQuery(), this.tableMetadata, where);
     }
 
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
+    }
+
     @Override
     protected String createQuery() {
         String order = orderStatement();
@@ -128,7 +134,9 @@ public abstract class AbstractSqlSelection extends AbstractSql<SqlSelect> implem
 
     protected abstract String getSelectRecordPattern();
 
-    protected abstract String getTableAlias();
+    protected String getTableAlias() {
+        return this.tableAlias;
+    }
 
     private SqlSelect select(Select select, Class<? extends AbstractEntity<?>> table, String functionName) {
         TableMetadataHolder tableMetadataHolder = this.tableMetadata.get(table);

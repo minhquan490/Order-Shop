@@ -2,7 +2,10 @@ package com.bachlinh.order.web.handler.advice;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ErrorHandler;
+import com.bachlinh.order.core.http.handler.ThrowableHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +13,8 @@ import org.slf4j.LoggerFactory;
 @ActiveReflection
 public class GlobalErrorHandler extends ErrorHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private GlobalErrorHandler() {}
 
     @Override
     protected void executeOnError(Error error) {
@@ -27,5 +32,10 @@ public class GlobalErrorHandler extends ErrorHandler {
     @Override
     public boolean isErrorHandler() {
         return true;
+    }
+
+    @Override
+    public ThrowableHandler<Error, NativeResponse<byte[]>> newInstance() {
+        return new GlobalErrorHandler();
     }
 }

@@ -20,6 +20,7 @@ public class LoginHandler extends AbstractController<NativeResponse<LoginResp>, 
     private LoginService loginService;
 
     private LoginHandler() {
+        super();
     }
 
     @Override

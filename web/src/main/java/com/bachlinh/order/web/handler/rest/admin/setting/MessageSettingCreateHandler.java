@@ -23,6 +23,7 @@ public class MessageSettingCreateHandler extends AbstractController<MessageSetti
     private MessageSettingService messageSettingService;
 
     private MessageSettingCreateHandler() {
+        super();
     }
 
     @Override

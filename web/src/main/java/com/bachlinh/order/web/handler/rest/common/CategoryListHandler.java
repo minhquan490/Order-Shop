@@ -17,6 +17,7 @@ public class CategoryListHandler extends AbstractController<Collection<CategoryR
     private String url;
 
     private CategoryListHandler() {
+        super();
     }
 
     @Override

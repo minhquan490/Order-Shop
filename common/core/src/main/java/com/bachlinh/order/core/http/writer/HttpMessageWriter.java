@@ -1,9 +1,5 @@
 package com.bachlinh.order.core.http.writer;
 
-import com.bachlinh.order.core.http.NativeCookie;
-import com.bachlinh.order.core.server.netty.channel.adapter.NettyServletResponseAdapter;
-import com.bachlinh.order.core.utils.JacksonUtils;
-import com.bachlinh.order.core.utils.map.MultiValueMap;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2FrameStream;
@@ -13,12 +9,17 @@ import io.netty.incubator.codec.http3.Http3HeadersFrame;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+import com.bachlinh.order.core.http.server.channel.adapter.NettyServletResponseAdapter;
+import com.bachlinh.order.core.utils.JacksonUtils;
+import com.bachlinh.order.core.utils.map.MultiValueMap;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 class HttpMessageWriter implements MessageWriter {
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -85,21 +86,6 @@ class HttpMessageWriter implements MessageWriter {
     @Override
     public void writeHeader(MultiValueMap<String, String> headers) {
         headers.forEach((s, strings) -> strings.forEach(s1 -> writeHeader(s, s1)));
-    }
-
-    @Override
-    public void writeCookie(NativeCookie cookie) {
-        this.actualResponse.addCookie(cookie.toServletCookie());
-    }
-
-    @Override
-    public void writeCookies(NativeCookie[] cookies) {
-        if (cookies == null) {
-            return;
-        }
-        for (var cookie : cookies) {
-            writeCookie(cookie);
-        }
     }
 
     @Override

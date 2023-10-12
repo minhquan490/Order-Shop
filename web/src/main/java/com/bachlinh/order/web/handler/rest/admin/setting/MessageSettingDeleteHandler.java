@@ -26,6 +26,7 @@ public class MessageSettingDeleteHandler extends AbstractController<Map<String, 
     private MessageSettingService messageSettingService;
 
     private MessageSettingDeleteHandler() {
+        super();
     }
 
     @Override

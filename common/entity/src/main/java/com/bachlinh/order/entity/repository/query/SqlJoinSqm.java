@@ -5,7 +5,6 @@ import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.formula.processor.JoinFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
-import org.springframework.lang.NonNull;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -13,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+
+import org.springframework.lang.NonNull;
 
 class SqlJoinSqm extends AbstractSql<SqlJoin> implements SqlJoin {
     private static final String JOIN_TYPE_TEMPLATE = "{0} JOIN";

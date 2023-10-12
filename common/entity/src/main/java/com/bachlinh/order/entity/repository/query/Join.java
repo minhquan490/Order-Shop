@@ -1,5 +1,6 @@
 package com.bachlinh.order.entity.repository.query;
 
+import com.google.common.base.Objects;
 import jakarta.persistence.criteria.JoinType;
 
 public class Join {
@@ -23,32 +24,16 @@ public class Join {
         return this.type;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Join)) return false;
-        final Join other = (Join) o;
-        if (!other.canEqual((Object) this)) return false;
-        final Object this$attribute = this.getAttribute();
-        final Object other$attribute = other.getAttribute();
-        if (this$attribute == null ? other$attribute != null : !this$attribute.equals(other$attribute)) return false;
-        final Object this$type = this.getType();
-        final Object other$type = other.getType();
-        if (this$type == null ? other$type != null : !this$type.equals(other$type)) return false;
-        return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Join join)) return false;
+        return Objects.equal(getAttribute(), join.getAttribute()) && getType() == join.getType();
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Join;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $attribute = this.getAttribute();
-        result = result * PRIME + ($attribute == null ? 43 : $attribute.hashCode());
-        final Object $type = this.getType();
-        result = result * PRIME + ($type == null ? 43 : $type.hashCode());
-        return result;
+        return Objects.hashCode(getAttribute(), getType());
     }
 
     public static class JoinBuilder {

@@ -24,6 +24,7 @@ public class HomeHandler extends AbstractController<Map<String, Object>, Object>
     private ProductService productService;
 
     private HomeHandler() {
+        super();
     }
 
     @Override

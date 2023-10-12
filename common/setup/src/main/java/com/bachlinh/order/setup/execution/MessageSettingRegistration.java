@@ -1,14 +1,15 @@
 package com.bachlinh.order.setup.execution;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.setup.Setup;
 import com.bachlinh.order.setup.spi.AbstractSetup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;

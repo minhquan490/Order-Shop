@@ -29,6 +29,11 @@ public abstract non-sealed class AbstractInterceptor implements WebInterceptor {
         // Do nothing in abstract
     }
 
+    @Override
+    public boolean isEnable() {
+        return true;
+    }
+
     public abstract AbstractInterceptor getInstance();
 
     public abstract void init();

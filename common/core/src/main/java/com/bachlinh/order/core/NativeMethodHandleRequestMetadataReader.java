@@ -8,8 +8,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public final class NativeMethodHandleRequestMetadataReader {
+    private static final String WILD_CARD_CHARACTER = "?";
     private static final NativeMethodHandleRequestMetadataReader SINGLETON = new NativeMethodHandleRequestMetadataReader();
     private final Map<String, MetadataReader> nativeMethodMetadataMap = new LinkedHashMap<>();
+
+    private final String wildCard = WILD_CARD_CHARACTER;
 
     public void defineMetadata(String path, Method handlerMethod) {
         Type[] genericTypes = ((ParameterizedType) handlerMethod.getDeclaringClass().getGenericSuperclass()).getActualTypeArguments();
@@ -27,7 +30,7 @@ public final class NativeMethodHandleRequestMetadataReader {
         if (!(type instanceof ParameterizedType parameterizedType)) {
             return (Class<?>) type;
         }
-        boolean hasWildCard = Stream.of(parameterizedType.getActualTypeArguments()).anyMatch(t -> t.getTypeName().equals("?"));
+        boolean hasWildCard = Stream.of(parameterizedType.getActualTypeArguments()).anyMatch(t -> t.getTypeName().equals(wildCard));
         if (hasWildCard) {
             return (Class<?>) parameterizedType.getRawType();
         } else {

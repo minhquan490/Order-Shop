@@ -4,10 +4,10 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.core.enums.TriggerExecution;
 import com.bachlinh.order.core.enums.TriggerMode;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 
@@ -19,7 +19,7 @@ import java.util.Collections;
 @ApplyOn(entity = Province.class)
 public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
     private static final int TOTAL_PROVINCE = 63;
-    private final Collection<Province> caches = Collections.synchronizedList(new ArrayList<>(TOTAL_PROVINCE));
+    private Collection<Province> caches;
 
     private EntityFactory entityFactory;
 
@@ -41,6 +41,9 @@ public class ProvinceIndexTrigger extends AbstractTrigger<Province> {
 
     @Override
     protected void inject() {
+        if (caches == null) {
+            caches = Collections.synchronizedList(new ArrayList<>(TOTAL_PROVINCE));
+        }
         if (entityFactory == null) {
             entityFactory = resolveDependencies(EntityFactory.class);
         }

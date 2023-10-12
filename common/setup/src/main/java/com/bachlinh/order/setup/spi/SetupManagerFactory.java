@@ -1,7 +1,7 @@
 package com.bachlinh.order.setup.spi;
 
-import com.bachlinh.order.entity.SetupManager;
 import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.setup.SetupManager;
 
 /**
  * The factory for create {@link SetupManager} with given options obtain from the builder.

@@ -8,6 +8,7 @@ import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.http.BadVariableException;
 import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.http.MultipartRequest;
+import com.bachlinh.order.core.utils.graphic.ImageUtils;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Product;
 import com.bachlinh.order.entity.model.ProductMedia;
@@ -26,10 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -104,13 +101,9 @@ public class ProductMediaServiceImpl extends AbstractService implements ProductM
         createProductTempFolder(infoPart);
         Path path;
         if (multipartRequest.isChunked()) {
-
             createFileTempFolder(infoPart);
-
-            path = Files.createFile(Path.of(tempFilePath, infoPart[0], infoPart[1], infoPart[2]));
-        } else {
-            path = Files.createFile(Path.of(tempFilePath, infoPart[0], infoPart[1]));
         }
+        path = Files.createFile(Path.of(tempFilePath, infoPart));
         FileCopyUtils.copy(data, path.toFile());
     }
 
@@ -165,13 +158,7 @@ public class ProductMediaServiceImpl extends AbstractService implements ProductM
 
     @Override
     public byte[] compressImage(String imagePath, String contentType) throws IOException {
-        BufferedImage bufferedImage = ImageIO.read(new File(imagePath));
-        Image resultImage = bufferedImage.getScaledInstance(300, 300, Image.SCALE_DEFAULT);
-        BufferedImage outputImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
-        outputImage.getGraphics().drawImage(resultImage, 0, 0, null);
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(outputImage, contentType.split("/")[1], arrayOutputStream);
-        return arrayOutputStream.toByteArray();
+        return ImageUtils.resizeImage(imagePath);
     }
 
     @DependenciesInitialize
@@ -200,7 +187,7 @@ public class ProductMediaServiceImpl extends AbstractService implements ProductM
     }
 
     private void createFileTempFolder(String[] paths) throws IOException {
-        Path path = Path.of(tempFilePath, paths[0], paths[1]);
+        Path path = Path.of(tempFilePath, paths);
         boolean folderFileTempExit = Files.exists(path);
         if (folderFileTempExit) {
             Files.delete(path);

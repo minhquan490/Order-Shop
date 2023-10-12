@@ -11,7 +11,6 @@ import org.springframework.util.StringUtils;
 public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> {
     private MultiValueMap<String, String> queryParams;
     private MultiValueMap<String, String> headers;
-    private NativeCookie[] cookies;
     private Payload<?> payload;
     private String customerIp;
     private final String csrfToken;
@@ -39,11 +38,6 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
     @Override
     public MultiValueMap<String, String> getHeaders() {
         return headers;
-    }
-
-    @Override
-    public NativeCookie[] getCookies() {
-        return cookies;
     }
 
     @Override
@@ -77,10 +71,6 @@ public class HttpServletNativeRequest extends NativeRequest<HttpServletRequest> 
 
     public void setHeaders(MultiValueMap<String, String> headers) {
         this.headers = headers;
-    }
-
-    public void setCookies(NativeCookie[] cookies) {
-        this.cookies = cookies;
     }
 
     public void setPayload(Payload<?> payload) {

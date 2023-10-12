@@ -1,5 +1,8 @@
 package com.bachlinh.order.entity.repository.query;
 
+import com.google.common.base.Objects;
+
+import com.bachlinh.order.core.annotation.Formula;
 import com.bachlinh.order.core.function.SqlCallback;
 import com.bachlinh.order.entity.FormulaMetadata;
 import com.bachlinh.order.entity.TableMetadataHolder;
@@ -9,12 +12,11 @@ import com.bachlinh.order.entity.formula.processor.WhereFormulaProcessor;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.utils.QueryUtils;
-import com.google.common.base.Objects;
-import org.springframework.lang.NonNull;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -23,6 +25,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.springframework.lang.NonNull;
+
+/**
+ * The sql where clause processor. Process {@link Where} object to native query for query engine execute.
+ * This processor will convert {@code WHERE} clause metadata in {@link Where} object to native query by using string
+ * process algorithm, time complexity N^3.
+ *
+ * @author MinhQuan
+ */
 class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     private final FormulaMetadata formulaMetadata;
@@ -33,6 +44,15 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private final Deque<AdditionWhere> additionsWhere = new LinkedList<>();
     private final Set<WhereFormulaProcessor> whereFormulaProcessors = new HashSet<>();
 
+    /**
+     * Create new instance to begin building native sql.
+     *
+     * @param orderByStatements All order by statement built at {@link SqlSelect}.
+     * @param metadataHolder    Metadata of entity, contains table name and all available column of entity.
+     * @param previousQuery     The previous query if had.
+     * @param tableMetadata     All metadata of all entities for support condition apply on other table.
+     * @param root              {@link Where} root of this processor.
+     */
     SqlWhereSqm(Collection<String> orderByStatements, TableMetadataHolder metadataHolder, String previousQuery, Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata, @NonNull Where root) {
         super(metadataHolder);
         orderByStatements.forEach(this::addOrderByStatement);
@@ -155,6 +175,12 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         return formulaMetadata.getNativeQueryProcessor(getTargetMetadata(), tableMetadata);
     }
 
+    /**
+     * Process convert all {@link Where} objects to query string, then append it after {@code WHERE} keyword.
+     * This method also append query pieces create by processor specify by {@link Formula} annotation.
+     *
+     * @return Processed query contains all main conditions and all formulas apply to selecting table.
+     */
     private String processWhere() {
         List<String> processedWheres = new ArrayList<>();
         String wherePattern = " WHERE {0}";
@@ -182,6 +208,11 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         return processWhereTableFormula(processedSql);
     }
 
+    /**
+     * Append {@link Where} root to head of condition query. Appendage root only occur when the {@link Where} root is not dirty.
+     *
+     * @param tableName Table for appendage root apply on.
+     */
     private void addWhereRoot(String tableName) {
         if (root != null && !root.isTouched()) {
             AdditionWhere whereRoot = new AdditionWhere(root.getRoot().getOperation(), root.getRoot().getAttribute(), root.getRoot().getValue(), tableName, ConditionOperator.NONE);
@@ -202,119 +233,98 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
         for (var processor : whereTableFormulas) {
             processedSql = processor.processWhere(processedSql);
         }
-        return processedSql;
+        return processedSql.replace("  ", " ");
     }
 
     private String processSubSelectIn(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} IN ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, "IN", true);
     }
 
     private String processSubQueryIn(String tableName, String colName, SqlWhere operation) {
-        String whereSubQueryPattern = "{0}.{1} IN ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, operation.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, operation, "IN", true);
     }
 
     private String processedIn(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} IN :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, "IN", false);
     }
 
     private String processSubSelectNotEquals(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} != ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, "!=", true);
     }
 
     private String processSubQueryNotEquals(String tableName, String colName, SqlWhere operation) {
-        String whereSubQueryPattern = "{0}.{1} != ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, operation.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, operation, "!=", true);
     }
 
     private String processNotEquals(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} != :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, "!=", false);
     }
 
     private String processSubSelectLessEquals(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} <= ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, "<=", true);
     }
 
     private String processSubQueryLessEquals(String tableName, String colName, SqlWhere operation) {
-        String whereSubQueryPattern = "{0}.{1} <= ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, operation.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, operation, "<=", true);
     }
 
     private String processLessEquals(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} <= :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, "<=", false);
     }
 
     private String processSubSelectLessThan(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} < ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, "<", true);
     }
 
     private String processSubQueryLessThan(String tableName, String colName, SqlWhere operation) {
-        String whereSubQueryPattern = "{0}.{1} < ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, operation.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, operation, "<", true);
     }
 
     private String processLessThan(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} < :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, "<", false);
     }
 
     private String processSubSelectGreaterThan(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} > ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, ">", true);
     }
 
     private String processSubQueryGreaterThan(String tableName, String colName, SqlWhere operation) {
-        String whereSubQueryPattern = "{0}.{1} > ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, operation.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, operation, ">", true);
     }
 
     private String processGreaterThan(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} > :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, ">", false);
     }
 
     private String processSubSelectGreaterEquals(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} >= ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, ">=", true);
     }
 
     private String processSubQueryGreaterEquals(String tableName, String colName, SqlWhere subQuery) {
-        String whereSubQueryPattern = "{0}.{1} >= ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, subQuery.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, subQuery, ">=", true);
     }
 
     private String processGreaterEquals(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} >= :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, ">=", false);
     }
 
     private String processSubSelectEquals(String tableName, String colName, SqlSelect sqlSelect) {
-        String subSelectPattern = "{0}.{1} = ({2})";
-        return MessageFormat.format(subSelectPattern, tableName, colName, sqlSelect.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, sqlSelect, "=", true);
     }
 
     private String processSubQueryEquals(String tableName, String colName, SqlWhere subQuery) {
-        String whereSubQueryPattern = "{0}.{1} = ({2})";
-        return MessageFormat.format(whereSubQueryPattern, tableName, colName, subQuery.getNativeQuery().trim());
+        return processWhereOperationQuery(tableName, colName, subQuery, "=", true);
     }
 
     private String processEquals(String tableName, String colName, String attribute) {
-        String whereColPattern = "{0}.{1} = :{2}";
-        attribute = processAttribute(tableName, attribute);
-        return MessageFormat.format(whereColPattern, tableName, colName, attribute.trim());
+        DummyNativeQueryHolder dummyHolder = new DummyNativeQueryHolder(attribute);
+        return processWhereOperationQuery(tableName, colName, dummyHolder, "=", false);
     }
 
     private void processEQ(List<String> processedWheres) {
@@ -394,8 +404,8 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
                 if (additionWhere.getValue() instanceof Object[] casted) {
                     String leftParam = ":betweenP" + leftIndex;
                     String rightParam = ":betweenR" + rightIndex;
-                    String processed = MessageFormat.format(betweenPattern, additionWhere.getTableName(), this.getTargetMetadata().getColumn(additionWhere.getAttribute()), leftParam, rightParam);
-                    processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+                    String processed = MessageFormat.format(betweenPattern, java.util.Objects.requireNonNull(additionWhere).getTableName(), this.getTargetMetadata().getColumn(additionWhere.getAttribute()), leftParam, rightParam);
+                    processedWheres.add(catProcessedQueryAndOperation(processed, additionWhere.getConditionOperator()));
                     this.queryBindings.add(new QueryBinding(leftParam, casted[0]));
                     this.queryBindings.add(new QueryBinding(rightParam, casted[1]));
                 }
@@ -407,7 +417,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
 
     @SuppressWarnings("unchecked")
     private void processBinding(List<String> processedWheres, String processed, SqlWhereSqm.AdditionWhere additionWhere) {
-        processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+        processedWheres.add(catProcessedQueryAndOperation(processed, additionWhere.getConditionOperator()));
         String attribute = processAttribute(additionWhere.getTableName(), additionWhere.getAttribute());
         if (additionWhere.getValue() instanceof BaseEntity<?> entity) {
             this.queryBindings.add(new QueryBinding(attribute, entity.getId()));
@@ -459,7 +469,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void onSqlWhere(AdditionWhere additionWhere, List<String> processedWheres, Supplier<String> processQueryCallback) {
         if (additionWhere.getValue() instanceof SqlWhere operation) {
             String processed = processQueryCallback.get();
-            processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+            processedWheres.add(catProcessedQueryAndOperation(processed, additionWhere.getConditionOperator()));
             this.queryBindings.addAll(operation.getQueryBindings());
         }
     }
@@ -467,7 +477,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
     private void onSqlSelect(AdditionWhere additionWhere, List<String> processedWheres, Supplier<String> selectCallback) {
         if (additionWhere.getValue() instanceof SqlSelect) {
             String processed = selectCallback.get();
-            processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+            processedWheres.add(catProcessedQueryAndOperation(processed, additionWhere.getConditionOperator()));
         }
     }
 
@@ -506,7 +516,7 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
             if (additionWhere.getOperation().equals(operation)) {
                 additionWhere = this.additionsWhere.poll();
 
-                String tableName = additionWhere.getTableName();
+                String tableName = java.util.Objects.requireNonNull(additionWhere).getTableName();
                 String attribute = additionWhere.getAttribute();
                 Object value = additionWhere.getValue();
 
@@ -526,9 +536,38 @@ class SqlWhereSqm extends AbstractSql<SqlWhere> implements SqlWhere {
             var additionWhere = this.additionsWhere.peek();
             if (additionWhere.getOperation().equals(operation)) {
                 additionWhere = this.additionsWhere.poll();
-                String processed = MessageFormat.format(pattern, additionWhere.getTableName(), this.getTargetMetadata().getColumn(additionWhere.getAttribute()));
-                processedWheres.add(processed + additionWhere.getConditionOperator().getValue());
+                String processed = MessageFormat.format(pattern, java.util.Objects.requireNonNull(additionWhere).getTableName(), this.getTargetMetadata().getColumn(additionWhere.getAttribute()));
+                processedWheres.add(catProcessedQueryAndOperation(processed, additionWhere.getConditionOperator()));
             }
+        }
+    }
+
+    private String catProcessedQueryAndOperation(String processedQuery, ConditionOperator operator) {
+        return operator.getValue() + processedQuery;
+    }
+
+    private String processWhereOperationQuery(String tableName, String colName, NativeQueryHolder nativeQueryHolder, String logicOperator, boolean wrapped) {
+        String formatted;
+        if (wrapped) {
+            String wrappedRawPattern = "{0}.{1} %s ({2})";
+            formatted = wrappedRawPattern.formatted(logicOperator);
+        } else {
+            String unwrappedRawPattern = "{0}.{1} %s :{2}";
+            formatted = unwrappedRawPattern.formatted(logicOperator);
+        }
+        return MessageFormat.format(formatted, tableName, colName, nativeQueryHolder.getNativeQuery().trim());
+    }
+
+    private record DummyNativeQueryHolder(String attribute) implements NativeQueryHolder {
+
+        @Override
+        public String getNativeQuery() {
+            return attribute;
+        }
+
+        @Override
+        public Collection<QueryBinding> getQueryBindings() {
+            return Collections.emptyList();
         }
     }
 

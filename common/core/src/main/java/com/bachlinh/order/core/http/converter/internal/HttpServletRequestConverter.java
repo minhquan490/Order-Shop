@@ -3,10 +3,8 @@ package com.bachlinh.order.core.http.converter.internal;
 import com.bachlinh.order.core.NativeMethodHandleRequestMetadataReader;
 import com.bachlinh.order.core.http.HttpServletNativeRequest;
 import com.bachlinh.order.core.http.MultipartRequest;
-import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.Payload;
-import com.bachlinh.order.core.http.converter.spi.NativeCookieConverter;
 import com.bachlinh.order.core.http.converter.spi.RequestConverter;
 import com.bachlinh.order.core.http.parser.internal.MultipartServletRequestBodyParser;
 import com.bachlinh.order.core.http.parser.internal.ServletRequestBodyParser;
@@ -15,7 +13,6 @@ import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.core.utils.map.MultiValueMap;
 import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 
@@ -27,11 +24,9 @@ import java.util.List;
 public class HttpServletRequestConverter implements RequestConverter<HttpServletRequest> {
     private final RequestBodyParser<ServletRequest> parser;
     private final RequestBodyParser<AbstractMultipartHttpServletRequest> multipartParser;
-    private final NativeCookieConverter<Cookie> nativeCookieConverter;
 
     public HttpServletRequestConverter() {
         this.parser = new ServletRequestBodyParser();
-        this.nativeCookieConverter = NativeCookieConverter.nativeCookieConverter();
         this.multipartParser = new MultipartServletRequestBodyParser();
     }
 
@@ -40,7 +35,6 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
         var nativeRequest = new HttpServletNativeRequest(request);
         nativeRequest.setQueryParams(parseToQueryParams(request));
         nativeRequest.setHeaders(parseToHeaders(request));
-        nativeRequest.setCookies(parseToCookies(request));
         NativeMethodHandleRequestMetadataReader requestMetadataReader = NativeMethodHandleRequestMetadataReader.getInstance();
         var reader = requestMetadataReader.getNativeMethodMetadata(request.getRequestURI());
         if (reader == null) {
@@ -88,17 +82,5 @@ public class HttpServletRequestConverter implements RequestConverter<HttpServlet
             headers.putIfAbsent(headerName, values);
         }
         return headers;
-    }
-
-    private NativeCookie[] parseToCookies(HttpServletRequest request) {
-        List<NativeCookie> nativeCookies = new ArrayList<>();
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                nativeCookies.add(nativeCookieConverter.convert(cookie));
-            }
-            return nativeCookies.toArray(new NativeCookie[0]);
-        }
-        return new NativeCookie[0];
     }
 }

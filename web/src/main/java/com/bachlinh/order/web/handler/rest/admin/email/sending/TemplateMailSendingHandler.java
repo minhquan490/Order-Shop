@@ -22,6 +22,7 @@ public class TemplateMailSendingHandler extends AbstractController<Map<String, O
     private EmailTemplateSendingService emailTemplateSendingService;
 
     private TemplateMailSendingHandler() {
+        super();
     }
 
     @Override

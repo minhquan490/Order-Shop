@@ -4,11 +4,8 @@ import com.bachlinh.order.core.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.core.utils.map.MultiValueMap;
 import org.springframework.lang.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 public class NativeResponse<T> {
 
@@ -22,15 +19,11 @@ public class NativeResponse<T> {
     @Nullable
     private final MultiValueMap<String, String> headers;
 
-    @Nullable
-    private final NativeCookie[] cookies;
-
-    NativeResponse(@Nullable T body, int statusCode, boolean activePushBuilder, @Nullable MultiValueMap<String, String> headers, @Nullable NativeCookie[] cookies) {
+    NativeResponse(@Nullable T body, int statusCode, boolean activePushBuilder, @Nullable MultiValueMap<String, String> headers) {
         this.body = body;
         this.statusCode = statusCode;
         this.activePushBuilder = activePushBuilder;
         this.headers = headers;
-        this.cookies = cookies;
     }
 
     public static <T> NativeResponseBuilder<T> builder() {
@@ -44,9 +37,6 @@ public class NativeResponse<T> {
         mergedHeaders.putAll(other.getHeaders() == null ? Collections.emptyMap() : other.getHeaders());
         builder.headers(mergedHeaders);
         builder.body(other.getBody());
-        List<NativeCookie> mergedCookies = this.getCookies() == null ? new ArrayList<>() : Arrays.asList(this.getCookies());
-        mergedCookies.addAll(other.getCookies() == null ? new ArrayList<>() : Arrays.asList(other.getCookies()));
-        builder.cookies(mergedCookies.toArray(new NativeCookie[0]));
         builder.statusCode(other.getStatusCode());
         builder.activePushBuilder(other.isActivePushBuilder());
         return (NativeResponse<T>) builder.build();
@@ -83,11 +73,6 @@ public class NativeResponse<T> {
         return this.headers;
     }
 
-    @Nullable
-    public NativeCookie[] getCookies() {
-        return this.cookies;
-    }
-
     public void setStatusCode(int statusCode) {
         this.statusCode = statusCode;
     }
@@ -101,7 +86,6 @@ public class NativeResponse<T> {
         private int statusCode;
         private boolean activePushBuilder;
         private MultiValueMap<String, String> headers;
-        private NativeCookie[] cookies;
 
         NativeResponseBuilder() {
         }
@@ -126,17 +110,8 @@ public class NativeResponse<T> {
             return this;
         }
 
-        public NativeResponseBuilder<T> cookies(NativeCookie[] cookies) {
-            this.cookies = cookies;
-            return this;
-        }
-
         public NativeResponse<T> build() {
-            return new NativeResponse<>(this.body, this.statusCode, this.activePushBuilder, this.headers, this.cookies);
-        }
-
-        public String toString() {
-            return "NativeResponse.NativeResponseBuilder(body=" + this.body + ", statusCode=" + this.statusCode + ", activePushBuilder=" + this.activePushBuilder + ", headers=" + this.headers + ", cookies=" + Arrays.deepToString(this.cookies) + ")";
+            return new NativeResponse<>(this.body, this.statusCode, this.activePushBuilder, this.headers);
         }
     }
 }

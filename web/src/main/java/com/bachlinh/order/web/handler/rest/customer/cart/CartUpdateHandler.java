@@ -23,6 +23,7 @@ public class CartUpdateHandler extends AbstractController<CartResp, CartForm> {
     private String url;
 
     private CartUpdateHandler() {
+        super();
     }
 
     @Override

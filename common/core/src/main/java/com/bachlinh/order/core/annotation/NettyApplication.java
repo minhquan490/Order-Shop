@@ -4,6 +4,7 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
@@ -28,7 +29,7 @@ import java.lang.annotation.Target;
 public @interface NettyApplication {
 
     @AliasFor(annotation = SpringBootApplication.class)
-    Class<?>[] exclude() default {DataSourceAutoConfiguration.class, WebMvcAutoConfiguration.class, MultipartAutoConfiguration.class, ErrorMvcAutoConfiguration.class, ThymeleafAutoConfiguration.class};
+    Class<?>[] exclude() default {DataSourceAutoConfiguration.class, WebMvcAutoConfiguration.class, MultipartAutoConfiguration.class, ErrorMvcAutoConfiguration.class, ThymeleafAutoConfiguration.class, TransactionAutoConfiguration.class};
 
     @AliasFor(annotation = SpringBootApplication.class)
     String[] excludeName() default {};

@@ -1,50 +1,45 @@
 package com.bachlinh.order.entity.repository.cache.implementor;
 
 import com.bachlinh.order.entity.model.AbstractEntity;
+import com.bachlinh.order.entity.repository.cache.AbstractCacheContext;
 import com.bachlinh.order.entity.repository.cache.AbstractCacheManager;
 import com.bachlinh.order.entity.repository.cache.Cache;
-import com.bachlinh.order.entity.repository.cache.CacheAllocator;
-import com.bachlinh.order.entity.repository.cache.CacheDestroyer;
-import com.bachlinh.order.entity.repository.cache.CacheLoader;
 import com.bachlinh.order.entity.utils.QueryUtils;
+
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
 
 public class EhHeapCacheManager extends AbstractCacheManager<CacheManager> {
-
-    private static CacheManager cacheManager;
-    private static final Context context;
+    private static final Context CONTEXT;
 
     static {
-        context = new Context();
+        CONTEXT = new Context();
     }
 
     public EhHeapCacheManager() {
-        super(configCacheManager(), context, context, context);
+        super(configCacheManager(), CONTEXT, CONTEXT, CONTEXT);
         init();
     }
 
     @Override
     public void init() {
-        cacheManager.init();
+        unwrap().init();
     }
 
     @Override
     public void close() {
-        cacheManager.close();
+        unwrap().close();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Collection<AbstractEntity<?>> readCache(String alias, String key) {
-        Cache cache = context.load(alias);
+        Cache cache = CONTEXT.load(alias);
         if (cache == null) {
-            // Cache empty return must be null
-            return null;
+            return Collections.emptyList();
         }
         return (Collection<AbstractEntity<?>>) cache.get(() -> key).unwrap();
     }
@@ -57,30 +52,15 @@ public class EhHeapCacheManager extends AbstractCacheManager<CacheManager> {
     }
 
     private static CacheManager configCacheManager() {
-        cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+        return CacheManagerBuilder.newCacheManagerBuilder()
                 .build();
-        return cacheManager;
     }
 
-    private static class Context implements CacheAllocator, CacheLoader, CacheDestroyer {
-
-        private final Map<String, Cache> cacheMap = new ConcurrentHashMap<>();
+    private static class Context extends AbstractCacheContext {
 
         @Override
-        public Cache allocate(com.bachlinh.order.entity.repository.cache.CacheManager<?> cacheManager, String alias) {
-            Cache cache = new EhHeapCache(alias, (org.ehcache.CacheManager) cacheManager.unwrap());
-            cacheMap.put(alias, cache);
-            return cache;
-        }
-
-        @Override
-        public Cache load(String alias) {
-            return cacheMap.get(alias);
-        }
-
-        @Override
-        public void destroy(String alias) {
-            cacheMap.remove(alias);
+        protected Cache doCreateCache(String alias, CacheManager cacheManager) {
+            return new EhHeapCache(alias, cacheManager);
         }
     }
 }

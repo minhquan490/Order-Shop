@@ -19,6 +19,7 @@ public class CustomerLoginHistoriesListHandler extends AbstractController<Custom
     private LoginHistoryService loginHistoryService;
 
     private CustomerLoginHistoriesListHandler() {
+        super();
     }
 
     @Override

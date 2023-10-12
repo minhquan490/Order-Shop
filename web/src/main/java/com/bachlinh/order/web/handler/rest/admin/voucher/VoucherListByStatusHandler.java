@@ -23,6 +23,7 @@ public class VoucherListByStatusHandler extends AbstractController<Collection<Vo
     private String url;
 
     private VoucherListByStatusHandler() {
+        super();
     }
 
     @Override

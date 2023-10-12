@@ -1,28 +1,30 @@
 package com.bachlinh.order.setup.execution;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.http.template.spi.RestTemplate;
 import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.Setup;
 import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.Ward;
 import com.bachlinh.order.repository.DistrictRepository;
 import com.bachlinh.order.repository.ProvinceRepository;
 import com.bachlinh.order.repository.WardRepository;
+import com.bachlinh.order.setup.Setup;
 import com.bachlinh.order.setup.spi.AbstractSetup;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @ActiveReflection

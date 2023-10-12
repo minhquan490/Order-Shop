@@ -28,8 +28,6 @@ public abstract class NativeRequest<T> {
 
     public abstract MultiValueMap<String, String> getHeaders();
 
-    public abstract NativeCookie[] getCookies();
-
     public abstract <U> Payload<U> getBody();
 
     public abstract String getCustomerIp();

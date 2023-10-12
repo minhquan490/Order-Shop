@@ -1,13 +1,14 @@
 package com.bachlinh.order.setup.spi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.entity.Setup;
-import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.core.environment.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.bachlinh.order.entity.repository.RepositoryManager;
+import com.bachlinh.order.setup.Setup;
 
 /**
  * Base setup of all setup object. Extends this object for define setup object.

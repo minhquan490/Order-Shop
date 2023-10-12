@@ -1,9 +1,9 @@
 package com.bachlinh.order.security.auth.spi;
 
 import com.bachlinh.order.entity.model.Customer;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 /**
  * Subclass of {@link AbstractAuthenticationToken} for holding {@code Customer}
@@ -14,12 +14,10 @@ import java.util.Objects;
 public final class PrincipalHolder extends AbstractAuthenticationToken {
 
     private final Customer customer;
-    private final String clientSecret;
 
-    public PrincipalHolder(Customer customer, @Deprecated(forRemoval = true) String clientSecret) {
+    public PrincipalHolder(Customer customer) {
         super(customer.getAuthorities());
         this.customer = customer;
-        this.clientSecret = clientSecret;
     }
 
     @Override
@@ -37,34 +35,17 @@ public final class PrincipalHolder extends AbstractAuthenticationToken {
         return customer.getId();
     }
 
-    @Deprecated(forRemoval = true)
-    public String getClientSecret() {
-        return clientSecret;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PrincipalHolder that = (PrincipalHolder) o;
+        return Objects.equal(customer, that.customer);
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof PrincipalHolder other)) return false;
-        if (!other.canEqual(this)) return false;
-        final Object this$customer = this.customer;
-        final Object other$customer = other.customer;
-        if (!Objects.equals(this$customer, other$customer)) return false;
-        final Object this$clientSecret = this.getClientSecret();
-        final Object other$clientSecret = other.getClientSecret();
-        return Objects.equals(this$clientSecret, other$clientSecret);
-    }
-
-    private boolean canEqual(final Object other) {
-        return other instanceof PrincipalHolder;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $customer = this.customer;
-        result = result * PRIME + ($customer == null ? 43 : $customer.hashCode());
-        final Object $clientSecret = this.getClientSecret();
-        result = result * PRIME + ($clientSecret == null ? 43 : $clientSecret.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), customer);
     }
 }

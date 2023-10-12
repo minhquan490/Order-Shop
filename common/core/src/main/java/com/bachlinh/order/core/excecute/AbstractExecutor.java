@@ -1,9 +1,9 @@
 package com.bachlinh.order.core.excecute;
 
-import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 public abstract non-sealed class AbstractExecutor<T> implements Executor<T> {
 
@@ -21,7 +21,8 @@ public abstract non-sealed class AbstractExecutor<T> implements Executor<T> {
         inject();
         T source = (T) wrapper.getSource();
         if (source != null && (!getBootObjectType().isAssignableFrom(source.getClass()) && (!getBootObjectType().equals(source.getClass())))) {
-            throw new CriticalException("Expected param [" + getBootObjectType().getName() + "] but receive [" + wrapper.getSource().getClass() + "]");
+            String message = STR. "Expected param [\{ getBootObjectType().getName() }] but receive [\{ wrapper.getSource().getClass() }]" ;
+            throw new CriticalException(message);
         }
         doExecute(source);
     }

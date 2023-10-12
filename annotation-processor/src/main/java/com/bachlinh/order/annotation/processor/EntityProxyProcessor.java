@@ -48,6 +48,7 @@ public class EntityProxyProcessor extends AbstractProcessor {
             var annotation = element.getAnnotation(EnableFullTextSearch.class);
             var sourceName = MessageFormat.format(sourceTemplate, annotation.proxyPackage(), element.getSimpleName());
             try {
+
                 var writer = ClassWriter.entityProxyWriter(filer.createSourceFile(sourceName));
                 writer.write(element);
             } catch (Exception e) {

@@ -27,6 +27,7 @@ public class EmailTemplateFolderDeleteHandler extends AbstractController<Map<Str
     private EmailTemplateFolderService emailTemplateFolderService;
 
     private EmailTemplateFolderDeleteHandler() {
+        super();
     }
 
     @Override

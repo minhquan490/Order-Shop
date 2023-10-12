@@ -23,6 +23,7 @@ public class ServingFileHandler extends AbstractController<NativeResponse<byte[]
     private ProductMediaService productMediaService;
 
     private ServingFileHandler() {
+        super();
     }
 
     @Override

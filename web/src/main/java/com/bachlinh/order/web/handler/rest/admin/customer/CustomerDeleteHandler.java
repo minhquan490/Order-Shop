@@ -23,6 +23,7 @@ public class CustomerDeleteHandler extends AbstractController<CustomerResp, Cust
     private CustomerService customerService;
 
     private CustomerDeleteHandler() {
+        super();
     }
 
     @Override

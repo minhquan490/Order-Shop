@@ -18,6 +18,7 @@ public class CustomerInfoHandler extends AbstractController<CustomerInfoResp, Vo
     private CustomerService customerService;
 
     private CustomerInfoHandler() {
+        super();
     }
 
     @Override

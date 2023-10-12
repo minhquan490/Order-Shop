@@ -21,7 +21,7 @@ public interface FunctionDialect {
 
     static FunctionDialect getDialect(String driverName) {
         return switch (driverName) {
-            case "com.microsoft.sqlserver.jdbc.SQLServerDriver" -> new MssqlFunctionDialect();
+            case "com.microsoft.sqlserver.jdbc.SQLServerDriver" -> getMssqlFunctionDialect();
             default -> null;
         };
     }

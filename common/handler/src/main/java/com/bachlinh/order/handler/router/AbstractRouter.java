@@ -5,7 +5,6 @@ import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ExceptionReturn;
 import com.bachlinh.order.core.http.handler.Router;
-import com.bachlinh.order.core.utils.RequestHelper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.handler.controller.Controller;
@@ -114,7 +113,6 @@ public abstract class AbstractRouter<T, U> implements Router<T, U> {
     }
 
     private void preHandle(AtomicReference<NativeRequest<?>> requestReference, AtomicReference<NativeResponse<?>> responseReference, U response) {
-        RequestHelper.bindToThread(RequestHelper.getCurrentRequest());
         configResponse(responseReference.get(), response);
         rootNode.setNativeRequest(requestReference.get());
         rootNode.setNativeResponse(responseReference.get());

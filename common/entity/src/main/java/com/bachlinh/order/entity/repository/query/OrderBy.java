@@ -1,6 +1,6 @@
 package com.bachlinh.order.entity.repository.query;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public final class OrderBy {
     private final String column;
@@ -23,25 +23,16 @@ public final class OrderBy {
         return this.type;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof OrderBy other)) return false;
-        final Object this$column = this.getColumn();
-        final Object other$column = other.getColumn();
-        if (!Objects.equals(this$column, other$column)) return false;
-        final Object this$type = this.getType();
-        final Object other$type = other.getType();
-        return Objects.equals(this$type, other$type);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderBy orderBy)) return false;
+        return Objects.equal(getColumn(), orderBy.getColumn()) && getType() == orderBy.getType();
     }
 
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final Object $column = this.getColumn();
-        result = result * PRIME + ($column == null ? 43 : $column.hashCode());
-        final Object $type = this.getType();
-        result = result * PRIME + ($type == null ? 43 : $type.hashCode());
-        return result;
+        return Objects.hashCode(getColumn(), getType());
     }
 
     public enum Type {

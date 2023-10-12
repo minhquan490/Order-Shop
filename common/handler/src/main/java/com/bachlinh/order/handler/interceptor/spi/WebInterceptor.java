@@ -11,4 +11,6 @@ public sealed interface WebInterceptor permits AbstractInterceptor {
     void onComplete(NativeRequest<?> request, NativeResponse<?> response);
 
     int getOrder();
+
+    boolean isEnable();
 }

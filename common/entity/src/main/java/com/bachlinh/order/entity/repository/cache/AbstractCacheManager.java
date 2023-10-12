@@ -42,8 +42,8 @@ public abstract class AbstractCacheManager<T> implements CacheManager<T>, CacheR
 
     @Override
     public void write(CacheableQuery key, Object value) {
-        Map<String, Object> attributes = key.getAttributes();
-        String query = key.getNativeQuery();
+        Map<String, Object> attributes = key.attributes();
+        String query = key.nativeQuery();
         query = QueryUtils.bindAttributes(query, attributes);
         internalWrite(query, value);
     }

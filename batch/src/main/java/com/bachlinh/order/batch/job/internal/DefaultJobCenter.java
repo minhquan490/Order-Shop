@@ -4,8 +4,8 @@ import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.batch.job.AbstractJobCenter;
 import com.bachlinh.order.batch.job.Job;
 import com.bachlinh.order.batch.job.JobType;
-import com.bachlinh.order.core.exception.system.batch.JobNotFoundException;
 import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.exception.system.batch.JobNotFoundException;
 
 import java.util.Collection;
 
@@ -53,7 +53,8 @@ public class DefaultJobCenter extends AbstractJobCenter {
     public Job getJob(String name) {
         Job job = getJobContext().get(name);
         if (job == null) {
-            throw new JobNotFoundException("Job with name [" + name + "] not registered");
+            String message = STR. "Job with name [\{ name }] not registered" ;
+            throw new JobNotFoundException(message);
         }
         return job;
     }

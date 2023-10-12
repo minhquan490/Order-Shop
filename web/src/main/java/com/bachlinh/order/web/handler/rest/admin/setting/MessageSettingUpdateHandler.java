@@ -22,6 +22,7 @@ public class MessageSettingUpdateHandler extends AbstractController<MessageSetti
     private MessageSettingService messageSettingService;
 
     private MessageSettingUpdateHandler() {
+        super();
     }
 
     @Override
