@@ -1,12 +1,13 @@
 package com.bachlinh.order.handler.controller;
 
-import com.bachlinh.order.core.annotation.Scope;
 import com.bachlinh.order.core.alloc.Initializer;
+import com.bachlinh.order.core.annotation.Scope;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.exception.http.HttpRequestMethodNotSupportedException;
 import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
         if (params.length != 2) {
             return createControllerWithoutParams(controllerType);
         } else {
+            // Unsafe init controller for first creation
             return createControllerWithParams(controllerType, (ContainerWrapper) params[0], (String) params[1]);
         }
     }
@@ -40,10 +42,9 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
         return controller;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T, U> void addController(Controller<T, U> controller) {
-        controllerMap.put((Class<? extends Controller<?, ?>>) controller.getClass(), controller);
-        referencePath.putIfAbsent(controller.getPath(), (Class<Controller<?, ?>>) controller.getClass());
+    public <T, U> void addController(Controller<T, U> controller, Class<? extends Controller<?, ?>> controllerType) {
+        controllerMap.put(controllerType, controller);
+        referencePath.putIfAbsent(controller.getPath(), controllerType);
     }
 
     public ControllerContext unwrap() {
@@ -54,7 +55,7 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
     public <T, U> void registerControllerWithUnsafe(Class<?> clazz, ContainerWrapper wrapper, String profile) {
         if (!controllerMap.containsKey(clazz)) {
             AbstractController<T, U> instance = (AbstractController<T, U>) createController((Class<? extends Controller<T, U>>) clazz, wrapper, profile);
-            addController(instance);
+            addController(instance, (Class<? extends Controller<?, ?>>) clazz);
         }
     }
 
@@ -69,11 +70,13 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
     @SuppressWarnings("unchecked")
     private <T, U> Controller<T, U> createControllerWithoutParams(Class<? extends Controller<T, U>> controllerType) {
         Controller<T, U> preResult = (Controller<T, U>) controllerMap.get(controllerType);
-        if (preResult != null && controllerType.isAnnotationPresent(Scope.class)) {
+        if (preResult != null && isControllerAnnotatedScope(controllerType)) {
             Scope scope = controllerType.getAnnotation(Scope.class);
-            if (scope.value().equals(Scope.ControllerScope.REQUEST)) {
-                return cloneController((AbstractController<T, U>) preResult);
+            if (scope.value().equals(Scope.ControllerScope.SINGLETON)) {
+                return preResult;
             }
+        } else {
+            return clone((AbstractController<T, U>) preResult);
         }
         return preResult;
     }
@@ -91,5 +94,17 @@ class DefaultControllerFactory implements ControllerFactory, ControllerContext {
     @Override
     public Collection<Controller<?, ?>> queryAll() {
         return controllerMap.values();
+    }
+
+    private <T, U> Controller<T, U> clone(AbstractController<T, U> preResult) {
+        if (preResult == null) {
+            throw new ResourceNotFoundException("Not found", "");
+        }
+        return cloneController(preResult);
+    }
+
+    private boolean isControllerAnnotatedScope(Class<?> controllerType) {
+        Class<?> parent = (Class<?>) ((ParameterizedType) controllerType.getGenericSuperclass()).getRawType();
+        return controllerType.isAnnotationPresent(Scope.class) && parent.isAnnotationPresent(Scope.class);
     }
 }

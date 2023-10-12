@@ -18,6 +18,7 @@ public class CustomerConfirmEmailHandler extends AbstractController<ConfirmEmail
     private ConfirmEmailService confirmEmailService;
 
     private CustomerConfirmEmailHandler() {
+        super();
     }
 
     @Override

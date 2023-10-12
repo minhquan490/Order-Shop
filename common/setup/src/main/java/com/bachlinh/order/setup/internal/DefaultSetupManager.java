@@ -3,15 +3,16 @@ package com.bachlinh.order.setup.internal;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.entity.Setup;
-import com.bachlinh.order.entity.SetupManager;
+import com.bachlinh.order.setup.Setup;
+import com.bachlinh.order.setup.SetupManager;
 import com.bachlinh.order.setup.spi.AbstractSetup;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 class DefaultSetupManager implements SetupManager {
 

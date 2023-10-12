@@ -20,6 +20,7 @@ public class BatchReportListInDayHandler extends AbstractController<Collection<B
     private BatchReportService batchReportService;
 
     private BatchReportListInDayHandler() {
+        super();
     }
 
     @Override

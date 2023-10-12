@@ -19,6 +19,7 @@ public class OrderOfCustomerHandler extends AbstractController<OrderOfCustomerRe
     private OrderService orderService;
 
     private OrderOfCustomerHandler() {
+        super();
     }
 
     @Override

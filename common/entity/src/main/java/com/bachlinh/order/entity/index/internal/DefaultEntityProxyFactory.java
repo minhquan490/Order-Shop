@@ -1,21 +1,21 @@
 package com.bachlinh.order.entity.index.internal;
 
+import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
+import com.bachlinh.order.core.utils.UnsafeUtils;
 import com.bachlinh.order.entity.EntityProxyFactory;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.proxy.AbstractEntityProxy;
 import com.bachlinh.order.entity.proxy.EntityProxy;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 class DefaultEntityProxyFactory implements EntityProxyFactory {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Map<Class<? extends BaseEntity<?>>, EntityProxy> sharedProxies = new LinkedHashMap<>();
+    private final Initializer<EntityProxy> entityProxyInitializer = createInitializer();
 
     DefaultEntityProxyFactory(ApplicationScanner scanner) {
         var proxies = scanner.findComponents()
@@ -42,13 +42,16 @@ class DefaultEntityProxyFactory implements EntityProxyFactory {
     }
 
     private EntityProxy createSharedProxy(Class<?> proxyType) {
-        try {
-            var constructor = proxyType.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            return (EntityProxy) constructor.newInstance();
-        } catch (Exception e) {
-            log.error("Can not create proxy [{}]", proxyType.getName(), e);
-            throw new CriticalException("Fail to create proxy", e);
-        }
+        return entityProxyInitializer.getObject(proxyType);
+    }
+
+    private Initializer<EntityProxy> createInitializer() {
+        return (type, params) -> {
+            try {
+                return (EntityProxy) UnsafeUtils.allocateInstance(type);
+            } catch (InstantiationException e) {
+                throw new CriticalException(e);
+            }
+        };
     }
 }

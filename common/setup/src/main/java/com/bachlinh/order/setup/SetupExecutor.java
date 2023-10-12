@@ -1,15 +1,15 @@
 package com.bachlinh.order.setup;
 
-import com.bachlinh.order.core.annotation.ActiveReflection;
-import com.bachlinh.order.core.enums.ExecuteEvent;
-import com.bachlinh.order.core.excecute.AbstractExecutor;
-import com.bachlinh.order.entity.SetupManager;
-import com.bachlinh.order.core.container.ContainerWrapper;
-import com.bachlinh.order.core.container.DependenciesContainerResolver;
-import com.bachlinh.order.setup.internal.SetupManagerFactoryProvider;
-import com.bachlinh.order.setup.spi.SetupManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.container.ContainerWrapper;
+import com.bachlinh.order.core.container.DependenciesContainerResolver;
+import com.bachlinh.order.core.enums.ExecuteEvent;
+import com.bachlinh.order.core.excecute.AbstractExecutor;
+import com.bachlinh.order.setup.internal.SetupManagerFactoryProvider;
+import com.bachlinh.order.setup.spi.SetupManagerFactory;
 
 /**
  * Executor for execute all setup available in classpath. This class is listener

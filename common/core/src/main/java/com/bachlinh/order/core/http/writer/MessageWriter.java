@@ -1,6 +1,5 @@
 package com.bachlinh.order.core.http.writer;
 
-import com.bachlinh.order.core.http.NativeCookie;
 import com.bachlinh.order.core.http.parser.spi.NettyHttpConvention;
 import com.bachlinh.order.core.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,10 +21,6 @@ public interface MessageWriter extends NettyHttpConvention {
     void writeHeader(HttpHeaders headers);
 
     void writeHeader(MultiValueMap<String, String> headers);
-
-    void writeCookie(NativeCookie cookie);
-
-    void writeCookies(NativeCookie[] cookies);
 
     void writeMessage(Object messageBody);
 

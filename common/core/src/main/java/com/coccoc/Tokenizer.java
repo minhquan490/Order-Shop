@@ -1,8 +1,8 @@
 package com.coccoc;
 
 import com.bachlinh.order.core.annotation.Native;
-import com.bachlinh.order.core.utils.UnsafeUtils;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
+import com.bachlinh.order.core.utils.UnsafeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,8 @@ public class Tokenizer {
     private Tokenizer(String dictPath) {
         int status = initialize(dictPath);
         if (0 > status) {
-            throw new CriticalException(String.format("Cannot initialize Tokenizer: %s", dictPath));
+            String message = STR. "Cannot initialize Tokenizer: \{ dictPath }" ;
+            throw new CriticalException(message);
         }
     }
 
@@ -80,10 +81,10 @@ public class Tokenizer {
         int tokenSize = 4 * 6;
         for (int i = 0; i < rangesSize; ++i) {
             // Positions of UNSAFE values are calculated from {struct Token} in tokenizer.hpp
-            int originalStartPos = UnsafeUtils.getUnsafe().getInt(rangesDataPointer + (long) i * tokenSize + 8);
-            int originalEndPos = UnsafeUtils.getUnsafe().getInt(rangesDataPointer + (long) i * tokenSize + 12);
-            int type = UnsafeUtils.getUnsafe().getInt(rangesDataPointer + (long) i * tokenSize + 16);
-            int segType = UnsafeUtils.getUnsafe().getInt(rangesDataPointer + (long) i * tokenSize + 20);
+            int originalStartPos = UnsafeUtils.getPointerAddress(rangesDataPointer + (long) i * tokenSize + 8);
+            int originalEndPos = UnsafeUtils.getPointerAddress(rangesDataPointer + (long) i * tokenSize + 12);
+            int type = UnsafeUtils.getPointerAddress(rangesDataPointer + (long) i * tokenSize + 16);
+            int segType = UnsafeUtils.getPointerAddress(rangesDataPointer + (long) i * tokenSize + 20);
 
             // Build substring from UNSAFE array of codepoints
             final StringBuilder sb = new StringBuilder();

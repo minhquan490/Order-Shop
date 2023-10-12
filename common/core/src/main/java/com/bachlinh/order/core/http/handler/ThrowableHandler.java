@@ -6,4 +6,6 @@ public interface ThrowableHandler<T extends Throwable, U> {
     Class<T>[] activeOnTypes();
 
     boolean isErrorHandler();
+
+    ThrowableHandler<T, U> newInstance();
 }

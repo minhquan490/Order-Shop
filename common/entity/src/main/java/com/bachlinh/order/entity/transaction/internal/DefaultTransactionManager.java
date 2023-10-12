@@ -1,11 +1,13 @@
 package com.bachlinh.order.entity.transaction.internal;
 
+import jakarta.persistence.EntityManager;
+
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.entity.transaction.spi.AbstractTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
 import com.bachlinh.order.entity.utils.TransactionUtils;
-import jakarta.persistence.EntityManager;
+
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionStatus;
@@ -40,7 +42,7 @@ public class DefaultTransactionManager extends AbstractTransactionManager<Transa
 
     @Override
     public TransactionHolder<TransactionStatus> beginTransaction() {
-        return beginTransaction(null, -1);
+        return beginTransaction(Isolation.DEFAULT, -1);
     }
 
     @Override

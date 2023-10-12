@@ -19,6 +19,7 @@ public class EmailFolderListHandler extends AbstractController<Collection<EmailF
     private String url;
 
     private EmailFolderListHandler() {
+        super();
     }
 
     @Override

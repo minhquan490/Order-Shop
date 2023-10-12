@@ -22,6 +22,7 @@ public class EmailFolderCreateHandler extends AbstractController<EmailFolderInfo
     private String url;
 
     private EmailFolderCreateHandler() {
+        super();
     }
 
     @Override

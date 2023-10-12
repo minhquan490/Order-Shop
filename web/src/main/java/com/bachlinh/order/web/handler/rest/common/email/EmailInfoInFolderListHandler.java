@@ -18,6 +18,7 @@ public class EmailInfoInFolderListHandler extends AbstractController<EmailInfoIn
     private String url;
 
     private EmailInfoInFolderListHandler() {
+        super();
     }
 
     @Override

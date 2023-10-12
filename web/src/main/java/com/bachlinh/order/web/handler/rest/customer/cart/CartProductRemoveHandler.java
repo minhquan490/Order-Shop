@@ -24,6 +24,7 @@ public class CartProductRemoveHandler extends AbstractController<CartResp, CartD
     private String url;
 
     private CartProductRemoveHandler() {
+        super();
     }
 
     @Override

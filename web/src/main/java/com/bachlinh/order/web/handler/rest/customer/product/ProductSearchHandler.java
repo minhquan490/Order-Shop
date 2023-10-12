@@ -22,6 +22,7 @@ public class ProductSearchHandler extends AbstractController<Collection<ProductR
     private Integer defaultPageSize;
 
     private ProductSearchHandler() {
+        super();
     }
 
     @Override

@@ -18,6 +18,7 @@ public class CustomerAccessHistoriesHandler extends AbstractController<CustomerA
     private CustomerAccessHistoriesService customerAccessHistoriesService;
 
     private CustomerAccessHistoriesHandler() {
+        super();
     }
 
     @Override

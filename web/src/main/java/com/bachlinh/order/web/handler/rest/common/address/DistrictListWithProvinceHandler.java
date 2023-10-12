@@ -25,6 +25,7 @@ public class DistrictListWithProvinceHandler extends AbstractController<Collecti
     private MessageSettingService messageSettingService;
 
     private DistrictListWithProvinceHandler() {
+        super();
     }
 
     @Override

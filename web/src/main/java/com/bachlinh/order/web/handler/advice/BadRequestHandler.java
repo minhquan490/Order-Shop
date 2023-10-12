@@ -2,10 +2,13 @@ package com.bachlinh.order.web.handler.advice;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
 import com.bachlinh.order.core.exception.http.BadVariableException;
 import com.bachlinh.order.core.exception.http.InvalidTokenException;
 import com.bachlinh.order.core.exception.http.ValidationFailureException;
+import com.bachlinh.order.core.http.handler.ThrowableHandler;
+
 import org.springframework.http.HttpStatus;
 
 @ActiveReflection
@@ -15,9 +18,7 @@ public class BadRequestHandler extends ExceptionHandler {
     private final SquareBracketProcessor squareBracketProcessor = new SquareBracketProcessor();
     private final CommaProcessor commaProcessor = new CommaProcessor();
 
-    @ActiveReflection
-    public BadRequestHandler() {
-    }
+    private BadRequestHandler() {}
 
     @Override
     protected int status() {
@@ -50,6 +51,11 @@ public class BadRequestHandler extends ExceptionHandler {
     @Override
     public boolean isErrorHandler() {
         return false;
+    }
+
+    @Override
+    public ThrowableHandler<Exception, NativeResponse<byte[]>> newInstance() {
+        return new BadRequestHandler();
     }
 
     private static class SquareBracketProcessor {

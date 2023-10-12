@@ -14,7 +14,7 @@ class ControllerInitializer implements Initializer<AbstractController<?, ?>> {
         } catch (InstantiationException e) {
             throw new CriticalException(e);
         }
-        var actual = instance.newInstance();
+        AbstractController<?, ?> actual = instance.newInstance();
         actual.setWrapper((ContainerWrapper) params[0], (String) params[1]);
         return actual;
     }

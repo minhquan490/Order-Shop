@@ -18,6 +18,7 @@ public class WardSearchHandler extends AbstractController<Collection<WardResp>, 
     private WardSearchService wardSearchService;
 
     private WardSearchHandler() {
+        super();
     }
 
     @Override

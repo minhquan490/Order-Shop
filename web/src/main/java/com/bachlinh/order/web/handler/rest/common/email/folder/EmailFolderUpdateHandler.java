@@ -22,6 +22,7 @@ public class EmailFolderUpdateHandler extends AbstractController<EmailFolderInfo
     private String url;
 
     private EmailFolderUpdateHandler() {
+        super();
     }
 
     @Override

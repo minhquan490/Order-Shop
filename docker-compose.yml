@@ -8,37 +8,39 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: "java -Xss100m -Xms512m -Xmx5g -server -jar /web/server/Order-shop-web.jar --active.profile=prod"
+    command: "java -Xss100m -Xms512m -Xmx5g -server -jar /web/server/Order-shop-web.jar --active.profile=prod --enable-preview"
     volumes:
       - "${LOG_PATH}/server:/log"
-    networks:
-      - nginx_network
-  client:
-    container_name: client
-    restart: always
-    env_file:
-      - .env
-    build:
-      context: .
-      dockerfile: ./web/src/main/typescript/Dockerfile
-    command: "npm run start"
+      - "${SERVER_LOCAL_VOLUME}:${SERVER_VOLUME}"
     depends_on:
-      - server
-    networks:
-      - nginx_network
-  proxy:
-    image: nginx:latest
-    container_name: proxy
-    env_file: .env
+      - sqlserver
     ports:
-      - "${APP_PORT}:433"
+      - "${SERVER_LOCAL_PORT}:8443"
+#  client:
+#    container_name: client
+#    restart: always
+#    env_file:
+#      - .env
+#    build:
+#      context: .
+#      dockerfile: ./web/src/main/typescript/Dockerfile
+#    command: "npm run start"
+#    depends_on:
+#      - server
+#  proxy:
+#    image: nginx:latest
+#    container_name: proxy
+#    env_file: .env
+#    ports:
+#      - "${APP_PORT}:433"
+#    volumes:
+#      - "${PROXY_DIRECTORY}:/etc/nginx/conf.d"
+#      - "${LOG_PATH}/proxy:/var/log/nginx"
+#    depends_on:
+#      - client
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    ports:
+      - "${SQL_SERVER_LOCAL_PORT}:${SQL_SERVER_DOCKER_PORT}"
     volumes:
-      - "${PROXY_DIRECTORY}:/etc/nginx/conf.d"
-      - "${LOG_PATH}/proxy:/var/log/nginx"
-    depends_on:
-      - client
-    networks:
-      - nginx_network
-networks:
-  nginx_network:
-    external: true
+      - "${SQL_SERVER_LOCAL_VOLUME}:/var/opt/mssql"

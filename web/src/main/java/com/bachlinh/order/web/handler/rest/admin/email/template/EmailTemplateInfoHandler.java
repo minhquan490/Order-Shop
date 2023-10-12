@@ -19,6 +19,7 @@ public class EmailTemplateInfoHandler extends AbstractController<EmailTemplateIn
     private String url;
 
     private EmailTemplateInfoHandler() {
+        super();
     }
 
     @Override

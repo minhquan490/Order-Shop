@@ -20,6 +20,7 @@ public class OrderInfoHandler extends AbstractController<OrderInfoResp, Void> {
     private String url;
 
     private OrderInfoHandler() {
+        super();
     }
 
     @Override

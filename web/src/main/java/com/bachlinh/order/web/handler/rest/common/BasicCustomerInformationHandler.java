@@ -19,6 +19,7 @@ public class BasicCustomerInformationHandler extends AbstractController<Customer
     private String url;
 
     private BasicCustomerInformationHandler() {
+        super();
     }
 
     @Override

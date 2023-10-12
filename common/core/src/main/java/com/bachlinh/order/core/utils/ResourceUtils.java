@@ -142,8 +142,8 @@ public final class ResourceUtils {
             try {
                 return new File(resourceLocation).toURI().toURL();
             } catch (MalformedURLException ex2) {
-                throw new FileNotFoundException("Resource location [" + resourceLocation +
-                        "] is neither a URL not a well-formed file path");
+                String message = STR. "Resource location [\{ resourceLocation }] is neither a URL not a well-formed file path" ;
+                throw new FileNotFoundException(message);
             }
         }
     }
@@ -167,8 +167,8 @@ public final class ResourceUtils {
             ClassLoader cl = ClassLoader.getSystemClassLoader();
             URL url = (cl != null ? cl.getResource(path) : ClassLoader.getSystemResource(path));
             if (url == null) {
-                throw new FileNotFoundException(description +
-                        " cannot be resolved to absolute file path because it does not exist");
+                String message = STR. "\{ description } cannot be resolved to absolute file path because it does not exist" ;
+                throw new FileNotFoundException(message);
             }
             return getFile(url, description);
         }
@@ -207,9 +207,8 @@ public final class ResourceUtils {
      */
     public static File getFile(URL resourceUrl, String description) throws FileNotFoundException {
         if (!URL_PROTOCOL_FILE.equals(resourceUrl.getProtocol())) {
-            throw new FileNotFoundException(
-                    description + " cannot be resolved to absolute file path " +
-                            "because it does not reside in the file system: " + resourceUrl);
+            String message = STR. "\{ description } cannot be resolved to absolute file path because it does not reside in the file system: \{ resourceUrl }" ;
+            throw new FileNotFoundException(message);
         }
         try {
             // URI decoding for special characters such as spaces.
@@ -248,9 +247,8 @@ public final class ResourceUtils {
      */
     public static File getFile(URI resourceUri, String description) throws FileNotFoundException {
         if (!URL_PROTOCOL_FILE.equals(resourceUri.getScheme())) {
-            throw new FileNotFoundException(
-                    description + " cannot be resolved to absolute file path " +
-                            "because it does not reside in the file system: " + resourceUri);
+            String message = STR. "\{ description } cannot be resolved to absolute file path because it does not reside in the file system: \{ resourceUri }" ;
+            throw new FileNotFoundException(message);
         }
         return new File(resourceUri.getSchemeSpecificPart());
     }

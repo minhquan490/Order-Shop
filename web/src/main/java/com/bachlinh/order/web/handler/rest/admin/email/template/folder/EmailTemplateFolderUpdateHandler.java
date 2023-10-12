@@ -25,6 +25,7 @@ public class EmailTemplateFolderUpdateHandler extends AbstractController<EmailTe
     private String url;
 
     private EmailTemplateFolderUpdateHandler() {
+        super();
     }
 
     @Override

@@ -23,6 +23,7 @@ public class LogoutHandler extends AbstractController<NativeResponse<Map<String,
     private LogoutService logoutService;
 
     private LogoutHandler() {
+        super();
     }
 
     @Override

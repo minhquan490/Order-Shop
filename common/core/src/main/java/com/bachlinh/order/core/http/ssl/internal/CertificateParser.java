@@ -68,8 +68,8 @@ final class CertificateParser {
                 }
             }
         } catch (CertificateException | IOException ex) {
-            throw new IllegalStateException("Error reading certificate from '" + resource + "' : " + ex.getMessage(),
-                    ex);
+            String message = STR. "Error reading certificate from \{ resource }" ;
+            throw new IllegalStateException(message, ex);
         }
     }
 

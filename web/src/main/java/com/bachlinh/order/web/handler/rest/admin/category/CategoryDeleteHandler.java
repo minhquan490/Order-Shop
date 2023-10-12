@@ -25,6 +25,7 @@ public class CategoryDeleteHandler extends AbstractController<Map<String, Object
     private String url;
 
     private CategoryDeleteHandler() {
+        super();
     }
 
     @Override

@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management'
     id 'java-library'
     id "org.hibernate.orm"
-    id "io.freefair.aspectj"
+    /*id "io.freefair.aspectj"*/
 }
 
 group = 'com.bachlinh.order'
@@ -30,6 +30,7 @@ dependencies {
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
+    implementation 'net.bytebuddy:byte-buddy'
 
     annotationProcessor project(":annotation-processor")
     annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'

@@ -24,6 +24,7 @@ public class AddEmailToTrashHandler extends AbstractController<EmailTrashResp, A
     private String url;
 
     private AddEmailToTrashHandler() {
+        super();
     }
 
     @Override

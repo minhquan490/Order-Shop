@@ -25,6 +25,7 @@ public class EmailTemplateUpdateHandler extends AbstractController<EmailTemplate
     private EmailTemplateService emailTemplateService;
 
     private EmailTemplateUpdateHandler() {
+        super();
     }
 
     @Override

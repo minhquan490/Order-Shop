@@ -1,11 +1,12 @@
 package com.bachlinh.order.entity.repository.query;
 
+import jakarta.persistence.Tuple;
+
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.EntityMapperHolder;
 import com.bachlinh.order.entity.context.EntityContext;
 import com.bachlinh.order.entity.model.BaseEntity;
-import jakarta.persistence.Tuple;
 
 import java.util.Collection;
 import java.util.LinkedList;

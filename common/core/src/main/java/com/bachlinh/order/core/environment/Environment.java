@@ -85,7 +85,8 @@ public final class Environment {
             path = SINGLETON_LOADER.getResource(CLASSPATH + path).getURL().toString();
             STRATEGY.apply(path, p);
         } catch (Exception e) {
-            throw new EnvironmentException("Can not load properties file[" + path + "]", e);
+            String message = STR. "Can not load properties file [\{ path }]" ;
+            throw new EnvironmentException(message, e);
         }
         return p;
     }

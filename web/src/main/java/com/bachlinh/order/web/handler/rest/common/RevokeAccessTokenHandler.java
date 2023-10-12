@@ -17,6 +17,7 @@ public class RevokeAccessTokenHandler extends AbstractController<RevokeTokenResp
     private RevokeAccessTokenService revokeAccessTokenService;
 
     private RevokeAccessTokenHandler() {
+        super();
     }
 
     @Override

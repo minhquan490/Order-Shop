@@ -21,6 +21,7 @@ public class MessageSettingListHandler extends AbstractController<Collection<Mes
     private MessageSettingService messageSettingService;
 
     private MessageSettingListHandler() {
+        super();
     }
 
     @Override

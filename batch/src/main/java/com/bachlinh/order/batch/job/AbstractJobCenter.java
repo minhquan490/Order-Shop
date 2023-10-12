@@ -1,9 +1,9 @@
 package com.bachlinh.order.batch.job;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.system.batch.JobExistedException;
 import com.bachlinh.order.core.exception.system.batch.JobNotFoundException;
-import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +23,8 @@ public abstract non-sealed class AbstractJobCenter implements JobCenter {
     public final void unRegisterJob(Job job) {
         Job registedJob = jobContext.get(job.getName());
         if (registedJob == null) {
-            throw new JobNotFoundException("Job with name [" + job.getName() + "] not registered");
+            String message = STR. "Job with name [\{ job.getName() }] not registered" ;
+            throw new JobNotFoundException(message);
         }
         jobContext.remove(job.getName(), job);
     }

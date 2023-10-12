@@ -15,6 +15,7 @@ public class ProductPostedInMonthHandler extends AbstractController<AnalyzeProdu
     private String url;
 
     private ProductPostedInMonthHandler() {
+        super();
     }
 
     @Override

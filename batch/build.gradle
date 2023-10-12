@@ -9,7 +9,6 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
-    implementation project(":crawler")
     implementation project(":common:core")
     implementation project(":common:entity")
     implementation project(":common:repository")
@@ -18,7 +17,6 @@ dependencies {
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework.security:spring-security-core'
-    implementation 'org.seleniumhq.selenium:selenium-java'
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"

@@ -26,6 +26,7 @@ public class WardListWithDistrictHandler extends AbstractController<Collection<W
     private MessageSettingService messageSettingService;
 
     private WardListWithDistrictHandler() {
+        super();
     }
 
     @Override

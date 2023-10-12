@@ -25,6 +25,7 @@ public class VoucherDeleteHandler extends AbstractController<Map<String, Object>
     private VoucherService voucherService;
 
     private VoucherDeleteHandler() {
+        super();
     }
 
     @Override

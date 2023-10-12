@@ -23,6 +23,7 @@ public class CategoryCreateHandler extends AbstractController<CategoryResp, Cate
     private String url;
 
     private CategoryCreateHandler() {
+        super();
     }
 
     @Override

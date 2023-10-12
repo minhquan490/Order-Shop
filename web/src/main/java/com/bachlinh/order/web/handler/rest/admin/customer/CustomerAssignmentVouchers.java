@@ -19,6 +19,7 @@ public class CustomerAssignmentVouchers extends AbstractController<CustomerAssig
     private VoucherService voucherService;
 
     private CustomerAssignmentVouchers() {
+        super();
     }
 
     @Override

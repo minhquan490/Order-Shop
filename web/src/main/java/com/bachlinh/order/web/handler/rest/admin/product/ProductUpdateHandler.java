@@ -21,6 +21,7 @@ public class ProductUpdateHandler extends AbstractController<ProductResp, Produc
     private ProductService productService;
 
     private ProductUpdateHandler() {
+        super();
     }
 
     @Override

@@ -3,9 +3,9 @@ package com.bachlinh.order.core;
 import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.server.netty.NettyServer;
-import com.bachlinh.order.core.server.netty.NettyServerFactory;
-import com.bachlinh.order.core.server.netty.SimpleNettyServerFactory;
+import com.bachlinh.order.core.http.server.HttpNettyServerFactory;
+import com.bachlinh.order.core.http.server.NettyServer;
+import com.bachlinh.order.core.http.server.NettyServerFactory;
 
 public class NettyApplication {
 
@@ -26,7 +26,7 @@ public class NettyApplication {
     private static NettyServerFactory getNettyServerFactory(DependenciesResolver resolver) {
         ThreadPoolOptionHolder threadPoolOptionHolder = resolver.resolveDependencies(ThreadPoolOptionHolder.class);
         Environment environment = Environment.getInstance(Environment.getMainEnvironmentName());
-        return SimpleNettyServerFactory.builder()
+        return HttpNettyServerFactory.builder()
                 .port(Integer.parseInt(environment.getProperty("server.port")))
                 .hostName(environment.getProperty("server.address"))
                 .resolver(resolver)

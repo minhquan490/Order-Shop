@@ -20,6 +20,7 @@ public class NormalEmailSendingHandler extends AbstractController<EmailSendingRe
     private EmailSendingService emailSendingService;
 
     private NormalEmailSendingHandler() {
+        super();
     }
 
     @Override

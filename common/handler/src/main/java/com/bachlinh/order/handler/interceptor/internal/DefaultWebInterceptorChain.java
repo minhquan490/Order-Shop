@@ -1,12 +1,12 @@
 package com.bachlinh.order.handler.interceptor.internal;
 
+import com.bachlinh.order.core.container.DependenciesResolver;
+import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.http.NativeRequest;
 import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
-import com.bachlinh.order.core.container.DependenciesResolver;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,13 +26,15 @@ public class DefaultWebInterceptorChain implements WebInterceptorChain {
 
     @Override
     public boolean shouldHandle(NativeRequest<?> request, NativeResponse<?> response) {
-        boolean result = interceptors.stream().allMatch(interceptor -> {
-            AbstractInterceptor abstractInterceptor = (AbstractInterceptor) interceptor;
-            if (!calledInit) {
-                abstractInterceptor.init();
-            }
-            return abstractInterceptor.preHandle(request, response);
-        });
+        boolean result = interceptors.stream()
+                .filter(WebInterceptor::isEnable)
+                .allMatch(interceptor -> {
+                    AbstractInterceptor abstractInterceptor = (AbstractInterceptor) interceptor;
+                    if (!calledInit) {
+                        abstractInterceptor.init();
+                    }
+                    return abstractInterceptor.preHandle(request, response);
+                });
         if (!calledInit) {
             calledInit = true;
         }

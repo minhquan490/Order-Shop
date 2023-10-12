@@ -3,6 +3,7 @@ package com.bachlinh.order.entity.repository.cache.implementor;
 import com.bachlinh.order.entity.repository.cache.AbstractCache;
 import com.bachlinh.order.entity.repository.cache.CacheKey;
 import com.bachlinh.order.entity.repository.cache.CacheValue;
+
 import org.ehcache.CacheManager;
 import org.ehcache.config.ResourcePools;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -41,29 +42,22 @@ public class EhHeapCache extends AbstractCache {
                 .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.of(1, ChronoUnit.HOURS)));
     }
 
-    private static class EhCacheKey<T> implements CacheKey<T> {
-        private final T value;
-
-        EhCacheKey(T value) {
-            this.value = value;
-        }
+    private record EhCacheKey<T>(T value) implements CacheKey<T> {
 
         @Override
         public T unwrap() {
             return value;
         }
+
     }
 
-    private static class EhCacheValue<U> implements CacheValue<U> {
-        private final U value;
 
-        EhCacheValue(U value) {
-            this.value = value;
-        }
+    private record EhCacheValue<U>(U value) implements CacheValue<U> {
 
         @Override
         public U unwrap() {
             return value;
         }
+
     }
 }

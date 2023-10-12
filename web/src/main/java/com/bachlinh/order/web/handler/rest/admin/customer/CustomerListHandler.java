@@ -25,6 +25,7 @@ public class CustomerListHandler extends AbstractController<Collection<CustomerR
     private CustomerService customerService;
 
     private CustomerListHandler() {
+        super();
     }
 
     @Override

@@ -2,7 +2,10 @@ package com.bachlinh.order.web.handler.advice;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteExceptionHandler;
+import com.bachlinh.order.core.http.NativeResponse;
 import com.bachlinh.order.core.http.handler.ExceptionHandler;
+import com.bachlinh.order.core.http.handler.ThrowableHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,6 +14,8 @@ import org.springframework.http.HttpStatus;
 @ActiveReflection
 public class GlobalExceptionHandler extends ExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private GlobalExceptionHandler() {}
 
     @Override
     protected int status() {
@@ -36,5 +41,10 @@ public class GlobalExceptionHandler extends ExceptionHandler {
     @Override
     public boolean isErrorHandler() {
         return false;
+    }
+
+    @Override
+    public ThrowableHandler<Exception, NativeResponse<byte[]>> newInstance() {
+        return new GlobalExceptionHandler();
     }
 }

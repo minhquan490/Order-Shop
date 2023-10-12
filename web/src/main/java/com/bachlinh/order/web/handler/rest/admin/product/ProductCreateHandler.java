@@ -23,6 +23,7 @@ public class ProductCreateHandler extends AbstractController<ProductResp, Produc
     private ProductService productService;
 
     private ProductCreateHandler() {
+        super();
     }
 
     @Override

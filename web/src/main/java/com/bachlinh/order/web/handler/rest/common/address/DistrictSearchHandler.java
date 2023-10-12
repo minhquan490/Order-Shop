@@ -18,6 +18,7 @@ public class DistrictSearchHandler extends AbstractController<Collection<Distric
     private DistrictSearchService districtSearchService;
 
     private DistrictSearchHandler() {
+        super();
     }
 
     @Override

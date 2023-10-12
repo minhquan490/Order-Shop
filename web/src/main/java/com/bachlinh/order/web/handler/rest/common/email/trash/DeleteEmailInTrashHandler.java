@@ -25,6 +25,7 @@ public class DeleteEmailInTrashHandler extends AbstractController<Map<String, Ob
     private EmailInTrashService emailInTrashService;
 
     private DeleteEmailInTrashHandler() {
+        super();
     }
 
     @Override

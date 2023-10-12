@@ -26,6 +26,7 @@ public class AdminFileUploadHandler extends AbstractController<Map<String, Objec
     private FileUploadService fileUploadService;
 
     private AdminFileUploadHandler() {
+        super();
     }
 
     @Override

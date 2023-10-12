@@ -3,11 +3,12 @@ package com.bachlinh.order.entity.transaction.internal;
 import com.bachlinh.order.core.exception.system.transaction.TransactionUnavailableException;
 import com.bachlinh.order.entity.transaction.spi.EntitySavePointManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionHolder;
-import org.springframework.transaction.TransactionStatus;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.transaction.TransactionStatus;
 
 class DefaultSavePointManager implements EntitySavePointManager {
     private static final ThreadLocal<Map<String, Object>> savePointContext = ThreadLocal.withInitial(HashMap::new);
@@ -52,6 +53,7 @@ class DefaultSavePointManager implements EntitySavePointManager {
                 savePoints.forEach(transactionStatus::releaseSavepoint);
             }
         }
+        threadLocal.remove();
         threadLocal = null;
     }
 

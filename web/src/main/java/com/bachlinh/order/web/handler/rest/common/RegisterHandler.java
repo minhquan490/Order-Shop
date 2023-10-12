@@ -24,6 +24,7 @@ public class RegisterHandler extends AbstractController<RegisterResp, RegisterFo
     private RegisterService registerService;
 
     private RegisterHandler() {
+        super();
     }
 
     @Override

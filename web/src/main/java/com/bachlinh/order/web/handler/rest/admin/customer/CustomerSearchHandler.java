@@ -21,6 +21,7 @@ public class CustomerSearchHandler extends AbstractController<Collection<Custome
     private CustomerSearchingService customerSearchingService;
 
     private CustomerSearchHandler() {
+        super();
     }
 
     @Override

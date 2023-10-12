@@ -22,6 +22,7 @@ public class RestoreEmailHandler extends AbstractController<EmailTrashResp, Rest
     private EmailInTrashService emailInTrashService;
 
     private RestoreEmailHandler() {
+        super();
     }
 
     @Override

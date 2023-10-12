@@ -53,7 +53,6 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
     @Override
     protected void writeResponse(NativeResponse<?> nativeResponse, HttpServletResponse response) {
         MessageWriter messageWriter = MessageWriter.httpMessageWriter(response);
-        messageWriter.writeCookies(nativeResponse.getCookies());
         messageWriter.writeHeader(nativeResponse.getHeaders());
         messageWriter.writeHttpStatus(nativeResponse.getStatusCode());
         messageWriter.writeMessage(nativeResponse.getBody());
@@ -78,11 +77,6 @@ public class ServletRouter extends AbstractRouter<HttpServletRequest, HttpServle
             headerValues.forEach(val -> nativeResponse.addHeader(headerName, val));
         }
         nativeResponse.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        if (nativeResponse.getCookies() != null) {
-            for (var cookie : nativeResponse.getCookies()) {
-                actualResponse.addCookie(cookie.toServletCookie());
-            }
-        }
     }
 
     @Override

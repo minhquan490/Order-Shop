@@ -23,6 +23,7 @@ public class CustomerUpdateHandler extends AbstractController<CustomerResp, Cust
     private CustomerService customerService;
 
     private CustomerUpdateHandler() {
+        super();
     }
 
     @Override

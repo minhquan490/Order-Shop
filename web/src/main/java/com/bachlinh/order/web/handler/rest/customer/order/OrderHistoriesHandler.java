@@ -22,6 +22,7 @@ public class OrderHistoriesHandler extends AbstractController<Collection<OrderHi
     private OrderHistoryService orderHistoryService;
 
     private OrderHistoriesHandler() {
+        super();
     }
 
     @Override

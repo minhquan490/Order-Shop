@@ -18,6 +18,7 @@ public class EmailTemplateFolderInfoHandler extends AbstractController<EmailTemp
     private String url;
 
     private EmailTemplateFolderInfoHandler() {
+        super();
     }
 
     @Override

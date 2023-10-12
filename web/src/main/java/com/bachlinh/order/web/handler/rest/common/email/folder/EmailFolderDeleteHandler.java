@@ -22,6 +22,7 @@ public class EmailFolderDeleteHandler extends AbstractController<Map<String, Obj
     private String url;
 
     private EmailFolderDeleteHandler() {
+        super();
     }
 
     @Override

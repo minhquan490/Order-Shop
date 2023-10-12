@@ -1,8 +1,9 @@
 package com.bachlinh.order.core.utils;
 
+import sun.misc.Unsafe;
+
 import com.bachlinh.order.core.annotation.Reachable;
 import com.bachlinh.order.core.exception.system.utils.UnsafeException;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
@@ -29,5 +30,9 @@ public final class UnsafeUtils {
 
     public static <T> T allocateInstance(Class<T> type) throws InstantiationException {
         return type.cast(getUnsafe().allocateInstance(type));
+    }
+
+    public static int getPointerAddress(long address) {
+        return getUnsafe().getInt(address);
     }
 }

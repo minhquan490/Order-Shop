@@ -19,6 +19,7 @@ public class CustomerUpdateDataHistoriesHandler extends AbstractController<Custo
     private CustomerInfoChangeService customerInfoChangeService;
 
     private CustomerUpdateDataHistoriesHandler() {
+        super();
     }
 
     @Override

@@ -21,6 +21,7 @@ public class ResetPasswordHandler extends AbstractController<NativeResponse<?>, 
     private ForgotPasswordService forgotPasswordService;
 
     private ResetPasswordHandler() {
+        super();
     }
 
     @Override

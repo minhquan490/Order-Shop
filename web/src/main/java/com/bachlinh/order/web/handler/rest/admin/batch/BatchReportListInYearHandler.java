@@ -20,6 +20,7 @@ public class BatchReportListInYearHandler extends AbstractController<Collection<
     private BatchReportService batchReportService;
 
     private BatchReportListInYearHandler() {
+        super();
     }
 
     @Override

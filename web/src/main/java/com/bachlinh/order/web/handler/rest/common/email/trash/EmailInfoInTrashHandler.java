@@ -17,6 +17,7 @@ public class EmailInfoInTrashHandler extends AbstractController<EmailTrashResp, 
     private EmailInTrashService trashService;
 
     private EmailInfoInTrashHandler() {
+        super();
     }
 
     @Override

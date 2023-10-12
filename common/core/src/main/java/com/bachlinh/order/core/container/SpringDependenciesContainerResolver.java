@@ -1,6 +1,7 @@
 package com.bachlinh.order.core.container;
 
 import com.bachlinh.order.core.exception.system.common.CriticalException;
+
 import com.google.common.base.Objects;
 import org.springframework.context.ApplicationContext;
 
@@ -55,17 +56,32 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
 
         @Override
         public <T> T resolveDependencies(Class<T> type) {
-            return context.getBean(type);
+            Object bean = queryBean(type);
+
+            if (isSingleton(type) && bean == null) {
+                bean = context.getBean(type);
+                cacheBean(type, bean);
+            }
+
+            return type.cast(bean);
         }
 
         @Override
         public <T> T resolveDependencies(String name, Class<T> requireType) {
-            return context.getBean(name, requireType);
+            Object bean = resolveDependencies(name);
+            return requireType.cast(bean);
         }
 
         @Override
         public Object resolveDependencies(String name) {
-            return context.getBean(name);
+            Object bean = queryBean(name);
+
+            if (isSingleton(name) && bean == null) {
+                bean = context.getBean(name);
+                cacheBean(name, bean);
+            }
+
+            return bean;
         }
 
         String getContainerName() {
@@ -91,6 +107,20 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
         @Override
         public int hashCode() {
             return Objects.hashCode(context);
+        }
+
+        private boolean isSingleton(String beanName) {
+            return context.isSingleton(beanName);
+        }
+
+        private boolean isSingleton(Class<?> beanType) {
+            String[] names = context.getBeanNamesForType(beanType);
+
+            if (names.length == 0) {
+                return false;
+            }
+
+            return isSingleton(names[0]);
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.bachlinh.order.core.http.ssl.internal;
 
+import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.http.ssl.spi.Ssl;
 import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
-import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -71,7 +71,8 @@ public final class CertificateFileSslStoreProvider implements SslStoreProvider {
             addCertificates(keyStore, certificates, privateKey, keyAlias);
             return keyStore;
         } catch (GeneralSecurityException | IOException ex) {
-            throw new IllegalStateException("Error creating KeyStore: " + ex.getMessage(), ex);
+            String message = STR. "Error creating KeyStore: \{ ex.getMessage() }" ;
+            throw new IllegalStateException(message, ex);
         }
     }
 

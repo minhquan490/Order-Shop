@@ -25,6 +25,7 @@ public class EmailTemplateFolderCreateHandler extends AbstractController<EmailTe
     private String url;
 
     private EmailTemplateFolderCreateHandler() {
+        super();
     }
 
     @Override

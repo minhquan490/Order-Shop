@@ -2,6 +2,7 @@ package com.bachlinh.order.trigger;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
+import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.enums.TriggerExecution;
 import com.bachlinh.order.core.enums.TriggerMode;
 import com.bachlinh.order.entity.model.Address;
@@ -31,9 +32,10 @@ import com.bachlinh.order.repository.OrderRepository;
 import com.bachlinh.order.repository.RefreshTokenRepository;
 import com.bachlinh.order.repository.TemporaryTokenRepository;
 import com.bachlinh.order.repository.UserAssignmentRepository;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+
+import org.springframework.util.StringUtils;
 
 @ApplyOn(entity = Customer.class)
 @ActiveReflection
@@ -66,6 +68,12 @@ public class CustomerAssociateDeletionTrigger extends AbstractTrigger<Customer> 
     @Override
     public String getTriggerName() {
         return "CustomerAssociateDeletion";
+    }
+
+    @Override
+    public void setResolver(DependenciesResolver resolver) {
+        setRunSync(true);
+        super.setResolver(resolver);
     }
 
     @Override

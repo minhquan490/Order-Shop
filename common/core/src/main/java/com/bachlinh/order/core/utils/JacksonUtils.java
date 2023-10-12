@@ -19,7 +19,8 @@ public final class JacksonUtils {
         try {
             return SINGLETON.writeValueAsBytes(value);
         } catch (JsonProcessingException e) {
-            throw new JsonConvertException("Can not convert [" + value.getClass().getSimpleName() + "] to json object", e);
+            String message = STR. "Can not convert [\{ value.getClass().getSimpleName() }] to json object" ;
+            throw new JsonConvertException(message, e);
         }
     }
 
@@ -35,7 +36,8 @@ public final class JacksonUtils {
         try {
             return SINGLETON.readTree(url);
         } catch (IOException e) {
-            throw new CriticalException(String.format("Can not read json from url [%s]", url.getPath()));
+            String message = STR. "Can not read json from url [\{ url.getPath() }]" ;
+            throw new CriticalException(message);
         }
     }
 
