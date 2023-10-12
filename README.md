@@ -50,7 +50,6 @@ To working with this project. I recommend set up your workspace follow these ste
 | common/setup         | com.bachlinh.order.setup                |
 | common/trigger       | com.bachlinh.order.trigger              |
 | common/validate      | com.bachlinh.order.validate             |
-| crawler              | com.bachlinh.order.crawler              |
 | web                  | com.bachlinh.order.web                  |
 
 ### The meaning of packages
@@ -71,7 +70,6 @@ To working with this project. I recommend set up your workspace follow these ste
   etc...
 - com.bachlinh.order.validate: Define validate logic. When insert or update, data will be validated two time. One is
   before controller receive request and one before insert or update database.
-- com.bachlinh.order.crawler: Contains bot logic.
 - com.bachlinh.order.web: Web application package.
 
 ### System execute phase
