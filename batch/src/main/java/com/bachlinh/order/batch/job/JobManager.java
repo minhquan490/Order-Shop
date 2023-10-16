@@ -10,6 +10,8 @@ public interface JobManager extends JobOperation, JobHolder {
 
     Collection<Report> getAllReport();
 
+    void startJob();
+
     interface Builder {
         Builder dependenciesResolver(DependenciesResolver dependenciesResolver);
 

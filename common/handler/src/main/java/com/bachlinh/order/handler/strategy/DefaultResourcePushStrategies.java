@@ -7,8 +7,8 @@ import jakarta.servlet.http.PushBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
-import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.converter.spi.Converter;
+import com.bachlinh.order.http.NativeResponse;
+import com.bachlinh.order.http.converter.spi.Converter;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.utils.JacksonUtils;
 

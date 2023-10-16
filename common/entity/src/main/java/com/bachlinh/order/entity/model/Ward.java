@@ -2,8 +2,8 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.EnableFullTextSearch;
-import com.bachlinh.order.core.annotation.FullTextField;
 import com.bachlinh.order.core.annotation.QueryCache;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,25 +31,11 @@ import java.util.Objects;
 @ActiveReflection
 @EnableFullTextSearch
 @QueryCache
-public class Ward extends AbstractEntity<Integer> {
+public class Ward extends VnAddress<Integer> {
 
     @Id
     @Column(name = "ID", nullable = false, unique = true)
     private Integer id;
-
-    @Column(name = "NAME", columnDefinition = "nvarchar(100)")
-    @FullTextField
-    private String name;
-
-    @Column(name = "CODE")
-    private Integer code;
-
-    @Column(name = "CODE_NAME", length = 50)
-    @FullTextField
-    private String codeName;
-
-    @Column(name = "DIVISION_TYPE", columnDefinition = "nvarchar(100)")
-    private String divisionType;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "DISTRICT_ID", nullable = false)
@@ -76,38 +62,6 @@ public class Ward extends AbstractEntity<Integer> {
     }
 
     @ActiveReflection
-    public void setName(String name) {
-        if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name, name);
-        }
-        this.name = name;
-    }
-
-    @ActiveReflection
-    public void setCode(Integer code) {
-        if (this.code != null && !this.code.equals(code)) {
-            trackUpdatedField("CODE", this.code, code);
-        }
-        this.code = code;
-    }
-
-    @ActiveReflection
-    public void setCodeName(String codeName) {
-        if (this.codeName != null && !this.codeName.equals(codeName)) {
-            trackUpdatedField("CODE_NAME", this.codeName, codeName);
-        }
-        this.codeName = codeName;
-    }
-
-    @ActiveReflection
-    public void setDivisionType(String divisionType) {
-        if (this.divisionType != null && !this.divisionType.equals(divisionType)) {
-            trackUpdatedField("DIVISION_TYPE", this.divisionType, divisionType);
-        }
-        this.divisionType = divisionType;
-    }
-
-    @ActiveReflection
     public void setDistrict(District district) {
         if (this.district != null && !Objects.requireNonNull(this.district.getId()).equals(district.getId())) {
             trackUpdatedField("DISTRICT_ID", this.district.getId(), district.getId());
@@ -117,22 +71,6 @@ public class Ward extends AbstractEntity<Integer> {
 
     public Integer getId() {
         return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Integer getCode() {
-        return this.code;
-    }
-
-    public String getCodeName() {
-        return this.codeName;
-    }
-
-    public String getDivisionType() {
-        return this.divisionType;
     }
 
     public District getDistrict() {

@@ -6,6 +6,8 @@ import java.util.Collection;
 
 public sealed interface JobCenter extends JobRegistry, JobOperation, JobHolder permits AbstractJobCenter {
 
+    Collection<Job> getDeadlineJobs();
+
     Collection<Job> getDailyJob();
 
     Collection<Job> getMonthlyJob();

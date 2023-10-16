@@ -1,15 +1,16 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.google.common.base.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Table;
 
+import com.bachlinh.order.core.annotation.ActiveReflection;
+
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Objects;
 
 @Entity
 @Table(name = "BATCH_REPORT")
@@ -108,46 +109,16 @@ public class BatchReport extends AbstractEntity<Integer> {
         return this.timeReport;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof BatchReport other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BatchReport that)) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$batchName = this.getBatchName();
-        final Object other$batchName = other.getBatchName();
-        if (!Objects.equals(this$batchName, other$batchName)) return false;
-        final Object this$hasError = this.getHasError();
-        final Object other$hasError = other.getHasError();
-        if (!Objects.equals(this$hasError, other$hasError)) return false;
-        final Object this$errorDetail = this.getErrorDetail();
-        final Object other$errorDetail = other.getErrorDetail();
-        if (!Objects.equals(this$errorDetail, other$errorDetail))
-            return false;
-        final Object this$timeReport = this.getTimeReport();
-        final Object other$timeReport = other.getTimeReport();
-        return Objects.equals(this$timeReport, other$timeReport);
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getBatchName(), that.getBatchName()) && Objects.equal(isHasError(), that.isHasError()) && Objects.equal(getErrorDetail(), that.getErrorDetail()) && Objects.equal(getTimeReport(), that.getTimeReport());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof BatchReport;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $batchName = this.getBatchName();
-        result = result * PRIME + ($batchName == null ? 43 : $batchName.hashCode());
-        final Object $hasError = this.getHasError();
-        result = result * PRIME + ($hasError == null ? 43 : $hasError.hashCode());
-        final Object $errorDetail = this.getErrorDetail();
-        result = result * PRIME + ($errorDetail == null ? 43 : $errorDetail.hashCode());
-        final Object $timeReport = this.getTimeReport();
-        result = result * PRIME + ($timeReport == null ? 43 : $timeReport.hashCode());
-        return result;
+        return Objects.hashCode(super.hashCode(), getId(), getBatchName(), isHasError(), getErrorDetail(), getTimeReport());
     }
 }

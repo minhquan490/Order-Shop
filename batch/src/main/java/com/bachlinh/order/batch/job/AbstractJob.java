@@ -1,14 +1,20 @@
 package com.bachlinh.order.batch.job;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
+import com.bachlinh.order.core.exception.system.batch.JobExecutionException;
 import com.bachlinh.order.entity.repository.RepositoryManager;
 
 import java.time.LocalDateTime;
 
 public abstract non-sealed class AbstractJob implements Job {
     private final String name;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private Report report;
     private final Environment environment;
     private final DependenciesResolver dependenciesResolver;
@@ -29,14 +35,16 @@ public abstract non-sealed class AbstractJob implements Job {
     }
 
     @Override
-    public void execute() {
+    public final void execute() {
+        logger.info("Begin execute batch [{}]", getName());
         inject();
         try {
             doExecuteInternal();
-        } catch (Exception e) {
-            addException(e);
-        } finally {
+            logger.info("Execute batch [{}] done", getName());
             this.executed = true;
+        } catch (Exception e) {
+            logger.error("Execute batch [{}] failure", getName(), e);
+            addException(e);
         }
     }
 
@@ -86,7 +94,7 @@ public abstract non-sealed class AbstractJob implements Job {
 
     protected abstract void inject();
 
-    protected abstract void doExecuteInternal() throws Exception;
+    protected abstract void doExecuteInternal() throws JobExecutionException;
 
     protected abstract LocalDateTime doGetNextExecutionTime();
 

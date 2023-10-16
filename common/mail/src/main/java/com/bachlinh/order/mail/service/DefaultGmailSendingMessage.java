@@ -1,6 +1,6 @@
 package com.bachlinh.order.mail.service;
 
-import com.bachlinh.order.core.http.converter.spi.Converter;
+import com.bachlinh.order.http.converter.spi.Converter;
 import com.bachlinh.order.mail.http.ssl.SslHttpTransportFactory;
 import com.bachlinh.order.mail.model.GmailMessage;
 import com.bachlinh.order.mail.model.GmailSendingResult;

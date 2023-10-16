@@ -8,8 +8,13 @@ import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.exception.system.batch.JobNotFoundException;
 
 import java.util.Collection;
+import java.util.Comparator;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 public class DefaultJobCenter extends AbstractJobCenter {
+
+    private final Comparator<Job> jobOrderComparator = Comparator.comparingInt(value -> extractOrder(value.getClass()));
 
     public DefaultJobCenter(DependenciesResolver dependenciesResolver, String profile) {
         super(dependenciesResolver, profile);
@@ -17,34 +22,22 @@ public class DefaultJobCenter extends AbstractJobCenter {
 
     @Override
     public Collection<Job> getDailyJob() {
-        return getJobContext().values()
-                .stream()
-                .filter(job -> job.getJobType().equals(JobType.DAILY))
-                .toList();
+        return filterJob(JobType.DAILY);
     }
 
     @Override
     public Collection<Job> getMonthlyJob() {
-        return getJobContext().values()
-                .stream()
-                .filter(job -> job.getJobType().equals(JobType.MONTHLY))
-                .toList();
+        return filterJob(JobType.MONTHLY);
     }
 
     @Override
     public Collection<Job> getYearlyJob() {
-        return getJobContext().values()
-                .stream()
-                .filter(job -> job.getJobType().equals(JobType.YEARLY))
-                .toList();
+        return filterJob(JobType.YEARLY);
     }
 
     @Override
     public Collection<Job> getJobExecuteOnce() {
-        Collection<Job> jobs = getJobContext().values()
-                .stream()
-                .filter(job -> job.getJobType().equals(JobType.ONCE))
-                .toList();
+        Collection<Job> jobs = filterJob(JobType.ONCE);
         jobs.forEach(job -> getJobContext().remove(job.getName(), job));
         return jobs;
     }
@@ -67,5 +60,18 @@ public class DefaultJobCenter extends AbstractJobCenter {
     @Override
     public Report exportReport(String jobName) {
         return getJob(jobName).getJobReport();
+    }
+
+    private int extractOrder(Class<?> jobType) {
+        Order order = jobType.getAnnotation(Order.class);
+        return order == null ? Ordered.LOWEST_PRECEDENCE : order.value();
+    }
+
+    private Collection<Job> filterJob(JobType type) {
+        return getJobContext().values()
+                .stream()
+                .filter(job -> job.getJobType().equals(type))
+                .sorted(jobOrderComparator)
+                .toList();
     }
 }

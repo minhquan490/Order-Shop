@@ -25,6 +25,9 @@ public final class JacksonUtils {
     }
 
     public static String writeObjectAsString(Object value) {
+        if (value == null) {
+            return "";
+        }
         try {
             return SINGLETON.writeValueAsString(value);
         } catch (JsonProcessingException e) {

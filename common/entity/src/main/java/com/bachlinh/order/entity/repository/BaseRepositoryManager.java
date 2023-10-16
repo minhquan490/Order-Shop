@@ -49,6 +49,10 @@ public class BaseRepositoryManager implements RepositoryManager {
     @Override
     public void assignTransaction(TransactionHolder<?> transactionHolder) {
         EntityManager entityManager = TransactionUtils.extractEntityManager(transactionHolder);
+        if (entityManager == null) {
+            // No transaction available fallback to SessionFactory#createEntityManager
+            return;
+        }
         entityManagerProxyOperator.assignEntityManager(entityManager);
     }
 

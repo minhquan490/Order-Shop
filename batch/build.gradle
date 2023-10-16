@@ -11,7 +11,7 @@ version = "${libs.versions.mainProject.get()}"
 dependencies {
     implementation project(":common:core")
     implementation project(":common:entity")
-    implementation project(":common:repository")
+    implementation project(":repository")
     implementation 'jakarta.persistence:jakarta.persistence-api'
     implementation 'org.springframework:spring-core'
     implementation 'org.springframework:spring-context'

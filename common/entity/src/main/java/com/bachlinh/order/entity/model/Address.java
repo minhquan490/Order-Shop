@@ -86,7 +86,9 @@ public class Address extends AbstractEntity<String> {
 
     @ActiveReflection
     public void setCustomer(Customer customer) {
-        if (this.customer != null && !this.customer.getId().equals(customer.getId())) {
+        if (this.customer != null &&
+                this.customer.getId() != null &&
+                !Objects.requireNonNull(this.customer.getId()).equals(customer.getId())) {
             trackUpdatedField("CUSTOMER_ID", this.customer.getId(), customer.getId());
         }
         this.customer = customer;
@@ -112,40 +114,17 @@ public class Address extends AbstractEntity<String> {
         return this.customer;
     }
 
-    public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Address other)) return false;
-        if (!other.canEqual(this)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final Object this$id = this.getId();
-        final Object other$id = other.getId();
-        if (!Objects.equals(this$id, other$id)) return false;
-        final Object this$value = this.getValue();
-        final Object other$value = other.getValue();
-        if (!Objects.equals(this$value, other$value)) return false;
-        final Object this$city = this.getCity();
-        final Object other$city = other.getCity();
-        if (!Objects.equals(this$city, other$city)) return false;
-        final Object this$country = this.getCountry();
-        final Object other$country = other.getCountry();
-        return Objects.equals(this$country, other$country);
+        Address address = (Address) o;
+        return com.google.common.base.Objects.equal(getId(), address.getId()) && com.google.common.base.Objects.equal(getValue(), address.getValue()) && com.google.common.base.Objects.equal(getCity(), address.getCity()) && com.google.common.base.Objects.equal(getCountry(), address.getCountry()) && com.google.common.base.Objects.equal(getCustomer(), address.getCustomer());
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Address;
-    }
-
+    @Override
     public int hashCode() {
-        final int PRIME = 59;
-        int result = super.hashCode();
-        final Object $id = this.getId();
-        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
-        final Object $value = this.getValue();
-        result = result * PRIME + ($value == null ? 43 : $value.hashCode());
-        final Object $city = this.getCity();
-        result = result * PRIME + ($city == null ? 43 : $city.hashCode());
-        final Object $country = this.getCountry();
-        result = result * PRIME + ($country == null ? 43 : $country.hashCode());
-        return result;
+        return com.google.common.base.Objects.hashCode(super.hashCode(), getId(), getValue(), getCity(), getCountry(), getCustomer());
     }
 }

@@ -1,8 +1,8 @@
 package com.bachlinh.order.web.common.interceptor;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeRequest;
+import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.core.annotation.Permit;
 import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Customer;

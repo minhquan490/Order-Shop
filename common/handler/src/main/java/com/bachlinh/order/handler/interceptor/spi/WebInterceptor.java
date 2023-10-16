@@ -1,7 +1,7 @@
 package com.bachlinh.order.handler.interceptor.spi;
 
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeRequest;
+import com.bachlinh.order.http.NativeResponse;
 
 public sealed interface WebInterceptor permits AbstractInterceptor {
     boolean preHandle(NativeRequest<?> request, NativeResponse<?> response);

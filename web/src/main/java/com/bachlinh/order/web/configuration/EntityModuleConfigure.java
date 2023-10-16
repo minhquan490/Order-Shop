@@ -21,7 +21,7 @@ import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
 import com.bachlinh.order.entity.repository.BaseRepositoryManager;
 import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.entity.transaction.internal.DefaultTransactionManager;
+import com.bachlinh.order.entity.transaction.internal.SpringTransactionManager;
 import com.bachlinh.order.entity.transaction.shaded.JpaTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionManager;
 import com.bachlinh.order.web.common.entity.DefaultEntityFactory;
@@ -93,7 +93,7 @@ public abstract class EntityModuleConfigure {
     }
 
     public TransactionManager<?> applicationTransactionManager(DependenciesResolver resolver) {
-        return new DefaultTransactionManager(resolver);
+        return new SpringTransactionManager(resolver);
     }
 
     private Properties hibernateProperties() {

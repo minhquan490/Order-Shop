@@ -1,6 +1,6 @@
 package com.bachlinh.order.handler.controller;
 
-import com.bachlinh.order.core.http.handler.RequestHandler;
+import com.bachlinh.order.http.handler.RequestHandler;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import org.springframework.lang.NonNull;
 

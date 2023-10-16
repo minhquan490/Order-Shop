@@ -1,6 +1,6 @@
 package com.bachlinh.order.web.service.common;
 
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerCreateForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.customer.CustomerUpdateInfoForm;

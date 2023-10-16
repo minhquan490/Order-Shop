@@ -2,11 +2,14 @@ package com.bachlinh.order.mail.http.ssl;
 
 import com.google.api.client.http.HttpTransport;
 import com.google.auth.http.HttpTransportFactory;
+
 import javax.net.ssl.SSLContext;
+
 import org.apache.http.ssl.SSLContextBuilder;
-import com.bachlinh.order.core.http.ssl.internal.CertificateFileSslStoreProvider;
-import com.bachlinh.order.core.http.ssl.spi.Ssl;
-import com.bachlinh.order.core.http.ssl.spi.SslStoreProvider;
+
+import com.bachlinh.order.http.ssl.internal.CertificateFileSslStoreProvider;
+import com.bachlinh.order.http.ssl.spi.Ssl;
+import com.bachlinh.order.http.ssl.spi.SslStoreProvider;
 import com.bachlinh.order.core.exception.system.mail.MailException;
 
 import java.security.KeyManagementException;

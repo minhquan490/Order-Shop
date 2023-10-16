@@ -3,7 +3,7 @@ package com.bachlinh.order.web.handler.rest.customer.order;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.http.Payload;
 import com.bachlinh.order.core.annotation.Permit;
 import com.bachlinh.order.core.enums.Role;
 import com.bachlinh.order.entity.model.Customer;

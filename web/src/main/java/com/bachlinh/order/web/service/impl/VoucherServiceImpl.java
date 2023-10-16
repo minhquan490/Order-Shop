@@ -4,7 +4,7 @@ import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.http.NativeRequest;
 import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;

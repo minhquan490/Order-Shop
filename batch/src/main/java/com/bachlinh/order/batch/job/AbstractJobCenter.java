@@ -5,6 +5,9 @@ import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.system.batch.JobExistedException;
 import com.bachlinh.order.core.exception.system.batch.JobNotFoundException;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,6 +38,31 @@ public abstract non-sealed class AbstractJobCenter implements JobCenter {
             throw new JobExistedException("Job with name [" + job.getName() + "] had been existed");
         }
         jobContext.put(job.getName(), job);
+    }
+
+    @Override
+    public Collection<Job> getDeadlineJobs() {
+        Collection<Job> results = new LinkedList<>();
+
+        Collection<Job> dailyJobs = getDailyJob();
+        Collection<Job> monthlyJobs = getMonthlyJob();
+        Collection<Job> yearlyJobs = getYearlyJob();
+
+        LocalDateTime now = LocalDateTime.now();
+        findDeadlineJobs(dailyJobs, results, now);
+        findDeadlineJobs(monthlyJobs, results, now);
+        findDeadlineJobs(yearlyJobs, results, now);
+
+        return results;
+    }
+
+    private void findDeadlineJobs(Collection<Job> currentJobs, Collection<Job> holder, LocalDateTime now) {
+        for (Job job : currentJobs) {
+            LocalDateTime next = job.getNextExecutionTime();
+            if (next.isBefore(now) || next.isEqual(now)) {
+                holder.add(job);
+            }
+        }
     }
 
     protected Map<String, Job> getJobContext() {

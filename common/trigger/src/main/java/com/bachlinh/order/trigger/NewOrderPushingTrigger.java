@@ -4,7 +4,7 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.core.enums.TriggerExecution;
 import com.bachlinh.order.core.enums.TriggerMode;
-import com.bachlinh.order.core.http.server.channel.stomp.publisher.NotificationPublisher;
+import com.bachlinh.order.http.server.channel.stomp.publisher.NotificationPublisher;
 import com.bachlinh.order.entity.model.Order;
 import com.bachlinh.order.entity.trigger.AbstractTrigger;
 

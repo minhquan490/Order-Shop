@@ -1,6 +1,6 @@
 package com.bachlinh.order.handler.strategy;
 
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.core.utils.map.LinkedMultiValueMap;
 import com.bachlinh.order.core.utils.map.MultiValueMap;
 import jakarta.servlet.http.HttpServletResponse;

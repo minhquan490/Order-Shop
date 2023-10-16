@@ -3,7 +3,7 @@ package com.bachlinh.order.web.configuration;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.http.server.channel.security.FilterChainAdapter;
+import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.utils.HeaderUtils;
 import com.bachlinh.order.security.auth.internal.TokenManagerProvider;

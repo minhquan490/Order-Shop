@@ -1,8 +1,8 @@
 package com.bachlinh.order.handler.controller;
 
 import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeRequest;
+import com.bachlinh.order.http.NativeResponse;
 
 public sealed interface Controller<T, U> permits AbstractController {
     NativeResponse<T> handle(NativeRequest<U> request);

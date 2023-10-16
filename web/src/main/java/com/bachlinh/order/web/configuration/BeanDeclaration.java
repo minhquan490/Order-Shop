@@ -17,18 +17,6 @@ import com.bachlinh.order.core.concurrent.support.DefaultThreadPoolManager;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.core.http.NativeResponse;
-import com.bachlinh.order.core.http.server.channel.security.FilterChainAdapter;
-import com.bachlinh.order.core.http.server.channel.stomp.NettyConnectionManager;
-import com.bachlinh.order.core.http.server.channel.stomp.NettySocketConnectionHolder;
-import com.bachlinh.order.core.http.server.channel.stomp.StompConnectionManager;
-import com.bachlinh.order.core.http.server.listener.HttpFrameListenerFactory;
-import com.bachlinh.order.core.http.server.listener.StompFrameListenerFactory;
-import com.bachlinh.order.core.http.template.internal.DefaultRestTemplateFactory;
-import com.bachlinh.order.core.http.template.spi.RestTemplate;
-import com.bachlinh.order.core.http.template.spi.RestTemplateFactory;
-import com.bachlinh.order.core.http.translator.internal.JsonExceptionTranslator;
-import com.bachlinh.order.core.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
@@ -45,6 +33,18 @@ import com.bachlinh.order.handler.controller.ControllerManager;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
 import com.bachlinh.order.handler.service.DefaultServiceManager;
 import com.bachlinh.order.handler.service.ServiceManager;
+import com.bachlinh.order.http.NativeResponse;
+import com.bachlinh.order.http.client.RestClient;
+import com.bachlinh.order.http.client.RestClientFactory;
+import com.bachlinh.order.http.client.internal.DefaultRestClientFactory;
+import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
+import com.bachlinh.order.http.server.channel.stomp.NettyConnectionManager;
+import com.bachlinh.order.http.server.channel.stomp.NettySocketConnectionHolder;
+import com.bachlinh.order.http.server.channel.stomp.StompConnectionManager;
+import com.bachlinh.order.http.server.listener.HttpFrameListenerFactory;
+import com.bachlinh.order.http.server.listener.StompFrameListenerFactory;
+import com.bachlinh.order.http.translator.internal.JsonExceptionTranslator;
+import com.bachlinh.order.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.mail.oauth2.CredentialAdapter;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.mail.template.EmailTemplateProcessor;
@@ -62,7 +62,6 @@ import com.bachlinh.order.web.common.entity.DefaultEntityMapperFactory;
 import com.bachlinh.order.web.common.listener.Netty2FrameListenerFactory;
 import com.bachlinh.order.web.common.listener.Netty3FrameListenerFactory;
 import com.bachlinh.order.web.common.listener.NettyWebSocketFrameListenerFactory;
-import com.bachlinh.order.web.common.listener.WebApplicationEventListener;
 import com.bachlinh.order.web.common.servlet.ServletRouter;
 
 import java.io.IOException;
@@ -72,8 +71,6 @@ import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -106,9 +103,11 @@ public class BeanDeclaration extends SecurityModuleConfigure {
     public JobManager jobManager(DependenciesResolver resolver, @Value("${active.profile}") String profile) {
         JobCenterBooster booster = new JobCenterBooster(resolver, profile);
         JobManager.Builder builder = new SimpleJobManagerBuilder();
-        return builder.dependenciesResolver(resolver)
+        JobManager jobManager = builder.dependenciesResolver(resolver)
                 .profile(profile)
                 .build(booster);
+        jobManager.startJob();
+        return jobManager;
     }
 
     @Bean
@@ -200,8 +199,8 @@ public class BeanDeclaration extends SecurityModuleConfigure {
     }
 
     @Bean
-    public RestTemplate restTemplate(@Value("${server.ssl.certificate}") String certPath, @Value("${server.ssl.certificate-private-key}") String keyPath) throws Exception {
-        RestTemplateFactory.Builder builder = DefaultRestTemplateFactory.builder();
+    public RestClient restTemplate(@Value("${server.ssl.certificate}") String certPath, @Value("${server.ssl.certificate-private-key}") String keyPath) throws Exception {
+        RestClientFactory.Builder builder = DefaultRestClientFactory.builder();
         return builder.pemCertificatePath(certPath)
                 .pemCertificateKeyPath(keyPath)
                 .build()
@@ -329,11 +328,6 @@ public class BeanDeclaration extends SecurityModuleConfigure {
     @Bean
     public ExceptionTranslator<NativeResponse<byte[]>> exceptionTranslator() {
         return new JsonExceptionTranslator();
-    }
-
-    @Bean
-    public ApplicationListener<ApplicationEvent> applicationEventApplicationListener(DependenciesContainerResolver containerResolver, @Value("${active.profile}") String profile) {
-        return new WebApplicationEventListener(containerResolver, profile);
     }
 
     @Bean

@@ -9,13 +9,15 @@ group = 'com.bachlinh.order'
 version = "${libs.versions.mainProject.get()}"
 
 dependencies {
+    implementation project(":common:core")
+    implementation project(":common:entity")
+    implementation project(":repository")
+    implementation project(":http")
+
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-aspects'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation project(":common:core")
-    implementation project(":common:entity")
-    implementation project(":common:repository")
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'jakarta.persistence:jakarta.persistence-api'
     implementation 'org.hibernate.orm:hibernate-core'

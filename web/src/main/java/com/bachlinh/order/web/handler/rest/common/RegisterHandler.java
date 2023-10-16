@@ -7,7 +7,7 @@ import com.bachlinh.order.core.enums.Isolation;
 import com.bachlinh.order.core.enums.RequestMethod;
 import com.bachlinh.order.core.exception.http.BadVariableException;
 import com.bachlinh.order.core.exception.http.ValidationFailureException;
-import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.form.customer.RegisterForm;
 import com.bachlinh.order.web.dto.resp.RegisterResp;

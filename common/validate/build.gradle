@@ -11,7 +11,7 @@ version = "${libs.versions.mainProject.get()}"
 dependencies {
     implementation project(":common:core")
     implementation project(":common:entity")
-    implementation project(":common:repository")
+    implementation project(":repository")
     implementation 'org.aspectj:aspectjweaver'
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework.security:spring-security-core'

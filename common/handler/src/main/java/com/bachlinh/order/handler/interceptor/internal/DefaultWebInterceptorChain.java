@@ -2,8 +2,8 @@ package com.bachlinh.order.handler.interceptor.internal;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeRequest;
+import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptor;
 import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;

@@ -24,7 +24,7 @@ import com.bachlinh.order.core.enums.TriggerExecution;
 import com.bachlinh.order.core.enums.TriggerMode;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.http.ValidationFailureException;
-import com.bachlinh.order.core.function.TransactionCallback;
+import com.bachlinh.order.core.function.VoidCallback;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityManagerHolder;
 import com.bachlinh.order.entity.EntityTrigger;
@@ -87,8 +87,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         this.cacheManager = resolver.resolveDependencies(CacheManager.class);
         this.isUseQueryCache = domainClass.isAnnotationPresent(QueryCache.class);
         this.builder = resolver.resolveDependencies(SqlBuilder.class);
-        Environment environment = Environment.getInstance(Environment.getMainEnvironmentName());
-        this.functionDialect = FunctionDialect.getDialect(environment.getProperty("server.database.driver"));
+        this.functionDialect = createFunctionDialect();
     }
 
     @Override
@@ -251,7 +250,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         if (entityTransaction.isActive()) {
             task.get();
         } else {
-            doInTransaction(entityTransaction, task, () -> closeEntityManager(entityManager));
+            doInTransaction(entityTransaction, task, (params) -> closeEntityManager(entityManager));
         }
         evictCache();
     }
@@ -331,7 +330,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         this.em = entityManager;
     }
 
-    protected void doInTransaction(EntityManager entityManager, TransactionCallback callback) {
+    protected void doInTransaction(EntityManager entityManager, VoidCallback callback) {
         EntityTransaction entityTransaction = entityManager.getTransaction();
         entityTransaction.begin();
         try {
@@ -381,7 +380,7 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
         return results.stream().map(receiverType::cast).toList();
     }
 
-    private <S extends U> S doInTransaction(EntityTransaction transaction, Supplier<S> task, @Nullable TransactionCallback callback) {
+    private <S extends U> S doInTransaction(EntityTransaction transaction, Supplier<S> task, @Nullable VoidCallback callback) {
         EntityContext entityContext = entityFactory.getEntityContext(getDomainClass());
         entityContext.beginTransaction();
         transaction.begin();
@@ -572,13 +571,18 @@ public abstract class AbstractRepository<T, U extends BaseEntity<T>> implements 
     }
 
     private <S extends U> S execute(EntityManager entityManager, Supplier<S> task) {
-        return doInTransaction(entityManager.getTransaction(), task, () -> closeEntityManager(entityManager));
+        return doInTransaction(entityManager.getTransaction(), task, (params) -> closeEntityManager(entityManager));
     }
 
     private void closeEntityManager(EntityManager entityManager) {
         if (entityManager instanceof OutboundThreadEntityManager proxy) {
             proxy.close();
         }
+    }
+
+    private FunctionDialect createFunctionDialect() {
+        Environment environment = Environment.getInstance(Environment.getMainEnvironmentName());
+        return FunctionDialect.getDialect(environment.getProperty("server.database.driver"));
     }
 
     private record OutboundThreadEntityManager(EntityManager delegate) implements EntityManager {

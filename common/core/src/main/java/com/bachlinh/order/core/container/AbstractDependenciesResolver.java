@@ -1,15 +1,32 @@
 package com.bachlinh.order.core.container;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 public abstract non-sealed class AbstractDependenciesResolver implements DependenciesResolver {
-    private static DependenciesResolver self;
+    protected static DependenciesResolver self;
 
     private final Map<Class<?>, Object> queriedBeanClasses = new ConcurrentHashMap<>();
     private final Map<String, Object> queriedBeanNames = new ConcurrentHashMap<>();
+
+    private boolean isClose = false;
+
+    @Override
+    public final void close() throws IOException {
+        if (isActive()) {
+            self.close();
+            doClose();
+            this.isClose = true;
+        }
+    }
+
+    @Override
+    public boolean isActive() {
+        return !isClose;
+    }
 
     protected static void selfAssign(DependenciesResolver self) {
         AbstractDependenciesResolver.self = self;
@@ -36,4 +53,6 @@ public abstract non-sealed class AbstractDependenciesResolver implements Depende
     protected Object queryBean(String beanName) {
         return this.queriedBeanNames.get(beanName);
     }
+
+    protected abstract void doClose();
 }
