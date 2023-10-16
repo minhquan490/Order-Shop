@@ -2,8 +2,8 @@ package com.bachlinh.order.entity.model;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.EnableFullTextSearch;
-import com.bachlinh.order.core.annotation.FullTextField;
 import com.bachlinh.order.core.annotation.QueryCache;
+
 import com.google.common.base.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,27 +32,11 @@ import java.util.List;
 @EnableFullTextSearch
 @ActiveReflection
 @QueryCache
-public class Province extends AbstractEntity<Integer> {
+public class Province extends VnAddress<Integer> {
 
     @Id
     @Column(name = "ID", nullable = false, unique = true)
     private Integer id;
-
-    @Column(name = "NAME", columnDefinition = "nvarchar(100)")
-    @FullTextField
-    @ActiveReflection
-    private String name;
-
-    @Column(name = "CODE")
-    private Integer code;
-
-    @Column(name = "DIVISION_TYPE", columnDefinition = "nvarchar(100)")
-    private String divisionType;
-
-    @Column(name = "CODE_NAME", length = 50)
-    @FullTextField
-    @ActiveReflection
-    private String codeName;
 
     @Column(name = "PHONE_CODE")
     private Integer phoneCode;
@@ -99,38 +83,6 @@ public class Province extends AbstractEntity<Integer> {
     }
 
     @ActiveReflection
-    public void setName(String name) {
-        if (this.name != null && !this.name.equals(name)) {
-            trackUpdatedField("NAME", this.name, name);
-        }
-        this.name = name;
-    }
-
-    @ActiveReflection
-    public void setCode(Integer code) {
-        if (this.code != null && !this.code.equals(code)) {
-            trackUpdatedField("CODE", this.code, code);
-        }
-        this.code = code;
-    }
-
-    @ActiveReflection
-    public void setDivisionType(String divisionType) {
-        if (this.divisionType != null && !this.divisionType.equals(divisionType)) {
-            trackUpdatedField("DIVISION_TYPE", this.divisionType, divisionType);
-        }
-        this.divisionType = divisionType;
-    }
-
-    @ActiveReflection
-    public void setCodeName(String codeName) {
-        if (this.codeName != null && !this.codeName.equals(codeName)) {
-            trackUpdatedField("CODE_NAME", this.codeName, codeName);
-        }
-        this.codeName = codeName;
-    }
-
-    @ActiveReflection
     public void setPhoneCode(Integer phoneCode) {
         if (this.phoneCode != null && !this.phoneCode.equals(phoneCode)) {
             trackUpdatedField("PHONE_CODE", this.phoneCode, phoneCode);
@@ -145,22 +97,6 @@ public class Province extends AbstractEntity<Integer> {
 
     public Integer getId() {
         return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Integer getCode() {
-        return this.code;
-    }
-
-    public String getDivisionType() {
-        return this.divisionType;
-    }
-
-    public String getCodeName() {
-        return this.codeName;
     }
 
     public Integer getPhoneCode() {

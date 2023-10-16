@@ -13,12 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bachlinh.order.core.function.Decorator;
-import com.bachlinh.order.core.http.handler.Router;
-import com.bachlinh.order.core.http.server.channel.adapter.NettyServletResponseAdapter;
-import com.bachlinh.order.core.http.server.channel.security.FilterChainAdapter;
-import com.bachlinh.order.core.http.server.collector.Http2FrameCollector;
-import com.bachlinh.order.core.http.server.listener.HttpFrameListener;
-import com.bachlinh.order.core.utils.HandlerUtils;
+import com.bachlinh.order.http.handler.Router;
+import com.bachlinh.order.http.server.channel.adapter.NettyServletResponseAdapter;
+import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
+import com.bachlinh.order.http.server.collector.Http2FrameCollector;
+import com.bachlinh.order.http.server.listener.HttpFrameListener;
+import com.bachlinh.order.http.utils.HandlerUtils;
 
 import java.io.IOException;
 
@@ -114,7 +114,7 @@ class DefaultHttp2Listener implements HttpFrameListener<Http2Frame> {
 
     private void writeResponse(Http2FrameStream streamFrame, ChannelHandlerContext ctx) {
         try {
-            NettyServletResponseAdapter adapter = HandlerUtils.handle(frameCollector, filterChainAdapter, ctx, (servletRouter::handleRequest));
+            NettyServletResponseAdapter adapter = HandlerUtils.handle(frameCollector, filterChainAdapter, ctx, params -> servletRouter.handleRequest(params[0], params[1]));
             writeHeader(streamFrame, ctx, adapter);
             writeBody(streamFrame, ctx, adapter);
         } catch (Exception e) {

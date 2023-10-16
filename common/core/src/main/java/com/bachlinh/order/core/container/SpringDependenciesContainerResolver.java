@@ -4,6 +4,7 @@ import com.bachlinh.order.core.exception.system.common.CriticalException;
 
 import com.google.common.base.Objects;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 class SpringDependenciesContainerResolver implements DependenciesContainerResolver {
     private static SpringDependenciesContainerResolver singleton;
@@ -84,18 +85,6 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
             return bean;
         }
 
-        String getContainerName() {
-            return getContainerType().getName();
-        }
-
-        Class<?> getContainerType() {
-            return context.getClass();
-        }
-
-        ApplicationContext unwrap() {
-            return context;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -107,6 +96,18 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
         @Override
         public int hashCode() {
             return Objects.hashCode(context);
+        }
+
+        String getContainerName() {
+            return getContainerType().getName();
+        }
+
+        Class<?> getContainerType() {
+            return context.getClass();
+        }
+
+        ApplicationContext unwrap() {
+            return context;
         }
 
         private boolean isSingleton(String beanName) {
@@ -121,6 +122,14 @@ class SpringDependenciesContainerResolver implements DependenciesContainerResolv
             }
 
             return isSingleton(names[0]);
+        }
+
+        @Override
+        protected void doClose() {
+            ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) context;
+            if (configurableApplicationContext.isActive()) {
+                configurableApplicationContext.close();
+            }
         }
     }
 }

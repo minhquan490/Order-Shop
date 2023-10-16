@@ -3,8 +3,8 @@ package com.bachlinh.order.web.common.interceptor;
 import io.netty.handler.codec.http.HttpHeaderNames;
 
 import com.bachlinh.order.core.annotation.ActiveReflection;
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeRequest;
+import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
 
 import java.text.MessageFormat;

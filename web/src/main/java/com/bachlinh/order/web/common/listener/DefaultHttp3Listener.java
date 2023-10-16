@@ -7,12 +7,12 @@ import io.netty.incubator.codec.http3.Http3Headers;
 import io.netty.incubator.codec.http3.Http3HeadersFrame;
 import io.netty.incubator.codec.quic.QuicStreamChannel;
 
-import com.bachlinh.order.core.http.handler.Router;
-import com.bachlinh.order.core.http.server.channel.adapter.NettyServletResponseAdapter;
-import com.bachlinh.order.core.http.server.channel.security.FilterChainAdapter;
-import com.bachlinh.order.core.http.server.collector.Http3FrameCollector;
-import com.bachlinh.order.core.http.server.listener.HttpFrameListener;
-import com.bachlinh.order.core.utils.HandlerUtils;
+import com.bachlinh.order.http.handler.Router;
+import com.bachlinh.order.http.server.channel.adapter.NettyServletResponseAdapter;
+import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
+import com.bachlinh.order.http.server.collector.Http3FrameCollector;
+import com.bachlinh.order.http.server.listener.HttpFrameListener;
+import com.bachlinh.order.http.utils.HandlerUtils;
 
 class DefaultHttp3Listener implements HttpFrameListener<Http3Frame> {
     private static final int FRAME_SIZE = 8000;
@@ -94,7 +94,7 @@ class DefaultHttp3Listener implements HttpFrameListener<Http3Frame> {
 
     private void writeResponse(ChannelHandlerContext ctx) {
         try {
-            NettyServletResponseAdapter adapter = HandlerUtils.handle(frameCollector, filterChainAdapter, ctx, (servletRouter::handleRequest));
+            NettyServletResponseAdapter adapter = HandlerUtils.handle(frameCollector, filterChainAdapter, ctx, params -> servletRouter.handleRequest(params[0], params[1]));
             Http3HeadersFrame http3HeadersFrame = adapter.toH3HeaderFrame();
             Http3DataFrame[] http3DataFrames = adapter.toH3DataFrames(FRAME_SIZE);
             if (http3DataFrames == null || http3DataFrames.length == 0) {

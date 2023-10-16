@@ -7,7 +7,7 @@ import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.http.BadVariableException;
 import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
-import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.http.NativeRequest;
 import com.bachlinh.order.core.utils.ValidateUtils;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;

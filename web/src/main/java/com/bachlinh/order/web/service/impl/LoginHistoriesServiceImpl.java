@@ -2,7 +2,7 @@ package com.bachlinh.order.web.service.impl;
 
 import com.bachlinh.order.core.annotation.ServiceComponent;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.http.NativeRequest;
 import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.model.LoginHistory;
 import com.bachlinh.order.entity.model.MessageSetting;

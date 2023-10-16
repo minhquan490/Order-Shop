@@ -1,6 +1,6 @@
 package com.bachlinh.order.web.service.common;
 
-import com.bachlinh.order.core.http.NativeRequest;
+import com.bachlinh.order.http.NativeRequest;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherCreateForm;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.voucher.VoucherUpdateForm;

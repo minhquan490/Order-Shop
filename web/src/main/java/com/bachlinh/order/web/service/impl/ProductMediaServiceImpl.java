@@ -7,7 +7,7 @@ import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.http.BadVariableException;
 import com.bachlinh.order.core.exception.http.ResourceNotFoundException;
-import com.bachlinh.order.core.http.MultipartRequest;
+import com.bachlinh.order.http.MultipartRequest;
 import com.bachlinh.order.core.utils.graphic.ImageUtils;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Product;

@@ -1,8 +1,8 @@
 package com.bachlinh.order.handler.interceptor.spi;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.core.http.NativeRequest;
-import com.bachlinh.order.core.http.NativeResponse;
+import com.bachlinh.order.http.NativeRequest;
+import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.entity.repository.RepositoryManager;
 import com.bachlinh.order.core.environment.Environment;
 

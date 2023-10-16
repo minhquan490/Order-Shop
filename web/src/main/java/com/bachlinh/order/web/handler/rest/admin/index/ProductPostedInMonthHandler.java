@@ -3,7 +3,7 @@ package com.bachlinh.order.web.handler.rest.admin.index;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.RouteProvider;
 import com.bachlinh.order.core.enums.RequestMethod;
-import com.bachlinh.order.core.http.Payload;
+import com.bachlinh.order.http.Payload;
 import com.bachlinh.order.handler.controller.AbstractController;
 import com.bachlinh.order.web.dto.resp.AnalyzeProductPostedInMonthResp;
 import com.bachlinh.order.web.service.business.ProductAnalyzeService;

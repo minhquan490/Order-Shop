@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * @author MinhQuan
  * */
-public class MssqlQueryBuilder extends AbstractSqlBuilder implements SqlBuilder {
+public class  MssqlQueryBuilder extends AbstractSqlBuilder implements SqlBuilder {
 
     public MssqlQueryBuilder(Map<Class<? extends AbstractEntity<?>>, TableMetadataHolder> tableMetadata) {
         super(tableMetadata);
