@@ -8,7 +8,7 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.Category;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.CategoryRepository;
+import com.bachlinh.order.web.repository.spi.CategoryRepository;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryCreateForm;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.category.CategoryUpdateForm;

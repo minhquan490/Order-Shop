@@ -15,7 +15,7 @@ import com.bachlinh.order.http.server.channel.stomp.StompVersion;
 import com.bachlinh.order.http.server.listener.StompFrameListener;
 import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.Customer_;
-import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.web.repository.spi.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 
 import java.util.HashMap;

@@ -3,16 +3,15 @@ package com.bachlinh.order.web.configuration;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.utils.HeaderUtils;
-import com.bachlinh.order.security.auth.internal.TokenManagerProvider;
+import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.filter.AuthenticationFilter;
-import com.bachlinh.order.security.filter.LoggingRequestFilter;
-import com.bachlinh.order.security.filter.WrappedCorsFilter;
-import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
+import com.bachlinh.order.web.common.security.AuthenticationFilter;
+import com.bachlinh.order.web.common.security.LoggingRequestFilter;
+import com.bachlinh.order.web.common.security.TokenManagerProvider;
+import com.bachlinh.order.web.common.security.WrappedCorsFilter;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -104,10 +103,6 @@ public abstract class SecurityModuleConfigure extends WebInterceptorConfigure {
 
     public FilterChainAdapter filterChainAdapter(DependenciesContainerResolver containerResolver) {
         return new FilterChainAdapter(containerResolver.getDependenciesResolver());
-    }
-
-    public AccessDeniedHandler accessDeniedHandler() {
-        return new AccessDeniedHandler();
     }
 
     private CorsConfigurationSource corsConfigurationSource(String clientUrl, Environment environment) {

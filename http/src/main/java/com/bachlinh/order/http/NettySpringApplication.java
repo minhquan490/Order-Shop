@@ -1,7 +1,7 @@
 package com.bachlinh.order.http;
 
 import com.bachlinh.order.core.SpringBootApplication;
-import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.http.server.HttpNettyServerFactory;

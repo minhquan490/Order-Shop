@@ -9,7 +9,7 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.transaction.spi.EntityTransactionManager;
 import com.bachlinh.order.handler.controller.Controller;
 import com.bachlinh.order.handler.controller.ControllerManager;
-import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
+import com.bachlinh.order.handler.interceptor.WebInterceptorChain;
 import com.bachlinh.order.handler.strategy.ResponseStrategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;

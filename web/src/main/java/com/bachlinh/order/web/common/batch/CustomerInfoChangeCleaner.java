@@ -5,7 +5,7 @@ import com.bachlinh.order.batch.job.JobType;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.repository.CustomerInfoChangeHistoryRepository;
+import com.bachlinh.order.web.repository.spi.CustomerInfoChangeHistoryRepository;
 
 import java.time.LocalDateTime;
 

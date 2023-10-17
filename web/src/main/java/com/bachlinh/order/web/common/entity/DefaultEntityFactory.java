@@ -97,9 +97,8 @@ public final class DefaultEntityFactory implements EntityFactory {
                     .stream()
                     .filter(BaseEntity.class::isAssignableFrom)
                     .toList();
-            Environment environment = Environment.getInstance(activeProfile);
             SearchManager manager = buildSearchManager(entities, containerWrapper, activeProfile);
-            entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, containerResolver.getDependenciesResolver(), manager, environment)));
+            entities.forEach(entity -> entityContext.put(entity, new DefaultEntityContext(entity, containerResolver.getDependenciesResolver(), manager)));
             return new DefaultEntityFactory(entityContext, containerResolver.getDependenciesResolver(), activeProfile);
         }
 

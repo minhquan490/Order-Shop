@@ -9,8 +9,8 @@ import com.bachlinh.order.http.server.listener.HttpFrameListener;
 import com.bachlinh.order.http.server.listener.NoOpsHttpListener;
 import com.bachlinh.order.http.server.listener.StompFrameListener;
 import com.bachlinh.order.core.utils.HeaderUtils;
-import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.repository.CustomerRepository;
+import com.bachlinh.order.repository.RepositoryManager;
+import com.bachlinh.order.web.repository.spi.CustomerRepository;
 import com.bachlinh.order.security.auth.spi.TokenManager;
 
 public class NettyWebSocketFrameListenerFactory extends AbstractFrameListenerFactory<FullHttpRequest> {

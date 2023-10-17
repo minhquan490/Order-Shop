@@ -1,7 +1,7 @@
 package com.bachlinh.order.core.concurrent.support;
 
 import com.bachlinh.order.core.concurrent.ExecutorHolder;
-import com.bachlinh.order.core.concurrent.ThreadPoolOption;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOption;
 
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

@@ -9,8 +9,8 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.core.exception.http.AccessDeniedException;
 import com.bachlinh.order.handler.controller.ControllerContextHolder;
-import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
-import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.handler.interceptor.AbstractInterceptor;
+import com.bachlinh.order.web.repository.spi.MessageSettingRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

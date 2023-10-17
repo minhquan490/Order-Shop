@@ -9,7 +9,7 @@ import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.web.repository.spi.MessageSettingRepository;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingCreateForm;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.setting.MessageSettingUpdateForm;

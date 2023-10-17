@@ -10,7 +10,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailTemplateFolder;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.EmailTemplateFolderRepository;
+import com.bachlinh.order.web.repository.spi.EmailTemplateFolderRepository;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderCreateForm;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderDeleteForm;
 import com.bachlinh.order.web.dto.form.admin.email.template.folder.EmailTemplateFolderUpdateForm;

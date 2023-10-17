@@ -11,7 +11,7 @@ import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.model.MessageSetting;
-import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.web.repository.spi.MessageSettingRepository;
 
 @BatchJob(name = "messageSettingInitialize")
 public class MessageSettingInitialize extends AbstractJob {

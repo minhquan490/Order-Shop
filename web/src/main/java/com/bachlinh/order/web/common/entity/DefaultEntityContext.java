@@ -7,30 +7,30 @@ import org.slf4j.LoggerFactory;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.core.annotation.ApplyOn;
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.entity.EntityMapper;
 import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.entity.EntityMapperHolder;
-import com.bachlinh.order.entity.EntityTrigger;
+import com.bachlinh.order.entity.context.EntityIdProvider;
+import com.bachlinh.order.trigger.EntityTriggerManager;
+import com.bachlinh.order.trigger.EntityTriggerManagerHolder;
 import com.bachlinh.order.entity.EntityValidator;
-import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+import com.bachlinh.order.repository.formula.processor.FormulaProcessor;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.repository.query.AbstractQueryMetadataContext;
+import com.bachlinh.order.repository.query.AbstractQueryMetadataContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
-public class DefaultEntityContext extends AbstractQueryMetadataContext implements EntityMapperHolder {
+public class DefaultEntityContext extends AbstractQueryMetadataContext implements EntityMapperHolder, EntityTriggerManagerHolder {
     private final List<EntityValidator<? extends BaseEntity<?>>> validators;
-    private final List<EntityTrigger<? extends BaseEntity<?>>> triggers;
     private final DependenciesResolver dependenciesResolver;
+    private final EntityTriggerManager entityTriggerManager;
     private EntityMapperFactory entityMapperFactory;
 
-    public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager, Environment environment) {
+    public DefaultEntityContext(Class<?> entity, DependenciesResolver dependenciesResolver, SearchManager searchManager) {
         super(entity, searchManager);
         Logger log = LoggerFactory.getLogger(getClass());
         try {
@@ -38,8 +38,8 @@ public class DefaultEntityContext extends AbstractQueryMetadataContext implement
                 log.debug("Init entity context for entity {}", entity.getSimpleName());
             }
             this.validators = getValidators(entity, dependenciesResolver);
-            this.triggers = getTriggers(entity, dependenciesResolver, environment);
             this.dependenciesResolver = dependenciesResolver;
+            this.entityTriggerManager = dependenciesResolver.resolveDependencies(EntityTriggerManager.class);
         } catch (Exception e) {
             throw new PersistenceException("Can not instance entity with type [" + entity.getSimpleName() + "]", e);
         } finally {
@@ -55,16 +55,16 @@ public class DefaultEntityContext extends AbstractQueryMetadataContext implement
     }
 
     @Override
-    public Collection<EntityTrigger<?>> getTrigger() {
-        return new ArrayList<>(triggers);
-    }
-
-    @Override
     public <T extends BaseEntity<?>> EntityMapper<T> getMapper(Class<T> entityType) {
         if (entityMapperFactory == null) {
             entityMapperFactory = dependenciesResolver.resolveDependencies(EntityMapperFactory.class);
         }
         return entityMapperFactory.createMapper(entityType);
+    }
+
+    @Override
+    public EntityTriggerManager getEntityTriggerManager() {
+        return this.entityTriggerManager;
     }
 
     @Override
@@ -75,6 +75,11 @@ public class DefaultEntityContext extends AbstractQueryMetadataContext implement
     @Override
     protected Initializer<BaseEntity<?>> getEntityInitializer() {
         return new EntityInitializer();
+    }
+
+    @Override
+    protected EntityIdProvider getEntityIdProvider(DependenciesResolver resolver, Class<?> entityType, Class<?> idType) {
+        return new DefaultEntityIdProvider(resolver, entityType, idType);
     }
 
     @Override
@@ -98,36 +103,6 @@ public class DefaultEntityContext extends AbstractQueryMetadataContext implement
                 })
                 .map(returnObject -> (T) returnObject)
                 .toList();
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends EntityTrigger<? extends BaseEntity<?>>> List<T> getTriggers(Class<?> entity, DependenciesResolver dependenciesResolver, Environment environment) {
-        ApplicationScanner scanner = new ApplicationScanner();
-        return scanner.findComponents()
-                .stream()
-                .filter(this::isTrigger)
-                .filter(triggerClass -> {
-                    ApplyOn applyOn = triggerClass.getAnnotation(ApplyOn.class);
-                    return (applyOn.entity().equals(entity) && applyOn.type().equals(ApplyOn.ApplyType.SINGULAR)) || applyOn.type().equals(ApplyOn.ApplyType.ALL);
-                })
-                .map(clazz -> (Class<T>) clazz)
-                .map(triggerClass -> initTrigger(triggerClass, dependenciesResolver, environment))
-                .sorted(Comparator.comparing(entityTrigger -> {
-                    ApplyOn applyOn = entityTrigger.getClass().getAnnotation(ApplyOn.class);
-                    return applyOn.order();
-                }))
-                .toList();
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends EntityTrigger<? extends BaseEntity<?>>> T initTrigger(Class<T> triggerClass, DependenciesResolver dependenciesResolver, Environment environment) {
-        Initializer<EntityTrigger<? extends BaseEntity<?>>> initializer = new TriggerInitializer();
-        return (T) initializer.getObject(triggerClass, environment, dependenciesResolver);
-    }
-
-    private boolean isTrigger(Class<?> clazz) {
-        return clazz.isAnnotationPresent(ApplyOn.class) &&
-                EntityTrigger.class.isAssignableFrom(clazz);
     }
 
     private boolean isValidator(Class<?> clazz) {

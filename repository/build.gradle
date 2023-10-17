@@ -11,6 +11,7 @@ version = "${libs.versions.mainProject.get()}"
 dependencies {
     implementation project(":common:core")
     implementation project(":common:entity")
+    implementation project(":common:trigger")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation "ch.qos.logback:logback-core:${libs.versions.logback.get()}"
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"

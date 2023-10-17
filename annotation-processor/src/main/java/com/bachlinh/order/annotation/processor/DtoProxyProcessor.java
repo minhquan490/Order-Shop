@@ -1,8 +1,9 @@
 package com.bachlinh.order.annotation.processor;
 
+import com.google.auto.service.AutoService;
+
 import com.bachlinh.order.annotation.processor.writer.ClassWriter;
 import com.bachlinh.order.core.annotation.Dto;
-import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;

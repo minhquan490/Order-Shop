@@ -6,7 +6,7 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.DirectMessage;
-import com.bachlinh.order.repository.DirectMessageRepository;
+import com.bachlinh.order.web.repository.spi.DirectMessageRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

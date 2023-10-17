@@ -8,7 +8,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.OrderHistoryRepository;
+import com.bachlinh.order.web.repository.spi.OrderHistoryRepository;
 import com.bachlinh.order.web.dto.resp.OrderHistoryResp;
 import com.bachlinh.order.web.service.common.OrderHistoryService;
 

@@ -6,7 +6,7 @@ import com.bachlinh.order.http.NativeRequest;
 import com.bachlinh.order.http.NativeResponse;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
 import com.bachlinh.order.core.exception.http.HttpRequestMethodNotSupportedException;
-import com.bachlinh.order.handler.interceptor.spi.ObjectInterceptor;
+import com.bachlinh.order.handler.interceptor.ObjectInterceptor;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import org.springframework.lang.NonNull;
