@@ -3,7 +3,6 @@ plugins {
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
     id 'java-library'
-    id "org.hibernate.orm"
     /*id "io.freefair.aspectj"*/
 }
 
@@ -31,9 +30,6 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:${libs.versions.logback.get()}"
     implementation "org.slf4j:slf4j-api:${libs.versions.slf4j.get()}"
     implementation 'net.bytebuddy:byte-buddy'
-
-    annotationProcessor project(":annotation-processor")
-    annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'
 
     runtimeOnly 'org.aspectj:aspectjweaver'
     runtimeOnly 'org.aspectj:aspectjrt'

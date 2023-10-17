@@ -9,7 +9,7 @@ import org.hibernate.dialect.SQLServerDialect;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 
-import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
 import com.bachlinh.order.core.container.DependenciesResolver;
@@ -17,13 +17,15 @@ import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityProxyFactory;
+import com.bachlinh.order.trigger.EntityTriggerManager;
 import com.bachlinh.order.entity.index.internal.InternalProvider;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.repository.BaseRepositoryManager;
-import com.bachlinh.order.entity.repository.RepositoryManager;
+import com.bachlinh.order.repository.BaseRepositoryManager;
+import com.bachlinh.order.repository.RepositoryManager;
 import com.bachlinh.order.entity.transaction.internal.SpringTransactionManager;
 import com.bachlinh.order.entity.transaction.shaded.JpaTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionManager;
+import com.bachlinh.order.web.common.trigger.ThreadScheduleEntityTriggerManager;
 import com.bachlinh.order.web.common.entity.DefaultEntityFactory;
 
 import javax.sql.DataSource;
@@ -145,6 +147,10 @@ public abstract class EntityModuleConfigure {
         this.password = environment.getProperty("server.database.password");
         this.databaseName = environment.getProperty("server.database.name");
         this.databaseAddress = environment.getProperty("server.database.address");
+    }
+
+    public EntityTriggerManager entityTriggerManager(DependenciesResolver dependenciesResolver) {
+        return new ThreadScheduleEntityTriggerManager(dependenciesResolver, getEnvironment());
     }
 
     public Environment getEnvironment() {

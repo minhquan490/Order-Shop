@@ -3,7 +3,7 @@ package com.bachlinh.order.web.common.entity;
 import com.bachlinh.order.core.alloc.Initializer;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapperFactory;
-import com.bachlinh.order.entity.mapper.AbstractEntityMapper;
+import com.bachlinh.order.web.common.entity.mapper.AbstractEntityMapper;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.utils.UnsafeUtils;
 

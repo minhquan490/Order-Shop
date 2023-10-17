@@ -7,7 +7,7 @@ import com.bachlinh.order.batch.Report;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.exception.system.batch.JobExecutionException;
-import com.bachlinh.order.entity.repository.RepositoryManager;
+import com.bachlinh.order.repository.RepositoryManager;
 
 import java.time.LocalDateTime;
 

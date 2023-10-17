@@ -3,12 +3,13 @@ package com.bachlinh.order.web.configuration;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.core.scanner.ApplicationScanner;
-import com.bachlinh.order.handler.interceptor.internal.DefaultWebInterceptorChain;
-import com.bachlinh.order.handler.interceptor.spi.WebInterceptor;
-import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
+import com.bachlinh.order.handler.interceptor.WebInterceptor;
+import com.bachlinh.order.handler.interceptor.WebInterceptorChain;
 import com.bachlinh.order.web.common.interceptor.InterceptorInitializer;
 
 import java.util.Objects;
+
+import static com.bachlinh.order.handler.interceptor.WebInterceptorChain.getDefault;
 
 public abstract class WebInterceptorConfigure extends EntityModuleConfigure {
 
@@ -26,7 +27,7 @@ public abstract class WebInterceptorConfigure extends EntityModuleConfigure {
                 .map(initializer::getObject)
                 .filter(Objects::nonNull)
                 .toList();
-        var chain = new DefaultWebInterceptorChain(resolver, environment);
+        var chain = getDefault(resolver, environment);
         interceptors.forEach(chain::registerInterceptor);
         return chain;
     }

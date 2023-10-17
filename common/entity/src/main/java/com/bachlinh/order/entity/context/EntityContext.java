@@ -1,6 +1,5 @@
 package com.bachlinh.order.entity.context;
 
-import com.bachlinh.order.entity.EntityTrigger;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.TableMetadataHolder;
 import com.bachlinh.order.entity.index.spi.SearchManager;
@@ -30,8 +29,6 @@ public interface EntityContext extends IdContext, SearchManager, TableMetadataHo
      * @return collection of entity validators
      */
     Collection<EntityValidator<?>> getValidators();
-
-    Collection<EntityTrigger<?>> getTrigger();
 
     Collection<String> search(String keyword);
 

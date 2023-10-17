@@ -36,11 +36,11 @@ class DtoProxyClassWriter implements ClassWriter {
         try (var writer = source.openWriter()) {
             writePackage(writer, parser.getPackage());
             writeImport(writer, parser.getImports());
-            writeClass(writer, parser.getClassName(), parser.getField());
-            writeField(writer, parser.getField());
+            writeClass(writer, parser.getClassName(), parser.getFields().get(0));
+            writeField(writer, parser.getFields().get(0));
             writeConstructor(writer, parser.getClassName());
             writeMethod(writer, element);
-            writeWrapMethod(writer, parser.getClassName(), parser.getField());
+            writeWrapMethod(writer, parser.getClassName(), parser.getFields().get(0));
             writeProxyForTypeMethod(writer, parser.getClassName());
             writeFactoryMethod(writer, parser.getClassName());
             writer.write('}');

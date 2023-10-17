@@ -8,7 +8,7 @@ import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.ProvinceRepository;
+import com.bachlinh.order.web.repository.spi.ProvinceRepository;
 import com.bachlinh.order.web.dto.form.common.ProvinceSearchForm;
 import com.bachlinh.order.web.dto.resp.ProvinceResp;
 import com.bachlinh.order.web.service.business.ProvinceSearchService;

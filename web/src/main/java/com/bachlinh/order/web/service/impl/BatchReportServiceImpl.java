@@ -7,7 +7,7 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.BatchReportRepository;
+import com.bachlinh.order.web.repository.spi.BatchReportRepository;
 import com.bachlinh.order.web.dto.resp.BatchReportResp;
 import com.bachlinh.order.web.service.common.BatchReportService;
 

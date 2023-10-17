@@ -10,8 +10,8 @@ import com.bachlinh.order.core.environment.Environment;
 import com.bachlinh.order.handler.controller.Controller;
 import com.bachlinh.order.handler.controller.ControllerContext;
 import com.bachlinh.order.handler.controller.ControllerContextHolder;
-import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
-import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.handler.interceptor.AbstractInterceptor;
+import com.bachlinh.order.web.repository.spi.MessageSettingRepository;
 import com.bachlinh.order.security.auth.spi.TemporaryTokenGenerator;
 import org.springframework.scheduling.support.CronTrigger;
 

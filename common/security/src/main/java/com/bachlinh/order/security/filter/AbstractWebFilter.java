@@ -1,7 +1,7 @@
 package com.bachlinh.order.security.filter;
 
 import com.bachlinh.order.core.container.DependenciesResolver;
-import com.bachlinh.order.entity.repository.RepositoryManager;
+import com.bachlinh.order.repository.RepositoryManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

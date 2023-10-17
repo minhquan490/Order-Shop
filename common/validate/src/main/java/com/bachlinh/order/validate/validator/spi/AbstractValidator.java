@@ -4,7 +4,7 @@ import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.EntityValidator;
 import com.bachlinh.order.entity.ValidateResult;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.repository.RepositoryManager;
+import com.bachlinh.order.repository.RepositoryManager;
 
 /**
  * Base validator for all entities validator use in this project.

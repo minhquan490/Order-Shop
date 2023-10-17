@@ -6,8 +6,10 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import javax.lang.model.element.Element;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 class EntityProxyClassMetadataParser implements ClassMetadataParser {
@@ -54,10 +56,10 @@ class EntityProxyClassMetadataParser implements ClassMetadataParser {
     }
 
     @Override
-    public FieldMeta getField() {
+    public List<FieldMeta> getFields() {
         if (cachedField == null) {
             cachedField = new FieldMeta(this.classElement.getSimpleName(), "delegate");
         }
-        return cachedField;
+        return Collections.singletonList(cachedField);
     }
 }

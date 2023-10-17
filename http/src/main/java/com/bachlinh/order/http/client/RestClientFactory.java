@@ -1,7 +1,5 @@
 package com.bachlinh.order.http.client;
 
-import com.bachlinh.order.http.client.internal.DefaultRestClientFactory;
-
 public interface RestClientFactory {
 
     /**
@@ -11,10 +9,6 @@ public interface RestClientFactory {
      * @throws Exception If problem occur when building {@code RestTemplate}.
      */
     RestClient create() throws Exception;
-
-    static Builder builder() {
-        return DefaultRestClientFactory.builder();
-    }
 
     /**
      * The builder for create {@link RestClientFactory}, the factory will pick up options

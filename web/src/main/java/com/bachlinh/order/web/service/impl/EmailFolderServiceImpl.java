@@ -8,7 +8,7 @@ import com.bachlinh.order.entity.model.Customer;
 import com.bachlinh.order.entity.model.EmailFolders;
 import com.bachlinh.order.handler.service.AbstractService;
 import com.bachlinh.order.handler.service.ServiceBase;
-import com.bachlinh.order.repository.EmailFoldersRepository;
+import com.bachlinh.order.web.repository.spi.EmailFoldersRepository;
 import com.bachlinh.order.web.dto.form.common.EmailFolderCreateForm;
 import com.bachlinh.order.web.dto.form.common.EmailFolderUpdateForm;
 import com.bachlinh.order.web.dto.resp.EmailFolderInfoResp;

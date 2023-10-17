@@ -12,11 +12,4 @@ public @interface ApplyOn {
     Class<?> entity() default Void.class;
 
     int order() default Integer.MAX_VALUE;
-
-    ApplyType type() default ApplyType.SINGULAR;
-
-    public enum ApplyType {
-        SINGULAR,
-        ALL
-    }
 }

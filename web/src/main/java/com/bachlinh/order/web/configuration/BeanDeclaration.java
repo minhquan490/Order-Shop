@@ -8,11 +8,10 @@ import jakarta.persistence.EntityManagerFactory;
 
 import com.bachlinh.order.batch.boot.JobCenterBooster;
 import com.bachlinh.order.batch.job.JobManager;
-import com.bachlinh.order.batch.job.internal.SimpleJobManagerBuilder;
 import com.bachlinh.order.core.annotation.DtoValidationRule;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
-import com.bachlinh.order.core.concurrent.ThreadPoolOption;
-import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOption;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOptionHolder;
 import com.bachlinh.order.core.concurrent.support.DefaultThreadPoolManager;
 import com.bachlinh.order.core.container.ContainerWrapper;
 import com.bachlinh.order.core.container.DependenciesContainerResolver;
@@ -22,21 +21,16 @@ import com.bachlinh.order.dto.DtoMapper;
 import com.bachlinh.order.entity.EntityFactory;
 import com.bachlinh.order.entity.EntityMapperFactory;
 import com.bachlinh.order.entity.EntityProxyFactory;
-import com.bachlinh.order.entity.repository.RepositoryManager;
-import com.bachlinh.order.entity.repository.cache.CacheManager;
-import com.bachlinh.order.entity.repository.cache.implementor.EhHeapCacheManager;
-import com.bachlinh.order.entity.repository.query.SqlBuilder;
-import com.bachlinh.order.entity.repository.query.SqlBuilderFactory;
 import com.bachlinh.order.entity.transaction.shaded.JpaTransactionManager;
 import com.bachlinh.order.entity.transaction.spi.TransactionManager;
 import com.bachlinh.order.handler.controller.ControllerManager;
-import com.bachlinh.order.handler.interceptor.spi.WebInterceptorChain;
+import com.bachlinh.order.handler.interceptor.WebInterceptorChain;
 import com.bachlinh.order.handler.service.DefaultServiceManager;
 import com.bachlinh.order.handler.service.ServiceManager;
 import com.bachlinh.order.http.NativeResponse;
+import com.bachlinh.order.http.client.AbstractRestClientFactory;
 import com.bachlinh.order.http.client.RestClient;
 import com.bachlinh.order.http.client.RestClientFactory;
-import com.bachlinh.order.http.client.internal.DefaultRestClientFactory;
 import com.bachlinh.order.http.server.channel.security.FilterChainAdapter;
 import com.bachlinh.order.http.server.channel.stomp.NettyConnectionManager;
 import com.bachlinh.order.http.server.channel.stomp.NettySocketConnectionHolder;
@@ -48,20 +42,26 @@ import com.bachlinh.order.http.translator.spi.ExceptionTranslator;
 import com.bachlinh.order.mail.oauth2.CredentialAdapter;
 import com.bachlinh.order.mail.service.GmailSendingService;
 import com.bachlinh.order.mail.template.EmailTemplateProcessor;
+import com.bachlinh.order.repository.RepositoryManager;
+import com.bachlinh.order.repository.cache.CacheManager;
+import com.bachlinh.order.repository.cache.implementor.EhHeapCacheManager;
+import com.bachlinh.order.repository.query.SqlBuilder;
+import com.bachlinh.order.repository.query.SqlBuilderFactory;
 import com.bachlinh.order.security.auth.spi.TokenManager;
-import com.bachlinh.order.security.filter.AuthenticationFilter;
-import com.bachlinh.order.security.filter.LoggingRequestFilter;
-import com.bachlinh.order.security.handler.AccessDeniedHandler;
 import com.bachlinh.order.security.handler.UnAuthorizationHandler;
+import com.bachlinh.order.trigger.EntityTriggerManager;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.RuleFactory;
 import com.bachlinh.order.validate.rule.RuleManager;
 import com.bachlinh.order.validate.rule.ValidationRule;
+import com.bachlinh.order.web.common.batch.RepositoryJobManagerBuilder;
 import com.bachlinh.order.web.common.entity.DefaultEntityFactory;
 import com.bachlinh.order.web.common.entity.DefaultEntityMapperFactory;
 import com.bachlinh.order.web.common.listener.Netty2FrameListenerFactory;
 import com.bachlinh.order.web.common.listener.Netty3FrameListenerFactory;
 import com.bachlinh.order.web.common.listener.NettyWebSocketFrameListenerFactory;
+import com.bachlinh.order.web.common.security.AuthenticationFilter;
+import com.bachlinh.order.web.common.security.LoggingRequestFilter;
 import com.bachlinh.order.web.common.servlet.ServletRouter;
 
 import java.io.IOException;
@@ -102,7 +102,7 @@ public class BeanDeclaration extends SecurityModuleConfigure {
     @Bean
     public JobManager jobManager(DependenciesResolver resolver, @Value("${active.profile}") String profile) {
         JobCenterBooster booster = new JobCenterBooster(resolver, profile);
-        JobManager.Builder builder = new SimpleJobManagerBuilder();
+        JobManager.Builder builder = new RepositoryJobManagerBuilder();
         JobManager jobManager = builder.dependenciesResolver(resolver)
                 .profile(profile)
                 .build(booster);
@@ -200,7 +200,7 @@ public class BeanDeclaration extends SecurityModuleConfigure {
 
     @Bean
     public RestClient restTemplate(@Value("${server.ssl.certificate}") String certPath, @Value("${server.ssl.certificate-private-key}") String keyPath) throws Exception {
-        RestClientFactory.Builder builder = DefaultRestClientFactory.builder();
+        RestClientFactory.Builder builder = AbstractRestClientFactory.javaBaseRestClientBuilder();
         return builder.pemCertificatePath(certPath)
                 .pemCertificateKeyPath(keyPath)
                 .build()
@@ -260,12 +260,6 @@ public class BeanDeclaration extends SecurityModuleConfigure {
     @Bean
     public FilterChainAdapter filterChainAdapter(DependenciesContainerResolver containerResolver) {
         return super.filterChainAdapter(containerResolver);
-    }
-
-    @Override
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler() {
-        return super.accessDeniedHandler();
     }
 
     @Bean
@@ -373,5 +367,11 @@ public class BeanDeclaration extends SecurityModuleConfigure {
     @Bean
     public DtoMapper dtoMapper(DependenciesResolver resolver) {
         return DtoMapper.defaultInstance(new ApplicationScanner(), resolver, getEnvironment());
+    }
+
+    @Override
+    @Bean
+    public EntityTriggerManager entityTriggerManager(DependenciesResolver dependenciesResolver) {
+        return super.entityTriggerManager(dependenciesResolver);
     }
 }

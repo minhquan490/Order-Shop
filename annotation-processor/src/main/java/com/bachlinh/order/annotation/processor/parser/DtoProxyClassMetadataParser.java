@@ -1,11 +1,12 @@
 package com.bachlinh.order.annotation.processor.parser;
 
-import com.bachlinh.order.annotation.processor.meta.FieldMeta;
-import com.bachlinh.order.core.annotation.ActiveReflection;
-import com.bachlinh.order.core.annotation.DtoProxy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.bachlinh.order.annotation.processor.meta.FieldMeta;
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.core.annotation.DtoProxy;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -13,6 +14,8 @@ import javax.lang.model.util.Elements;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 class DtoProxyClassMetadataParser implements ClassMetadataParser {
     private final Element element;
@@ -49,9 +52,9 @@ class DtoProxyClassMetadataParser implements ClassMetadataParser {
         var template = "{0}.{1}{2}";
         return MessageFormat.format(template, getPackage(), element.getSimpleName().toString(), "Proxy");
     }
-
+    
     @Override
-    public FieldMeta getField() {
-        return new FieldMeta(this.delegateType.getSimpleName(), "delegate");
+    public List<FieldMeta> getFields() {
+        return Collections.singletonList(new FieldMeta(this.delegateType.getSimpleName(), "delegate"));
     }
 }

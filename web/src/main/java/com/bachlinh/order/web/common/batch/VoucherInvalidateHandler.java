@@ -8,11 +8,11 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Voucher_;
-import com.bachlinh.order.entity.repository.query.Join;
-import com.bachlinh.order.entity.repository.query.Operation;
-import com.bachlinh.order.entity.repository.query.Where;
-import com.bachlinh.order.repository.CustomerRepository;
-import com.bachlinh.order.repository.VoucherRepository;
+import com.bachlinh.order.repository.query.Join;
+import com.bachlinh.order.repository.query.Operation;
+import com.bachlinh.order.repository.query.Where;
+import com.bachlinh.order.web.repository.spi.CustomerRepository;
+import com.bachlinh.order.web.repository.spi.VoucherRepository;
 
 import java.sql.Timestamp;
 import java.time.Instant;

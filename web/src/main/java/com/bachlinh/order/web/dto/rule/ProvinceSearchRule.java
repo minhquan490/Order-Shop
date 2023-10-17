@@ -5,7 +5,7 @@ import com.bachlinh.order.core.annotation.DtoValidationRule;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.MessageSetting;
 import com.bachlinh.order.core.environment.Environment;
-import com.bachlinh.order.repository.MessageSettingRepository;
+import com.bachlinh.order.web.repository.spi.MessageSettingRepository;
 import com.bachlinh.order.core.utils.RuntimeUtils;
 import com.bachlinh.order.validate.base.ValidatedDto;
 import com.bachlinh.order.validate.rule.AbstractRule;

@@ -6,8 +6,8 @@ import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.core.annotation.BatchJob;
 import com.bachlinh.order.core.container.DependenciesResolver;
 import com.bachlinh.order.entity.model.Email;
-import com.bachlinh.order.repository.EmailRepository;
-import com.bachlinh.order.repository.EmailTrashRepository;
+import com.bachlinh.order.web.repository.spi.EmailRepository;
+import com.bachlinh.order.web.repository.spi.EmailTrashRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

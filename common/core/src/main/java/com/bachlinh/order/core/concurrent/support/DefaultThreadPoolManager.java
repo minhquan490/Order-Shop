@@ -3,8 +3,8 @@ package com.bachlinh.order.core.concurrent.support;
 import com.bachlinh.order.core.concurrent.ExecutorHolder;
 import com.bachlinh.order.core.concurrent.RunnableType;
 import com.bachlinh.order.core.concurrent.ThreadPoolManager;
-import com.bachlinh.order.core.concurrent.ThreadPoolOption;
-import com.bachlinh.order.core.concurrent.ThreadPoolOptionHolder;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOption;
+import com.bachlinh.order.core.concurrent.option.ThreadPoolOptionHolder;
 
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.TaskScheduler;

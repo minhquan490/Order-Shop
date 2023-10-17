@@ -1,21 +1,20 @@
 package com.bachlinh.order.entity.model;
 
-import com.bachlinh.order.core.annotation.ActiveReflection;
-import com.bachlinh.order.core.annotation.Formula;
-import com.bachlinh.order.entity.EntityFactory;
-import com.bachlinh.order.entity.context.FieldUpdated;
-import com.bachlinh.order.entity.formula.CommonFieldSelectFormula;
-import com.bachlinh.order.entity.formula.IdFieldFormula;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Transient;
-import org.springframework.lang.NonNull;
+
+import com.bachlinh.order.core.annotation.ActiveReflection;
+import com.bachlinh.order.entity.EntityFactory;
+import com.bachlinh.order.entity.context.FieldUpdated;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+
+import org.springframework.lang.NonNull;
 
 /**
  * Abstract entity, super class of all entity object available in system.
@@ -24,7 +23,6 @@ import java.util.Objects;
  * @author Hoang Minh Quan.
  */
 @MappedSuperclass
-@Formula(processors = {CommonFieldSelectFormula.class, IdFieldFormula.class})
 public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
 
     @Column(name = "CREATED_BY", updatable = false)
@@ -149,6 +147,7 @@ public abstract non-sealed class AbstractEntity<T> implements BaseEntity<T> {
         return this.updatedFields;
     }
 
+    @Transient
     public Boolean getIsNew() {
         return this.isNew;
     }

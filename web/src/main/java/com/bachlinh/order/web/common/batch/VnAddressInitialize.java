@@ -20,9 +20,9 @@ import com.bachlinh.order.entity.model.District;
 import com.bachlinh.order.entity.model.Province;
 import com.bachlinh.order.entity.model.VnAddress;
 import com.bachlinh.order.entity.model.Ward;
-import com.bachlinh.order.repository.DistrictRepository;
-import com.bachlinh.order.repository.ProvinceRepository;
-import com.bachlinh.order.repository.WardRepository;
+import com.bachlinh.order.web.repository.spi.DistrictRepository;
+import com.bachlinh.order.web.repository.spi.ProvinceRepository;
+import com.bachlinh.order.web.repository.spi.WardRepository;
 
 @BatchJob(name = "vnAddressInitialize")
 public class VnAddressInitialize extends AbstractJob {
@@ -179,8 +179,8 @@ public class VnAddressInitialize extends AbstractJob {
         int high = addresses.size() - 1;
         while (low <= high) {
             int mid = (low + high) >>> 1;
-            VnAddress<?> province = addresses.get(mid);
-            int cmp = province.getCode() - code;
+            VnAddress<?> address = addresses.get(mid);
+            int cmp = address.getCode() - code;
             if (cmp < 0) {
                 low = mid + 1;
             } else if (cmp > 0) {

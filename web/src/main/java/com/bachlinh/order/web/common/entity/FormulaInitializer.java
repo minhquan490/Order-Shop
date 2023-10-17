@@ -1,7 +1,7 @@
 package com.bachlinh.order.web.common.entity;
 
 import com.bachlinh.order.core.alloc.Initializer;
-import com.bachlinh.order.entity.formula.processor.FormulaProcessor;
+import com.bachlinh.order.repository.formula.processor.FormulaProcessor;
 import com.bachlinh.order.core.exception.system.common.CriticalException;
 import com.bachlinh.order.core.utils.UnsafeUtils;
 

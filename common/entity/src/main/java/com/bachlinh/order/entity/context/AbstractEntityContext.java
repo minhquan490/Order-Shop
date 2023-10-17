@@ -16,13 +16,9 @@ import com.bachlinh.order.core.exception.system.common.NoTransactionException;
 import com.bachlinh.order.entity.index.spi.SearchManager;
 import com.bachlinh.order.entity.model.AbstractEntity;
 import com.bachlinh.order.entity.model.BaseEntity;
-import com.bachlinh.order.entity.repository.AbstractRepository;
-import com.bachlinh.order.entity.repository.RepositoryManager;
 
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -152,6 +148,8 @@ public abstract class AbstractEntityContext implements EntityContext {
 
     protected abstract Initializer<BaseEntity<?>> getEntityInitializer();
 
+    protected abstract EntityIdProvider getEntityIdProvider(DependenciesResolver resolver, Class<?> entityType, Class<?> idType);
+
     private String resolveTableName(Class<?> entityType) {
         if (entityType.isAnnotationPresent(Entity.class)) {
             Table table = entityType.getAnnotation(Table.class);
@@ -198,24 +196,7 @@ public abstract class AbstractEntityContext implements EntityContext {
     }
 
     private int configLastId() throws ClassNotFoundException {
-        String repositoryPattern = "com.bachlinh.order.repository.{0}Repository";
-        String repositoryName = MessageFormat.format(repositoryPattern, entityType.getSimpleName());
-        Class<?> repositoryClass = Class.forName(repositoryName);
-        RepositoryManager repositoryManager = getResolver().resolveDependencies(RepositoryManager.class);
-        AbstractRepository<?, ?> repository = (AbstractRepository<?, ?>) repositoryManager.getRepository(repositoryClass);
-        String sql = MessageFormat.format("SELECT MAX(ID) FROM {0}", entityType.getAnnotation(Table.class).name());
-        List<?> result = repository.getResultList(sql, Collections.emptyMap(), idType);
-        if (result.isEmpty()) {
-            return 0;
-        }
-        if (result.get(0) instanceof String idString) {
-            String suffixId = idString.split("-")[1];
-            return Integer.parseInt(suffixId);
-        }
-        if (result.get(0) instanceof Integer idInt) {
-            return idInt;
-        }
-        return 0;
+        return getEntityIdProvider(getResolver(), entityType, idType).getLastId();
     }
 
     private Class<?> queryIdType(Class<?> entityType) {

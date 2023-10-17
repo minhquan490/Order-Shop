@@ -5,7 +5,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import com.bachlinh.order.core.annotation.ActiveReflection;
 import com.bachlinh.order.http.NativeRequest;
 import com.bachlinh.order.http.NativeResponse;
-import com.bachlinh.order.handler.interceptor.spi.AbstractInterceptor;
+import com.bachlinh.order.handler.interceptor.AbstractInterceptor;
 
 import java.text.MessageFormat;
 

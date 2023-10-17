@@ -11,6 +11,7 @@ version = "${libs.versions.mainProject.get()}"
 dependencies {
     implementation project(":common:core")
     implementation project(":common:entity")
+    implementation project(":common:model")
     implementation project(":repository")
     implementation project(":http")
 

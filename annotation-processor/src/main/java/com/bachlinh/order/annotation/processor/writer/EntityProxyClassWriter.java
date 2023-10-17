@@ -27,11 +27,11 @@ class EntityProxyClassWriter implements ClassWriter {
             writePackage(writer, parser.getPackage());
             writeImport(writer, parser.getImports());
             writeClass(writer, parser.getClassName());
-            writeField(writer, parser.getField());
+            writeField(writer, parser.getFields().get(0));
             writeConstructor(writer, parser.getClassName());
-            writeMethod(writer, parser.getField(), element);
-            writeSetter(writer, parser.getField());
-            writeGetWrappedObjectType(writer, parser.getField());
+            writeMethod(writer, parser.getFields().get(0), element);
+            writeSetter(writer, parser.getFields().get(0));
+            writeGetWrappedObjectType(writer, parser.getFields().get(0));
             writer.write('}');
         }
     }
